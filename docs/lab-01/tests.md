@@ -12,14 +12,14 @@ All test files live under server/tests/lab-01/ and client/tests/lab-01/.
 
 Paste your passing terminal output / screenshot below.
 
-# 1
+# Test 1
 ![alt text](image.png)
 
-# 2
+# Test 2
 ![alt text](image-1.png)
 ![alt text](image-2.png)
 
-# 3 ,   4 and 5
+# Test 3 ,   4 and 5
 ![alt text](image-3.png)
 
 
