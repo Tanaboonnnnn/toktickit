@@ -37,6 +37,7 @@
 > ขอบคุณที่สละเวลามารีวิวงานครับ ผมตรวจสอบเรียบร้อยและ merge เข้า `lab1-staging` แล้วครับ
 
 ## Pull Requests I Reviewed for My Partner
+https://github.com/L0u1sss/TokTickIT/pull/6
 
 ### My Review Comment
 
