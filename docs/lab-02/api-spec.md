@@ -125,8 +125,7 @@ None.
 
 Ordering:
 
-1. `name asc`
-2. `id asc`
+1. `id asc`
 
 Example:
 
@@ -497,7 +496,7 @@ The API returns the same successful empty page shape for:
 
 The client distinguishes the states using one additional unrestricted request under the same Requester context:
 
-`GET /api/tickets?page=1&pageSize=1`
+`GET /api/tickets?page=1&pageSize=10`
 
 - unrestricted `totalItems > 0` => No Results;
 - unrestricted `totalItems = 0` => Empty.

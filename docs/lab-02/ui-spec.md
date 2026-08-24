@@ -414,7 +414,7 @@ High priority does not use ordinary error styling because priority is not an err
 - message explains that current restrictions found no Tickets;
 - Clear search/filters action is available.
 
-When a restricted query returns zero items, issue one additional unrestricted first-page request under the same Requester context.
+When a restricted query returns zero items, issue one additional unrestricted request under the same Requester context: `GET /api/tickets?page=1&pageSize=10`.
 
 - unrestricted `totalItems > 0` => No Results;
 - unrestricted `totalItems = 0` => Empty.

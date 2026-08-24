@@ -309,7 +309,7 @@ Lab 2 intentionally focuses on the Requester workflow and reusable UI foundation
 
   **No Results:** the Requester owns at least one Ticket but the current search/filter combination matches zero Tickets.
 
-  When the restricted result contains zero items, the UI determines the correct state using one additional first-page request under the same Requester context without search/filter restrictions.
+  When the restricted result contains zero items, the UI determines the correct state using one additional request under the same Requester context without search/filter restrictions: `GET /api/tickets?page=1&pageSize=10`.
 
   If that unrestricted request reports `totalItems > 0`, the state is No Results; otherwise the state is Empty.
 
@@ -894,7 +894,7 @@ Unexpected errors never expose:
   Given an unexpected backend failure on a JSON endpoint, when the response is returned, then the endpoint uses the documented safe HTTP `500` error envelope and includes no stack trace, filesystem path, credentials, SQL, Prisma detail, or private database information.
 
 - **AC-38 — Reference-data availability:**  
-  Given Create Ticket opens for an active Development Requester, when Category and Related System data loads successfully, then only active choices appear in deterministic order. If either required reference list is empty, the UI explains that Ticket creation is unavailable, prevents submission, and retains entered form data.
+  Given Create Ticket opens for an active Development Requester, when Category and Related System data loads successfully, then only active choices appear: Categories in `id asc` order, and Related Systems in `name asc` then `id asc` order. If either required reference list is empty, the UI explains that Ticket creation is unavailable, prevents submission, and retains entered form data.
 
 ---
 
@@ -954,7 +954,7 @@ The following are student engineering decisions made to resolve ambiguities in t
 
 - Centralize Requester context so Lab 3 can later replace Development Requester selection/header input with authenticated server-derived identity without changing Ticket/Attachment ownership rules.
 
-- Preserve the existing Lab 1 `GET /api/categories` success-shape convention where practical and use a consistent simple list shape for new reference-data endpoints while standardizing safe error responses.
+- Preserve the existing Lab 1 `GET /api/categories` success shape and `id asc` ordering, and use a consistent simple list shape for new reference-data endpoints while standardizing safe error responses.
 
 - Add `active` and `updatedAt` to Category through a new additive migration rather than rewriting Lab 1 migration history.
 
