@@ -239,12 +239,19 @@ If either required active list is empty:
 - Ticket submission is blocked; and
 - already entered editable values remain.
 
+If either reference-data request fails:
+
+- show a safe failure message for the failed Category or Related System request;
+- provide Retry for the failed resource;
+- preserve any successfully loaded reference list and all entered editable values; and
+- keep Ticket submission blocked until both required lists are available.
+
 ### 6.4 Attachment Selection
 
 The file-selection area states:
 
 - allowed types: JPG/JPEG, PNG, WEBP, PDF;
-- maximum `5 MB` per file; and
+- maximum `5 MB` per file as stated by Lab 2, interpreted by the team as `5 MiB (5,242,880 bytes)` for implementation/testing; and
 - maximum five active Attachments per Ticket.
 
 Selected files show:
@@ -283,7 +290,8 @@ Invalid file feedback appears next to the file and does not remove otherwise val
 
 - primary action reads `Creating ticket...`;
 - duplicate activation is disabled;
-- the same logical `clientRequestId` is retained while the logical create attempt is unresolved.
+- the same logical `clientRequestId` is retained while the logical create attempt is unresolved;
+- if the outcome becomes ambiguous because the response is lost or the network fails, freeze the Ticket fields and retry only the same payload with the same `clientRequestId` until the outcome is resolved.
 
 **Success**
 
@@ -310,7 +318,9 @@ After an ambiguous/lost Attachment-upload response, reload Attachment metadata b
 - show safe failure text;
 - retain editable Ticket values and eligible selected files while mounted;
 - offer Retry where appropriate;
-- do not create a new logical request ID merely because the outcome was uncertain.
+- do not create a new logical request ID merely because the outcome was uncertain;
+- while an ambiguous create outcome is unresolved, keep the Ticket fields frozen and retry only the same payload with the same `clientRequestId`;
+- after a definitive failure known to have created no Ticket, unchanged data may retry with the same ID, but editing Ticket data starts a new logical submission and generates a new UUID.
 
 ---
 
@@ -485,7 +495,18 @@ Do not render:
 - safe error message;
 - Retry/reload action where appropriate.
 
-### 8.3 Attachment States
+### 8.3 Attachment Upload on Ticket Detail
+
+Ticket Detail allows the selected Development Requester to add Attachments to the existing owned Ticket.
+
+- provide a file chooser and explicit Upload action;
+- apply the same type, size, validation, and safe-failure rules as Create Ticket;
+- show Selected and Uploading states and prevent duplicate upload activation while busy;
+- when five active Attachments exist, disable new upload selection/action and explain the active limit;
+- after a successful soft removal reduces the active count below five, enable upload again;
+- after successful upload or removal, refresh Attachment metadata and parent Ticket data so Attachment state and Last Updated reflect the server result.
+
+### 8.4 Attachment States
 
 | State | Required presentation/actions |
 |---|---|

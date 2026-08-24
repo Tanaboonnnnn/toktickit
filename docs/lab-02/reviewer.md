@@ -1,9 +1,11 @@
 # Lab 2 Peer Review Evidence
 
+This file is a structure for real evidence. Replace bracketed placeholders only after the corresponding review occurs; do not infer approval from silence or from automated checks.
+
 ## Author and review context
 
 - Author name: `[Add actual author name]`
-- Student ID: `[Add actual student ID]`
+- Student ID: `[Add actual student ID — retained because Lab 1 course evidence uses student IDs]`
 - GitHub username: `[Add actual GitHub username]`
 - Feature branch: `feature/5-lab2-engineering-contract`
 - Issue link: `[Add GitHub Issue link]`
@@ -14,14 +16,18 @@
 
 ### Review 1
 
-- Reviewer name: `[Add actual reviewer name]`
+- Reviewer name: `[Add after a real reviewer participates]`
 - Reviewer student ID, if required: `[Add actual value]`
 - Reviewer GitHub username: `[Add actual value]`
 - Review/PR link: `[Add direct link]`
 - Review date: `[Add actual date]`
-- Approval status: `[Pending / Changes requested / Approved]`
-- Comments received: `[Add real review comments]`
-- Student response: `[Add actual response and resulting change]`
+- Approval status: `[Pending / Changes requested / Approved — record actual state]`
+- Comments received: `[Paste or faithfully summarize real comments with links]`
+- Student response: `[Record the actual response and resulting change, if any]`
+
+### Additional reviews
+
+Duplicate the Review 1 fields only when another real review occurs.
 
 ## Review-resolution log
 
@@ -34,7 +40,7 @@
 - Final reviewer verdict: `[Not yet reviewed]`
 - Approval link: `[Add only after approval]`
 - Passing checks link: `[Add only after checks run]`
-- Merge status: `[Add actual merge status]`
+- Merge status: `[Not requested in this Issue]`
 
 ## Reviews given to a partner
 
@@ -44,4 +50,4 @@
 
 ## Evidence integrity note
 
-`[Record only real review evidence. Do not infer or fabricate review, approval, response, test, or merge evidence.]`
+At specification time, no reviewer identity, comment, response, approval, partner review, or PR evidence has been recorded for Lab 2. These placeholders deliberately make that absence visible.

@@ -227,6 +227,8 @@ Lab 2 intentionally focuses on the Requester workflow and reusable UI foundation
 
   Concurrent identical requests must resolve the database uniqueness race without creating duplicate Tickets.
 
+  A `clientRequestId` is bound to one normalized logical Ticket payload. If the create outcome is ambiguous because the response is lost or the network fails, the UI keeps that payload read-only and retries only the same payload with the same `clientRequestId` until the outcome is resolved. After a definitive failed create that created no Ticket, editing the payload starts a new logical submission and therefore uses a new UUID.
+
 - **BR-12:**  
   Ticket Numbers use the human-readable format:
 
@@ -326,7 +328,7 @@ Lab 2 intentionally focuses on the Requester workflow and reusable UI foundation
   The backend also verifies the expected file signature for the permitted file type so that a renamed unsupported file is not accepted only because its extension or declared MIME type appears valid.
 
 - **BR-20:**  
-  An Attachment may contain at most 5 MB (`5,242,880` bytes). Empty files are invalid.
+  Lab 2 states a maximum of 5 MB per Attachment. For implementation and boundary testing, the team interprets this limit as 5 MiB (`5,242,880` bytes) inclusive. Empty files are invalid.
 
 - **BR-21:**  
   A Ticket may contain at most five active Attachments.
@@ -396,6 +398,8 @@ Lab 2 intentionally focuses on the Requester workflow and reusable UI foundation
 
 - **BR-26:**  
   Creating or soft-removing an Attachment updates the parent Ticket's `updatedAt` in the same successful database operation so My Tickets Last Updated and default sorting reflect Attachment activity.
+
+  After a successful Attachment upload or removal, the client refreshes the parent Ticket and Attachment metadata before presenting Last Updated as current because the mutation response itself contains Attachment metadata only.
 
   Reading Ticket data or downloading an Attachment does not update `updatedAt`.
 
@@ -846,13 +850,13 @@ Unexpected errors never expose:
   Given a Ticket owned by Requester B, when Requester A requests that Ticket directly, then the API returns the same non-disclosing HTTP `404` shape used for a missing Ticket, exposes no Ticket information, and the UI presents a safe unavailable state.
 
 - **AC-22 — Valid Attachment upload:**  
-  Given an owned Ticket with fewer than five active Attachments and a valid non-empty JPG/JPEG, PNG, WEBP, or PDF no larger than 5 MB, when the file is uploaded, then active Attachment metadata is created and returned.
+  Given an owned Ticket with fewer than five active Attachments and a valid non-empty JPG/JPEG, PNG, WEBP, or PDF no larger than the team-interpreted 5 MiB (`5,242,880` bytes) limit, when the file is uploaded, then active Attachment metadata is created and returned.
 
 - **AC-23 — Unsupported Attachment:**  
   Given an unsupported file, an extension/MIME mismatch, or permitted-looking metadata whose bytes do not match the expected file signature, when upload is attempted, then no valid Attachment metadata/file is retained and the API returns HTTP `415` with a safe file error.
 
 - **AC-24 — Oversized Attachment:**  
-  Given a file larger than `5,242,880` bytes, when upload is attempted, then no valid Attachment metadata/file is retained and the API returns HTTP `413`.
+  Given a file larger than the team-interpreted 5 MiB limit (`5,242,880` bytes), when upload is attempted, then no valid Attachment metadata/file is retained and the API returns HTTP `413`.
 
 - **AC-25 — Active Attachment limit:**  
   Given a Ticket already has five active Attachments, when another upload is attempted, then the API returns HTTP `409` and creates no additional active Attachment. After one existing Attachment is successfully soft-removed, one replacement Attachment may be uploaded.
@@ -894,7 +898,7 @@ Unexpected errors never expose:
   Given an unexpected backend failure on a JSON endpoint, when the response is returned, then the endpoint uses the documented safe HTTP `500` error envelope and includes no stack trace, filesystem path, credentials, SQL, Prisma detail, or private database information.
 
 - **AC-38 — Reference-data availability:**  
-  Given Create Ticket opens for an active Development Requester, when Category and Related System data loads successfully, then only active choices appear: Categories in `id asc` order, and Related Systems in `name asc` then `id asc` order. If either required reference list is empty, the UI explains that Ticket creation is unavailable, prevents submission, and retains entered form data.
+  Given Create Ticket opens for an active Development Requester, when Category and Related System data loads successfully, then only active choices appear: Categories in `id asc` order, and Related Systems in `name asc` then `id asc` order. If either required reference list is empty, the UI explains that Ticket creation is unavailable, prevents submission, and retains entered form data. If either reference request fails, the UI shows a safe failure for that resource with Retry, retains any successfully loaded reference list and entered form data, and keeps submission blocked until both required lists are available.
 
 ---
 

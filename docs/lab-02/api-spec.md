@@ -736,7 +736,7 @@ Message identifies the permitted file types safely.
 
 Message:
 
-`Attachment must not exceed 5 MB`
+`Attachment must not exceed 5 MiB (5,242,880 bytes)`
 
 **Active Attachment limit**
 
@@ -987,6 +987,8 @@ Required:
 Metadata removal state and parent Ticket `updatedAt` are changed atomically as part of the successful database operation.
 
 Physical-byte deletion may be attempted after metadata state changes, but access denial depends on `removedAt`, not successful file deletion.
+
+The removal response contains Attachment metadata only. Because successful removal also advances the parent Ticket `updatedAt`, the client refreshes parent Ticket/Attachment data before presenting Last Updated as current.
 
 ### Repeated Removal
 
