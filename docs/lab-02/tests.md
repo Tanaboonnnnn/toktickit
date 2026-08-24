@@ -118,7 +118,7 @@ Planned count: Unit 8; API / Integration 20; UI Component 10; UI Style 4; Respon
 | AC-34 | STYLE-01, STYLE-03, RESP-02 |
 | AC-35 | STYLE-01, STYLE-03, RESP-03 |
 | AC-36 | UI-10, STYLE-02, E2E-07 |
-| AC-37 | UT-08, API-06, API-18, API-20, UI-06, E2E-07 |
+| AC-37 | UT-08, API-06, API-18, API-20, UI-03, UI-06, E2E-07 |
 | AC-38 | API-01, UI-03 |
 
 Every Acceptance Criterion maps to at least one planned automated test. Requirement and Business-Rule IDs in the Planned Tests table provide forward traceability from the engineering contract to planned evidence.
