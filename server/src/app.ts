@@ -1,6 +1,13 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { getPrisma } from "./prisma.js";
+import { safeErrorBody } from "./errors.js";
+import {
+  DEVELOPMENT_REQUESTER_HEADER,
+  resolveRequesterContext,
+} from "./requester-context.js";
+import { parseTicketCreateBody } from "./ticket-contract.js";
+import { createTicket } from "./ticket-service.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -11,6 +18,24 @@ export const app = express();
 
 app.use(cors());          // already wired: lets the Vite dev server call this API
 app.use(express.json());
+
+app.post("/api/tickets", async (req: Request, res: Response) => {
+  try {
+    const requester = await resolveRequesterContext(
+      getPrisma(),
+      req.get(DEVELOPMENT_REQUESTER_HEADER),
+    );
+    const input = parseTicketCreateBody(req.body);
+    const result = await createTicket(getPrisma(), requester, input);
+    res.status(result.status).json({
+      ticket: result.ticket,
+      replayed: result.replayed,
+    });
+  } catch (error) {
+    const safe = safeErrorBody(error, "Unable to create ticket");
+    res.status(safe.status).json(safe.body);
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Issue 2 — API health check
@@ -74,6 +99,27 @@ app.get("/api/development-requesters", async (_req: Request, res: Response) => {
       },
     });
   }
+});
+
+// Keep body-parser failures and any unexpected middleware error inside the
+// documented safe JSON envelope instead of Express's default HTML/details.
+app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  const parserError = error && typeof error === "object"
+    ? error as { type?: string }
+    : undefined;
+  if (parserError?.type === "entity.parse.failed") {
+    res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Request validation failed",
+        fieldErrors: { body: "Request body must be valid JSON" },
+      },
+    });
+    return;
+  }
+
+  const safe = safeErrorBody(error, "Unable to process request");
+  res.status(safe.status).json(safe.body);
 });
 
 export default app;
