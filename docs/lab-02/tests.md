@@ -21,20 +21,20 @@ Every planned test below begins with `Final = Planned`. A test may become `Pass`
 
 | Test ID | Type | Requirement / AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| UT-01 | Unit | BR-08–BR-10; AC-08, AC-09 | Ticket trimming, required values, enums, and exact Summary/Description boundaries | Valid boundaries normalize correctly; invalid and whitespace-only values return named validation errors | `server/tests/lab-02/ticket-validation.unit.test.ts` | Planned |
-| UT-02 | Unit | BR-11; AC-10 | `clientRequestId` validation and normalized duplicate-request comparison | Same Requester + same normalized Ticket data is replay-compatible; changed Ticket data or Requester conflicts | `server/tests/lab-02/ticket-idempotency.unit.test.ts` | Planned |
-| UT-03 | Unit | BR-01, BR-12; AC-06 | UTC Ticket Number format and collision retry limit | Format matches `TKT-YYYYMMDD-XXXXXX`; at most five total candidates are attempted; exhaustion fails safely | `server/tests/lab-02/ticket-number.unit.test.ts` | Planned |
+| UT-01 | Unit | BR-08–BR-10; AC-08, AC-09 | Ticket trimming, required values, enums, and exact Summary/Description boundaries | Valid boundaries normalize correctly; invalid and whitespace-only values return named validation errors | `server/tests/lab-02/ticket-validation.unit.test.ts` | Pass |
+| UT-02 | Unit | BR-11; AC-10 | `clientRequestId` validation and normalized duplicate-request comparison | Same Requester + same normalized Ticket data is replay-compatible; changed Ticket data or Requester conflicts | `server/tests/lab-02/ticket-idempotency.unit.test.ts` | Pass |
+| UT-03 | Unit | BR-01, BR-12; AC-06 | UTC Ticket Number format and collision retry limit | Format matches `TKT-YYYYMMDD-XXXXXX`; at most five total candidates are attempted; exhaustion fails safely | `server/tests/lab-02/ticket-number.unit.test.ts` | Pass |
 | UT-04 | Unit | BR-14–BR-17; AC-13–AC-17 | My Tickets query parsing, defaults, allowlists, search-length boundary, and deterministic secondary sort | Valid query values normalize correctly; documented invalid values are rejected | `server/tests/lab-02/ticket-query.unit.test.ts` | Planned |
 | UT-05 | Unit | BR-19, BR-20; AC-22–AC-24 | Attachment extension/MIME/file-signature agreement and size boundaries | Only permitted combinations with valid signatures and inclusive size limits pass | `server/tests/lab-02/attachment-validation.unit.test.ts` | Planned |
 | UT-06 | Unit | BR-21, BR-23; AC-25, AC-28 | Active Attachment count and trimmed 3–200 character removal reason | Removed rows do not count toward the limit; a sixth active Attachment and invalid removal reasons fail | `server/tests/lab-02/attachment-rules.unit.test.ts` | Planned |
 | UT-07 | Unit | BR-05–BR-07; AC-02–AC-04 | Development Requester `sessionStorage` restore, invalidation, and switching | Valid active ID restores; invalid/inactive ID clears; switching clears scoped client state before new data loads | `client/tests/lab-02/requester-context.unit.test.tsx` | Pass |
-| UT-08 | Unit | BR-27; AC-37 | Safe API error serialization | Stable safe envelope is returned without stack traces, credentials, SQL, filesystem paths, Prisma details, or database internals | `server/tests/lab-02/error-response.unit.test.ts` | Planned |
+| UT-08 | Unit | BR-27; AC-37 | Safe API error serialization | Stable safe envelope is returned without stack traces, credentials, SQL, filesystem paths, Prisma details, or database internals | `server/tests/lab-02/error-response.unit.test.ts` | Pass |
 | API-01 | API / Integration | FR-01, FR-03; AC-01, AC-38 | Active Category, Related System, and Development Requester reference endpoints and endpoint-specific ordering | `200` responses contain only active rows; Categories use `id asc`; Related Systems and Development Requesters use `name asc`, then `id asc`; empty Category/Related System arrays remain valid responses | `server/tests/lab-02/reference-data.api.test.ts` | Pass |
-| API-02 | API / Integration | BR-05, BR-06, BR-13; AC-03 | Missing/malformed/unknown/inactive `X-Development-Requester-Id` | Missing/syntactically invalid context is `400`; unknown/inactive context is the documented safe non-disclosing `404` | `server/tests/lab-02/requester-context.api.test.ts` | Planned |
-| API-03 | API / Integration | FR-04; AC-05–AC-07 | Valid Ticket creation and backend-controlled values | Exactly one Ticket is created; `201` shape, unique Ticket Number, `NEW`, requester ownership, and timestamps are correct | `server/tests/lab-02/tickets-create.api.test.ts` | Planned |
-| API-04 | API / Integration | BR-08–BR-10; AC-09 | Direct invalid Ticket creation and exact field/reference boundaries | `400` field errors; invalid/inactive references are rejected; no Ticket is created | `server/tests/lab-02/tickets-create-validation.api.test.ts` | Planned |
-| API-05 | API / Integration | BR-11; AC-10 | First create, sequential/concurrent identical retry, and changed-payload/Requester reuse | First request is `201`; identical retry returns one existing Ticket with `200/replayed: true`; conflicting reuse is `409`; database contains one logical Ticket | `server/tests/lab-02/tickets-idempotency.api.test.ts` | Planned |
-| API-06 | API / Integration | BR-12, BR-27; AC-11, AC-37 | Forced Ticket Number generation/database failure and no-partial-result behavior | Safe `500`; no partial Ticket is left; no secret/internal details are exposed; the logical retry can still be attempted safely | `server/tests/lab-02/tickets-failure.api.test.ts` | Planned |
+| API-02 | API / Integration | BR-05, BR-06, BR-13; AC-03 | Missing/malformed/unknown/inactive `X-Development-Requester-Id` | Missing/syntactically invalid context is `400`; unknown/inactive context is the documented safe non-disclosing `404` | `server/tests/lab-02/requester-context.api.test.ts` | Pass |
+| API-03 | API / Integration | FR-04; AC-05–AC-07 | Valid Ticket creation and backend-controlled values | Exactly one Ticket is created; `201` shape, unique Ticket Number, `NEW`, requester ownership, and timestamps are correct | `server/tests/lab-02/tickets-create.api.test.ts` | Pass |
+| API-04 | API / Integration | BR-08–BR-10; AC-09 | Direct invalid Ticket creation and exact field/reference boundaries | `400` field errors; invalid/inactive references are rejected; no Ticket is created | `server/tests/lab-02/tickets-create-validation.api.test.ts` | Pass |
+| API-05 | API / Integration | BR-11; AC-10 | First create, sequential/concurrent identical retry, and changed-payload/Requester reuse | First request is `201`; identical retry returns one existing Ticket with `200/replayed: true`; conflicting reuse is `409`; database contains one logical Ticket | `server/tests/lab-02/tickets-idempotency.api.test.ts` | Pass |
+| API-06 | API / Integration | BR-12, BR-27; AC-11, AC-37 | Forced Ticket Number generation/database failure and no-partial-result behavior | Safe `500`; no partial Ticket is left; no secret/internal details are exposed; the logical retry can still be attempted safely | `server/tests/lab-02/tickets-failure.api.test.ts` | Pass |
 | API-07 | API / Integration | FR-06; AC-12 | Multi-Requester My Tickets ownership isolation at query level | Requester A receives only A-owned Ticket rows | `server/tests/lab-02/tickets-ownership.api.test.ts` | Planned |
 | API-08 | API / Integration | FR-07, FR-08; AC-13, AC-14 | Trimmed case-insensitive Ticket Number/Summary search plus AND-combined filters | Only owned Tickets matching the documented search/filter restrictions are returned | `server/tests/lab-02/tickets-query.api.test.ts` | Planned |
 | API-09 | API / Integration | FR-09, FR-10; AC-15–AC-17 | Allowed sort fields/directions, tie order, allowed page sizes, out-of-range pages, and documented invalid parameters | Deterministic pages and metadata; positive out-of-range page is valid/empty; documented invalid values return `400` | `server/tests/lab-02/tickets-pagination.api.test.ts` | Planned |
@@ -185,34 +185,53 @@ Exact final commands in this section must be updated to match the scripts that a
 
 | Level | Planned | Implemented | Pass | Fail | Not run |
 |---|---:|---:|---:|---:|---:|
-| Unit | 8 | 1 | 1 | 0 | 7 |
-| API / Integration | 20 | 2 | 2 | 0 | 18 |
+| Unit | 8 | 5 | 5 | 0 | 3 |
+| API / Integration | 20 | 7 | 7 | 0 | 13 |
 | UI Component | 10 | 2 | 2 | 0 | 8 |
 | UI Style | 4 | 0 | 0 | 0 | 4 |
 | Responsive | 3 | 0 | 0 | 0 | 3 |
 | E2E | 7 | 0 | 0 | 0 | 7 |
-| **Total** | **52** | **5** | **5** | **0** | **47** |
+| **Total** | **52** | **14** | **14** | **0** | **38** |
 
-Issue #14 execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
+Issue-specific execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
 
 As implementation proceeds, this table must be updated only from tests that actually exist and have actually run. A failing or unexecuted required test must not be recorded as Pass.
 
-### Issue #14 Execution Evidence
+### Issue #14 Execution Evidence — Development Requester Context and Data Foundation
 
-The following evidence was freshly executed for Issue #14:
+The following evidence belongs to Issue #14:
 
 - API-19: `1` test file / `2` tests passed.
 - API-01: `1` test file / `7` tests passed.
-- Full server suite: `4` test files / `11` tests passed, including the required Lab 1 server regressions.
+- UT-07: `1` test file / `12` tests passed.
+- UI-01: `1` test file / `9` tests passed.
+- UI-02: `1` test file / `4` tests passed.
+
+### Issue #18 Execution Evidence — Ticket Creation API and Backend Rules
+
+The following evidence belongs to Issue #18:
+
+- API-02: `1` test file / `9` tests passed.
+- API-03: `1` test file / `1` test passed.
+- API-04: `1` test file / `6` tests passed, including malformed-JSON safe validation.
+- API-05: `1` test file / `3` tests passed, including sequential and concurrent replay behavior.
+- API-06: `1` test file / `2` tests passed, including safe forced-failure retry and Ticket Number collision retry.
+- UT-01: `1` test file / `13` tests passed.
+- UT-02: `1` test file / `8` tests passed.
+- UT-03: `1` test file / `3` tests passed.
+- UT-08: `1` test file / `3` tests passed.
+
+### Fresh Regression and Verification Evidence for Issue #18
+
+The following full-suite and build checks were freshly rerun after the Issue #18 implementation:
+
+- Full server suite: `13` test files / `59` tests passed, including the required Lab 1 server regressions and Issue #14 database/reference-data regressions.
 - Server TypeScript build: passed.
 - Prisma validate: passed.
 - Prisma generate: passed.
 - Development database migration status: `2` migrations, up to date.
 - Isolated test database migration status: `2` migrations, up to date.
-- UT-07: `1` test file / `12` tests passed.
-- UI-01: `1` test file / `9` tests passed.
-- UI-02: `1` test file / `4` tests passed.
-- Full client suite: `4` test files / `30` tests passed, including the required Lab 1 client regressions.
+- Full client suite: `4` test files / `30` tests passed, including the required Lab 1 client regressions and Issue #14 requester-context/UI regressions.
 - Client production build: passed.
 - `git diff --check`: passed.
 
