@@ -23,6 +23,14 @@ describe("UI-01 Development Requester Selection", () => {
     vi.restoreAllMocks();
   });
 
+  it("does not render the legacy Lab 1 Check System control in the Lab 2 flow", () => {
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<App />);
+
+    expect(screen.queryByRole("button", { name: /check system/i })).not.toBeInTheDocument();
+  });
+
   it("shows loading feedback while active Requesters are loading", () => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
 
@@ -91,6 +99,32 @@ describe("UI-01 Development Requester Selection", () => {
     await user.click(screen.getByRole("button", { name: /retry/i }));
     expect(await screen.findByRole("combobox", { name: /development requester/i })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("clears malformed persisted context and returns to Requester Selection", async () => {
+    sessionStorage.setItem("toktickit.developmentRequesterId", "01");
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(activeRequesters));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: /select a development requester/i })).toBeInTheDocument();
+    expect(sessionStorage.getItem("toktickit.developmentRequesterId")).toBeNull();
+    expect(screen.queryByText(/current development requester/i)).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears an unknown or inactive persisted ID after active Requesters load", async () => {
+    sessionStorage.setItem("toktickit.developmentRequesterId", "99");
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(activeRequesters));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+
+    expect(await screen.findByRole("heading", { name: /select a development requester/i })).toBeInTheDocument();
+    expect(sessionStorage.getItem("toktickit.developmentRequesterId")).toBeNull();
+    expect(screen.queryByText(/current development requester/i)).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("enters the shell directly when a valid active Requester is restored", async () => {

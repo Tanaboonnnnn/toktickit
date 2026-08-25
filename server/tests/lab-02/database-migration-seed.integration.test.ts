@@ -20,7 +20,7 @@ function readLocalEnv(name: string): string | undefined {
 
 function databaseName(connectionString: string): string {
   const url = new URL(connectionString);
-  if (!['postgres:', 'postgresql:'].includes(url.protocol)) {
+  if (!["postgres:", "postgresql:"].includes(url.protocol)) {
     throw new Error("Database URLs must use PostgreSQL");
   }
 
@@ -29,15 +29,25 @@ function databaseName(connectionString: string): string {
   return name;
 }
 
+function withSchema(connectionString: string, schema: string): string {
+  const url = new URL(connectionString);
+  url.searchParams.set("schema", schema);
+  return url.toString();
+}
+
 const developmentDatabaseUrl = readLocalEnv("DATABASE_URL");
 const testDatabaseUrl = readLocalEnv("TEST_DATABASE_URL");
 let prisma: PrismaClient;
+let adminPrisma: PrismaClient;
+let isolatedTestDatabaseUrl = "";
+let migrationSchemaName = "";
+let migrationTargetWasClean = false;
 
-function runPrisma(...args: string[]) {
+function runPrisma(databaseUrl: string, ...args: string[]) {
   const prismaCli = resolve(process.cwd(), "node_modules/prisma/build/index.js");
   execFileSync(process.execPath, [prismaCli, ...args], {
     cwd: process.cwd(),
-    env: { ...process.env, DATABASE_URL: testDatabaseUrl },
+    env: { ...process.env, DATABASE_URL: databaseUrl },
     stdio: "pipe",
   });
 }
@@ -61,17 +71,54 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
-  runPrisma("migrate", "deploy", "--schema", "prisma/schema.prisma");
-  prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
+  migrationSchemaName = `lab2_api19_${process.pid}_${Date.now()}`;
+  adminPrisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
+  await adminPrisma.$connect();
+  await adminPrisma.$executeRawUnsafe(`CREATE SCHEMA "${migrationSchemaName}"`);
+
+  isolatedTestDatabaseUrl = withSchema(testDatabaseUrl, migrationSchemaName);
+  const migrationProbe = new PrismaClient({
+    datasources: { db: { url: isolatedTestDatabaseUrl } },
+  });
+  try {
+    await migrationProbe.$connect();
+    const existingTables = await migrationProbe.$queryRaw<Array<{ table_count: bigint }>>`
+      SELECT COUNT(*)::bigint AS table_count
+      FROM information_schema.tables
+      WHERE table_schema = current_schema()
+    `;
+    const migrationTable = await migrationProbe.$queryRaw<Array<{ table_name: string | null }>>`
+      SELECT to_regclass('"_prisma_migrations"')::text AS table_name
+    `;
+    migrationTargetWasClean = Number(existingTables[0]?.table_count ?? -1) === 0
+      && migrationTable[0]?.table_name === null;
+  } finally {
+    await migrationProbe.$disconnect();
+  }
+
+  runPrisma(isolatedTestDatabaseUrl, "migrate", "deploy", "--schema", "prisma/schema.prisma");
+  prisma = new PrismaClient({ datasources: { db: { url: isolatedTestDatabaseUrl } } });
   await prisma.$connect();
-});
+}, 60_000);
 
 afterAll(async () => {
-  await prisma?.$disconnect();
-});
+  try {
+    await prisma?.$disconnect();
+  } finally {
+    try {
+      if (adminPrisma && migrationSchemaName) {
+        await adminPrisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${migrationSchemaName}" CASCADE`);
+      }
+    } finally {
+      await adminPrisma?.$disconnect();
+    }
+  }
+}, 60_000);
 
 describe("Lab 2 database migration and seed", () => {
   it("deploys the complete additive Lab 2 schema foundation", async () => {
+    expect(migrationTargetWasClean).toBe(true);
+
     const migrations = await prisma.$queryRaw<Array<{ migration_name: string }>>`
       SELECT migration_name
       FROM "_prisma_migrations"
@@ -290,7 +337,7 @@ describe("Lab 2 database migration and seed", () => {
     let createdUnrelatedRequesterId: number | undefined;
 
     try {
-      runPrisma("db", "seed", "--schema", "prisma/schema.prisma");
+      runPrisma(isolatedTestDatabaseUrl, "db", "seed", "--schema", "prisma/schema.prisma");
 
       expect(
         await prisma.category.findMany({
@@ -353,7 +400,7 @@ describe("Lab 2 database migration and seed", () => {
         createdUnrelatedRequesterId = unrelatedRequester.id;
       }
 
-      runPrisma("db", "seed", "--schema", "prisma/schema.prisma");
+      runPrisma(isolatedTestDatabaseUrl, "db", "seed", "--schema", "prisma/schema.prisma");
 
       expect(await prisma.category.count({ where: { name: { in: categoryNames } } })).toBe(4);
       expect(await prisma.relatedSystem.count({
@@ -443,5 +490,5 @@ describe("Lab 2 database migration and seed", () => {
         await prisma.category.deleteMany({ where: { id: createdUnrelatedCategoryId } });
       }
     }
-  });
+  }, 30_000);
 });

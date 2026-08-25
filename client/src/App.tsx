@@ -7,7 +7,7 @@ import "./styles.css";
 
 type UiState = "idle" | "loading" | "success" | "error";
 
-function Lab1SystemCheck() {
+export function Lab1SystemCheck() {
   const [state, setState] = useState<UiState>("idle");
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
@@ -60,12 +60,7 @@ function Lab1SystemCheck() {
 function AppContent() {
   const { currentRequester, status } = useRequesterContext();
 
-  return (
-    <>
-      {status === "ready" && currentRequester ? <AppShell /> : <RequesterSelection />}
-      <Lab1SystemCheck />
-    </>
-  );
+  return status === "ready" && currentRequester ? <AppShell /> : <RequesterSelection />;
 }
 
 export default function App() {
