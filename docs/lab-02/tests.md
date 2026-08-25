@@ -13,7 +13,7 @@ Lab 2 uses layered verification.
 
 Tests must use fictional Development Requesters, an isolated test database, and temporary upload directories. Tests clean up only data/files they create.
 
-This is a specification-only Issue. Every planned test below begins with `Final = Planned`. A test may become `Pass` only after the test file exists, the test has actually run, and the result has been verified. Existing Lab 1 tests remain required regression evidence but are not substitutes for Lab 2 Acceptance-Criterion evidence.
+Every planned test below begins with `Final = Planned`. A test may become `Pass` only after the test file exists, the test has actually run, and the result has been verified. Existing Lab 1 tests remain required regression evidence but are not substitutes for Lab 2 Acceptance-Criterion evidence.
 
 ---
 
@@ -27,9 +27,9 @@ This is a specification-only Issue. Every planned test below begins with `Final 
 | UT-04 | Unit | BR-14–BR-17; AC-13–AC-17 | My Tickets query parsing, defaults, allowlists, search-length boundary, and deterministic secondary sort | Valid query values normalize correctly; documented invalid values are rejected | `server/tests/lab-02/ticket-query.unit.test.ts` | Planned |
 | UT-05 | Unit | BR-19, BR-20; AC-22–AC-24 | Attachment extension/MIME/file-signature agreement and size boundaries | Only permitted combinations with valid signatures and inclusive size limits pass | `server/tests/lab-02/attachment-validation.unit.test.ts` | Planned |
 | UT-06 | Unit | BR-21, BR-23; AC-25, AC-28 | Active Attachment count and trimmed 3–200 character removal reason | Removed rows do not count toward the limit; a sixth active Attachment and invalid removal reasons fail | `server/tests/lab-02/attachment-rules.unit.test.ts` | Planned |
-| UT-07 | Unit | BR-05–BR-07; AC-02–AC-04 | Development Requester `sessionStorage` restore, invalidation, and switching | Valid active ID restores; invalid/inactive ID clears; switching clears scoped client state before new data loads | `client/tests/lab-02/requester-context.unit.test.tsx` | Planned |
+| UT-07 | Unit | BR-05–BR-07; AC-02–AC-04 | Development Requester `sessionStorage` restore, invalidation, and switching | Valid active ID restores; invalid/inactive ID clears; switching clears scoped client state before new data loads | `client/tests/lab-02/requester-context.unit.test.tsx` | Pass |
 | UT-08 | Unit | BR-27; AC-37 | Safe API error serialization | Stable safe envelope is returned without stack traces, credentials, SQL, filesystem paths, Prisma details, or database internals | `server/tests/lab-02/error-response.unit.test.ts` | Planned |
-| API-01 | API / Integration | FR-01, FR-03; AC-01, AC-38 | Active Category, Related System, and Development Requester reference endpoints and endpoint-specific ordering | `200` responses contain only active rows; Categories use `id asc`; Related Systems and Development Requesters use `name asc`, then `id asc`; empty Category/Related System arrays remain valid responses | `server/tests/lab-02/reference-data.api.test.ts` | Planned |
+| API-01 | API / Integration | FR-01, FR-03; AC-01, AC-38 | Active Category, Related System, and Development Requester reference endpoints and endpoint-specific ordering | `200` responses contain only active rows; Categories use `id asc`; Related Systems and Development Requesters use `name asc`, then `id asc`; empty Category/Related System arrays remain valid responses | `server/tests/lab-02/reference-data.api.test.ts` | Pass |
 | API-02 | API / Integration | BR-05, BR-06, BR-13; AC-03 | Missing/malformed/unknown/inactive `X-Development-Requester-Id` | Missing/syntactically invalid context is `400`; unknown/inactive context is the documented safe non-disclosing `404` | `server/tests/lab-02/requester-context.api.test.ts` | Planned |
 | API-03 | API / Integration | FR-04; AC-05–AC-07 | Valid Ticket creation and backend-controlled values | Exactly one Ticket is created; `201` shape, unique Ticket Number, `NEW`, requester ownership, and timestamps are correct | `server/tests/lab-02/tickets-create.api.test.ts` | Planned |
 | API-04 | API / Integration | BR-08–BR-10; AC-09 | Direct invalid Ticket creation and exact field/reference boundaries | `400` field errors; invalid/inactive references are rejected; no Ticket is created | `server/tests/lab-02/tickets-create-validation.api.test.ts` | Planned |
@@ -47,10 +47,10 @@ This is a specification-only Issue. Every planned test below begins with `Final 
 | API-16 | API / Integration | FR-14; AC-27, AC-30 | Active Attachment download headers/bytes and removed-download denial | Active file returns exact bytes and safe headers; removed Attachment returns the same safe `404` behavior as a missing resource | `server/tests/lab-02/attachments-download.api.test.ts` | Planned |
 | API-17 | API / Integration | FR-15; AC-28–AC-30 | Removal-reason boundaries, soft removal, parent Ticket touch, and repeated removal | Valid reason persists removal metadata and advances parent `updatedAt`; invalid reason is `400`; repeated removal is non-disclosing `404` with no additional change | `server/tests/lab-02/attachments-remove.api.test.ts` | Planned |
 | API-18 | API / Integration | BR-13, BR-22, BR-27; AC-31, AC-37 | Cross-owner Attachment operations and forced storage/database failure during upload | Cross-owner operations return non-disclosing `404` and change nothing; failed upload leaves no valid downloadable metadata/file; request-created temporary files are cleaned where possible; safe errors expose no internal storage detail | `server/tests/lab-02/attachments-ownership-failure.api.test.ts` | Planned |
-| API-19 | API / Integration | Data Changes; Definition of Done | Clean migration, required indexes/FKs/enums, deterministic seed, inactive Requester filtering, and repeated seed | Migration succeeds on intended clean test DB; required fixtures exist; second seed creates no duplicates; required schema constraints/indexes exist | `server/tests/lab-02/database-migration-seed.integration.test.ts` | Planned |
+| API-19 | API / Integration | Data Changes; Definition of Done | Migration from a fresh temporary schema in the isolated test database, required indexes/FKs/enums, deterministic seed, and repeated seed | Migrations deploy successfully from an empty schema; required fixtures exist; second seed creates no duplicates; unrelated rows survive; required schema constraints/indexes exist | `server/tests/lab-02/database-migration-seed.integration.test.ts` | Pass |
 | API-20 | API / Integration | BR-27; AC-37 | Forced unexpected failure on representative JSON reference/list/detail/metadata/removal endpoints | Each tested endpoint returns the documented safe `500` envelope without internal details | `server/tests/lab-02/all-endpoints-failure.api.test.ts` | Planned |
-| UI-01 | UI Component | FR-01, FR-02; AC-01–AC-03 | Development Requester selector loading, active options, empty/failure, and invalid persisted context | Correct state renders; inactive Requesters stay hidden; retry works; requester-owned data is not fetched with invalid context | `client/tests/lab-02/RequesterSelection.test.tsx` | Planned |
-| UI-02 | UI Component | BR-07; AC-04 | Switching Requester with existing requester-specific form/query/detail/file state | All Requester-A scoped state clears before Requester-B data loads; new ID persists; stale A data is not shown | `client/tests/lab-02/RequesterSwitcher.test.tsx` | Planned |
+| UI-01 | UI Component | FR-01, FR-02; AC-01–AC-03 | Development Requester selector loading, active options, empty/failure, malformed/unknown restored context, and valid restoration | Correct selector/shell state renders; invalid stored IDs are cleared before the shell is shown; retry works; the legacy Lab 1 Check System control is absent from the Lab 2 flow | `client/tests/lab-02/RequesterSelection.test.tsx` | Pass |
+| UI-02 | UI Component | BR-07; AC-04 | Switching Requester and the requester-scoped reset boundary | Old context is cleared; the new ID persists; Requester A shell content disappears; requester-scoped local state remounts cleanly for Requester B | `client/tests/lab-02/RequesterSwitcher.test.tsx` | Pass |
 | UI-03 | UI Component | FR-03, FR-04, FR-16; AC-07, AC-37, AC-38 | Create Ticket required/read-only fields, reference loading, empty lists, independent reference-data failure/retry, and unavailable required references | Required editable/system fields match the contract; empty lists and failed Category/Related System requests show the correct unavailable/failure state; Retry preserves successful reference data and entered form data; submission stays blocked until both required lists are available | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
 | UI-04 | UI Component | FR-16; AC-08, AC-11 | Client field boundaries, first-invalid focus, and Ticket-create API failure retention | Invalid form is not submitted; accessible field errors appear; entered Ticket data and eligible mounted file selections remain on recoverable failure | `client/tests/lab-02/CreateTicketValidation.test.tsx` | Planned |
 | UI-05 | UI Component | FR-04, FR-05; AC-05, AC-10, AC-32 | Busy submit, duplicate replay response, ambiguous Ticket-create response, success, partial Attachment failure, and ambiguous upload response | One logical Ticket is created; busy state prevents duplicate click submission; ambiguous create freezes the bound payload and reuses the same `clientRequestId`; editing after a definitive no-create failure uses a new UUID; official Ticket Number persists; Attachment metadata reload occurs before ambiguous upload retry; after navigation the user must reselect local file | `client/tests/lab-02/CreateTicketSubmission.test.tsx` | Planned |
@@ -185,23 +185,44 @@ Exact final commands in this section must be updated to match the scripts that a
 
 | Level | Planned | Implemented | Pass | Fail | Not run |
 |---|---:|---:|---:|---:|---:|
-| Unit | 8 | 0 | 0 | 0 | 8 |
-| API / Integration | 20 | 0 | 0 | 0 | 20 |
-| UI Component | 10 | 0 | 0 | 0 | 10 |
+| Unit | 8 | 1 | 1 | 0 | 7 |
+| API / Integration | 20 | 2 | 2 | 0 | 18 |
+| UI Component | 10 | 2 | 2 | 0 | 8 |
 | UI Style | 4 | 0 | 0 | 0 | 4 |
 | Responsive | 3 | 0 | 0 | 0 | 3 |
 | E2E | 7 | 0 | 0 | 0 | 7 |
-| **Total** | **52** | **0** | **0** | **0** | **52** |
+| **Total** | **52** | **5** | **5** | **0** | **47** |
 
-No Lab 2 test result is claimed in this specification Issue.
+Issue #14 execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
 
 As implementation proceeds, this table must be updated only from tests that actually exist and have actually run. A failing or unexecuted required test must not be recorded as Pass.
+
+### Issue #14 Execution Evidence
+
+The following evidence was freshly executed for Issue #14:
+
+- API-19: `1` test file / `2` tests passed.
+- API-01: `1` test file / `7` tests passed.
+- Full server suite: `4` test files / `11` tests passed, including the required Lab 1 server regressions.
+- Server TypeScript build: passed.
+- Prisma validate: passed.
+- Prisma generate: passed.
+- Development database migration status: `2` migrations, up to date.
+- Isolated test database migration status: `2` migrations, up to date.
+- UT-07: `1` test file / `12` tests passed.
+- UI-01: `1` test file / `9` tests passed.
+- UI-02: `1` test file / `4` tests passed.
+- Full client suite: `4` test files / `30` tests passed, including the required Lab 1 client regressions.
+- Client production build: passed.
+- `git diff --check`: passed.
+
+These results are local execution evidence only. No CI link, GitHub check, peer approval, or screenshot evidence is claimed here.
 
 ---
 
 ## 7. Known Limitations or Deferred Tests
 
-- All Lab 2 tests are deferred to later implementation/testing Issues. The paths in this document are intended test locations, not claims that the files currently exist.
+- The remaining Lab 2 tests are deferred to later implementation/testing Issues. The paths in this document are intended test locations unless a test is marked `Pass` above.
 - Playwright and root E2E/Responsive scripts are not present in the current project and must be added/configured in a later Lab 2 testing Issue before those tests can run.
 - Required responsive screenshots are planned evidence and must be captured only from the actual implemented/tested Lab 2 build.
 - Real object/cloud storage is outside Lab 2; local Git-excluded server storage is the approved Lab 2 design.

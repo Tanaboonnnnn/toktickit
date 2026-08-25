@@ -1,7 +1,7 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import App from "../../src/App.js";
+import App, { Lab1SystemCheck } from "../../src/App.js";
 import * as api from "../../src/api.js";
 
 afterEach(() => vi.restoreAllMocks());
@@ -20,7 +20,7 @@ describe("App", () => {
     });
     const user = userEvent.setup();
 
-    render(<App />);
+    render(<Lab1SystemCheck />);
     await user.click(screen.getByRole("button", { name: "Check System" }));
 
     expect(await screen.findByText("System Status: Online")).toBeInTheDocument();
@@ -31,7 +31,7 @@ describe("App", () => {
     vi.spyOn(api, "checkSystem").mockRejectedValue(new Error("request failed"));
     const user = userEvent.setup();
 
-    render(<App />);
+    render(<Lab1SystemCheck />);
     await user.click(screen.getByRole("button", { name: "Check System" }));
 
     expect(await screen.findByText("System Status: Offline")).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe("App", () => {
     vi.spyOn(api, "checkSystem").mockReturnValue(pendingCheck);
     const user = userEvent.setup();
 
-    render(<App />);
+    render(<Lab1SystemCheck />);
     await user.click(screen.getByRole("button", { name: "Check System" }));
 
     expect(screen.getByRole("button", { name: "Loading…" })).toBeDisabled();
@@ -75,7 +75,7 @@ describe("App", () => {
       .mockRejectedValueOnce(new Error("request failed"));
     const user = userEvent.setup();
 
-    render(<App />);
+    render(<Lab1SystemCheck />);
     await user.click(screen.getByRole("button", { name: "Check System" }));
     expect(await screen.findByText("Hardware")).toBeInTheDocument();
 
