@@ -34,7 +34,7 @@ TEST_DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/toktickit_test?sche
 
 Create the `toktickit_test` database (or another dedicated test database) before
 running the server test suite. Using pgAdmin or another PostgreSQL administrator,
-create an empty database, for example with `CREATE DATABASE tocktickit_test;`, then
+create an empty database, for example with `CREATE DATABASE toktickit_test;`, then
 set `TEST_DATABASE_URL` to that database. It must use a different database name from
 `DATABASE_URL`; the Lab 2 integration tests fail closed rather than falling back to
 development data. API-19 creates and drops a temporary schema inside that dedicated
