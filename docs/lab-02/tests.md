@@ -193,16 +193,24 @@ Exact final commands in this section must be updated to match the scripts that a
 | E2E | 7 | 0 | 0 | 0 | 7 |
 | **Total** | **52** | **14** | **14** | **0** | **38** |
 
-Issue #14 execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
+Issue-specific execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
 
 As implementation proceeds, this table must be updated only from tests that actually exist and have actually run. A failing or unexecuted required test must not be recorded as Pass.
 
-### Issue #14 Execution Evidence
+### Issue #14 Execution Evidence — Development Requester Context and Data Foundation
 
-The following evidence was freshly executed for Issue #14:
+The following evidence belongs to Issue #14:
 
 - API-19: `1` test file / `2` tests passed.
 - API-01: `1` test file / `7` tests passed.
+- UT-07: `1` test file / `12` tests passed.
+- UI-01: `1` test file / `9` tests passed.
+- UI-02: `1` test file / `4` tests passed.
+
+### Issue #18 Execution Evidence — Ticket Creation API and Backend Rules
+
+The following evidence belongs to Issue #18:
+
 - API-02: `1` test file / `9` tests passed.
 - API-03: `1` test file / `1` test passed.
 - API-04: `1` test file / `6` tests passed, including malformed-JSON safe validation.
@@ -212,16 +220,18 @@ The following evidence was freshly executed for Issue #14:
 - UT-02: `1` test file / `8` tests passed.
 - UT-03: `1` test file / `3` tests passed.
 - UT-08: `1` test file / `3` tests passed.
-- Full server suite: `13` test files / `59` tests passed, including the required Lab 1 server regressions.
+
+### Fresh Regression and Verification Evidence for Issue #18
+
+The following full-suite and build checks were freshly rerun after the Issue #18 implementation:
+
+- Full server suite: `13` test files / `59` tests passed, including the required Lab 1 server regressions and Issue #14 database/reference-data regressions.
 - Server TypeScript build: passed.
 - Prisma validate: passed.
 - Prisma generate: passed.
 - Development database migration status: `2` migrations, up to date.
 - Isolated test database migration status: `2` migrations, up to date.
-- UT-07: `1` test file / `12` tests passed.
-- UI-01: `1` test file / `9` tests passed.
-- UI-02: `1` test file / `4` tests passed.
-- Full client suite: `4` test files / `30` tests passed, including the required Lab 1 client regressions.
+- Full client suite: `4` test files / `30` tests passed, including the required Lab 1 client regressions and Issue #14 requester-context/UI regressions.
 - Client production build: passed.
 - `git diff --check`: passed.
 
