@@ -5,6 +5,12 @@ export interface Category {
   name: string;
 }
 
+export interface DevelopmentRequester {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export interface SystemStatus {
   online: boolean;
   categories: Category[];
@@ -18,6 +24,12 @@ export interface HealthStatus {
 export async function checkHealth(): Promise<HealthStatus> {
   const response = await fetch(`${API_URL}/api/health`);
   if (!response.ok) throw new Error("Unable to connect to TokTickIT API");
+  return response.json();
+}
+
+export async function fetchDevelopmentRequesters(): Promise<DevelopmentRequester[]> {
+  const response = await fetch(`${API_URL}/api/development-requesters`);
+  if (!response.ok) throw new Error("Unable to load Development Requesters");
   return response.json();
 }
 

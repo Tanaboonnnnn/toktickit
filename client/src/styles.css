@@ -1,0 +1,215 @@
+:root {
+  --color-primary: #006b3c;
+  --color-secondary: #0b7a46;
+  --color-pale-green: #eaf6ef;
+  --color-page: #f5f7f6;
+  --color-surface: #ffffff;
+  --color-text: #17352a;
+  --color-muted: #52665d;
+  --color-border: #cbd8d1;
+  --color-error: #8b1e1e;
+  --color-error-bg: #fcecec;
+  --focus-ring: 0 0 0 3px rgba(0, 107, 60, .28);
+  --surface-shadow: 0 2px 10px rgba(23, 53, 42, .08);
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.lab2-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.lab2-card {
+  width: min(100%, 560px);
+  padding: 32px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--surface-shadow);
+}
+
+.requester-selection-card h1,
+.lab2-shell-content h1 {
+  margin: 0 0 12px;
+  font-size: clamp(1.75rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+.lab2-brand {
+  margin: 0 0 8px;
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+.lab2-muted {
+  color: var(--color-muted);
+}
+
+.requester-selection-controls {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.requester-selection-controls label {
+  font-weight: 600;
+}
+
+.requester-selection-controls select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.lab2-button {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lab2-button-primary {
+  color: #fff;
+  background: var(--color-primary);
+}
+
+.lab2-button-secondary {
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+.lab2-button:disabled,
+.lab2-nav-item:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.lab2-status,
+.lab2-error {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.lab2-status {
+  background: var(--color-pale-green);
+}
+
+.lab2-error {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+}
+
+.lab2-error p {
+  margin: 0 0 12px;
+}
+
+.lab2-shell {
+  min-height: 100vh;
+  background: var(--color-page);
+}
+
+.lab2-shell-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px clamp(16px, 4vw, 48px);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lab2-shell-header > :first-child {
+  margin-right: auto;
+}
+
+.lab2-shell-header p {
+  margin: 0;
+}
+
+.lab2-context {
+  display: grid;
+  gap: 2px;
+  color: var(--color-text);
+}
+
+.lab2-context span,
+.lab2-context small {
+  color: var(--color-muted);
+}
+
+.lab2-navigation {
+  display: flex;
+  gap: 8px;
+  padding: 12px clamp(16px, 4vw, 48px);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lab2-nav-item {
+  padding: 8px 12px;
+  color: var(--color-secondary);
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+}
+
+.lab2-nav-item-active {
+  border-bottom-color: var(--color-secondary);
+}
+
+.lab2-shell-content {
+  width: min(100% - 32px, 1200px);
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.lab1-system-check {
+  padding: 16px;
+}
+
+@media (max-width: 767.98px) {
+  .lab2-shell-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lab2-shell-header > :first-child {
+    margin-right: 0;
+  }
+
+  .lab2-navigation {
+    overflow-x: auto;
+  }
+}

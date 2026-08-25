@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { checkSystem, Category } from "./api.js";
+import { checkSystem, type Category } from "./api.js";
+import AppShell from "./AppShell.js";
+import RequesterSelection from "./RequesterSelection.js";
+import { RequesterContextProvider, useRequesterContext } from "./requester-context.js";
+import "./styles.css";
 
-// UI states you must handle for Issue 4: idle, loading, success, error.
 type UiState = "idle" | "loading" | "success" | "error";
 
-export default function App() {
+function Lab1SystemCheck() {
   const [state, setState] = useState<UiState>("idle");
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState("");
@@ -25,12 +28,13 @@ export default function App() {
   }
 
   return (
-    <div className="container py-5" style={{ maxWidth: 640 }}>
-      <h1 className="h3 mb-4">
-        TokTickIT <span className="text-success">IT Service Desk</span>
-      </h1>
-
-      <button className="btn btn-success" onClick={handleCheck} disabled={state === "loading"}>
+    <section className="lab1-system-check" aria-label="System check">
+      <button
+        className="btn btn-success"
+        type="button"
+        onClick={handleCheck}
+        disabled={state === "loading"}
+      >
         {state === "loading" ? "Loading…" : "Check System"}
       </button>
 
@@ -49,6 +53,25 @@ export default function App() {
           <p className="mb-0">{error}</p>
         </div>
       )}
-    </div>
+    </section>
+  );
+}
+
+function AppContent() {
+  const { currentRequester, status } = useRequesterContext();
+
+  return (
+    <>
+      {status === "ready" && currentRequester ? <AppShell /> : <RequesterSelection />}
+      <Lab1SystemCheck />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <RequesterContextProvider>
+      <AppContent />
+    </RequesterContextProvider>
   );
 }
