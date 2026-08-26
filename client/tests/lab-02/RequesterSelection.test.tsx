@@ -70,7 +70,7 @@ describe("UI-01 Development Requester Selection", () => {
 
     await user.click(screen.getByRole("button", { name: /continue/i }));
     expect(await screen.findByText(/current development requester/i)).toBeInTheDocument();
-    expect(screen.getByText("Anan Student")).toBeInTheDocument();
+    expect(screen.getAllByText("Anan Student").length).toBeGreaterThan(0);
     expect(screen.queryByRole("heading", { name: /select a development requester/i })).not.toBeInTheDocument();
     expect(sessionStorage.getItem("toktickit.developmentRequesterId")).toBe("1");
   });
@@ -134,7 +134,7 @@ describe("UI-01 Development Requester Selection", () => {
     render(<App />);
 
     expect(await screen.findByText(/current development requester/i)).toBeInTheDocument();
-    expect(screen.getByText("Mali Student")).toBeInTheDocument();
+    expect(screen.getAllByText("Mali Student").length).toBeGreaterThan(0);
     expect(screen.queryByRole("heading", { name: /select a development requester/i })).not.toBeInTheDocument();
   });
 });

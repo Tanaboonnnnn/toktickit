@@ -1,4 +1,5 @@
 import { useRequesterContext } from "./requester-context.js";
+import CreateTicketForm from "./CreateTicketForm.js";
 
 export default function AppShell() {
   const { currentRequester, clearRequester } = useRequesterContext();
@@ -26,16 +27,13 @@ export default function AppShell() {
         <button type="button" className="lab2-nav-item" disabled>
           My Tickets
         </button>
-        <button type="button" className="lab2-nav-item" disabled>
+        <button type="button" className="lab2-nav-item lab2-nav-item-active" aria-current="page">
           Create Ticket
         </button>
       </nav>
 
       <main className="lab2-shell-content">
-        <h1>Requester application</h1>
-        <p className="lab2-muted">
-          Ticket features will be available in a later Lab 2 increment.
-        </p>
+        <CreateTicketForm />
       </main>
     </div>
   );

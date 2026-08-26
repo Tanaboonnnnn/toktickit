@@ -51,9 +51,9 @@ Every planned test below begins with `Final = Planned`. A test may become `Pass`
 | API-20 | API / Integration | BR-27; AC-37 | Forced unexpected failure on representative JSON reference/list/detail/metadata/removal endpoints | Each tested endpoint returns the documented safe `500` envelope without internal details | `server/tests/lab-02/all-endpoints-failure.api.test.ts` | Planned |
 | UI-01 | UI Component | FR-01, FR-02; AC-01–AC-03 | Development Requester selector loading, active options, empty/failure, malformed/unknown restored context, and valid restoration | Correct selector/shell state renders; invalid stored IDs are cleared before the shell is shown; retry works; the legacy Lab 1 Check System control is absent from the Lab 2 flow | `client/tests/lab-02/RequesterSelection.test.tsx` | Pass |
 | UI-02 | UI Component | BR-07; AC-04 | Switching Requester and the requester-scoped reset boundary | Old context is cleared; the new ID persists; Requester A shell content disappears; requester-scoped local state remounts cleanly for Requester B | `client/tests/lab-02/RequesterSwitcher.test.tsx` | Pass |
-| UI-03 | UI Component | FR-03, FR-04, FR-16; AC-07, AC-37, AC-38 | Create Ticket required/read-only fields, reference loading, empty lists, independent reference-data failure/retry, and unavailable required references | Required editable/system fields match the contract; empty lists and failed Category/Related System requests show the correct unavailable/failure state; Retry preserves successful reference data and entered form data; submission stays blocked until both required lists are available | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
-| UI-04 | UI Component | FR-16; AC-08, AC-11 | Client field boundaries, first-invalid focus, and Ticket-create API failure retention | Invalid form is not submitted; accessible field errors appear; entered Ticket data and eligible mounted file selections remain on recoverable failure | `client/tests/lab-02/CreateTicketValidation.test.tsx` | Planned |
-| UI-05 | UI Component | FR-04, FR-05; AC-05, AC-10, AC-32 | Busy submit, duplicate replay response, ambiguous Ticket-create response, success, partial Attachment failure, and ambiguous upload response | One logical Ticket is created; busy state prevents duplicate click submission; ambiguous create freezes the bound payload and reuses the same `clientRequestId`; editing after a definitive no-create failure uses a new UUID; official Ticket Number persists; Attachment metadata reload occurs before ambiguous upload retry; after navigation the user must reselect local file | `client/tests/lab-02/CreateTicketSubmission.test.tsx` | Planned |
+| UI-03 | UI Component | FR-03, FR-04, FR-16; AC-07, AC-37, AC-38 | Create Ticket required/read-only fields, reference loading, empty lists, independent reference-data failure/retry, and unavailable required references | Required editable/system fields match the contract; empty lists and failed Category/Related System requests show the correct unavailable/failure state; Retry preserves successful reference data and entered form data; submission stays blocked until both required lists are available | `client/tests/lab-02/CreateTicketForm.test.tsx` | Pass |
+| UI-04 | UI Component | FR-16; BR-19–BR-21, BR-27; AC-08, AC-11 | Client field boundaries, first-invalid focus, Ticket-create API failure retention, and frontend-only Attachment pre-selection validation | Invalid form is not submitted; accessible field errors appear; entered Ticket data and eligible mounted file selections remain on recoverable failure; allowed Attachment type/MIME, non-empty size, 5-MB boundary, five-file limit, and local removal are validated without upload | `client/tests/lab-02/CreateTicketValidation.test.tsx`; `client/tests/lab-02/AttachmentPreselection.test.tsx` | Pass |
+| UI-05 | UI Component | FR-04, FR-05; AC-05, AC-10, AC-32 | Busy submit, duplicate replay response, ambiguous Ticket-create response, success with a scoped next action, partial Attachment failure, and ambiguous upload response | One logical Ticket is created; busy state prevents duplicate click submission; ambiguous create freezes the bound payload and reuses the same `clientRequestId`; editing after a definitive no-create failure uses a new UUID; official Ticket Number and a scoped next action are displayed; Attachment metadata reload occurs before ambiguous upload retry; after navigation the user must reselect local file | `client/tests/lab-02/CreateTicketSubmission.test.tsx` | Planned |
 | UI-06 | UI Component | FR-06, FR-16; AC-18, AC-19, AC-37 | My Tickets Loading, Empty, No Results, and Failure states, including the unrestricted `page=1&pageSize=10` probe | Four states have distinct wording/actions; the unrestricted probe uses an allowed page size; no stale Ticket rows leak between states | `client/tests/lab-02/MyTicketsStates.test.tsx` | Planned |
 | UI-07 | UI Component | FR-07–FR-10; AC-13–AC-17 | Search, filters, sorting, clear behavior, pagination, and out-of-range recovery | Controls send documented query values; rendered results/metadata update correctly; clearing restrictions works; out-of-range recovery requests the last valid page when required | `client/tests/lab-02/MyTicketsControls.test.tsx` | Planned |
 | UI-08 | UI Component | FR-11; AC-20, AC-21 | Ticket Detail read-only rendering and unavailable state | Owned Ticket/Attachment metadata renders read-only; `404` produces neutral unavailable wording without foreign-resource detail | `client/tests/lab-02/TicketDetail.test.tsx` | Planned |
@@ -187,11 +187,11 @@ Exact final commands in this section must be updated to match the scripts that a
 |---|---:|---:|---:|---:|---:|
 | Unit | 8 | 5 | 5 | 0 | 3 |
 | API / Integration | 20 | 7 | 7 | 0 | 13 |
-| UI Component | 10 | 2 | 2 | 0 | 8 |
+| UI Component | 10 | 4 | 4 | 0 | 6 |
 | UI Style | 4 | 0 | 0 | 0 | 4 |
 | Responsive | 3 | 0 | 0 | 0 | 3 |
 | E2E | 7 | 0 | 0 | 0 | 7 |
-| **Total** | **52** | **14** | **14** | **0** | **38** |
+| **Total** | **52** | **16** | **16** | **0** | **36** |
 
 Issue-specific execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
 
@@ -250,3 +250,24 @@ These results are local execution evidence only. No CI link, GitHub check, peer 
 - IT Staff workflow, Public Comments, Internal Notes, Actions Taken, Administrator functionality, and post-`NEW` Ticket lifecycle behavior are outside Lab 2.
 - Cross-browser coverage beyond the browsers configured for the required Playwright evidence is not a Lab 2 product requirement unless later required by the instructor.
 - Manual peer review, visual inspection, screenshot evidence, and any manual accessibility checks supplement automated tests and must contain only real evidence after they occur.
+
+### Issue #20 Execution Evidence — Create Ticket UI, Frontend Validation, and Ticket Submission Flow
+
+The following evidence belongs to Issue #20:
+
+- UI-03: 1 test file / 9 tests passed.
+- UI-04: 2 test files / 27 tests passed (15 Create Ticket validation tests + 12 frontend-only Attachment pre-selection tests, including invalid-file removal).
+- UI-05 Ticket-create portion: 1 test file / 9 tests passed, including definitive HTTP 500 retry with the same logical request and the successful-create next action; UI-05 remains Planned because its full planned scope also includes post-create Attachment-upload behavior deferred to a later Issue.
+
+UI-05 is not counted as implemented/passed in the Final Results table until its entire planned Test ID scope is implemented and executed.
+
+### Fresh Regression and Verification Evidence for Issue #20
+
+The final counts below must reflect the latest fresh verification run after review fixes:
+
+- Full client suite: `8` test files / `75` tests passed.
+- Client production build: passed (`tsc && vite build`).
+- Full server suite: `13` test files / `59` tests passed.
+- Server TypeScript build: passed (`tsc`).
+- Prisma validate: passed.
+- `git diff --check`: passed after review fixes.
