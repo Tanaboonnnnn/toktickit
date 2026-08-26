@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
@@ -58,7 +58,7 @@ describe("UI-02 Development Requester switching", () => {
     const user = userEvent.setup();
 
     render(<App />);
-    expect(await screen.findByText("Anan Student")).toBeInTheDocument();
+    expect(await screen.findByText(/current development requester/i)).toBeInTheDocument();
     expect(screen.getByText(/current development requester/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /change requester/i }));
@@ -70,9 +70,9 @@ describe("UI-02 Development Requester switching", () => {
     await user.selectOptions(select, "2");
     await user.click(screen.getByRole("button", { name: /continue/i }));
 
-    expect(await screen.findByText("Mali Student")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /create ticket/i })).toBeInTheDocument();
     expect(screen.getByText(/current development requester/i)).toBeInTheDocument();
-    expect(screen.queryByText("Anan Student")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /select a development requester/i })).not.toBeInTheDocument();
     expect(sessionStorage.getItem("toktickit.developmentRequesterId")).toBe("2");
   });
 
@@ -104,10 +104,14 @@ describe("UI-02 Development Requester switching", () => {
 
     render(<App />);
 
-    expect(await screen.findByRole("button", { name: /my tickets/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /my tickets/i })).not.toHaveAttribute("aria-current");
-    expect(screen.getByRole("button", { name: /create ticket/i })).toBeInTheDocument();
-    expect(screen.queryByText(/ticket number|supported request categories/i)).not.toBeInTheDocument();
+    const nav = await screen.findByRole("navigation", { name: /primary/i });
+    const myTickets = within(nav).getByRole("button", { name: /my tickets/i });
+    expect(myTickets).toBeDisabled();
+    expect(myTickets).not.toHaveAttribute("aria-current");
+
+    const createTicketNav = within(nav).getByRole("button", { name: /create ticket/i });
+    expect(createTicketNav).toHaveAttribute("aria-current", "page");
+    expect(createTicketNav).toBeEnabled();
   });
 
   it("keeps Change Requester keyboard-operable and visibly focusable", async () => {

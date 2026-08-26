@@ -213,3 +213,163 @@ select:focus-visible {
     overflow-x: auto;
   }
 }
+/* Create Ticket form */
+.lab2-create-ticket {
+  width: min(100%, 880px);
+}
+
+.lab2-create-ticket h1 {
+  margin: 0 0 24px;
+  font-size: clamp(1.75rem, 4vw, 2rem);
+  line-height: 1.2;
+}
+
+.lab2-create-ticket fieldset {
+  margin: 0 0 24px;
+  padding: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.lab2-create-ticket legend {
+  padding: 0 8px;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.lab2-field-group {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.lab2-field-group:last-child {
+  margin-bottom: 0;
+}
+
+.lab2-field-group label {
+  font-weight: 600;
+}
+
+.lab2-field-group input,
+.lab2-field-group select,
+.lab2-field-group textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.lab2-field-group textarea {
+  resize: vertical;
+}
+
+.lab2-field-group input:focus-visible,
+.lab2-field-group select:focus-visible,
+.lab2-field-group textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.lab2-field-group input[aria-invalid="true"],
+.lab2-field-group select[aria-invalid="true"],
+.lab2-field-group textarea[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
+.lab2-field-group p[role="alert"] {
+  margin: 0;
+  color: var(--color-error);
+  font-size: .875rem;
+}
+
+.lab2-field-group output {
+  display: block;
+  padding: 10px 12px;
+  background: #f0f3ef;
+  border: 1px solid #b9c6bf;
+  border-radius: 6px;
+}
+
+.lab2-success {
+  padding: 24px;
+  background: var(--color-pale-green);
+  border: 1px solid var(--color-secondary);
+  border-radius: 8px;
+}
+
+.lab2-success p:first-child {
+  margin-top: 0;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.lab2-success dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0 0 16px;
+}
+
+.lab2-success dt {
+  color: var(--color-muted);
+}
+
+.lab2-success dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.lab2-warning {
+  padding: 16px;
+  background: #fff4d6;
+  border: 1px solid #8a5500;
+  border-radius: 8px;
+}
+
+.lab2-warning p {
+  margin: 0 0 12px;
+  color: #8a5500;
+}
+
+@media (max-width: 767.98px) {
+  .lab2-create-ticket fieldset {
+    padding: 12px;
+  }
+
+  .lab2-success dl {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lab2-selected-files {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.lab2-selected-files li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.lab2-selected-files li span:first-child {
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.lab2-selected-files li span[role="alert"] {
+  color: var(--color-error);
+  font-size: .875rem;
+}

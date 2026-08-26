@@ -1,4 +1,4 @@
-# Lab 2 Test Plan and Results
+﻿# Lab 2 Test Plan and Results
 
 ## 1. Test Strategy
 
@@ -21,23 +21,23 @@ Every planned test below begins with `Final = Planned`. A test may become `Pass`
 
 | Test ID | Type | Requirement / AC | What It Tests | Expected Result | Automated Test File | Final |
 |---|---|---|---|---|---|---|
-| UT-01 | Unit | BR-08–BR-10; AC-08, AC-09 | Ticket trimming, required values, enums, and exact Summary/Description boundaries | Valid boundaries normalize correctly; invalid and whitespace-only values return named validation errors | `server/tests/lab-02/ticket-validation.unit.test.ts` | Pass |
+| UT-01 | Unit | BR-08โ€“BR-10; AC-08, AC-09 | Ticket trimming, required values, enums, and exact Summary/Description boundaries | Valid boundaries normalize correctly; invalid and whitespace-only values return named validation errors | `server/tests/lab-02/ticket-validation.unit.test.ts` | Pass |
 | UT-02 | Unit | BR-11; AC-10 | `clientRequestId` validation and normalized duplicate-request comparison | Same Requester + same normalized Ticket data is replay-compatible; changed Ticket data or Requester conflicts | `server/tests/lab-02/ticket-idempotency.unit.test.ts` | Pass |
 | UT-03 | Unit | BR-01, BR-12; AC-06 | UTC Ticket Number format and collision retry limit | Format matches `TKT-YYYYMMDD-XXXXXX`; at most five total candidates are attempted; exhaustion fails safely | `server/tests/lab-02/ticket-number.unit.test.ts` | Pass |
-| UT-04 | Unit | BR-14–BR-17; AC-13–AC-17 | My Tickets query parsing, defaults, allowlists, search-length boundary, and deterministic secondary sort | Valid query values normalize correctly; documented invalid values are rejected | `server/tests/lab-02/ticket-query.unit.test.ts` | Planned |
-| UT-05 | Unit | BR-19, BR-20; AC-22–AC-24 | Attachment extension/MIME/file-signature agreement and size boundaries | Only permitted combinations with valid signatures and inclusive size limits pass | `server/tests/lab-02/attachment-validation.unit.test.ts` | Planned |
-| UT-06 | Unit | BR-21, BR-23; AC-25, AC-28 | Active Attachment count and trimmed 3–200 character removal reason | Removed rows do not count toward the limit; a sixth active Attachment and invalid removal reasons fail | `server/tests/lab-02/attachment-rules.unit.test.ts` | Planned |
-| UT-07 | Unit | BR-05–BR-07; AC-02–AC-04 | Development Requester `sessionStorage` restore, invalidation, and switching | Valid active ID restores; invalid/inactive ID clears; switching clears scoped client state before new data loads | `client/tests/lab-02/requester-context.unit.test.tsx` | Pass |
+| UT-04 | Unit | BR-14โ€“BR-17; AC-13โ€“AC-17 | My Tickets query parsing, defaults, allowlists, search-length boundary, and deterministic secondary sort | Valid query values normalize correctly; documented invalid values are rejected | `server/tests/lab-02/ticket-query.unit.test.ts` | Planned |
+| UT-05 | Unit | BR-19, BR-20; AC-22โ€“AC-24 | Attachment extension/MIME/file-signature agreement and size boundaries | Only permitted combinations with valid signatures and inclusive size limits pass | `server/tests/lab-02/attachment-validation.unit.test.ts` | Planned |
+| UT-06 | Unit | BR-21, BR-23; AC-25, AC-28 | Active Attachment count and trimmed 3โ€“200 character removal reason | Removed rows do not count toward the limit; a sixth active Attachment and invalid removal reasons fail | `server/tests/lab-02/attachment-rules.unit.test.ts` | Planned |
+| UT-07 | Unit | BR-05โ€“BR-07; AC-02โ€“AC-04 | Development Requester `sessionStorage` restore, invalidation, and switching | Valid active ID restores; invalid/inactive ID clears; switching clears scoped client state before new data loads | `client/tests/lab-02/requester-context.unit.test.tsx` | Pass |
 | UT-08 | Unit | BR-27; AC-37 | Safe API error serialization | Stable safe envelope is returned without stack traces, credentials, SQL, filesystem paths, Prisma details, or database internals | `server/tests/lab-02/error-response.unit.test.ts` | Pass |
 | API-01 | API / Integration | FR-01, FR-03; AC-01, AC-38 | Active Category, Related System, and Development Requester reference endpoints and endpoint-specific ordering | `200` responses contain only active rows; Categories use `id asc`; Related Systems and Development Requesters use `name asc`, then `id asc`; empty Category/Related System arrays remain valid responses | `server/tests/lab-02/reference-data.api.test.ts` | Pass |
 | API-02 | API / Integration | BR-05, BR-06, BR-13; AC-03 | Missing/malformed/unknown/inactive `X-Development-Requester-Id` | Missing/syntactically invalid context is `400`; unknown/inactive context is the documented safe non-disclosing `404` | `server/tests/lab-02/requester-context.api.test.ts` | Pass |
-| API-03 | API / Integration | FR-04; AC-05–AC-07 | Valid Ticket creation and backend-controlled values | Exactly one Ticket is created; `201` shape, unique Ticket Number, `NEW`, requester ownership, and timestamps are correct | `server/tests/lab-02/tickets-create.api.test.ts` | Pass |
-| API-04 | API / Integration | BR-08–BR-10; AC-09 | Direct invalid Ticket creation and exact field/reference boundaries | `400` field errors; invalid/inactive references are rejected; no Ticket is created | `server/tests/lab-02/tickets-create-validation.api.test.ts` | Pass |
+| API-03 | API / Integration | FR-04; AC-05โ€“AC-07 | Valid Ticket creation and backend-controlled values | Exactly one Ticket is created; `201` shape, unique Ticket Number, `NEW`, requester ownership, and timestamps are correct | `server/tests/lab-02/tickets-create.api.test.ts` | Pass |
+| API-04 | API / Integration | BR-08โ€“BR-10; AC-09 | Direct invalid Ticket creation and exact field/reference boundaries | `400` field errors; invalid/inactive references are rejected; no Ticket is created | `server/tests/lab-02/tickets-create-validation.api.test.ts` | Pass |
 | API-05 | API / Integration | BR-11; AC-10 | First create, sequential/concurrent identical retry, and changed-payload/Requester reuse | First request is `201`; identical retry returns one existing Ticket with `200/replayed: true`; conflicting reuse is `409`; database contains one logical Ticket | `server/tests/lab-02/tickets-idempotency.api.test.ts` | Pass |
 | API-06 | API / Integration | BR-12, BR-27; AC-11, AC-37 | Forced Ticket Number generation/database failure and no-partial-result behavior | Safe `500`; no partial Ticket is left; no secret/internal details are exposed; the logical retry can still be attempted safely | `server/tests/lab-02/tickets-failure.api.test.ts` | Pass |
 | API-07 | API / Integration | FR-06; AC-12 | Multi-Requester My Tickets ownership isolation at query level | Requester A receives only A-owned Ticket rows | `server/tests/lab-02/tickets-ownership.api.test.ts` | Planned |
 | API-08 | API / Integration | FR-07, FR-08; AC-13, AC-14 | Trimmed case-insensitive Ticket Number/Summary search plus AND-combined filters | Only owned Tickets matching the documented search/filter restrictions are returned | `server/tests/lab-02/tickets-query.api.test.ts` | Planned |
-| API-09 | API / Integration | FR-09, FR-10; AC-15–AC-17 | Allowed sort fields/directions, tie order, allowed page sizes, out-of-range pages, and documented invalid parameters | Deterministic pages and metadata; positive out-of-range page is valid/empty; documented invalid values return `400` | `server/tests/lab-02/tickets-pagination.api.test.ts` | Planned |
+| API-09 | API / Integration | FR-09, FR-10; AC-15โ€“AC-17 | Allowed sort fields/directions, tie order, allowed page sizes, out-of-range pages, and documented invalid parameters | Deterministic pages and metadata; positive out-of-range page is valid/empty; documented invalid values return `400` | `server/tests/lab-02/tickets-pagination.api.test.ts` | Planned |
 | API-10 | API / Integration | FR-11; AC-20, AC-21 | Owned Ticket Detail and missing/cross-owner equivalence | Owned detail is `200`; missing and foreign-owned Ticket IDs return the same non-disclosing `404` shape | `server/tests/lab-02/ticket-detail.api.test.ts` | Planned |
 | API-11 | API / Integration | FR-12; AC-22 | Each permitted extension/MIME/signature, exact 5-MB boundary, generated storage name, hidden storage details, and parent Ticket `updatedAt` | Valid uploads return `201` Active metadata; generated storage name/path is not exposed; original filename is retained only as metadata; parent `updatedAt` advances | `server/tests/lab-02/attachments-upload.api.test.ts` | Planned |
 | API-12 | API / Integration | BR-19; AC-23 | Unsupported type, extension/MIME mismatch, and mismatched file signature | `415`; no valid Attachment metadata or downloadable file remains | `server/tests/lab-02/attachments-upload-type.api.test.ts` | Planned |
@@ -45,33 +45,33 @@ Every planned test below begins with `Final = Planned`. A test may become `Pass`
 | API-14 | API / Integration | BR-21; AC-25 | Five-active limit, concurrent limit enforcement, and replacement after removal | Active count never exceeds five; extra upload is `409`; after removal one replacement succeeds | `server/tests/lab-02/attachments-limit.api.test.ts` | Planned |
 | API-15 | API / Integration | FR-13; AC-26, AC-29 | Deterministic active/removed Attachment metadata list | Active and Removed states are returned correctly; removal fields are present; no `storedName` or filesystem path is exposed | `server/tests/lab-02/attachments-metadata.api.test.ts` | Planned |
 | API-16 | API / Integration | FR-14; AC-27, AC-30 | Active Attachment download headers/bytes and removed-download denial | Active file returns exact bytes and safe headers; removed Attachment returns the same safe `404` behavior as a missing resource | `server/tests/lab-02/attachments-download.api.test.ts` | Planned |
-| API-17 | API / Integration | FR-15; AC-28–AC-30 | Removal-reason boundaries, soft removal, parent Ticket touch, and repeated removal | Valid reason persists removal metadata and advances parent `updatedAt`; invalid reason is `400`; repeated removal is non-disclosing `404` with no additional change | `server/tests/lab-02/attachments-remove.api.test.ts` | Planned |
+| API-17 | API / Integration | FR-15; AC-28โ€“AC-30 | Removal-reason boundaries, soft removal, parent Ticket touch, and repeated removal | Valid reason persists removal metadata and advances parent `updatedAt`; invalid reason is `400`; repeated removal is non-disclosing `404` with no additional change | `server/tests/lab-02/attachments-remove.api.test.ts` | Planned |
 | API-18 | API / Integration | BR-13, BR-22, BR-27; AC-31, AC-37 | Cross-owner Attachment operations and forced storage/database failure during upload | Cross-owner operations return non-disclosing `404` and change nothing; failed upload leaves no valid downloadable metadata/file; request-created temporary files are cleaned where possible; safe errors expose no internal storage detail | `server/tests/lab-02/attachments-ownership-failure.api.test.ts` | Planned |
 | API-19 | API / Integration | Data Changes; Definition of Done | Migration from a fresh temporary schema in the isolated test database, required indexes/FKs/enums, deterministic seed, and repeated seed | Migrations deploy successfully from an empty schema; required fixtures exist; second seed creates no duplicates; unrelated rows survive; required schema constraints/indexes exist | `server/tests/lab-02/database-migration-seed.integration.test.ts` | Pass |
 | API-20 | API / Integration | BR-27; AC-37 | Forced unexpected failure on representative JSON reference/list/detail/metadata/removal endpoints | Each tested endpoint returns the documented safe `500` envelope without internal details | `server/tests/lab-02/all-endpoints-failure.api.test.ts` | Planned |
-| UI-01 | UI Component | FR-01, FR-02; AC-01–AC-03 | Development Requester selector loading, active options, empty/failure, malformed/unknown restored context, and valid restoration | Correct selector/shell state renders; invalid stored IDs are cleared before the shell is shown; retry works; the legacy Lab 1 Check System control is absent from the Lab 2 flow | `client/tests/lab-02/RequesterSelection.test.tsx` | Pass |
+| UI-01 | UI Component | FR-01, FR-02; AC-01โ€“AC-03 | Development Requester selector loading, active options, empty/failure, malformed/unknown restored context, and valid restoration | Correct selector/shell state renders; invalid stored IDs are cleared before the shell is shown; retry works; the legacy Lab 1 Check System control is absent from the Lab 2 flow | `client/tests/lab-02/RequesterSelection.test.tsx` | Pass |
 | UI-02 | UI Component | BR-07; AC-04 | Switching Requester and the requester-scoped reset boundary | Old context is cleared; the new ID persists; Requester A shell content disappears; requester-scoped local state remounts cleanly for Requester B | `client/tests/lab-02/RequesterSwitcher.test.tsx` | Pass |
-| UI-03 | UI Component | FR-03, FR-04, FR-16; AC-07, AC-37, AC-38 | Create Ticket required/read-only fields, reference loading, empty lists, independent reference-data failure/retry, and unavailable required references | Required editable/system fields match the contract; empty lists and failed Category/Related System requests show the correct unavailable/failure state; Retry preserves successful reference data and entered form data; submission stays blocked until both required lists are available | `client/tests/lab-02/CreateTicketForm.test.tsx` | Planned |
-| UI-04 | UI Component | FR-16; AC-08, AC-11 | Client field boundaries, first-invalid focus, and Ticket-create API failure retention | Invalid form is not submitted; accessible field errors appear; entered Ticket data and eligible mounted file selections remain on recoverable failure | `client/tests/lab-02/CreateTicketValidation.test.tsx` | Planned |
+| UI-03 | UI Component | FR-03, FR-04, FR-16; AC-07, AC-37, AC-38 | Create Ticket required/read-only fields, reference loading, empty lists, independent reference-data failure/retry, and unavailable required references | Required editable/system fields match the contract; empty lists and failed Category/Related System requests show the correct unavailable/failure state; Retry preserves successful reference data and entered form data; submission stays blocked until both required lists are available | `client/tests/lab-02/CreateTicketForm.test.tsx` | Pass |
+| UI-04 | UI Component | FR-16; AC-08, AC-11 | Client field boundaries, first-invalid focus, and Ticket-create API failure retention | Invalid form is not submitted; accessible field errors appear; entered Ticket data and eligible mounted file selections remain on recoverable failure | `client/tests/lab-02/CreateTicketValidation.test.tsx` | Pass |
 | UI-05 | UI Component | FR-04, FR-05; AC-05, AC-10, AC-32 | Busy submit, duplicate replay response, ambiguous Ticket-create response, success, partial Attachment failure, and ambiguous upload response | One logical Ticket is created; busy state prevents duplicate click submission; ambiguous create freezes the bound payload and reuses the same `clientRequestId`; editing after a definitive no-create failure uses a new UUID; official Ticket Number persists; Attachment metadata reload occurs before ambiguous upload retry; after navigation the user must reselect local file | `client/tests/lab-02/CreateTicketSubmission.test.tsx` | Planned |
 | UI-06 | UI Component | FR-06, FR-16; AC-18, AC-19, AC-37 | My Tickets Loading, Empty, No Results, and Failure states, including the unrestricted `page=1&pageSize=10` probe | Four states have distinct wording/actions; the unrestricted probe uses an allowed page size; no stale Ticket rows leak between states | `client/tests/lab-02/MyTicketsStates.test.tsx` | Planned |
-| UI-07 | UI Component | FR-07–FR-10; AC-13–AC-17 | Search, filters, sorting, clear behavior, pagination, and out-of-range recovery | Controls send documented query values; rendered results/metadata update correctly; clearing restrictions works; out-of-range recovery requests the last valid page when required | `client/tests/lab-02/MyTicketsControls.test.tsx` | Planned |
+| UI-07 | UI Component | FR-07โ€“FR-10; AC-13โ€“AC-17 | Search, filters, sorting, clear behavior, pagination, and out-of-range recovery | Controls send documented query values; rendered results/metadata update correctly; clearing restrictions works; out-of-range recovery requests the last valid page when required | `client/tests/lab-02/MyTicketsControls.test.tsx` | Planned |
 | UI-08 | UI Component | FR-11; AC-20, AC-21 | Ticket Detail read-only rendering and unavailable state | Owned Ticket/Attachment metadata renders read-only; `404` produces neutral unavailable wording without foreign-resource detail | `client/tests/lab-02/TicketDetail.test.tsx` | Planned |
-| UI-09 | UI Component | FR-12–FR-15; AC-22–AC-30, AC-32 | Ticket Detail file chooser/upload, five-active disabled state, selected/uploading/active/invalid/removed/unavailable states, refresh after mutation, and actions | Detail allows upload below the active limit, blocks new upload at five active files, re-enables after removal, refreshes Attachment/parent Ticket data after successful mutation, and keeps Removed metadata visible without download/preview | `client/tests/lab-02/AttachmentPanel.test.tsx` | Planned |
+| UI-09 | UI Component | FR-12โ€“FR-15; AC-22โ€“AC-30, AC-32 | Ticket Detail file chooser/upload, five-active disabled state, selected/uploading/active/invalid/removed/unavailable states, refresh after mutation, and actions | Detail allows upload below the active limit, blocks new upload at five active files, re-enables after removal, refreshes Attachment/parent Ticket data after successful mutation, and keeps Removed metadata visible without download/preview | `client/tests/lab-02/AttachmentPanel.test.tsx` | Planned |
 | UI-10 | UI Component | FR-18; AC-36 | Labels, validation associations/live messages, focus movement, and keyboard operation of interactive controls | Accessible names, logical keyboard order, visible focus, error associations, and keyboard operation satisfy the UI contract | `client/tests/lab-02/accessibility.test.tsx` | Planned |
-| STYLE-01 | UI Style | FR-17; AC-33–AC-35 | Zen Green tokens, surfaces, editable/read-only controls, focus, and button/state variants | Required tokens/classes/state distinctions are present consistently without conflicting inline styles | `client/tests/lab-02/zen-green-styles.test.tsx` | Planned |
+| STYLE-01 | UI Style | FR-17; AC-33โ€“AC-35 | Zen Green tokens, surfaces, editable/read-only controls, focus, and button/state variants | Required tokens/classes/state distinctions are present consistently without conflicting inline styles | `client/tests/lab-02/zen-green-styles.test.tsx` | Planned |
 | STYLE-02 | UI Style | FR-18; AC-36 | Error/warning/success/priority/status/removal non-color cues | Each state includes readable text and/or an accessible icon/label in addition to color | `client/tests/lab-02/state-indicators.test.tsx` | Planned |
-| STYLE-03 | UI Style | FR-17; AC-33–AC-35 | Wrapping/reflow rules for labels, validation messages, summaries, and filenames | No fixed-width/nowrap rule forces page overflow; long content can wrap/reflow safely | `client/tests/lab-02/responsive-styles.test.tsx` | Planned |
+| STYLE-03 | UI Style | FR-17; AC-33โ€“AC-35 | Wrapping/reflow rules for labels, validation messages, summaries, and filenames | No fixed-width/nowrap rule forces page overflow; long content can wrap/reflow safely | `client/tests/lab-02/responsive-styles.test.tsx` | Planned |
 | STYLE-04 | UI Style | Excluded Scope; AC-20 | Ticket Detail action inventory | No IT Staff, Public Comment, Internal Note, Actions Taken, assignment, IT Priority edit, or status-change controls render | `client/tests/lab-02/ticket-detail-scope.test.tsx` | Planned |
-| RESP-01 | Responsive | FR-17; AC-33 | 1440×900 desktop visual/overflow checks on required screens | Multi-column/table layout; no clipping, overlap, hidden required actions, unreadable filenames, or page overflow | `e2e/lab-02/responsive-desktop.spec.ts` | Planned |
-| RESP-02 | Responsive | FR-17; AC-34 | 834×1112 tablet visual/overflow checks on required screens | Practical two-column reflow; Summary/Description and controls remain readable; no clipping/overflow defects | `e2e/lab-02/responsive-tablet.spec.ts` | Planned |
-| RESP-03 | Responsive | FR-17; AC-35 | 390×844 mobile checks on required screens | Single-column forms/cards; touch-friendly actions; safe filename wrapping; no horizontal page scrolling | `e2e/lab-02/responsive-mobile.spec.ts` | Planned |
-| E2E-01 | E2E | FR-01–FR-06; AC-01, AC-04–AC-07, AC-12 | Select Requester A, create Ticket, switch to B, then switch back | Official Ticket appears only for A; Development Requester context and requester-owned data transitions are correct | `e2e/lab-02/requester-ticket-journey.spec.ts` | Planned |
+| RESP-01 | Responsive | FR-17; AC-33 | 1440ร—900 desktop visual/overflow checks on required screens | Multi-column/table layout; no clipping, overlap, hidden required actions, unreadable filenames, or page overflow | `e2e/lab-02/responsive-desktop.spec.ts` | Planned |
+| RESP-02 | Responsive | FR-17; AC-34 | 834ร—1112 tablet visual/overflow checks on required screens | Practical two-column reflow; Summary/Description and controls remain readable; no clipping/overflow defects | `e2e/lab-02/responsive-tablet.spec.ts` | Planned |
+| RESP-03 | Responsive | FR-17; AC-35 | 390ร—844 mobile checks on required screens | Single-column forms/cards; touch-friendly actions; safe filename wrapping; no horizontal page scrolling | `e2e/lab-02/responsive-mobile.spec.ts` | Planned |
+| E2E-01 | E2E | FR-01โ€“FR-06; AC-01, AC-04โ€“AC-07, AC-12 | Select Requester A, create Ticket, switch to B, then switch back | Official Ticket appears only for A; Development Requester context and requester-owned data transitions are correct | `e2e/lab-02/requester-ticket-journey.spec.ts` | Planned |
 | E2E-02 | E2E | FR-04, FR-16; AC-08, AC-09, AC-11 | Client validation, server rejection, forced failure, corrected retry | Data is retained according to contract and exactly one corrected Ticket is eventually created | `e2e/lab-02/create-validation-retry.spec.ts` | Planned |
 | E2E-03 | E2E | FR-05; AC-10 | Simulated lost first Ticket-create response followed by same-key retry | Browser receives/displays the original Ticket and the database contains one logical Ticket | `e2e/lab-02/duplicate-submission.spec.ts` | Planned |
-| E2E-04 | E2E | FR-06–FR-10; AC-13–AC-16, AC-18, AC-19 | Search, combined filters, sorting/ties, page sizes, out-of-range recovery, Empty, and No Results | UI controls, results, pagination metadata, Empty, and No Results remain consistent with documented query behavior | `e2e/lab-02/my-tickets.spec.ts` | Planned |
+| E2E-04 | E2E | FR-06โ€“FR-10; AC-13โ€“AC-16, AC-18, AC-19 | Search, combined filters, sorting/ties, page sizes, out-of-range recovery, Empty, and No Results | UI controls, results, pagination metadata, Empty, and No Results remain consistent with documented query behavior | `e2e/lab-02/my-tickets.spec.ts` | Planned |
 | E2E-05 | E2E | FR-11; AC-20, AC-21 | Open owned Ticket Detail and attempt direct cross-owner Ticket URL | Owned read-only detail works; foreign URL reveals no Ticket data and changes nothing | `e2e/lab-02/ticket-detail-ownership.spec.ts` | Planned |
-| E2E-06 | E2E | FR-12–FR-15; AC-22–AC-32 | Permitted/invalid/oversized/limit uploads, download, removal, replacement, partial failure, ambiguous response, and cross-owner denial | Attachment lifecycle and partial-success behavior match the contract; removed/cross-owner files remain inaccessible | `e2e/lab-02/attachment-lifecycle.spec.ts` | Planned |
+| E2E-06 | E2E | FR-12โ€“FR-15; AC-22โ€“AC-32 | Permitted/invalid/oversized/limit uploads, download, removal, replacement, partial failure, ambiguous response, and cross-owner denial | Attachment lifecycle and partial-success behavior match the contract; removed/cross-owner files remain inaccessible | `e2e/lab-02/attachment-lifecycle.spec.ts` | Planned |
 | E2E-07 | E2E | FR-18; AC-36, AC-37 | Keyboard-only core journeys, visible focus, validation feedback, and safe forced-500 UI | Required actions are keyboard reachable/understandable; focus remains visible; validation is associated correctly; safe failure shows no internal details | `e2e/lab-02/accessibility-failure.spec.ts` | Planned |
 
 Planned count: Unit 8; API / Integration 20; UI Component 10; UI Style 4; Responsive 3; E2E 7; total 52.
@@ -187,17 +187,17 @@ Exact final commands in this section must be updated to match the scripts that a
 |---|---:|---:|---:|---:|---:|
 | Unit | 8 | 5 | 5 | 0 | 3 |
 | API / Integration | 20 | 7 | 7 | 0 | 13 |
-| UI Component | 10 | 2 | 2 | 0 | 8 |
+| UI Component | 10 | 5 | 5 | 0 | 5 |
 | UI Style | 4 | 0 | 0 | 0 | 4 |
 | Responsive | 3 | 0 | 0 | 0 | 3 |
 | E2E | 7 | 0 | 0 | 0 | 7 |
-| **Total** | **52** | **14** | **14** | **0** | **38** |
+| **Total** | **52** | **17** | **17** | **0** | **35** |
 
 Issue-specific execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
 
 As implementation proceeds, this table must be updated only from tests that actually exist and have actually run. A failing or unexecuted required test must not be recorded as Pass.
 
-### Issue #14 Execution Evidence — Development Requester Context and Data Foundation
+### Issue #14 Execution Evidence โ€” Development Requester Context and Data Foundation
 
 The following evidence belongs to Issue #14:
 
@@ -207,7 +207,7 @@ The following evidence belongs to Issue #14:
 - UI-01: `1` test file / `9` tests passed.
 - UI-02: `1` test file / `4` tests passed.
 
-### Issue #18 Execution Evidence — Ticket Creation API and Backend Rules
+### Issue #18 Execution Evidence โ€” Ticket Creation API and Backend Rules
 
 The following evidence belongs to Issue #18:
 
@@ -250,3 +250,25 @@ These results are local execution evidence only. No CI link, GitHub check, peer 
 - IT Staff workflow, Public Comments, Internal Notes, Actions Taken, Administrator functionality, and post-`NEW` Ticket lifecycle behavior are outside Lab 2.
 - Cross-browser coverage beyond the browsers configured for the required Playwright evidence is not a Lab 2 product requirement unless later required by the instructor.
 - Manual peer review, visual inspection, screenshot evidence, and any manual accessibility checks supplement automated tests and must contain only real evidence after they occur.
+
+### Issue #20 Execution Evidence "Create Ticket UI, frontend validation, and Ticket submission flow
+
+The following evidence belongs to Issue #20:
+
+- UI-03: `1` test file / `9` tests passed.
+- UI-04: `1` test file / `15` tests passed.
+- UI-05 (Ticket-create portion): `1` test file / `7` tests passed.
+- Attachment pre-selection (UI-04 scope): `1` test file / `11` tests passed.
+
+UI-05 remains Planned because the planned scope also includes post-create Attachment-upload behavior that belongs to a later Issue. The implemented and executed assertions cover only the Ticket-create submission behavior listed above; no Attachment-upload evidence is claimed here.
+
+### Fresh Regression and Verification Evidence for Issue #20
+
+The following full-suite and build checks were freshly rerun after the Issue #20 implementation:
+
+- Full client suite: `8` test files / `72` tests passed.
+- Client production build: passed.
+- Full server suite: `13` test files / `59` tests passed.
+- Server TypeScript build: passed.
+- Prisma validate: passed.
+- `git diff --check`: passed.
