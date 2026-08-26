@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createTicket,
   fetchCategories,
@@ -191,9 +191,11 @@ export default function CreateTicketForm() {
       boundRef.current = null;
       setSubmission({ kind: "success", ticket: result.ticket, replayed: result.replayed });
     } catch (error) {
-      if (error instanceof SafeApiError && error.status >= 400 && error.status < 500) {
-        boundRef.current = null;
-        let message = error.message || "Unable to create the Ticket.";
+      if (error instanceof SafeApiError) {
+        if (error.status >= 400 && error.status < 500) {
+          boundRef.current = null;
+        }
+        const message = error.message || "Unable to create the Ticket.";
         if (error.fieldErrors && Object.keys(error.fieldErrors).length > 0) {
           setFieldErrors(prev => ({ ...prev, ...error.fieldErrors }));
         }
@@ -405,11 +407,9 @@ export default function CreateTicketForm() {
                           </>
                         )}
                         <span>{formatFileSize(file.size)} · {file.type}</span>
-                        {!error && (
-                          <button type="button" onClick={() => removeSelectedFile(id)}>
-                            Remove
-                          </button>
-                        )}
+                        <button type="button" onClick={() => removeSelectedFile(id)}>
+                          Remove
+                        </button>
                       </li>
                     ))}
                   </ul>

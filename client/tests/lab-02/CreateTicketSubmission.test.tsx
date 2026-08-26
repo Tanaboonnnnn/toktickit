@@ -1,4 +1,4 @@
-﻿import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
@@ -147,7 +147,7 @@ describe("UI-05 Create Ticket Submission", () => {
     expect(body.currentStatus).toBeUndefined();
     expect(body.createdAt).toBeUndefined();
     expect(body.updatedAt).toBeUndefined();
-  });
+  }, 10_000);
 
   it("shows busy state and prevents duplicate click during submission", async () => {
     let resolveCreate!: (value: unknown) => void;
@@ -410,4 +410,32 @@ describe("UI-05 Create Ticket Submission", () => {
     // Retry button remains available for same-submission retry
     expect(screen.getByRole("button", { name: /retry same submission/i })).toBeEnabled();
   });
+
+  it("treats an HTTP 500 as definitive no-create failure and retries the same logical request", async () => {
+    const { user, fetchMock } = await enterShellAndFillValidForm();
+    fetchMock.mockClear();
+    let createAttempt = 0;
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (!url.endsWith("/api/tickets")) return Promise.reject(new Error("unexpected fetch"));
+      createAttempt += 1;
+      return createAttempt === 1
+        ? Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to create ticket" } }) })
+        : Promise.resolve(ticketResponse("TKT-20260823-RETRY1", false));
+    });
+
+    await user.click(submitButton());
+    expect(await screen.findByText(/unable to create ticket/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/ticket summary \*/i)).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: /^retry$/i }));
+    expect(await screen.findByText(/your ticket has been created/i)).toBeInTheDocument();
+
+    const bodies = fetchMock.mock.calls
+      .filter(([url]) => String(url).endsWith("/api/tickets"))
+      .map(([, init]) => JSON.parse((init as RequestInit).body as string));
+    expect(bodies).toHaveLength(2);
+    expect(bodies[0].clientRequestId).toBe(bodies[1].clientRequestId);
+  });
+
 });

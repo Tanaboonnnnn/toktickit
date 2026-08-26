@@ -1,4 +1,4 @@
-﻿import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
@@ -197,6 +197,19 @@ describe("Create Ticket Attachment pre-selection", () => {
     expect(within(section as HTMLElement).queryByText("to-remove.png")).not.toBeInTheDocument();
   });
 
+  it("removes an invalid file from local selection", async () => {
+    await enterShellAndFillValidForm();
+    const user = userEvent.setup();
+    const input = screen.getByLabelText(/select files/i) as HTMLInputElement;
+
+    uploadFilesDirectly(input, [makeFile("invalid.exe", 100, "application/octet-stream")]);
+    const section = screen.getByText(/attachments/i, { selector: "legend" }).closest("fieldset")!;
+    const item = within(section as HTMLElement).getByText("invalid.exe").closest("li")!;
+    expect(within(item as HTMLElement).getByRole("alert")).toBeInTheDocument();
+    await user.click(within(item as HTMLElement).getByRole("button", { name: /remove/i }));
+    expect(within(section as HTMLElement).queryByText("invalid.exe")).not.toBeInTheDocument();
+  });
+
   it("retains eligible selected files after definitive Ticket-create failure", async () => {
     stubFetch({ createFailure: true });
     render(<App />);
@@ -257,5 +270,3 @@ describe("Create Ticket Attachment pre-selection", () => {
     expect(calls.filter((c) => c.includes("/api/tickets/") && c.includes("attachments"))).toHaveLength(0);
   });
 });
-
-

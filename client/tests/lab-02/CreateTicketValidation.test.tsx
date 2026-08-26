@@ -1,4 +1,4 @@
-﻿import { cleanup, fireEvent, render, screen, within, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
@@ -90,7 +90,7 @@ describe("UI-04 Create Ticket Validation", () => {
   });
 
   it("shows required Category validation without calling the API", async () => {
-    stubFetch();
+    const fetchMock = stubFetch();
     const user = userEvent.setup();
 
     render(<App />);
@@ -105,19 +105,19 @@ describe("UI-04 Create Ticket Validation", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: /requested priority \*/i }), "MEDIUM");
     await user.type(screen.getByLabelText(/description \*/i), "Access denied repeatedly.");
 
-    let createTicketCalls = stubFetch().mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
+    let createTicketCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
     expect(createTicketCalls).toHaveLength(0);
 
     await user.click(submitButton());
 
     expect(screen.getByText(/category is required\./i)).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: /category \*/i })).toHaveAttribute("aria-invalid", "true");
-    createTicketCalls = stubFetch().mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
+    createTicketCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
     expect(createTicketCalls).toHaveLength(0);
   });
 
   it("shows required Related System validation without calling the API", async () => {
-    stubFetch();
+    const fetchMock = stubFetch();
     const user = userEvent.setup();
 
     render(<App />);
@@ -131,12 +131,12 @@ describe("UI-04 Create Ticket Validation", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: /requested priority \*/i}, ), "MEDIUM");
     await user.type(screen.getByLabelText(/description \*/i), "Access denied repeatedly.");
 
-    let createTicketCalls = stubFetch().mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
+    let createTicketCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
     await user.click(submitButton());
 
     expect(screen.getByText(/related system is required\./i)).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: /related system \*/i })).toHaveAttribute("aria-invalid", "true");
-    createTicketCalls = stubFetch().mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
+    createTicketCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
     expect(createTicketCalls).toHaveLength(0);
   });
 
@@ -237,7 +237,7 @@ describe("UI-04 Create Ticket Validation", () => {
   });
 
   it("rejects missing Requested Priority without calling the API", async () => {
-    stubFetch();
+    const fetchMock = stubFetch();
     render(<App />);
     const user = userEvent.setup();
     const select = await screen.findByRole("combobox", { name: /development requester/i });
@@ -252,7 +252,7 @@ describe("UI-04 Create Ticket Validation", () => {
     await user.type(screen.getByLabelText(/ticket summary \*/i), "Cannot access university email");
     await user.type(screen.getByLabelText(/description \*/i), "Sign-in repeatedly returns an access denied message.");
 
-    let createTicketCalls = stubFetch().mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
+    let createTicketCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
     expect(createTicketCalls).toHaveLength(0);
 
     await user.click(submitButton());
@@ -260,7 +260,7 @@ describe("UI-04 Create Ticket Validation", () => {
     expect(screen.getByText(/please select a requested priority\./i)).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: /requested priority \*/i })).toHaveAttribute("aria-invalid", "true");
 
-    createTicketCalls = stubFetch().mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
+    createTicketCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/tickets"));
     expect(createTicketCalls).toHaveLength(0);
   });
 
@@ -296,4 +296,3 @@ describe("UI-04 Create Ticket Validation", () => {
     expect(screen.getByRole("combobox", { name: /category \*/i })).toHaveValue("2");
   });
 });
-
