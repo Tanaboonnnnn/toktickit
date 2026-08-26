@@ -149,6 +149,24 @@ describe("UI-05 Create Ticket Submission", () => {
     expect(body.updatedAt).toBeUndefined();
   }, 10_000);
 
+  it("shows a clear next action after successful Ticket creation", async () => {
+    const { user } = await enterShellAndFillValidForm();
+
+    await user.click(submitButton());
+
+    expect(await screen.findByText(/your ticket has been created/i)).toBeInTheDocument();
+    const nextAction = screen.getByRole("button", { name: /create another ticket/i });
+    expect(nextAction).toBeInTheDocument();
+
+    await user.click(nextAction);
+
+    expect(screen.queryByText(/your ticket has been created/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/ticket summary \*/i)).toHaveValue("");
+    expect(screen.getByLabelText(/description \*/i)).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: /category \*/i })).toHaveValue("");
+    expect(screen.getByRole("combobox", { name: /related system \*/i })).toHaveValue("");
+  });
+
   it("shows busy state and prevents duplicate click during submission", async () => {
     let resolveCreate!: (value: unknown) => void;
     const pendingCreate = new Promise((resolve) => { resolveCreate = resolve; });

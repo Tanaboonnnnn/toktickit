@@ -255,6 +255,7 @@ select:focus-visible {
 .lab2-field-group input,
 .lab2-field-group select,
 .lab2-field-group textarea {
+  box-sizing: border-box;
   width: 100%;
   min-height: 44px;
   padding: 10px 12px;
@@ -372,4 +373,16 @@ select:focus-visible {
 .lab2-selected-files li span[role="alert"] {
   color: var(--color-error);
   font-size: .875rem;
+}
+
+.lab2-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.lab2-success-actions .lab2-muted {
+  margin: 0;
 }

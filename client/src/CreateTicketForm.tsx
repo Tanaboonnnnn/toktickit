@@ -215,6 +215,19 @@ export default function CreateTicketForm() {
     void submitCreate();
   }
 
+  function startAnotherTicket() {
+    boundRef.current = null;
+    setCategoryId("");
+    setRelatedSystemId("");
+    setSummary("");
+    setPriority("");
+    setDescription("");
+    setFieldErrors({});
+    setSelectedFiles([]);
+    nextFileId.current = 1;
+    setSubmission({ kind: "idle" });
+  }
+
   function updateField(field: FieldName, value: string) {
     if (submission.kind === "failure" && !submission.ambiguous && boundRef.current !== null) {
       boundRef.current = null;
@@ -278,7 +291,12 @@ export default function CreateTicketForm() {
             <dt>Requested Priority</dt><dd>{submission.ticket.requestedPriority}</dd>
             <dt>Description</dt><dd>{submission.ticket.description}</dd>
           </dl>
-          <p className="lab2-muted">My Tickets and Ticket Detail are not yet available.</p>
+          <div className="lab2-success-actions">
+            <button type="button" className="lab2-button lab2-button-primary" onClick={startAnotherTicket}>
+              Create another Ticket
+            </button>
+            <p className="lab2-muted">My Tickets and Ticket Detail will be available in later Lab 2 increments.</p>
+          </div>
         </div>
       ) : (
         <>
