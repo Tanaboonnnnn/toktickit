@@ -99,14 +99,14 @@ describe("UI-02 Development Requester switching", () => {
     expect(sessionStorage.getItem("toktickit.developmentRequesterId")).toBe("2");
   });
 
-  it("keeps shell navigation understandable without creating Ticket feature pages", async () => {
+  it("keeps shell navigation understandable while exposing My Tickets", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(activeRequesters)));
 
     render(<App />);
 
     const nav = await screen.findByRole("navigation", { name: /primary/i });
     const myTickets = within(nav).getByRole("button", { name: /my tickets/i });
-    expect(myTickets).toBeDisabled();
+    expect(myTickets).toBeEnabled();
     expect(myTickets).not.toHaveAttribute("aria-current");
 
     const createTicketNav = within(nav).getByRole("button", { name: /create ticket/i });
