@@ -77,7 +77,12 @@ function formatFileSize(sizeBytes: number): string {
   return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function CreateTicketForm() {
+interface CreateTicketFormProps {
+  onViewTicket?: (ticketId: number) => void;
+  onMyTickets?: () => void;
+}
+
+export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTicketFormProps) {
   const { currentRequester } = useRequesterContext();
 
   const [categoryState, setCategoryState] = useState<ReferenceState>("loading");
@@ -295,7 +300,12 @@ export default function CreateTicketForm() {
             <button type="button" className="lab2-button lab2-button-primary" onClick={startAnotherTicket}>
               Create another Ticket
             </button>
-            <p className="lab2-muted">My Tickets and Ticket Detail will be available in later Lab 2 increments.</p>
+            <button type="button" className="lab2-button lab2-button-secondary" onClick={() => onViewTicket?.(submission.ticket.id)}>
+              View Ticket
+            </button>
+            <button type="button" className="lab2-button lab2-button-secondary" onClick={() => onMyTickets?.()}>
+              My Tickets
+            </button>
           </div>
         </div>
       ) : (

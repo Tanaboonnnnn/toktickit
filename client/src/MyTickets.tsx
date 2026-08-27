@@ -59,9 +59,10 @@ function safeFailureMessage(error: unknown): string {
 
 interface MyTicketsProps {
   onCreateTicket?: () => void;
+  onViewTicket?: (ticketId: number) => void;
 }
 
-export default function MyTickets({ onCreateTicket }: MyTicketsProps) {
+export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsProps) {
   const { currentRequester } = useRequesterContext();
   const requesterId = currentRequester?.id;
   const [draftSearch, setDraftSearch] = useState("");
@@ -300,11 +301,11 @@ export default function MyTickets({ onCreateTicket }: MyTicketsProps) {
                   <th scope="col">Ticket Number</th><th scope="col">Created</th><th scope="col">Summary</th>
                   <th scope="col">Category</th><th scope="col">Requested Priority</th><th scope="col">Current Status</th><th scope="col">Last Updated</th><th scope="col">Action</th>
                 </tr></thead>
-                <tbody>{response.items.map((ticket) => <TicketTableRow key={ticket.id} ticket={ticket} />)}</tbody>
+                <tbody>{response.items.map((ticket) => <TicketTableRow key={ticket.id} ticket={ticket} onViewTicket={onViewTicket} />)}</tbody>
               </table>
             </div>
             <div className="lab2-ticket-cards" aria-label="My Tickets cards">
-              {response.items.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)}
+              {response.items.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} onViewTicket={onViewTicket} />)}
             </div>
           </>
         )}
@@ -323,7 +324,7 @@ export default function MyTickets({ onCreateTicket }: MyTicketsProps) {
   );
 }
 
-function TicketTableRow({ ticket }: { ticket: TicketListItem }) {
+function TicketTableRow({ ticket, onViewTicket }: { ticket: TicketListItem; onViewTicket?: (ticketId: number) => void }) {
   return <tr>
     <th scope="row">{ticket.ticketNumber}</th>
     <td>{formatDate(ticket.createdAt)}</td>
@@ -332,11 +333,11 @@ function TicketTableRow({ ticket }: { ticket: TicketListItem }) {
     <td><span className={`lab2-badge lab2-priority-${ticket.requestedPriority.toLowerCase()}`}>{priorityLabel(ticket.requestedPriority)}</span></td>
     <td><span className="lab2-badge lab2-status-new">New</span></td>
     <td>{formatDate(ticket.updatedAt)}</td>
-    <td><button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" disabled title="Ticket Detail is available in a later increment">View ticket</button></td>
+    <td><button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" onClick={() => onViewTicket?.(ticket.id)}>View ticket</button></td>
   </tr>;
 }
 
-function TicketCard({ ticket }: { ticket: TicketListItem }) {
+function TicketCard({ ticket, onViewTicket }: { ticket: TicketListItem; onViewTicket?: (ticketId: number) => void }) {
   return <article className="lab2-ticket-card">
     <h2>{ticket.ticketNumber}</h2>
     <p className="lab2-ticket-card-summary">{ticket.summary}</p>
@@ -347,6 +348,6 @@ function TicketCard({ ticket }: { ticket: TicketListItem }) {
       <dt>Current Status</dt><dd><span className="lab2-badge lab2-status-new">New</span></dd>
       <dt>Last Updated</dt><dd>{formatDate(ticket.updatedAt)}</dd>
     </dl>
-    <button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" disabled title="Ticket Detail is available in a later increment">View ticket</button>
+    <button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" onClick={() => onViewTicket?.(ticket.id)}>View ticket</button>
   </article>;
 }

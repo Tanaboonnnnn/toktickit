@@ -142,6 +142,21 @@ export async function createTicket(
   );
 }
 
+export async function getTicketDetail(
+  prisma: PrismaClient,
+  requester: RequesterContext,
+  ticketId: number,
+): Promise<ReturnType<typeof serializeTicket>> {
+  const ticket = await prisma.ticket.findFirst({
+    // Ownership is part of the persistence query so missing and foreign-owned
+    // Tickets are intentionally indistinguishable to the caller.
+    where: { id: ticketId, requesterId: requester.id },
+    include: ticketArgs.include,
+  });
+  if (!ticket) throw new ApiError(404, "RESOURCE_NOT_FOUND", "Ticket not found");
+  return serializeTicket(ticket);
+}
+
 export function serializeTicket(ticket: TicketWithRelations) {
   return {
     id: ticket.id,

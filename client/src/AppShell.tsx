@@ -1,13 +1,17 @@
 import { useRequesterContext } from "./requester-context.js";
 import CreateTicketForm from "./CreateTicketForm.js";
 import MyTickets from "./MyTickets.js";
+import TicketDetail from "./TicketDetail.js";
 import { useState } from "react";
 
-type Page = "my-tickets" | "create-ticket";
+type Page =
+  | { kind: "my-tickets" }
+  | { kind: "create-ticket" }
+  | { kind: "ticket-detail"; ticketId: number };
 
 export default function AppShell() {
   const { currentRequester, clearRequester } = useRequesterContext();
-  const [page, setPage] = useState<Page>("create-ticket");
+  const [page, setPage] = useState<Page>({ kind: "create-ticket" });
 
   if (!currentRequester) return null;
 
@@ -29,22 +33,24 @@ export default function AppShell() {
       </header>
 
       <nav className="lab2-navigation" aria-label="Primary navigation">
-        <button type="button" className={`lab2-nav-item ${page === "my-tickets" ? "lab2-nav-item-active" : ""}`}
-          aria-current={page === "my-tickets" ? "page" : undefined}
-          onClick={() => setPage("my-tickets")}>
+        <button type="button" className={`lab2-nav-item ${page.kind === "my-tickets" ? "lab2-nav-item-active" : ""}`}
+          aria-current={page.kind === "my-tickets" ? "page" : undefined}
+          onClick={() => setPage({ kind: "my-tickets" })}>
           My Tickets
         </button>
-        <button type="button" className={`lab2-nav-item ${page === "create-ticket" ? "lab2-nav-item-active" : ""}`}
-          aria-current={page === "create-ticket" ? "page" : undefined}
-          onClick={() => setPage("create-ticket")}>
+        <button type="button" className={`lab2-nav-item ${page.kind === "create-ticket" ? "lab2-nav-item-active" : ""}`}
+          aria-current={page.kind === "create-ticket" ? "page" : undefined}
+          onClick={() => setPage({ kind: "create-ticket" })}>
           Create Ticket
         </button>
       </nav>
 
       <main className="lab2-shell-content" key={currentRequester.id}>
-        {page === "my-tickets"
-          ? <MyTickets onCreateTicket={() => setPage("create-ticket")} />
-          : <CreateTicketForm />}
+        {page.kind === "my-tickets"
+          ? <MyTickets onCreateTicket={() => setPage({ kind: "create-ticket" })} onViewTicket={(ticketId) => setPage({ kind: "ticket-detail", ticketId })} />
+          : page.kind === "ticket-detail"
+            ? <TicketDetail ticketId={page.ticketId} onBack={() => setPage({ kind: "my-tickets" })} />
+            : <CreateTicketForm onViewTicket={(ticketId) => setPage({ kind: "ticket-detail", ticketId })} onMyTickets={() => setPage({ kind: "my-tickets" })} />}
       </main>
     </div>
   );

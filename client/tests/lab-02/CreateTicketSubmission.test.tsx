@@ -456,4 +456,18 @@ describe("UI-05 Create Ticket Submission", () => {
     expect(bodies[0].clientRequestId).toBe(bodies[1].clientRequestId);
   });
 
+  it("offers View Ticket and My Tickets actions after successful creation", async () => {
+    const { user } = await enterShellAndFillValidForm();
+    await user.click(submitButton());
+    expect(await screen.findByText(/your ticket has been created/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Create another Ticket" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "View Ticket" })).toBeInTheDocument();
+    const success = screen.getByRole("status");
+    expect(within(success).getByRole("button", { name: "My Tickets" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "View Ticket" }));
+    expect(await screen.findByRole("heading", { name: /ticket detail/i })).toBeInTheDocument();
+    expect(screen.getByText("TKT-20260823-ABCDEF")).toBeInTheDocument();
+  });
+
 });
