@@ -7,7 +7,8 @@ import {
   resolveRequesterContext,
 } from "./requester-context.js";
 import { parseTicketCreateBody } from "./ticket-contract.js";
-import { createTicket } from "./ticket-service.js";
+import { createTicket, getTicketDetail } from "./ticket-service.js";
+import { validationError } from "./errors.js";
 import { parseTicketListQuery } from "./ticket-query.js";
 import { listMyTickets } from "./ticket-list-service.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
@@ -50,6 +51,28 @@ app.get("/api/tickets", async (req: Request, res: Response) => {
     res.status(200).json(result);
   } catch (error) {
     const safe = safeErrorBody(error, "Unable to load tickets");
+    res.status(safe.status).json(safe.body);
+  }
+});
+
+app.get("/api/tickets/:ticketId", async (req: Request, res: Response) => {
+  try {
+    const requester = await resolveRequesterContext(
+      getPrisma(),
+      req.get(DEVELOPMENT_REQUESTER_HEADER),
+    );
+    const rawTicketId = req.params.ticketId;
+    if (!/^[1-9]\d*$/.test(rawTicketId)) {
+      throw validationError({ ticketId: "Ticket ID must be a positive integer" });
+    }
+    const ticketId = Number(rawTicketId);
+    if (!Number.isSafeInteger(ticketId)) {
+      throw validationError({ ticketId: "Ticket ID must be a positive integer" });
+    }
+    const ticket = await getTicketDetail(getPrisma(), requester, ticketId);
+    res.status(200).json({ ticket });
+  } catch (error) {
+    const safe = safeErrorBody(error, "Unable to load ticket");
     res.status(safe.status).json(safe.body);
   }
 });

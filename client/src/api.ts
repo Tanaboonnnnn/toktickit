@@ -188,6 +188,32 @@ function isTicketListResponse(value: unknown): value is TicketListResponse {
     && Number.isSafeInteger(result.totalPages) && (result.totalPages as number) >= 0;
 }
 
+function isTicketAttachment(value: unknown): value is TicketAttachmentMetadata {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return Number.isSafeInteger(item.id)
+    && Number.isSafeInteger(item.ticketId)
+    && typeof item.originalName === "string"
+    && (item.mimeType === "image/jpeg" || item.mimeType === "image/png" || item.mimeType === "image/webp" || item.mimeType === "application/pdf")
+    && Number.isSafeInteger(item.sizeBytes) && (item.sizeBytes as number) >= 0
+    && (item.state === "ACTIVE" || item.state === "REMOVED")
+    && typeof item.createdAt === "string"
+    && (item.removedAt === null || typeof item.removedAt === "string")
+    && (item.removalReason === null || typeof item.removalReason === "string")
+    && (item.downloadUrl === null || typeof item.downloadUrl === "string");
+}
+
+function isTicket(value: unknown): value is Ticket {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return isTicketListItem(item)
+    && isReferenceItem(item.requester)
+    && typeof ((item.requester as unknown) as Record<string, unknown>).email === "string"
+    && typeof item.description === "string"
+    && Array.isArray(item.attachments)
+    && item.attachments.every(isTicketAttachment);
+}
+
 function appendListQuery(params: URLSearchParams, query: TicketListQuery): void {
   const search = typeof query.search === "string" ? query.search.trim() : "";
   if (search) params.set("search", search);
@@ -229,6 +255,23 @@ export async function fetchMyTickets(
     throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
   }
   return body;
+}
+
+export async function fetchTicketDetail(requesterId: number, ticketId: number): Promise<Ticket> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}`, {
+    headers: { "X-Development-Requester-Id": String(requesterId) },
+  });
+  if (!response.ok) throw await parseSafeError(response);
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  }
+  if (!body || typeof body !== "object" || !isTicket((body as Record<string, unknown>).ticket)) {
+    throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  }
+  return (body as { ticket: Ticket }).ticket;
 }
 
 export async function createTicket(
