@@ -8,6 +8,8 @@ import {
 } from "./requester-context.js";
 import { parseTicketCreateBody } from "./ticket-contract.js";
 import { createTicket } from "./ticket-service.js";
+import { parseTicketListQuery } from "./ticket-query.js";
+import { listMyTickets } from "./ticket-list-service.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -33,6 +35,21 @@ app.post("/api/tickets", async (req: Request, res: Response) => {
     });
   } catch (error) {
     const safe = safeErrorBody(error, "Unable to create ticket");
+    res.status(safe.status).json(safe.body);
+  }
+});
+
+app.get("/api/tickets", async (req: Request, res: Response) => {
+  try {
+    const requester = await resolveRequesterContext(
+      getPrisma(),
+      req.get(DEVELOPMENT_REQUESTER_HEADER),
+    );
+    const query = parseTicketListQuery(req.query as Record<string, unknown>);
+    const result = await listMyTickets(getPrisma(), requester, query);
+    res.status(200).json(result);
+  } catch (error) {
+    const safe = safeErrorBody(error, "Unable to load tickets");
     res.status(safe.status).json(safe.body);
   }
 });

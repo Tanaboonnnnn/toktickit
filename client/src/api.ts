@@ -17,6 +17,11 @@ export interface RelatedSystem {
 }
 
 export type RequestedPriority = "LOW" | "MEDIUM" | "HIGH";
+export type TicketStatus = "NEW";
+
+export type TicketSortField = "createdAt" | "updatedAt" | "ticketNumber" | "summary";
+export type TicketSortDirection = "asc" | "desc";
+export type TicketPageSize = 10 | 20 | 50;
 
 export interface TicketRequester {
   id: number;
@@ -45,11 +50,42 @@ export interface Ticket {
   relatedSystem: RelatedSystem;
   summary: string;
   requestedPriority: RequestedPriority;
-  currentStatus: string;
+  currentStatus: TicketStatus;
   createdAt: string;
   updatedAt: string;
   description: string;
   attachments: TicketAttachmentMetadata[];
+}
+
+export interface TicketListItem {
+  id: number;
+  ticketNumber: string;
+  category: Category;
+  relatedSystem: RelatedSystem;
+  summary: string;
+  requestedPriority: RequestedPriority;
+  currentStatus: TicketStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TicketListQuery {
+  search?: string;
+  categoryId?: number;
+  requestedPriority?: RequestedPriority;
+  currentStatus?: TicketStatus;
+  sortBy?: TicketSortField;
+  sortDirection?: TicketSortDirection;
+  page?: number;
+  pageSize?: TicketPageSize;
+}
+
+export interface TicketListResponse {
+  items: TicketListItem[];
+  page: number;
+  pageSize: TicketPageSize;
+  totalItems: number;
+  totalPages: number;
 }
 
 export interface TicketCreateResponse {
@@ -119,6 +155,80 @@ async function parseSafeError(response: Response): Promise<SafeApiError> {
   }
 
   return new SafeApiError(response.status, code, message, fieldErrors);
+}
+
+function isReferenceItem(value: unknown): value is Category {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return Number.isSafeInteger(item.id) && typeof item.name === "string";
+}
+
+function isTicketListItem(value: unknown): value is TicketListItem {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return Number.isSafeInteger(item.id)
+    && typeof item.ticketNumber === "string"
+    && isReferenceItem(item.category)
+    && isReferenceItem(item.relatedSystem)
+    && typeof item.summary === "string"
+    && (item.requestedPriority === "LOW" || item.requestedPriority === "MEDIUM" || item.requestedPriority === "HIGH")
+    && item.currentStatus === "NEW"
+    && typeof item.createdAt === "string"
+    && typeof item.updatedAt === "string";
+}
+
+function isTicketListResponse(value: unknown): value is TicketListResponse {
+  if (!value || typeof value !== "object") return false;
+  const result = value as Record<string, unknown>;
+  return Array.isArray(result.items)
+    && result.items.every(isTicketListItem)
+    && Number.isSafeInteger(result.page) && (result.page as number) >= 1
+    && result.pageSize !== undefined && [10, 20, 50].includes(result.pageSize as number)
+    && Number.isSafeInteger(result.totalItems) && (result.totalItems as number) >= 0
+    && Number.isSafeInteger(result.totalPages) && (result.totalPages as number) >= 0;
+}
+
+function appendListQuery(params: URLSearchParams, query: TicketListQuery): void {
+  const search = typeof query.search === "string" ? query.search.trim() : "";
+  if (search) params.set("search", search);
+  if (Number.isSafeInteger(query.categoryId) && (query.categoryId as number) > 0) {
+    params.set("categoryId", String(query.categoryId));
+  }
+  if (query.requestedPriority && ["LOW", "MEDIUM", "HIGH"].includes(query.requestedPriority)) {
+    params.set("requestedPriority", query.requestedPriority);
+  }
+  if (query.currentStatus === "NEW") params.set("currentStatus", query.currentStatus);
+  if (query.sortBy && ["createdAt", "updatedAt", "ticketNumber", "summary"].includes(query.sortBy)) {
+    params.set("sortBy", query.sortBy);
+  }
+  if (query.sortDirection && ["asc", "desc"].includes(query.sortDirection)) {
+    params.set("sortDirection", query.sortDirection);
+  }
+  if (Number.isSafeInteger(query.page) && (query.page as number) > 0) params.set("page", String(query.page));
+  if (query.pageSize && [10, 20, 50].includes(query.pageSize)) params.set("pageSize", String(query.pageSize));
+}
+
+export async function fetchMyTickets(
+  requesterId: number,
+  query: TicketListQuery = {},
+): Promise<TicketListResponse> {
+  const params = new URLSearchParams();
+  appendListQuery(params, query);
+  const suffix = params.toString() ? `?${params.toString()}` : "";
+  const response = await fetch(`${API_URL}/api/tickets${suffix}`, {
+    headers: { "X-Development-Requester-Id": String(requesterId) },
+  });
+  if (!response.ok) throw await parseSafeError(response);
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  }
+  if (!isTicketListResponse(body)) {
+    throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  }
+  return body;
 }
 
 export async function createTicket(
