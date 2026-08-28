@@ -8,6 +8,7 @@ import {
   createTicketNumber,
   withTicketNumberRetry,
 } from "./ticket-number.js";
+import { serializeAttachment } from "./attachment-service.js";
 
 const ticketArgs = Prisma.validator<Prisma.TicketDefaultArgs>()({
   include: {
@@ -170,19 +171,6 @@ export function serializeTicket(ticket: TicketWithRelations) {
     createdAt: ticket.createdAt.toISOString(),
     updatedAt: ticket.updatedAt.toISOString(),
     description: ticket.description,
-    attachments: ticket.attachments.map((attachment) => ({
-      id: attachment.id,
-      ticketId: attachment.ticketId,
-      originalName: attachment.originalName,
-      mimeType: attachment.mimeType,
-      sizeBytes: attachment.sizeBytes,
-      state: attachment.removedAt ? "REMOVED" : "ACTIVE",
-      createdAt: attachment.createdAt.toISOString(),
-      removedAt: attachment.removedAt?.toISOString() ?? null,
-      removalReason: attachment.removalReason,
-      downloadUrl: attachment.removedAt
-        ? null
-        : `/api/tickets/${ticket.id}/attachments/${attachment.id}/download`,
-    })),
+    attachments: ticket.attachments.map((attachment) => serializeAttachment(attachment)),
   };
 }
