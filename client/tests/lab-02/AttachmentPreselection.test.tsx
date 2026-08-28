@@ -241,7 +241,7 @@ describe("Create Ticket Attachment pre-selection", () => {
     expect(within(section as HTMLElement).getByText("Selected")).toBeInTheDocument();
   });
 
-  it("does not send any upload request when submitting the Ticket", async () => {
+  it("uploads selected files after the Ticket is created", async () => {
     const fetchMock = stubFetch();
     render(<App />);
     const user = userEvent.setup();
@@ -267,6 +267,6 @@ describe("Create Ticket Attachment pre-selection", () => {
 
     expect(await screen.findByText(/your ticket has been created/i)).toBeInTheDocument();
     const calls = fetchMock.mock.calls.map(([u]) => String(u));
-    expect(calls.filter((c) => c.includes("/api/tickets/") && c.includes("attachments"))).toHaveLength(0);
+    expect(calls.filter((c) => c.includes("/api/tickets/") && c.includes("attachments"))).toHaveLength(1);
   });
 });

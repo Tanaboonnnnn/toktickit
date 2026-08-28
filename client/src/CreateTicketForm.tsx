@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createTicket,
+  fetchTicketAttachments,
   fetchCategories,
   fetchRelatedSystems,
   SafeApiError,
+  uploadAttachment,
   type Category,
   type RelatedSystem,
   type RequestedPriority,
   type Ticket,
 } from "./api.js";
 import { useRequesterContext } from "./requester-context.js";
+import { ATTACHMENT_ACCEPT, MAX_ATTACHMENT_BYTES, MAX_ACTIVE_ATTACHMENTS, formatAttachmentSize, validateLocalAttachment } from "./attachment-validation.js";
 
 type ReferenceState = "loading" | "ready" | "error" | "empty";
 
@@ -38,44 +41,17 @@ const PRIORITIES: RequestedPriority[] = ["LOW", "MEDIUM", "HIGH"];
 const FIELD_ORDER = ["categoryId", "relatedSystemId", "summary", "requestedPriority", "description"] as const;
 type FieldName = typeof FIELD_ORDER[number];
 
-const ALLOWED_ATTACHMENT_TYPES: Record<string, string[]> = {
-  "image/jpeg": [".jpg", ".jpeg"],
-  "image/png": [".png"],
-  "image/webp": [".webp"],
-  "application/pdf": [".pdf"],
-};
-const MAX_ATTACHMENT_BYTES = 5_242_880;
-const MAX_SELECTED_FILES = 5;
+const MAX_SELECTED_FILES = MAX_ACTIVE_ATTACHMENTS;
 
 interface SelectedAttachment {
   id: number;
   file: File;
   error: string | null;
 }
+type AttachmentUploadStatus = "selected" | "uploading" | "uploaded" | "failed" | "ambiguous";
 
-function validateAttachmentFile(file: File): string | null {
-  const dotIndex = file.name.lastIndexOf(".");
-  if (dotIndex === -1) return "Unsupported file type. Allowed: JPG/JPEG, PNG, WEBP, PDF.";
-  const extension = file.name.slice(dotIndex).toLowerCase();
-  const allowedExtensions = Object.values(ALLOWED_ATTACHMENT_TYPES).flat();
-  if (!allowedExtensions.includes(extension)) {
-    return "Unsupported file type. Allowed: JPG/JPEG, PNG, WEBP, PDF.";
-  }
-  const matchingMime = Object.keys(ALLOWED_ATTACHMENT_TYPES)
-    .find((mime) => ALLOWED_ATTACHMENT_TYPES[mime].includes(extension)) ?? "";
-  if (file.type !== matchingMime) {
-    return `File type must be ${matchingMime} for ${extension} files.`;
-  }
-  if (file.size <= 0) return "File must not be empty.";
-  if (file.size > MAX_ATTACHMENT_BYTES) return "File must not exceed 5 MB (5,242,880 bytes).";
-  return null;
-}
-
-function formatFileSize(sizeBytes: number): string {
-  if (sizeBytes < 1024) return `${sizeBytes} B`;
-  if (sizeBytes < 1024 * 1024) return `${(sizeBytes / 1024).toFixed(1)} KB`;
-  return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`;
-}
+const validateAttachmentFile = validateLocalAttachment;
+const formatFileSize = formatAttachmentSize;
 
 interface CreateTicketFormProps {
   onViewTicket?: (ticketId: number) => void;
@@ -102,6 +78,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
   const [submission, setSubmission] = useState<SubmissionState>({ kind: "idle" });
   const boundRef = useRef<BoundSubmission | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<SelectedAttachment[]>([]);
+  const [uploadStates, setUploadStates] = useState<Record<number, AttachmentUploadStatus>>({});
   const nextFileId = useRef(1);
 
   const refs = {
@@ -195,6 +172,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
       );
       boundRef.current = null;
       setSubmission({ kind: "success", ticket: result.ticket, replayed: result.replayed });
+      void uploadSelectedAttachments(result.ticket.id);
     } catch (error) {
       if (error instanceof SafeApiError) {
         if (error.status >= 400 && error.status < 500) {
@@ -229,6 +207,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
     setDescription("");
     setFieldErrors({});
     setSelectedFiles([]);
+    setUploadStates({});
     nextFileId.current = 1;
     setSubmission({ kind: "idle" });
   }
@@ -249,7 +228,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
   function handleFileSelection(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
     const incoming = Array.from(fileList).map((file) => ({
-      id: nextFileId.current,
+      id: nextFileId.current++,
       file,
       error: validateAttachmentFile(file),
     }));
@@ -261,12 +240,39 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
       if (entry.error === null) validSlotsRemaining -= 1;
       return entry;
     });
-    for (const entry of processed) nextFileId.current += 1;
     setSelectedFiles((previous) => [...previous, ...processed]);
+    setUploadStates((previous) => ({ ...previous, ...Object.fromEntries(processed.map((entry) => [entry.id, "selected" as const])) }));
   }
 
   function removeSelectedFile(id: number) {
     setSelectedFiles((previous) => previous.filter((entry) => entry.id !== id));
+  }
+
+  async function uploadOneAttachment(entry: SelectedAttachment, ticketId: number) {
+    if (entry.error) return;
+    setUploadStates((previous) => ({ ...previous, [entry.id]: "uploading" }));
+    try {
+      await uploadAttachment(currentRequester?.id ?? 0, ticketId, entry.file);
+      setUploadStates((previous) => ({ ...previous, [entry.id]: "uploaded" }));
+    } catch (error) {
+      if (!(error instanceof SafeApiError)) {
+        // The outcome is unknown; refresh authoritative metadata before exposing retry.
+        try { await fetchTicketAttachments(currentRequester?.id ?? 0, ticketId); } catch { /* safe retry state remains */ }
+        setUploadStates((previous) => ({ ...previous, [entry.id]: "ambiguous" }));
+      } else {
+        setUploadStates((previous) => ({ ...previous, [entry.id]: "failed" }));
+      }
+    }
+  }
+
+  async function uploadSelectedAttachments(ticketId: number) {
+    const eligible = selectedFiles.filter((entry) => !entry.error);
+    await Promise.all(eligible.map((entry) => uploadOneAttachment(entry, ticketId)));
+  }
+
+  function retryAttachment(entry: SelectedAttachment, ticketId: number) {
+    const status = uploadStates[entry.id];
+    if (status === "failed" || status === "ambiguous") void uploadOneAttachment(entry, ticketId);
   }
 
   const isBusy = submission.kind === "busy";
@@ -296,6 +302,17 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
             <dt>Requested Priority</dt><dd>{submission.ticket.requestedPriority}</dd>
             <dt>Description</dt><dd>{submission.ticket.description}</dd>
           </dl>
+          {selectedFiles.some((entry) => !entry.error) && (
+            <div className="lab2-attachment-upload-results" aria-live="polite">
+              <h2>Attachment uploads</h2>
+              <ul className="lab2-selected-files">
+                {selectedFiles.filter((entry) => !entry.error).map((entry) => {
+                  const status = uploadStates[entry.id] ?? "selected";
+                  return <li key={entry.id}><span>{entry.file.name}</span><span>{status === "uploading" ? "Uploading..." : status === "uploaded" ? "Uploaded" : status === "ambiguous" ? "Upload result uncertain" : status === "failed" ? "Upload failed" : "Selected"}</span>{(status === "failed" || status === "ambiguous") && <button type="button" onClick={() => retryAttachment(entry, submission.ticket.id)}>Retry upload</button>}</li>;
+                })}
+              </ul>
+            </div>
+          )}
           <div className="lab2-success-actions">
             <button type="button" className="lab2-button lab2-button-primary" onClick={startAnotherTicket}>
               Create another Ticket
@@ -413,7 +430,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
                   id="ticket-attachments"
                   type="file"
                   multiple
-                  accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf"
+                  accept={ATTACHMENT_ACCEPT}
                   onChange={(event) => {
                     handleFileSelection(event.target.files);
                     event.target.value = "";

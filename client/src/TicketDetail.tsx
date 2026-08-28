@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchTicketDetail, SafeApiError, type Ticket } from "./api.js";
 import { useRequesterContext } from "./requester-context.js";
+import AttachmentPanel from "./AttachmentPanel.js";
 
 type DetailState =
   | { kind: "loading" }
@@ -58,6 +59,7 @@ export default function TicketDetail({ ticketId, onBack }: TicketDetailProps) {
     ? { kind: "loading" }
     : state;
 
+  const reloadTicket = () => setRetryToken((token) => token + 1);
   return (
     <section className="lab2-ticket-detail" aria-labelledby="ticket-detail-heading">
       <div className="lab2-detail-heading">
@@ -78,12 +80,12 @@ export default function TicketDetail({ ticketId, onBack }: TicketDetailProps) {
           <button type="button" className="lab2-button lab2-button-secondary" onClick={() => setRetryToken((token) => token + 1)}>Retry</button>
         </div>
       )}
-      {visibleState.kind === "success" && <TicketContents ticket={visibleState.ticket} />}
+      {visibleState.kind === "success" && <TicketContents ticket={visibleState.ticket} onRefresh={reloadTicket} />}
     </section>
   );
 }
 
-function TicketContents({ ticket }: { ticket: Ticket }) {
+function TicketContents({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () => void }) {
   return (
     <>
       <section className="lab2-readonly-section" aria-labelledby="ticket-information-heading">
@@ -102,29 +104,7 @@ function TicketContents({ ticket }: { ticket: Ticket }) {
         </dl>
       </section>
 
-      <section className="lab2-attachments-section" aria-labelledby="attachments-heading">
-        <h2 id="attachments-heading">Attachments</h2>
-        {ticket.attachments.length === 0 && <p className="lab2-muted">No Attachments.</p>}
-        {ticket.attachments.length > 0 && (
-          <div className="lab2-attachment-list">
-            {ticket.attachments.map((attachment) => (
-              <article className="lab2-attachment-card" key={attachment.id}>
-                <h3>{attachment.originalName}</h3>
-                <dl>
-                  <dt>Type</dt><dd>{attachment.mimeType}</dd>
-                  <dt>Size</dt><dd>{formatSize(attachment.sizeBytes)}</dd>
-                  <dt>Uploaded</dt><dd>{formatDate(attachment.createdAt)}</dd>
-                  <dt>State</dt><dd>{attachment.state === "REMOVED" ? "Removed" : "Active"}</dd>
-                  {attachment.state === "REMOVED" && <>
-                    <dt>Removed</dt><dd>{attachment.removedAt ? formatDate(attachment.removedAt) : "—"}</dd>
-                    <dt>Removal reason</dt><dd>{attachment.removalReason ?? "Not provided"}</dd>
-                  </>}
-                </dl>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
+      <AttachmentPanel ticket={ticket} onRefresh={onRefresh} />
     </>
   );
 }

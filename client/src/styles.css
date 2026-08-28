@@ -631,6 +631,16 @@ select:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.lab2-filename { overflow-wrap: anywhere; word-break: break-word; }
+.lab2-attachment-upload-controls { display: grid; gap: 8px; margin-bottom: 16px; }
+.lab2-selected-file, .lab2-attachment-actions, .lab2-remove-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.lab2-selected-file { padding: 12px; background: var(--color-pale-green); border: 1px solid var(--color-border); border-radius: 6px; }
+.lab2-remove-confirm { display: grid; align-items: start; padding: 16px; background: var(--color-error-bg); border: 1px solid var(--color-error); border-radius: 6px; }
+.lab2-remove-confirm textarea { min-height: 88px; width: 100%; box-sizing: border-box; }
+.lab2-remove-confirm p { margin: 0; color: var(--color-muted); }
+.lab2-attachment-upload-results { margin: 16px 0; }
+.lab2-attachment-upload-results h2 { font-size: 1.1rem; }
+
 .lab2-ticket-cards {
   display: none;
 }
