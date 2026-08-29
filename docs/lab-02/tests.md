@@ -360,3 +360,16 @@ Fresh final verification after the E2E harness, test-integrity, responsive, and 
 - `git diff --check`: passed after final documentation/hygiene updates (line-ending warnings, if shown, are not whitespace errors).
 
 Issue 8 also corrected two verification-tooling defects found by fresh execution: the managed Vite process lifecycle on Windows and the Windows-incompatible wildcard in `test:responsive`. The final supported root scripts use the single managed process lifecycle and explicit responsive spec paths.
+
+### PR #29 review-fix verification
+
+Peer review identified that the original Desktop My Tickets screenshot could clip selected toolbar values even though page-level overflow checks passed. A new browser-level readability assertion now measures the selected option text against each rendered select width, including native-select arrow allowance.
+
+- Pre-fix RESP-01 reproduction failed as expected: `All Categories`, `All Priorities`, `All Statuses`, `Last Updated`, and `Descending` required approximately `133–150px` while the controls were only `101px` wide.
+- The Desktop toolbar grid was changed to reflow the controls into readable rows rather than compressing all controls into one line.
+- Focused RESP-01 My Tickets verification passed after the fix.
+- Full responsive suite: `10` browser tests passed across Desktop `1440×900`, Tablet `834×1112`, and Mobile `390×844`.
+- Full client suite after the review fix: `17` test files / `120` tests passed.
+- Client production build passed (`tsc && vite build`).
+- `my-tickets-desktop.png` was regenerated from the passing Desktop responsive run and manually re-inspected; all selected toolbar values are fully readable.
+- `git diff --check` passed after the review fix.

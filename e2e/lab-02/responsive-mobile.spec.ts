@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createE2eFixture, createFixtureAttachment, destroyE2eFixture, type E2eFixture } from "./support/fixtures.js";
-import { assertNoHorizontalOverflow, assertTouchTargets, assertVisibleWithinViewport, openRequesterShell, screenshot } from "./support/ui.js";
+import { assertNoHorizontalOverflow, assertSelectedOptionTextFits, assertTouchTargets, assertVisibleWithinViewport, openRequesterShell, screenshot } from "./support/ui.js";
 
 test.use({ viewport: { width: 390, height: 844 } });
 
@@ -29,6 +29,7 @@ test.describe("RESP-03 mobile 390x844", () => {
     await expect(page.getByRole("heading", { name: "No matching tickets" })).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await assertVisibleWithinViewport(page, ["#my-tickets-heading", ".lab2-ticket-controls", ".lab2-ticket-cards", ".lab2-pagination button"]);
+    await assertSelectedOptionTextFits(page, [".lab2-ticket-controls select"]);
     await assertTouchTargets(page, [".lab2-ticket-controls button", ".lab2-ticket-controls input", ".lab2-ticket-controls select", ".lab2-ticket-card button"]);
     await screenshot(page, "artifacts/lab-02/screenshots/my-tickets/my-tickets-no-results-mobile.png");
   });

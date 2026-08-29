@@ -579,6 +579,7 @@ Visual review confirms:
 - [x] Active, Uploading, Invalid, Removed, and Unavailable Attachment states are visually distinct.
 - [x] No clipped labels, overlapping messages, hidden required buttons, unreadable filenames, or unintended horizontal overflow exist.
 - [x] Filters, pagination, Attachment controls, and empty states remain usable at desktop, tablet, and mobile widths.
+- [x] My Tickets select controls keep their selected values readable without text clipping at the required Desktop, Tablet, and Mobile evidence widths.
 - [x] No excluded authentication, IT Staff, Public Comment, Internal Note, Actions Taken, assignment, IT Priority edit, or later status-workflow UI appears.
 
 Required implementation evidence is stored under the course repository artifact structure:

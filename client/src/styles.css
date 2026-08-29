@@ -422,7 +422,7 @@ select:focus-visible {
 
 .lab2-ticket-controls {
   display: grid;
-  grid-template-columns: minmax(180px, 2fr) auto repeat(6, minmax(0, 1fr)) auto;
+  grid-template-columns: minmax(220px, 2fr) minmax(130px, .8fr) repeat(3, minmax(150px, 1fr));
   align-items: end;
   gap: 12px;
   margin-bottom: 24px;

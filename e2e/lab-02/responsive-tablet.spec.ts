@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createE2eFixture, destroyE2eFixture, type E2eFixture } from "./support/fixtures.js";
-import { assertNoHorizontalOverflow, assertVisibleWithinViewport, fillCreateTicket, openRequesterShell, screenshot } from "./support/ui.js";
+import { assertNoHorizontalOverflow, assertSelectedOptionTextFits, assertVisibleWithinViewport, fillCreateTicket, openRequesterShell, screenshot } from "./support/ui.js";
 
 test.use({ viewport: { width: 834, height: 1112 } });
 
@@ -16,6 +16,7 @@ test.describe("RESP-02 tablet 834x1112", () => {
     await expect(page.getByLabel("Search Ticket Number or Summary")).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await assertVisibleWithinViewport(page, ["#my-tickets-heading", ".lab2-ticket-controls", ".lab2-table-wrap", ".lab2-pagination button"]);
+    await assertSelectedOptionTextFits(page, [".lab2-ticket-controls select"]);
   });
 
   test("captures a real partial-success Create Ticket state", async ({ page }) => {

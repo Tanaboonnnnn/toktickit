@@ -53,6 +53,33 @@ export async function assertTouchTargets(page: Page, selectors: string[], minimu
   if (failures.length > 0) throw new Error(`Touch target failures: ${failures.join("; ")}`);
 }
 
+export async function assertSelectedOptionTextFits(page: Page, selectors: string[], extraArrowSpace = 32): Promise<void> {
+  const failures = await page.evaluate(({ selectors: requested, extraArrowSpace: arrowSpace }) => requested.flatMap((selector) => {
+    const elements = Array.from(document.querySelectorAll<HTMLSelectElement>(selector));
+    return elements.flatMap((element) => {
+      const style = getComputedStyle(element);
+      if (style.display === "none" || style.visibility === "hidden") return [];
+      const selectedText = element.selectedOptions[0]?.textContent?.trim() ?? "";
+      if (!selectedText) return [];
+
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (!context) return [`${selector}: unable to measure selected option text`];
+
+      context.font = style.font;
+      const textWidth = context.measureText(selectedText).width;
+      const paddingLeft = Number.parseFloat(style.paddingLeft) || 0;
+      const paddingRight = Number.parseFloat(style.paddingRight) || 0;
+      const requiredWidth = Math.ceil(textWidth + paddingLeft + paddingRight + arrowSpace);
+      const actualWidth = Math.floor(element.getBoundingClientRect().width);
+      return actualWidth + 1 < requiredWidth
+        ? [`${selector}: selected option "${selectedText}" requires about ${requiredWidth}px but control is ${actualWidth}px wide`]
+        : [];
+    });
+  }), { selectors, extraArrowSpace });
+  if (failures.length > 0) throw new Error(`Select value readability failures: ${failures.join("; ")}`);
+}
+
 export async function screenshot(page: Page, relativePath: string): Promise<void> {
   const absolutePath = resolve(process.cwd(), relativePath);
   mkdirSync(dirname(absolutePath), { recursive: true });

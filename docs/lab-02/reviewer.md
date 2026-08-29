@@ -57,6 +57,25 @@ This file records only peer-review evidence that actually occurred. Approval is 
 | Review 3 | UI-03 / AC-37 matrix mismatch | Added UI-03 to AC-37 mapping | `tests.md` | Resolved |
 | Review 3 | Branch number differs from Issue #15 | No rename performed yet | Git process | Open |
 
+## Issue #28 / PR #29 review evidence
+
+### Review 4 — 2026-08-29 19:33 UTC
+
+- Result: **Changes requested**
+- Reviewer: `@Chxtamos`
+- Review: [PR #29 review](https://github.com/Tanaboonnnnn/toktickit/pull/29#pullrequestreview-5058988936)
+- Finding 1: the Desktop My Tickets evidence screenshot showed selected toolbar values clipped inside narrow select controls even though the Test DD/UI evidence claimed no clipped labels or controls.
+- Finding 2: the responsive automation only proved viewport containment/page overflow and did not verify that the selected option text itself fit inside each visible toolbar select.
+- Finding 3: the PR description did not explicitly link/close Issue #28.
+- Response: added a browser-level selected-option readability assertion, reproduced the defect as a failing RESP-01 check, changed the Desktop toolbar grid to preserve readable control widths, regenerated `my-tickets-desktop.png`, reran the full responsive suite (`10/10` passed), and added `Closes #28` to the PR description.
+- Status: implementation/evidence fixes completed; reviewer re-review/approval remains pending.
+
+| Review | Finding | Student response | File/change | Status |
+|---|---|---|---|---|
+| Review 4 | Desktop My Tickets selected values were clipped | Reflowed the desktop filter toolbar so select values have sufficient readable width | `client/src/styles.css`, regenerated `artifacts/lab-02/screenshots/my-tickets/my-tickets-desktop.png` | Resolved pending re-review |
+| Review 4 | Responsive checks could miss select text clipping | Added browser measurement of selected option text against actual rendered control width at Desktop/Tablet/Mobile | `e2e/lab-02/support/ui.ts`, `responsive-*.spec.ts` | Resolved pending re-review |
+| Review 4 | PR lacked explicit Issue #28 traceability | Added `Closes #28` to PR description | PR #29 metadata | Resolved pending re-review |
+
 ## Approval evidence
 
 - Final reviewer verdict: **Changes requested**

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createE2eFixture, destroyE2eFixture, type E2eFixture } from "./support/fixtures.js";
-import { assertNoHorizontalOverflow, assertVisibleWithinViewport, openRequesterShell, screenshot } from "./support/ui.js";
+import { assertNoHorizontalOverflow, assertSelectedOptionTextFits, assertVisibleWithinViewport, openRequesterShell, screenshot } from "./support/ui.js";
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -34,6 +34,7 @@ test.describe("RESP-01 desktop 1440x900", () => {
     await expect(page.locator(".lab2-table-wrap").getByText(fixture.tickets[0].summary)).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await assertVisibleWithinViewport(page, ["#my-tickets-heading", ".lab2-ticket-controls", ".lab2-table-wrap", ".lab2-pagination button"]);
+    await assertSelectedOptionTextFits(page, [".lab2-ticket-controls select"]);
     await screenshot(page, "artifacts/lab-02/screenshots/my-tickets/my-tickets-desktop.png");
 
     await page.getByRole("button", { name: "Change Requester" }).click();
