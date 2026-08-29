@@ -316,7 +316,7 @@ Fresh regression and verification for this increment:
 
 The API-10 fixtures require both `DATABASE_URL` and a distinct `TEST_DATABASE_URL`, use tagged fictional `.example.test` Requesters, and clean only their own Attachments, Tickets, reference rows, and Requesters. No Attachment lifecycle actions, responsive Playwright, E2E, authentication, or reviewer approval is claimed here.
 
-### Issue #11 Execution Evidence — Attachment Lifecycle
+### Issue #26 Execution Evidence — Attachment Lifecycle
 
 - UT-05: `1` test file / `9` tests passed.
 - UT-06: `1` test file / `2` tests passed.
@@ -328,13 +328,13 @@ The API-10 fixtures require both `DATABASE_URL` and a distinct `TEST_DATABASE_UR
 - API-16: `1` test file / `3` tests passed.
 - API-17: `1` test file / `5` tests passed.
 - API-18: `1` test file / `3` tests passed.
-- UI-05: `1` test file / `13` tests passed, including post-create uploads, partial success, and ambiguous upload retry.
-- UI-09: `1` test file / `4` tests passed.
+- UI-05: `1` test file / `14` tests passed, including post-create uploads, partial success, and ambiguous upload retry.
+- UI-09: `1` test file / `8` tests passed, including Ticket Detail reconciliation gates and authoritative mutation refreshes.
 
 Fresh complete-suite verification for this increment:
 
 - Full server suite: `28` test files / `135` tests passed.
-- Full client suite: `13` test files / `101` tests passed.
+- Full client suite: `13` test files / `106` tests passed.
 - Server and client production builds passed.
 - Prisma validate/generate passed; migration status reports `2` migrations and an up-to-date database.
 - `git diff --check` passed.

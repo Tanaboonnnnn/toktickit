@@ -59,9 +59,9 @@ export async function createAttachmentFixture(prefix: string): Promise<Attachmen
 export async function destroyAttachmentFixture(fixture: AttachmentFixture): Promise<void> {
   await fixture.prisma.attachment.deleteMany({ where: { ticketId: { in: [fixture.ticketId, fixture.foreignTicketId] } } });
   await fixture.prisma.ticket.deleteMany({ where: { id: { in: [fixture.ticketId, fixture.foreignTicketId] } } });
-  await fixture.prisma.category.deleteMany({ where: { id: fixture.categoryId } });
-  await fixture.prisma.relatedSystem.deleteMany({ where: { id: fixture.systemId } });
-  await fixture.prisma.requesterUser.deleteMany({ where: { id: { in: [fixture.requesterA.id, fixture.requesterB.id] } } });
+  await fixture.prisma.category.deleteMany({ where: { name: { startsWith: fixture.tag } } });
+  await fixture.prisma.relatedSystem.deleteMany({ where: { name: { startsWith: fixture.tag } } });
+  await fixture.prisma.requesterUser.deleteMany({ where: { email: { startsWith: fixture.tag } } });
   await fixture.prisma.$disconnect();
   await rm(fixture.root, { recursive: true, force: true });
 }
@@ -80,4 +80,8 @@ export function upload(fixture: AttachmentFixture, requesterId: number, ticketId
 
 export async function storedFiles(root: string): Promise<string[]> {
   return (await readdir(root)).filter((name) => !name.startsWith(".staging-"));
+}
+
+export async function storageEntries(root: string): Promise<string[]> {
+  return readdir(root);
 }

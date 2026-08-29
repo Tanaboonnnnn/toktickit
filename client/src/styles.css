@@ -631,6 +631,22 @@ select:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.lab2-button-tertiary {
+  color: var(--color-secondary);
+  background: transparent;
+  border-color: transparent;
+}
+
+.lab2-button-remove {
+  color: var(--color-error);
+}
+
+.lab2-button-destructive {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  border-color: var(--color-error);
+}
+
 .lab2-filename { overflow-wrap: anywhere; word-break: break-word; }
 .lab2-attachment-upload-controls { display: grid; gap: 8px; margin-bottom: 16px; }
 .lab2-selected-file, .lab2-attachment-actions, .lab2-remove-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }

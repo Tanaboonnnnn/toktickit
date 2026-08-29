@@ -48,7 +48,10 @@ interface SelectedAttachment {
   file: File;
   error: string | null;
 }
-type AttachmentUploadStatus = "selected" | "uploading" | "uploaded" | "failed" | "ambiguous";
+type AttachmentUploadStatus =
+  | "selected" | "uploading" | "uploaded" | "failed-definitive"
+  | "ambiguous-awaiting-reconciliation" | "reconciling"
+  | "reconciliation-failed" | "reconciled-retry-allowed";
 
 const validateAttachmentFile = validateLocalAttachment;
 const formatFileSize = formatAttachmentSize;
@@ -248,6 +251,16 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
     setSelectedFiles((previous) => previous.filter((entry) => entry.id !== id));
   }
 
+  async function reconcileAttachment(entry: SelectedAttachment, ticketId: number) {
+    setUploadStates((previous) => ({ ...previous, [entry.id]: "reconciling" }));
+    try {
+      await fetchTicketAttachments(currentRequester?.id ?? 0, ticketId);
+      setUploadStates((previous) => ({ ...previous, [entry.id]: "reconciled-retry-allowed" }));
+    } catch {
+      setUploadStates((previous) => ({ ...previous, [entry.id]: "reconciliation-failed" }));
+    }
+  }
+
   async function uploadOneAttachment(entry: SelectedAttachment, ticketId: number) {
     if (entry.error) return;
     setUploadStates((previous) => ({ ...previous, [entry.id]: "uploading" }));
@@ -256,11 +269,10 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
       setUploadStates((previous) => ({ ...previous, [entry.id]: "uploaded" }));
     } catch (error) {
       if (!(error instanceof SafeApiError)) {
-        // The outcome is unknown; refresh authoritative metadata before exposing retry.
-        try { await fetchTicketAttachments(currentRequester?.id ?? 0, ticketId); } catch { /* safe retry state remains */ }
-        setUploadStates((previous) => ({ ...previous, [entry.id]: "ambiguous" }));
+        setUploadStates((previous) => ({ ...previous, [entry.id]: "ambiguous-awaiting-reconciliation" }));
+        await reconcileAttachment(entry, ticketId);
       } else {
-        setUploadStates((previous) => ({ ...previous, [entry.id]: "failed" }));
+        setUploadStates((previous) => ({ ...previous, [entry.id]: "failed-definitive" }));
       }
     }
   }
@@ -272,7 +284,12 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
 
   function retryAttachment(entry: SelectedAttachment, ticketId: number) {
     const status = uploadStates[entry.id];
-    if (status === "failed" || status === "ambiguous") void uploadOneAttachment(entry, ticketId);
+    if (status === "failed-definitive" || status === "reconciled-retry-allowed") void uploadOneAttachment(entry, ticketId);
+  }
+
+  function retryAttachmentStatus(entry: SelectedAttachment, ticketId: number) {
+    const status = uploadStates[entry.id];
+    if (status === "reconciliation-failed" || status === "ambiguous-awaiting-reconciliation") void reconcileAttachment(entry, ticketId);
   }
 
   const isBusy = submission.kind === "busy";
@@ -308,7 +325,8 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
               <ul className="lab2-selected-files">
                 {selectedFiles.filter((entry) => !entry.error).map((entry) => {
                   const status = uploadStates[entry.id] ?? "selected";
-                  return <li key={entry.id}><span>{entry.file.name}</span><span>{status === "uploading" ? "Uploading..." : status === "uploaded" ? "Uploaded" : status === "ambiguous" ? "Upload result uncertain" : status === "failed" ? "Upload failed" : "Selected"}</span>{(status === "failed" || status === "ambiguous") && <button type="button" onClick={() => retryAttachment(entry, submission.ticket.id)}>Retry upload</button>}</li>;
+                  const statusText = status === "uploading" ? "Uploading..." : status === "uploaded" ? "Uploaded" : status === "failed-definitive" ? "Upload failed" : status === "ambiguous-awaiting-reconciliation" ? "Upload result uncertain; checking status..." : status === "reconciling" ? "Checking upload status..." : status === "reconciliation-failed" ? "Unable to check upload status." : status === "reconciled-retry-allowed" ? "Upload result uncertain; status checked." : "Selected";
+                  return <li key={entry.id}><span>{entry.file.name}</span><span>{statusText}</span>{(status === "failed-definitive" || status === "reconciled-retry-allowed") && <button type="button" className="lab2-button lab2-button-secondary" onClick={() => retryAttachment(entry, submission.ticket.id)}>Retry upload</button>}{status === "reconciliation-failed" && <button type="button" className="lab2-button lab2-button-secondary" onClick={() => retryAttachmentStatus(entry, submission.ticket.id)}>Retry status check</button>}</li>;
                 })}
               </ul>
             </div>

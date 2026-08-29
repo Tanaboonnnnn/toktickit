@@ -531,4 +531,30 @@ describe("UI-05 Create Ticket Submission", () => {
     await waitFor(() => expect(uploadCalls).toBe(2));
   });
 
+  it("keeps Retry upload hidden when the first status reconciliation fails", async () => {
+    const { user, fetchMock } = await enterShellAndFillValidForm();
+    fireEvent.change(screen.getByLabelText("Select files"), { target: { files: [new File([new Uint8Array([1])], "uncertain.pdf", { type: "application/pdf" })] } });
+    let statusChecks = 0;
+    let uploads = 0;
+    fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+      const text = String(url);
+      if (text.includes("/attachments") && init?.method === "POST") { uploads += 1; return uploads === 1 ? Promise.reject(new TypeError("network lost")) : Promise.resolve(attachmentResponse("uncertain.pdf", 102)); }
+      if (text.includes("/attachments")) { statusChecks += 1; return statusChecks === 1 ? Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to load attachments" } }) }) : Promise.resolve(jsonResponse({ items: [] })); }
+      if (text.includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      if (text.includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
+      if (text.includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
+      return Promise.resolve(ticketResponse());
+    });
+    await user.click(submitButton());
+    expect(await screen.findByText(/unable to check upload status/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /retry upload/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /retry status check/i })).toBeInTheDocument();
+    expect(uploads).toBe(1);
+    await user.click(screen.getByRole("button", { name: /retry status check/i }));
+    await waitFor(() => expect(statusChecks).toBe(2));
+    expect(screen.getByRole("button", { name: /retry upload/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /retry upload/i }));
+    await waitFor(() => expect(uploads).toBe(2));
+  });
+
 });
