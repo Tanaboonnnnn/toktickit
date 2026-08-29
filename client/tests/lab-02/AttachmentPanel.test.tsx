@@ -35,6 +35,44 @@ describe("UI-09 AttachmentPanel", () => {
     expect(screen.getAllByText(/29\/8\/2569 08:00:00/).length).toBeGreaterThan(0);
   });
 
+  it("executes a definitive upload failure through the real Upload action", async () => {
+    let postCount = 0;
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/attachments") && init?.method === "POST") { postCount += 1; return Promise.resolve(json({ error: { code: "INTERNAL_ERROR", message: "Unable to upload attachment" } }, false, 500)); }
+      return Promise.resolve(json({ ticket: baseTicket }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<RequesterContextProvider><TicketDetail ticketId={9} onBack={vi.fn()} /></RequesterContextProvider>);
+    await screen.findByText("Add an Attachment");
+    const file = new File([new Uint8Array([1])], "failure.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText("Add an Attachment"), { target: { files: [file] } });
+    expect(screen.getByText("Selected")).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: /upload attachment/i }));
+    expect(postCount).toBe(1);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Unable to upload attachment");
+    expect(screen.getByText("failure.png")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /retry upload/i })).toBeInTheDocument();
+  });
+
+  it("rejects an invalid local Attachment before any upload request", async () => {
+    let postCount = 0;
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (init?.method === "POST" && url.includes("/attachments")) postCount += 1;
+      return Promise.resolve(json({ ticket: baseTicket }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<RequesterContextProvider><TicketDetail ticketId={9} onBack={vi.fn()} /></RequesterContextProvider>);
+    await screen.findByText("Add an Attachment");
+    fireEvent.change(screen.getByLabelText("Add an Attachment"), { target: { files: [new File([new Uint8Array([1])], "malware.exe", { type: "application/x-msdownload" })] } });
+    expect(screen.getByRole("alert")).toHaveTextContent(/unsupported file type/i);
+    expect(screen.queryByRole("button", { name: /upload attachment/i })).not.toBeInTheDocument();
+    expect(postCount).toBe(0);
+  });
+
   it("shows the active five-file limit and removed metadata without actions", async () => {
     const active = Array.from({ length: 5 }, (_, i) => ({ id: i + 1, ticketId: 9, originalName: `a${i}.png`, mimeType: "image/png", sizeBytes: 8, state: "ACTIVE" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: null, removalReason: null, downloadUrl: `/download/${i}` }));
     const removed = { id: 6, ticketId: 9, originalName: "old.pdf", mimeType: "application/pdf", sizeBytes: 8, state: "REMOVED" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: "2026-08-29T01:00:00.000Z", removalReason: "Old file", downloadUrl: null };

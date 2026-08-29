@@ -329,7 +329,8 @@ The API-10 fixtures require both `DATABASE_URL` and a distinct `TEST_DATABASE_UR
 - API-17: `1` test file / `5` tests passed.
 - API-18: `1` test file / `3` tests passed.
 - UI-05: `1` test file / `14` tests passed, including post-create uploads, partial success, and ambiguous upload retry.
-- UI-09: `1` test file / `8` tests passed, including Ticket Detail reconciliation gates and authoritative mutation refreshes.
+- UI-09: `1` test file / `10` tests passed, including definitive upload failure, invalid local selection, Ticket Detail reconciliation gates, and authoritative mutation refreshes.
+- Supporting storage lifecycle evidence: `1` test file / `2` tests passed (`attachment-storage.unit.test.ts`), covering stage-write cleanup and post-rename staging cleanup failure.
 
 Fresh complete-suite verification for this increment:
 
