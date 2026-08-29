@@ -334,11 +334,14 @@ The API-10 fixtures require both `DATABASE_URL` and a distinct `TEST_DATABASE_UR
 
 Fresh complete-suite verification for this increment:
 
-- Full server suite: `28` test files / `135` tests passed.
-- Full client suite: `13` test files / `106` tests passed.
+- Full server suite: `29` test files / `137` tests passed.
+- Full client suite: `13` test files / `108` tests passed.
 - Server and client production builds passed.
 - Prisma validate/generate passed; migration status reports `2` migrations and an up-to-date database.
 - `git diff --check` passed.
 
-Fresh focused server command:
+Fresh focused Attachment API command:
 `npm.cmd test -- --run tests/lab-02/attachments-upload.api.test.ts tests/lab-02/attachments-upload-type.api.test.ts tests/lab-02/attachments-upload-size.api.test.ts tests/lab-02/attachments-limit.api.test.ts tests/lab-02/attachments-metadata.api.test.ts tests/lab-02/attachments-download.api.test.ts tests/lab-02/attachments-remove.api.test.ts tests/lab-02/attachments-ownership-failure.api.test.ts --reporter=dot`.
+
+Fresh focused storage lifecycle command:
+`npm.cmd test -- --run tests/lab-02/attachment-storage.unit.test.ts --reporter=dot`.
