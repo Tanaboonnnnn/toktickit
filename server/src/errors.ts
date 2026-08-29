@@ -3,6 +3,9 @@ export type ErrorCode =
   | "INVALID_REQUESTER_CONTEXT"
   | "RESOURCE_NOT_FOUND"
   | "DUPLICATE_REQUEST_CONFLICT"
+  | "ATTACHMENT_LIMIT_REACHED"
+  | "PAYLOAD_TOO_LARGE"
+  | "UNSUPPORTED_MEDIA_TYPE"
   | "INTERNAL_ERROR";
 
 export type FieldErrors = Record<string, string>;

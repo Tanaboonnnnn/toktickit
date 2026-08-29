@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TicketDetail from "../../src/TicketDetail.js";
@@ -94,7 +94,10 @@ describe("UI-08 Requester Ticket Detail", () => {
     expect(screen.getByText("old-log.pdf")).toBeInTheDocument();
     expect(screen.getAllByText(/Removed/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Replaced with a current log/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /upload|download|remove|preview/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /download error screenshot\.png/i })).toBeInTheDocument();
+    const removedCard = screen.getByText("old-log.pdf").closest("article");
+    expect(removedCard).not.toBeNull();
+    expect(within(removedCard as HTMLElement).queryByRole("button", { name: /download|remove|preview/i })).not.toBeInTheDocument();
   });
 
   it("shows neutral unavailable wording for a documented 404", async () => {

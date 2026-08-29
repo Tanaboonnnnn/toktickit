@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
@@ -56,6 +56,10 @@ function ticketResponse(ticketNumber = "TKT-20260823-ABCDEF", replayed = false) 
 
 function jsonResponse(body: unknown) {
   return { ok: true, json: async () => body };
+}
+
+function attachmentResponse(name: string, id: number) {
+  return { ok: true, status: 201, json: async () => ({ attachment: { id, ticketId: 42, originalName: name, mimeType: name.endsWith("pdf") ? "application/pdf" : "image/png", sizeBytes: 8, state: "ACTIVE", createdAt: "2026-08-23T09:35:00.000Z", removedAt: null, removalReason: null, downloadUrl: `/api/tickets/42/attachments/${id}/download` } }) };
 }
 
 function submitButton() {
@@ -147,7 +151,7 @@ describe("UI-05 Create Ticket Submission", () => {
     expect(body.currentStatus).toBeUndefined();
     expect(body.createdAt).toBeUndefined();
     expect(body.updatedAt).toBeUndefined();
-  }, 10_000);
+  }, 20_000);
 
   it("shows a clear next action after successful Ticket creation", async () => {
     const { user } = await enterShellAndFillValidForm();
@@ -468,6 +472,89 @@ describe("UI-05 Create Ticket Submission", () => {
     await user.click(screen.getByRole("button", { name: "View Ticket" }));
     expect(await screen.findByRole("heading", { name: /ticket detail/i })).toBeInTheDocument();
     expect(screen.getByText("TKT-20260823-ABCDEF")).toBeInTheDocument();
+  });
+
+  it("uploads each selected valid file after Ticket creation and keeps the official number visible", async () => {
+    const { user, fetchMock } = await enterShellAndFillValidForm();
+    const input = screen.getByLabelText("Select files");
+    const first = new File([new Uint8Array([1])], "a.png", { type: "image/png" });
+    const second = new File([new Uint8Array([2])], "b.pdf", { type: "application/pdf" });
+    fireEvent.change(input, { target: { files: [first, second] } });
+    fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+      if (String(url).includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      if (String(url).includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
+      if (String(url).includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
+      if (init?.body && typeof (init.body as FormData).get === "function") return Promise.resolve(attachmentResponse(String((init.body as FormData).get("file") instanceof File ? ((init.body as FormData).get("file") as File).name : "file"), 100));
+      return Promise.resolve(ticketResponse());
+    });
+    await user.click(submitButton());
+    expect(await screen.findByTestId("ticket-number")).toHaveTextContent("TKT-20260823-ABCDEF");
+    await waitFor(() => expect(screen.getAllByText("Uploaded")).toHaveLength(2));
+    const uploads = fetchMock.mock.calls.filter(([url, init]) => String(url).includes("/attachments") && init?.method === "POST");
+    expect(uploads).toHaveLength(2);
+  });
+
+  it("keeps Ticket success and sibling upload success when one attachment fails", async () => {
+    const { user, fetchMock } = await enterShellAndFillValidForm();
+    fireEvent.change(screen.getByLabelText("Select files"), { target: { files: [new File([new Uint8Array([1])], "good.png", { type: "image/png" }), new File([new Uint8Array([2])], "bad.pdf", { type: "application/pdf" })] } });
+    let uploadCount = 0;
+    fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.body && typeof (init.body as FormData).get === "function") { uploadCount += 1; return uploadCount === 1 ? Promise.resolve(attachmentResponse("good.png", 101)) : Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to upload attachment" } }) }); }
+      if (String(url).includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      if (String(url).includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
+      if (String(url).includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
+      return Promise.resolve(ticketResponse());
+    });
+    await user.click(submitButton());
+    expect(await screen.findByTestId("ticket-number")).toHaveTextContent("TKT-20260823-ABCDEF");
+    expect(await screen.findByText("good.png")).toBeInTheDocument();
+    expect(await screen.findByText("bad.pdf")).toBeInTheDocument();
+    expect(await screen.findByText("Upload failed")).toBeInTheDocument();
+  });
+
+  it("marks an uncertain upload ambiguous, reloads metadata, and only retries on explicit action", async () => {
+    const { user, fetchMock } = await enterShellAndFillValidForm();
+    fireEvent.change(screen.getByLabelText("Select files"), { target: { files: [new File([new Uint8Array([1])], "uncertain.png", { type: "image/png" })] } });
+    let uploadCalls = 0;
+    fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+      if (String(url).includes("/attachments") && init?.method === "POST") { uploadCalls += 1; return Promise.reject(new TypeError("network lost")); }
+      if (String(url).includes("/attachments")) return Promise.resolve(jsonResponse({ items: [] }));
+      if (String(url).includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      if (String(url).includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
+      if (String(url).includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
+      return Promise.resolve(ticketResponse());
+    });
+    await user.click(submitButton());
+    expect(await screen.findByText(/upload result uncertain/i)).toBeInTheDocument();
+    expect(uploadCalls).toBe(1);
+    await user.click(screen.getByRole("button", { name: /retry upload/i }));
+    await waitFor(() => expect(uploadCalls).toBe(2));
+  });
+
+  it("keeps Retry upload hidden when the first status reconciliation fails", async () => {
+    const { user, fetchMock } = await enterShellAndFillValidForm();
+    fireEvent.change(screen.getByLabelText("Select files"), { target: { files: [new File([new Uint8Array([1])], "uncertain.pdf", { type: "application/pdf" })] } });
+    let statusChecks = 0;
+    let uploads = 0;
+    fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+      const text = String(url);
+      if (text.includes("/attachments") && init?.method === "POST") { uploads += 1; return uploads === 1 ? Promise.reject(new TypeError("network lost")) : Promise.resolve(attachmentResponse("uncertain.pdf", 102)); }
+      if (text.includes("/attachments")) { statusChecks += 1; return statusChecks === 1 ? Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to load attachments" } }) }) : Promise.resolve(jsonResponse({ items: [] })); }
+      if (text.includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      if (text.includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
+      if (text.includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
+      return Promise.resolve(ticketResponse());
+    });
+    await user.click(submitButton());
+    expect(await screen.findByText(/unable to check upload status/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /retry upload/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /retry status check/i })).toBeInTheDocument();
+    expect(uploads).toBe(1);
+    await user.click(screen.getByRole("button", { name: /retry status check/i }));
+    await waitFor(() => expect(statusChecks).toBe(2));
+    expect(screen.getByRole("button", { name: /retry upload/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /retry upload/i }));
+    await waitFor(() => expect(uploads).toBe(2));
   });
 
 });

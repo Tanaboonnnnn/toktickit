@@ -41,6 +41,7 @@ export interface TicketAttachmentMetadata {
   removalReason: string | null;
   downloadUrl: string | null;
 }
+export type Attachment = TicketAttachmentMetadata;
 
 export interface Ticket {
   id: number;
@@ -203,6 +204,11 @@ function isTicketAttachment(value: unknown): value is TicketAttachmentMetadata {
     && (item.downloadUrl === null || typeof item.downloadUrl === "string");
 }
 
+function isAttachmentList(value: unknown): value is { items: TicketAttachmentMetadata[] } {
+  return Boolean(value && typeof value === "object" && Array.isArray((value as { items?: unknown }).items)
+    && (value as { items: unknown[] }).items.every(isTicketAttachment));
+}
+
 function isTicket(value: unknown): value is Ticket {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
@@ -293,6 +299,60 @@ export async function createTicket(
     throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
   }
   return result;
+}
+
+export async function fetchTicketAttachments(requesterId: number, ticketId: number): Promise<TicketAttachmentMetadata[]> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, { headers: { "X-Development-Requester-Id": String(requesterId) } });
+  if (!response.ok) throw await parseSafeError(response);
+  let body: unknown;
+  try { body = await response.json(); } catch { throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); }
+  if (!isAttachmentList(body)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  return body.items;
+}
+
+export async function uploadAttachment(requesterId: number, ticketId: number, file: File): Promise<TicketAttachmentMetadata> {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, {
+    method: "POST",
+    headers: { "X-Development-Requester-Id": String(requesterId) },
+    body: form,
+  });
+  if (!response.ok) throw await parseSafeError(response);
+  let body: unknown;
+  try { body = await response.json(); } catch { throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); }
+  const attachment = body && typeof body === "object" ? (body as { attachment?: unknown }).attachment : undefined;
+  if (!isTicketAttachment(attachment) || attachment.state !== "ACTIVE" || attachment.removedAt !== null) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  return attachment;
+}
+
+export async function downloadAttachment(requesterId: number, ticketId: number, attachmentId: number, filename = "attachment"): Promise<Blob> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments/${attachmentId}/download`, { headers: { "X-Development-Requester-Id": String(requesterId) } });
+  if (!response.ok) throw await parseSafeError(response);
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  try {
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = filename;
+    anchor.rel = "noreferrer";
+    anchor.click();
+  } finally { URL.revokeObjectURL(objectUrl); }
+  return blob;
+}
+
+export async function removeAttachment(requesterId: number, ticketId: number, attachmentId: number, removalReason: string): Promise<TicketAttachmentMetadata> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments/${attachmentId}`, {
+    method: "DELETE",
+    headers: { "X-Development-Requester-Id": String(requesterId), "Content-Type": "application/json" },
+    body: JSON.stringify({ removalReason }),
+  });
+  if (!response.ok) throw await parseSafeError(response);
+  let body: unknown;
+  try { body = await response.json(); } catch { throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); }
+  const attachment = body && typeof body === "object" ? (body as { attachment?: unknown }).attachment : undefined;
+  if (!isTicketAttachment(attachment) || attachment.state !== "REMOVED" || attachment.removedAt === null || attachment.downloadUrl !== null) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  return attachment;
 }
 
 export interface SystemStatus {
