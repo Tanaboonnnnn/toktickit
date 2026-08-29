@@ -105,7 +105,16 @@ database.
 
 ## Tests
 
-Run the existing test commands from each package directory:
+Install the root Playwright test dependency and Chromium once from the repository root:
+
+```powershell
+npm.cmd install
+npx.cmd playwright install chromium
+```
+
+The browser tests use the same dedicated `TEST_DATABASE_URL` described above, start isolated API/client processes on test-only ports, and use temporary Attachment storage. Do not point the test database at development or production data.
+
+Run the package test suites:
 
 ```powershell
 cd client
@@ -114,6 +123,15 @@ npm test
 cd ..\server
 npm test
 ```
+
+Run the managed Lab 2 browser verification from the repository root:
+
+```powershell
+npm.cmd run test:e2e
+npm.cmd run test:responsive
+```
+
+`test:e2e` runs the full Lab 2 Chromium E2E/responsive suite. `test:responsive` runs the dedicated Desktop (`1440×900`), Tablet (`834×1112`), and Mobile (`390×844`) responsive specs. The supported scripts own API/client startup and cleanup; direct `npx playwright test` does not start those services.
 
 ## Lab 1 branch and review workflow
 
