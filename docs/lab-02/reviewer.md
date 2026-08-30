@@ -91,6 +91,23 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Passing checks link: no hosted GitHub check link was verified; fresh local release-candidate verification is recorded in `tests.md`.
 - Merge status: **Merged into `lab2-staging`** at 2026-08-30 08:04 UTC.
 
+## Issue #30 / PR #31 release-readiness review evidence
+
+### Review 5 - 2026-08-30
+
+- Pull request: [PR #31](https://github.com/Tanaboonnnnn/toktickit/pull/31) from `feature/13-lab2-release-readiness` to `lab2-staging`.
+- Reviewed commit: [`abf0eff`](https://github.com/Tanaboonnnnn/toktickit/commit/abf0eff1d962dbd0f1066e3acbef5bd399cc7aa5).
+- Reviewer: `@Chxtamos`.
+- Result: **Approved** at 2026-08-30 15:20 UTC. [Review evidence](https://github.com/Tanaboonnnnn/toktickit/pull/31#pullrequestreview-5061178775)
+- Review summary: the reviewer found no code blocker in the release-readiness diff. The Create Ticket read-only field grouping, regression coverage, corrected My Tickets Empty-state responsive assertion, documentation/evidence updates, screenshot tracking, and repository hygiene were accepted.
+- Reviewer follow-up note: before Issue #30 is closed, keep truthful evidence that Issue #13 is a superseded duplicate and make the database used by migration-status evidence explicit.
+- Merge: PR #31 merged into `lab2-staging` at 2026-08-30 15:20 UTC as merge commit [`2acc5bb`](https://github.com/Tanaboonnnnn/toktickit/commit/2acc5bb1574780f740a29b89a3cc57e6f02b50ac).
+- Status: **Approved and merged**.
+
+### Issue #13 clarification
+
+Issue [#13](https://github.com/Tanaboonnnnn/toktickit/issues/13) was an early duplicate planning artifact. It is closed with GitHub state reason `duplicate`, and its clarification comment points to Issue #15 / PR #16 as the authoritative Engineering Contract workflow. No separate implementation or deliverable belongs to Issue #13.
+
 ## Reviews given to a partner
 
 | Partner name / GitHub username | Student ID if required | PR link | Review date | Review comments link | Partner response/resolution |
@@ -99,4 +116,4 @@ This file records only peer-review evidence that actually occurred. Approval is 
 
 ## Evidence integrity note
 
-This file records review evidence verified from the live public GitHub artifacts for PR #16, PR #29, and partner PR #24, plus identity metadata already present in the approved repository evidence. It does not claim a hosted passing-check link for PR #29 because none was verified. Test/build/Prisma/browser results are local execution evidence in `tests.md`, not substitutes for peer approval.
+This file records review evidence verified from the live public GitHub artifacts for PR #16, PR #29, PR #31, Issue #13, and partner PR #24, plus identity metadata already present in the approved repository evidence. It does not claim a hosted passing-check link for PR #29 because none was verified. Test/build/Prisma/browser results are local execution evidence in `tests.md`, not substitutes for peer approval.
