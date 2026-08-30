@@ -565,21 +565,22 @@ The finished implementation must be compared against this file and the approved 
 
 Visual review confirms:
 
-- [ ] Zen Green tokens and intended uses are consistent.
-- [ ] Editable and read-only fields are clearly distinguishable.
-- [ ] Required markers and field-level validation are placed consistently.
-- [ ] Primary, secondary, tertiary, destructive, disabled, and busy button styles are consistent.
-- [ ] Development Requester identity and active navigation remain clear.
-- [ ] Create Ticket Initial, Validation, Submitting, Success, Failure, and invalid-Attachment states are understandable.
-- [ ] My Tickets Loading, Empty, No Results, and Failure states are distinct.
-- [ ] Desktop My Tickets uses the approved table structure.
-- [ ] Mobile My Tickets uses the approved card structure.
-- [ ] Requested Priority and Current Status badges are consistent.
-- [ ] Ticket Detail remains read-only and visually separates Attachment actions.
-- [ ] Active, Uploading, Invalid, Removed, and Unavailable Attachment states are visually distinct.
-- [ ] No clipped labels, overlapping messages, hidden required buttons, unreadable filenames, or unintended horizontal overflow exist.
-- [ ] Filters, pagination, Attachment controls, and empty states remain usable at desktop, tablet, and mobile widths.
-- [ ] No excluded authentication, IT Staff, Public Comment, Internal Note, Actions Taken, assignment, IT Priority edit, or later status-workflow UI appears.
+- [x] Zen Green tokens and intended uses are consistent.
+- [x] Editable and read-only fields are clearly distinguishable.
+- [x] Required markers and field-level validation are placed consistently.
+- [x] Primary, secondary, tertiary, destructive, disabled, and busy button styles are consistent.
+- [x] Development Requester identity and active navigation remain clear.
+- [x] Create Ticket Initial, Validation, Submitting, Success, Failure, and invalid-Attachment states are understandable.
+- [x] My Tickets Loading, Empty, No Results, and Failure states are distinct.
+- [x] Desktop My Tickets uses the approved table structure.
+- [x] Mobile My Tickets uses the approved card structure.
+- [x] Requested Priority and Current Status badges are consistent.
+- [x] Ticket Detail remains read-only and visually separates Attachment actions.
+- [x] Active, Uploading, Invalid, Removed, and Unavailable Attachment states are visually distinct.
+- [x] No clipped labels, overlapping messages, hidden required buttons, unreadable filenames, or unintended horizontal overflow exist.
+- [x] Filters, pagination, Attachment controls, and empty states remain usable at desktop, tablet, and mobile widths.
+- [x] My Tickets select controls keep their selected values readable without text clipping at the required Desktop, Tablet, and Mobile evidence widths.
+- [x] No excluded authentication, IT Staff, Public Comment, Internal Note, Actions Taken, assignment, IT Priority edit, or later status-workflow UI appears.
 
 Required implementation evidence is stored under the course repository artifact structure:
 

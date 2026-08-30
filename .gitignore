@@ -7,6 +7,9 @@ node_modules/
 # build output
 dist/
 build/
+# Playwright transient output (course screenshots under artifacts/ remain tracked)
+playwright-report/
+test-results/
 # prisma
 server/prisma/*.db
 # private runtime attachment bytes

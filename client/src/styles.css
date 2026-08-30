@@ -422,7 +422,7 @@ select:focus-visible {
 
 .lab2-ticket-controls {
   display: grid;
-  grid-template-columns: minmax(180px, 2fr) auto repeat(6, minmax(0, 1fr)) auto;
+  grid-template-columns: minmax(220px, 2fr) minmax(130px, .8fr) repeat(3, minmax(150px, 1fr));
   align-items: end;
   gap: 12px;
   margin-bottom: 24px;
@@ -649,6 +649,7 @@ select:focus-visible {
 
 .lab2-filename { overflow-wrap: anywhere; word-break: break-word; }
 .lab2-attachment-upload-controls { display: grid; gap: 8px; margin-bottom: 16px; }
+.lab2-attachment-upload-controls input[type="file"] { box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 0; }
 .lab2-selected-file, .lab2-attachment-actions, .lab2-remove-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
 .lab2-selected-file { padding: 12px; background: var(--color-pale-green); border: 1px solid var(--color-border); border-radius: 6px; }
 .lab2-remove-confirm { display: grid; align-items: start; padding: 16px; background: var(--color-error-bg); border: 1px solid var(--color-error); border-radius: 6px; }
