@@ -6,7 +6,7 @@ Deliver a Requester-facing TokTickIT minimum viable product specification that i
 
 Lab 2 allows a tester to select a seeded Development Requester, create IT support Tickets, view only that Requester's Tickets, inspect Ticket Detail, and manage permitted Attachments. The Development Requester selector is temporary testing context only and is not authentication.
 
-This specification defines the engineering contract for later Lab 2 implementation Issues. This specification Issue itself introduces no application behavior.
+This specification originated as the engineering contract for the Lab 2 implementation Issues. The integrated Lab 2 product is now implemented, and this document remains authoritative for its observable release-candidate behavior. The original specification Issue itself introduced no application behavior.
 
 ---
 
@@ -587,7 +587,7 @@ At every supported width there must be:
 
 ## 7. Data Changes
 
-The following is the target conceptual Prisma/PostgreSQL design for later Lab 2 implementation Issues. Names and enum values in this specification are normative unless changed through an explicit reviewed specification update.
+The following Prisma/PostgreSQL design is implemented in the final integrated Lab 2 result. Names and enum values remain normative unless changed through an explicit reviewed specification update.
 
 | Model / table | Fields and constraints | Relationships and indexes |
 |---|---|---|
@@ -1010,10 +1010,10 @@ The following are student engineering decisions made to resolve ambiguities in t
 
 - Use explicit upload compensation/cleanup behavior for failed upload requests rather than introducing a separate background/startup reconciliation subsystem in Lab 2.
 
-- The current project does not yet include Playwright. A later Lab 2 testing Issue must add and configure Playwright before the required Responsive/E2E verification and desktop/tablet/mobile screenshots are produced.
+- The final Lab 2 repository includes a managed Playwright lifecycle that owns isolated API/client startup and cleanup, runs Responsive/E2E verification against the dedicated test database, and captures the required desktop/tablet/mobile screenshots at the paths in `ui-spec.md`.
 
 - Seed fictional Development Requester identities and deterministic Related System values so development, tests, reviews, and demonstrations do not depend on real personal data.
 
 - Future changes to these decisions require an explicit specification update when they alter observable behavior, API behavior, data design, Acceptance Criteria, or required tests.
 
-No unresolved Lab 2 product behavior is intentionally left for a coding agent to guess. Human review remains required before this engineering contract is approved for implementation.
+No unresolved Lab 2 product behavior is intentionally left for a coding agent to guess. Fresh integrated verification and human review remain required before the Lab 2 release candidate is promoted from `lab2-staging` to `main`.

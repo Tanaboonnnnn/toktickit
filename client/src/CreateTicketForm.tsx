@@ -357,9 +357,9 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
           <form onSubmit={(event) => { event.preventDefault(); void submitCreate(); }}>
             <fieldset disabled={formLocked} aria-label="Ticket identity">
               <legend>Ticket identity and context</legend>
-              <div><label htmlFor="ticket-number">Ticket Number</label><output id="ticket-number">Generated after creation</output></div>
-              <div><label htmlFor="ticket-date">Ticket Date</label><output id="ticket-date">Set after creation</output></div>
-              <div><label htmlFor="requester-display">Requester</label><output id="requester-display">{currentRequester?.name ?? ""}</output></div>
+              <div className="lab2-field-group"><label htmlFor="ticket-number">Ticket Number</label><output id="ticket-number">Generated after creation</output></div>
+              <div className="lab2-field-group"><label htmlFor="ticket-date">Ticket Date</label><output id="ticket-date">Set after creation</output></div>
+              <div className="lab2-field-group"><label htmlFor="requester-display">Requester</label><output id="requester-display">{currentRequester?.name ?? ""}</output></div>
             </fieldset>
 
             <fieldset disabled={formLocked} aria-label="Ticket details">

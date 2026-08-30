@@ -8,6 +8,21 @@ control for checking backend health and loading the four IT request categories.
 The current Lab 2 application flow starts with Development Requester Selection;
 the legacy Lab 1 `Check System` control is not rendered in that normal flow.
 
+## Lab 2 requester flow
+
+1. Select a seeded Development Requester.
+2. Create a Ticket with active Category and Related System data.
+3. Add permitted JPG/JPEG, PNG, WEBP, or PDF Attachments.
+4. Open My Tickets.
+5. Search, filter, sort, and page through Tickets owned by the selected Requester.
+6. Open Ticket Detail.
+7. Download active Attachments.
+8. Soft-remove an Attachment with a required reason; its Removed metadata remains visible.
+9. Change Development Requester and confirm that requester-owned data is isolated.
+
+The selector and `X-Development-Requester-Id` header are temporary Lab 2 testing
+context, not authentication.
+
 ## Prerequisites
 
 - Node.js and npm
@@ -143,3 +158,16 @@ Do not commit directly to `main` or `lab1-staging`. Implement each Issue on its
 own feature branch, open feature Pull Requests against `lab1-staging`, and
 require peer review and passing tests before merging. Release the completed
 integration branch from `lab1-staging` to `main`.
+
+## Lab 2 branch and release workflow
+
+```text
+feature branch -> lab2-staging -> integrated release-candidate verification
+-> one reviewed release Pull Request -> main
+```
+
+Do not commit directly to `main` or `lab2-staging`. Merge each Lab 2 feature
+through a reviewed Pull Request into `lab2-staging`, freshly verify the integrated
+staging head, then open one release Pull Request from `lab2-staging` to `main`.
+Merge that release Pull Request only after review approval and rerun the final
+verification on `main` after merge.

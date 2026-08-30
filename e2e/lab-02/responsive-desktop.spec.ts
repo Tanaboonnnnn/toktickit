@@ -43,7 +43,8 @@ test.describe("RESP-01 desktop 1440x900", () => {
     await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
     await expect(page.getByRole("heading", { name: "No tickets yet" })).toBeVisible();
     await assertNoHorizontalOverflow(page);
-    await assertVisibleWithinViewport(page, ["#ticket-detail-heading", ".lab2-readonly-section", ".lab2-attachments-section", ".lab2-ticket-detail button"]);
+    await assertVisibleWithinViewport(page, ["#my-tickets-heading", ".lab2-ticket-controls", ".lab2-list-empty", ".lab2-list-empty button"]);
+    await assertSelectedOptionTextFits(page, [".lab2-ticket-controls select"]);
     await screenshot(page, "artifacts/lab-02/screenshots/my-tickets/my-tickets-empty-desktop.png");
   });
 
