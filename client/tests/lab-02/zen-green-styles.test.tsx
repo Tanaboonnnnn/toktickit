@@ -67,7 +67,11 @@ describe("STYLE-01 Zen Green tokens", () => {
     render(<App />);
     await screen.findByRole("heading", { name: "Create Ticket" });
     expect(within(screen.getByRole("region", { name: /create ticket/i })).getByRole("button", { name: "Create Ticket" })).toHaveClass("lab2-button-primary");
-    expect(document.querySelectorAll("output").length).toBeGreaterThanOrEqual(3);
+    const readOnlyOutputs = Array.from(document.querySelectorAll("output"));
+    expect(readOnlyOutputs).toHaveLength(3);
+    for (const output of readOnlyOutputs) {
+      expect(output.parentElement).toHaveClass("lab2-field-group");
+    }
     expect(document.querySelector(".lab2-create-ticket" )?.querySelector(".lab2-field-group input")).not.toHaveAttribute("style");
   });
 });

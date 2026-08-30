@@ -298,7 +298,7 @@ Invalid file feedback appears next to the file and does not remove otherwise val
 - clear success message;
 - official Ticket Number prominently shown;
 - Current Status shown as `New`;
-- next action uses `Create another Ticket` for the current Create Ticket increment; `View Ticket` and `My Tickets` become available only when their later Lab 2 increments are implemented.
+- final integrated actions provide `Create another Ticket`, `View Ticket`, and `My Tickets` so the tester can continue the completed Requester workflow.
 
 **Partial Attachment Success**
 

@@ -192,9 +192,9 @@ The root scripts use the managed `e2e/lab-02/support/run-playwright.mjs` lifecyc
 | E2E | 7 | 7 | 7 | 0 | 0 |
 | **Total** | **52** | **52** | **52** | **0** | **0** |
 
-Issue-specific execution evidence is recorded below. This is not a claim that all Lab 2 tests or Acceptance Criteria are complete.
+Issue-specific historical execution evidence is preserved below. The final integrated release-candidate evidence is recorded in its own section at the end of this document.
 
-As implementation proceeds, this table must be updated only from tests that actually exist and have actually run. A failing or unexecuted required test must not be recorded as Pass.
+Any future change to this table must still be based on tests that exist and actually ran. A failing, skipped, or unexecuted required test must not be recorded as Pass.
 
 ### Issue #14 Execution Evidence — Development Requester Context and Data Foundation
 
@@ -240,7 +240,7 @@ These results are local execution evidence only. No CI link, GitHub check, peer 
 
 ## 7. Known Limitations or Deferred Tests
 
-- Required course screenshots are generated from the managed Playwright environment and remain subject to human visual inspection before submission.
+- Required course screenshots are generated from the managed Playwright environment and were freshly inspected for this release candidate. Any future regeneration requires another visual inspection before submission.
 - Real object/cloud storage is outside Lab 2; local Git-excluded server storage is the approved Lab 2 design.
 - Malware scanning is outside Lab 2.
 - Real authentication and role-based authorization are outside Lab 2.
@@ -373,3 +373,34 @@ Peer review identified that the original Desktop My Tickets screenshot could cli
 - Client production build passed (`tsc && vite build`).
 - `my-tickets-desktop.png` was regenerated from the passing Desktop responsive run and manually re-inspected; all selected toolbar values are fully readable.
 - `git diff --check` passed after the review fix.
+
+---
+
+## Final Integrated Release-Candidate Verification
+
+Fresh local verification was completed on 2026-08-30 at approximately 19:40 ICT (`UTC+07:00`).
+
+- Branch: `feature/13-lab2-release-readiness`
+- Integrated base commit: `ec14f13a8ed8bf8f4c161db43c46c9a91f4e2643`
+- Base relationship: the branch began at the fetched `origin/lab2-staging` head; `origin/main` had zero commits missing from `origin/lab2-staging`.
+- Database preflight: `DATABASE_URL` and `TEST_DATABASE_URL` were configured as valid PostgreSQL URLs with distinct database names. Passwords are not recorded here.
+
+| Area | Exact command | Fresh result |
+|---|---|---|
+| Focused visual regression | `cd client; npm.cmd test -- tests/lab-02/zen-green-styles.test.tsx` | Pass — `1` file / `2` tests; `0` failed, `0` skipped |
+| Server suite | `cd server; npm.cmd test` | Pass — `30` files / `142` tests; `0` failed, `0` skipped |
+| Server build | `cd server; npm.cmd run build` | Pass — TypeScript build completed |
+| Prisma validation | `cd server; npx.cmd prisma validate` | Pass — schema valid |
+| Prisma Client | `cd server; npx.cmd prisma generate` | Pass — Prisma Client `v5.22.0` generated |
+| Migration status | `cd server; npx.cmd prisma migrate status` | Pass — `2` migrations found; development database schema up to date |
+| Client suite | `cd client; npm.cmd test` | Pass — `17` files / `120` tests; `0` failed, `0` skipped |
+| Client build | `cd client; npm.cmd run build` | Pass — `tsc && vite build` completed |
+| Full managed browser suite | `npm.cmd run test:e2e` | Pass — `23` Chromium tests; `0` failed, `0` skipped |
+| Dedicated responsive suite | `npm.cmd run test:responsive` | Pass — `10` Chromium tests across Desktop, Tablet, and Mobile; `0` failed, `0` skipped |
+| Repository whitespace check | `git diff --check` | Pass — no whitespace errors |
+
+The integrated Test DD matrix remains Unit `8/8`, API/Integration `20/20`, UI Component `10/10`, UI Style `4/4`, Responsive `3/3`, and E2E `7/7`, for `52/52` planned Test IDs with `0` Fail and `0` Not run. These Test IDs group the detailed automated cases reported by the package/browser runners above.
+
+Test-integrity inspection found no `.skip`, `.only`, `test.todo`, skipped suites, commented-out required assertion markers, or trivial always-true assertions in the required Lab 1/Lab 2 server, client, and browser sources. All 52 documented Test IDs are unique, every documented automated test path exists, and every AC-01 through AC-38 traceability row maps to at least one Test ID.
+
+The managed responsive run regenerated the current required evidence images. All nine required screenshot paths exist, remain tracked, and were freshly inspected at original resolution after the run. The inspection confirmed readable My Tickets select values in both populated and Empty desktop states, distinct Create Ticket read-only identity fields, field-level validation placement, visible required actions, no unintended horizontal overflow, and safe long Attachment filename wrapping. No hosted CI result is claimed; this section records local release-candidate evidence only.

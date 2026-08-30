@@ -16,7 +16,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Name: พลัฏฐ์ อมาตย์ชยาภา
 - Student ID: `67070507212`
 - GitHub username: `@L0u1sss`
-- Current review status: **Changes requested**
+- Current review status: **Approved and merged** (PR #16)
 
 ## Reviews received
 
@@ -41,7 +41,13 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Reviewed commit: [`ef06c34`](https://github.com/Tanaboonnnnn/toktickit/commit/ef06c34a101b3e09b63bfeb862766e909497b7ba)
 - Findings: `reviewer.md` still contained placeholders, the feature branch number differed from Issue #15, and UI-03 claimed AC-37 while the AC matrix omitted UI-03.
 - Response: this file now records the real review evidence, and UI-03 was added to the AC-37 traceability row in `tests.md`.
-- Branch status: `feature/5-lab2-engineering-contract` is unchanged for the existing PR. Issue #15 requires `feature/<actual-issue-number>-lab2-engineering-contract`, so this process mismatch remains open pending a decision to rename or an instructor/TA exception.
+- Branch status: `feature/5-lab2-engineering-contract` was not renamed. This remains a historical branch-number deviation, but PR #16 was subsequently approved and merged into `lab2-staging`.
+
+### Final PR #16 approval and merge — 2026-08-24
+
+- Final reviewer verdict: **Approved** by `@L0u1sss` at 2026-08-24 16:18 UTC.
+- Merge: PR #16 merged into `lab2-staging` at 2026-08-24 16:18 UTC as merge commit [`29f7697`](https://github.com/Tanaboonnnnn/toktickit/commit/29f7697e1c394eb9a391e45a64de95fab01dc303).
+- The branch-number mismatch was not corrected retroactively and is recorded as a historical process deviation rather than an unresolved product finding.
 
 ## Review-resolution log
 
@@ -55,7 +61,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 | Review 2 | E2E-04 traceability overclaimed AC-17 | Narrowed E2E-04 scope | `tests.md` | Resolved |
 | Review 3 | Review evidence remained placeholder-only | Recorded actual reviewer/review evidence | `reviewer.md` | Resolved |
 | Review 3 | UI-03 / AC-37 matrix mismatch | Added UI-03 to AC-37 mapping | `tests.md` | Resolved |
-| Review 3 | Branch number differs from Issue #15 | No rename performed yet | Git process | Open |
+| Review 3 | Branch number differs from Issue #15 | No retroactive rename; PR #16 was approved and merged | Git process | Closed as historical deviation |
 
 ## Issue #28 / PR #29 review evidence
 
@@ -68,27 +74,29 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Finding 2: the responsive automation only proved viewport containment/page overflow and did not verify that the selected option text itself fit inside each visible toolbar select.
 - Finding 3: the PR description did not explicitly link/close Issue #28.
 - Response: added a browser-level selected-option readability assertion, reproduced the defect as a failing RESP-01 check, changed the Desktop toolbar grid to preserve readable control widths, regenerated `my-tickets-desktop.png`, reran the full responsive suite (`10/10` passed), and added `Closes #28` to the PR description.
-- Status: implementation/evidence fixes completed; reviewer re-review/approval remains pending.
+- Re-review: [final APPROVED review](https://github.com/Tanaboonnnnn/toktickit/pull/29#pullrequestreview-5060290944) by `@Chxtamos` at 2026-08-30 08:04 UTC confirmed the selected-option assertion, Desktop toolbar reflow, regenerated screenshot, responsive/client evidence, and Issue #28 traceability.
+- Merge: PR #29 merged into `lab2-staging` at 2026-08-30 08:04 UTC as merge commit [`ec14f13`](https://github.com/Tanaboonnnnn/toktickit/commit/ec14f13a8ed8bf8f4c161db43c46c9a91f4e2643).
+- Status: **Approved and merged**.
 
 | Review | Finding | Student response | File/change | Status |
 |---|---|---|---|---|
-| Review 4 | Desktop My Tickets selected values were clipped | Reflowed the desktop filter toolbar so select values have sufficient readable width | `client/src/styles.css`, regenerated `artifacts/lab-02/screenshots/my-tickets/my-tickets-desktop.png` | Resolved pending re-review |
-| Review 4 | Responsive checks could miss select text clipping | Added browser measurement of selected option text against actual rendered control width at Desktop/Tablet/Mobile | `e2e/lab-02/support/ui.ts`, `responsive-*.spec.ts` | Resolved pending re-review |
-| Review 4 | PR lacked explicit Issue #28 traceability | Added `Closes #28` to PR description | PR #29 metadata | Resolved pending re-review |
+| Review 4 | Desktop My Tickets selected values were clipped | Reflowed the desktop filter toolbar so select values have sufficient readable width | `client/src/styles.css`, regenerated `artifacts/lab-02/screenshots/my-tickets/my-tickets-desktop.png` | Resolved; approved on re-review |
+| Review 4 | Responsive checks could miss select text clipping | Added browser measurement of selected option text against actual rendered control width at Desktop/Tablet/Mobile | `e2e/lab-02/support/ui.ts`, `responsive-*.spec.ts` | Resolved; approved on re-review |
+| Review 4 | PR lacked explicit Issue #28 traceability | Added `Closes #28` to PR description | PR #29 metadata | Resolved; approved on re-review |
 
 ## Approval evidence
 
-- Final reviewer verdict: **Changes requested**
-- Approval link: `[Add only after an actual approval review]`
-- Passing checks link: `[Add only after checks actually run]`
-- Merge status: **Not merged**
+- Final reviewer verdict for PR #29: **Approved**
+- Approval link: [PR #29 final approval](https://github.com/Tanaboonnnnn/toktickit/pull/29#pullrequestreview-5060290944)
+- Passing checks link: no hosted GitHub check link was verified; fresh local release-candidate verification is recorded in `tests.md`.
+- Merge status: **Merged into `lab2-staging`** at 2026-08-30 08:04 UTC.
 
 ## Reviews given to a partner
 
 | Partner name / GitHub username | Student ID if required | PR link | Review date | Review comments link | Partner response/resolution |
 |---|---|---|---|---|---|
-| `[Add only after giving a real review]` | `[Actual value]` | `[Actual link]` | `[Actual date]` | `[Actual link]` | `[Actual response]` |
+| `@L0u1sss` | `67070507212` | [L0u1sss/TokTickIT PR #24](https://github.com/L0u1sss/TokTickIT/pull/24) | 2026-08-29 | [Changes Requested](https://github.com/L0u1sss/TokTickIT/pull/24#pullrequestreview-5058596777); [final Approval](https://github.com/L0u1sss/TokTickIT/pull/24#pullrequestreview-5058937767) | Reviewed requester isolation, query-contract consistency, invalid URL-query handling, and reference-metadata failure states. The partner [responded with the fix summary](https://github.com/L0u1sss/TokTickIT/pull/24#issuecomment-5463665186), adding strict URL validation, an invalid-query state, metadata Loading/Error/Retry, safe error handling, tests, and synchronized docs. Re-review approved the fixes; PR #24 then merged into `lab2-staging`. |
 
 ## Evidence integrity note
 
-Only review evidence verified from PR #16 or supplied directly by the students is recorded above. The author name/student ID, final approval, passing-check link, and partner-review evidence remain blank until real evidence is available.
+This file records review evidence verified from the live public GitHub artifacts for PR #16, PR #29, and partner PR #24, plus identity metadata already present in the approved repository evidence. It does not claim a hosted passing-check link for PR #29 because none was verified. Test/build/Prisma/browser results are local execution evidence in `tests.md`, not substitutes for peer approval.
