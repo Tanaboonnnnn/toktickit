@@ -392,7 +392,7 @@ Fresh local verification was completed on 2026-08-30 at approximately 19:40 ICT 
 | Server build | `cd server; npm.cmd run build` | Pass — TypeScript build completed |
 | Prisma validation | `cd server; npx.cmd prisma validate` | Pass — schema valid |
 | Prisma Client | `cd server; npx.cmd prisma generate` | Pass — Prisma Client `v5.22.0` generated |
-| Migration status | `cd server; npx.cmd prisma migrate status` | Pass — `2` migrations found; development database schema up to date |
+| Migration status | `cd server; npx.cmd prisma migrate status` | Pass — `2` migrations found; development database `toktickit` schema up to date |
 | Client suite | `cd client; npm.cmd test` | Pass — `17` files / `120` tests; `0` failed, `0` skipped |
 | Client build | `cd client; npm.cmd run build` | Pass — `tsc && vite build` completed |
 | Full managed browser suite | `npm.cmd run test:e2e` | Pass — `23` Chromium tests; `0` failed, `0` skipped |
@@ -404,3 +404,29 @@ The integrated Test DD matrix remains Unit `8/8`, API/Integration `20/20`, UI Co
 Test-integrity inspection found no `.skip`, `.only`, `test.todo`, skipped suites, commented-out required assertion markers, or trivial always-true assertions in the required Lab 1/Lab 2 server, client, and browser sources. All 52 documented Test IDs are unique, every documented automated test path exists, and every AC-01 through AC-38 traceability row maps to at least one Test ID.
 
 The managed responsive run regenerated the current required evidence images. All nine required screenshot paths exist, remain tracked, and were freshly inspected at original resolution after the run. The inspection confirmed readable My Tickets select values in both populated and Empty desktop states, distinct Create Ticket read-only identity fields, field-level validation placement, visible required actions, no unintended horizontal overflow, and safe long Attachment filename wrapping. No hosted CI result is claimed; this section records local release-candidate evidence only.
+
+## Post-merge `lab2-staging` verification
+
+PR #31 merged into `lab2-staging` as commit `2acc5bb1574780f740a29b89a3cc57e6f02b50ac`. A clean branch pointing at that exact merged staging commit was verified again on 2026-08-30 at approximately 23:44 ICT before any final-evidence document edits were restored.
+
+| Area | Exact command | Result |
+|---|---|---|
+| Server suite | `npm.cmd --prefix server test` | Pass — `30` files / `142` tests |
+| Server build | `npm.cmd --prefix server run build` | Pass |
+| Prisma validation | `cd server; npx.cmd prisma validate` | Pass |
+| Prisma Client generation | `cd server; npx.cmd prisma generate` | Pass — Prisma Client `v5.22.0` |
+| Migration status | `cd server; npx.cmd prisma migrate status` | Pass — development database `toktickit`, `2` migrations, schema up to date |
+| Client suite | `npm.cmd --prefix client test` | Pass — `17` files / `120` tests |
+| Client build | `npm.cmd --prefix client run build` | Pass |
+| Full managed browser suite | `npm.cmd run test:e2e` | Pass — `23/23` Chromium tests |
+| Dedicated responsive suite | `npm.cmd run test:responsive` | Pass — `10/10` Chromium tests |
+| Repository whitespace check | `git diff --check` | Pass |
+
+The client suite emitted the existing jsdom message `Not implemented: navigation (except hash changes)` during the Attachment download test. The test file still completed successfully and the full client command exited with `17/17` files and `120/120` tests passing.
+
+Database evidence uses two separate PostgreSQL databases:
+
+- development database: `toktickit` (`DATABASE_URL`), used for migration-status verification;
+- test database: `toktickit_test` (`TEST_DATABASE_URL`), used by automated database/API/E2E verification.
+
+Credentials are intentionally not recorded. This post-merge run is the staging release-gate evidence. Final verification from `main` must still be recorded after the single `lab2-staging -> main` release PR is approved and merged.
