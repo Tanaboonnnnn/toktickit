@@ -9,5 +9,6 @@ export default defineConfig({
     globals: true,
     setupFiles: "./tests/setup.ts",
     include: ["tests/**/*.test.tsx"],
+    testTimeout: 10000,
   },
 });

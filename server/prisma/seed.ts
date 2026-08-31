@@ -1,18 +1,49 @@
 import { getPrisma } from "../src/prisma.js";
 
-// Issue 3 — seed the four supported categories.
-// The four names are: Account and Access, Hardware, Software, Network.
-// Requirement: running the seed twice must NOT create duplicates.
-// Hint: prisma.category.upsert({ where:{name}, update:{}, create:{name} }).
 async function main() {
   const prisma = getPrisma();
   const categories = ["Account and Access", "Hardware", "Software", "Network"];
+  const relatedSystems = [
+    "Student Portal",
+    "Learning Management System",
+    "Campus Wi-Fi",
+    "University Email",
+    "Library System",
+    "Finance and Registration",
+  ];
+  const requesters = [
+    { name: "Anan Student", email: "anan.student@example.test", active: true },
+    { name: "Mali Student", email: "mali.student@example.test", active: true },
+    { name: "Niran Student", email: "niran.student@example.test", active: true },
+    { name: "Ploy Student", email: "ploy.student@example.test", active: true },
+    {
+      name: "Somchai Former Student",
+      email: "somchai.former@example.test",
+      active: false,
+    },
+  ];
 
   for (const name of categories) {
     await prisma.category.upsert({
       where: { name },
-      update: {},
-      create: { name },
+      update: { active: true },
+      create: { name, active: true },
+    });
+  }
+
+  for (const name of relatedSystems) {
+    await prisma.relatedSystem.upsert({
+      where: { name },
+      update: { active: true },
+      create: { name, active: true },
+    });
+  }
+
+  for (const requester of requesters) {
+    await prisma.requesterUser.upsert({
+      where: { email: requester.email },
+      update: { name: requester.name, active: requester.active },
+      create: requester,
     });
   }
 }

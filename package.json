@@ -1,0 +1,13 @@
+{
+  "name": "toktickit-lab2-quality",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:e2e": "npm.cmd --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-02 --project=chromium",
+    "test:responsive": "npm.cmd --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-02/responsive-desktop.spec.ts e2e/lab-02/responsive-tablet.spec.ts e2e/lab-02/responsive-mobile.spec.ts --project=chromium",
+    "test:quality": "npm.cmd run test:e2e && npm.cmd run test:responsive"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}
