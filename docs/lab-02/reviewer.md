@@ -4,22 +4,22 @@ This file records only peer-review evidence that actually occurred. Approval is 
 
 ## Author and review context
 
-- Author name: `เนเธ—เธเธเธธเธ เน€เธ•เธตเธขเธงเธชเธงเธฑเธชเธ”เธดเน`
+- Author name: `แทนบุญ เตียวสวัสดิ์`
 - Student ID: `67070507211`
 - GitHub username: `@Tanaboonnnnn`
 - Feature branch: `feature/5-lab2-engineering-contract`
-- Issue: [#15 โ€” Lab 2: Sprint Engineering Contract and Test Plan](https://github.com/Tanaboonnnnn/toktickit/issues/15)
-- Pull request: [#16](https://github.com/Tanaboonnnnn/toktickit/pull/16) → lab2-staging`r
+- Issue: [#15 — Lab 2: Sprint Engineering Contract and Test Plan](https://github.com/Tanaboonnnnn/toktickit/issues/15)
+- Pull request: [#16](https://github.com/Tanaboonnnnn/toktickit/pull/16) → `lab2-staging`
 - Peer-review evidence follow-up: [Issue #36 — Complete Peer Review Evidence](https://github.com/Tanaboonnnnn/toktickit/issues/36)
 
 ## Reviewers
 
-- Name: เธเธฅเธฑเธเธเน เธญเธกเธฒเธ•เธขเนเธเธขเธฒเธ เธฒ
+- Name: พลัฏฐ์ อมาตย์ชยาภา
 - Student ID: `67070507212`
 - GitHub username: `@L0u1sss`
 - Lab 2 review coverage verified on GitHub: PR #16, PR #21, PR #25, and PR #27.
 
-- Name: เธเธฒเธเธเธฑเธเธขเน เธญเธธเธ—เธฑเธขเธเธดเธเธนเธฅเธขเน
+- Name: ฌาธนัชย์ อุทัยพิบูลย์
 - Student ID: `67070507210`
 - GitHub username: `@Chxtamos`
 - Lab 2 review coverage verified on GitHub: PR #17, PR #19, PR #21, PR #23, PR #27, PR #29, PR #31, PR #32, PR #34, and PR #33.
@@ -45,13 +45,13 @@ The table below is an auditable index of the Lab 2 reviews received in this repo
 
 ## Detailed review evidence
 
-### Review 1 โ€” 2026-08-24 11:20 UTC
+### Review 1 — 2026-08-24 11:20 UTC
 
 - Result: **Changes requested**
 - Main contract findings: the Empty/No Results probe used invalid `pageSize=1`, and Category ordering conflicted with the existing Lab 1 `id asc` behavior.
 - Response: changed the unrestricted probe to `pageSize=10` and restored Category ordering to `id asc`. Findings about the separate incomplete implementation were not used to weaken the engineering contract.
 
-### Review 2 โ€” 2026-08-24 14:49 UTC
+### Review 2 — 2026-08-24 14:49 UTC
 
 - Result: **Changes requested**
 - Review: [PR #16](https://github.com/Tanaboonnnnn/toktickit/pull/16)
@@ -59,7 +59,7 @@ The table below is an auditable index of the Lab 2 reviews received in this repo
 - Response: the contract and planned-test wording were updated for those confirmed inconsistencies. Production-hardening scope was retained because it is a deliberate design choice rather than a confirmed defect.
 - Still open from this review: actual `ai-use.md` evidence, peer-review evidence completion, and the branch-number convention.
 
-### Review 3 โ€” 2026-08-24 15:47 UTC
+### Review 3 — 2026-08-24 15:47 UTC
 
 - Result: **Changes requested**
 - Review evidence: [GitHub review](https://github.com/Tanaboonnnnn/toktickit/pull/16#pullrequestreview-5009163494)
@@ -68,7 +68,7 @@ The table below is an auditable index of the Lab 2 reviews received in this repo
 - Response: this file now records the real review evidence, and UI-03 was added to the AC-37 traceability row in `tests.md`.
 - Branch status: `feature/5-lab2-engineering-contract` was not renamed. This remains a historical branch-number deviation, but PR #16 was subsequently approved and merged into `lab2-staging`.
 
-### Final PR #16 approval and merge โ€” 2026-08-24
+### Final PR #16 approval and merge — 2026-08-24
 
 - Final reviewer verdict: **Approved** by `@L0u1sss` at 2026-08-24 16:18 UTC.
 - Merge: PR #16 merged into `lab2-staging` at 2026-08-24 16:18 UTC as merge commit [`29f7697`](https://github.com/Tanaboonnnnn/toktickit/commit/29f7697e1c394eb9a391e45a64de95fab01dc303).
@@ -90,7 +90,7 @@ The table below is an auditable index of the Lab 2 reviews received in this repo
 
 ## Issue #28 / PR #29 review evidence
 
-### Review 4 โ€” 2026-08-29 19:33 UTC
+### Review 4 — 2026-08-29 19:33 UTC
 
 - Result: **Changes requested**
 - Reviewer: `@Chxtamos`
