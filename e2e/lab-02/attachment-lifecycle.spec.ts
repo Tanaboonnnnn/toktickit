@@ -95,6 +95,15 @@ test("E2E-06 covers valid upload, download, removal, and replacement", async ({ 
   await expect(removedCard.getByText("Removed").first()).toBeVisible();
   await expect(removedCard.getByText("Replaced with a newer file")).toBeVisible();
   await expect(removedCard.getByRole("button", { name: /download|remove/i })).toHaveCount(0);
+  // The UI refresh starts immediately after the DELETE response. Synchronize
+  // this direct API assertion with the authoritative metadata endpoint so the
+  // check cannot race the refresh/transaction boundary on slower Windows runs.
+  await expect.poll(async () => {
+    const metadata = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments`, { headers: { "X-Development-Requester-Id": String(fixture.requesterA.id) } });
+    if (metadata.status() !== 200) return "UNAVAILABLE";
+    const body = await metadata.json() as { items?: Array<{ id: number; state: string }> };
+    return body.items?.find((item) => item.id === attachment.id)?.state ?? "MISSING";
+  }).toBe("REMOVED");
   const removedDownload = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments/${attachment.id}/download`, { headers: { "X-Development-Requester-Id": String(fixture.requesterA.id) } });
   expect(removedDownload.status()).toBe(404);
 

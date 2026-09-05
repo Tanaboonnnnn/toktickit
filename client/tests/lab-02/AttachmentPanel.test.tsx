@@ -32,7 +32,7 @@ describe("UI-09 AttachmentPanel", () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/attachments"), expect.objectContaining({ method: "POST" })));
     await waitFor(() => expect(detailCalls).toBe(2));
     expect(screen.getByText("proof.png")).toBeInTheDocument();
-    expect(screen.getAllByText(/29\/8\/2569 08:00:00/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("29/08/2026, 07:01:00").length).toBeGreaterThan(0);
   });
 
   it("executes a definitive upload failure through the real Upload action", async () => {
@@ -213,7 +213,7 @@ describe("UI-09 AttachmentPanel", () => {
     const refreshIndex = calls.findIndex((value, index) => value.startsWith("GET") && index > deleteIndex);
     expect(deleteIndex).toBeLessThan(refreshIndex);
     expect(screen.getByText("retired")).toBeInTheDocument();
-    expect(screen.getAllByText(/29\/8\/2569 10:00:00/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("29/08/2026, 10:00:00").length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Add an Attachment")).toBeEnabled();
   });
 });

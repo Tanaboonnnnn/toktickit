@@ -590,6 +590,7 @@ artifacts/lab-02/screenshots/
 │   └── requester-selection-desktop.png
 ├── create-ticket/
 │   ├── create-ticket-desktop.png
+│   ├── create-ticket-success-desktop.png
 │   ├── create-ticket-validation-mobile.png
 │   └── create-ticket-partial-failure-tablet.png
 ├── my-tickets/

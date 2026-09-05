@@ -66,6 +66,9 @@ describe("STYLE-01 Zen Green tokens", () => {
   it("uses reusable state and hierarchy classes instead of inline color styling", async () => {
     render(<App />);
     await screen.findByRole("heading", { name: "Create Ticket" });
+    const stylesheet = readFileSync(resolve(process.cwd(), "src/styles.css"), "utf8");
+    const headerRule = stylesheet.match(/\.lab2-shell-header\s*\{([\s\S]*?)\}/)?.[1] ?? "";
+    expect(headerRule).toMatch(/background\s*:\s*var\(--color-primary\)\s*;/i);
     expect(within(screen.getByRole("region", { name: /create ticket/i })).getByRole("button", { name: "Create Ticket" })).toHaveClass("lab2-button-primary");
     const readOnlyOutputs = Array.from(document.querySelectorAll("output"));
     expect(readOnlyOutputs).toHaveLength(3);

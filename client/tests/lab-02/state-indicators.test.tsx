@@ -78,8 +78,8 @@ describe("STYLE-02 readable state indicators", () => {
     await fillAndSubmit();
     expect(await screen.findByText("Your Ticket has been created.")).toBeInTheDocument();
     expect(screen.getByText("Ticket Number")).toBeInTheDocument();
-    expect(screen.getByText("HIGH")).toBeInTheDocument();
-    expect(screen.getByText("New")).toBeInTheDocument();
+    expect(screen.getByText("HIGH")).toHaveClass("lab2-badge", "lab2-priority-high");
+    expect(screen.getByText("New")).toHaveClass("lab2-badge", "lab2-status-new");
   });
 
   it("renders safe error text and visible disabled/limit explanations", async () => {
