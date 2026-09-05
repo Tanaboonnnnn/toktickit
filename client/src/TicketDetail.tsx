@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchTicketDetail, SafeApiError, type Ticket } from "./api.js";
 import { useRequesterContext } from "./requester-context.js";
 import AttachmentPanel from "./AttachmentPanel.js";
+import { formatDisplayDate } from "./date-format.js";
 
 type DetailState =
   | { kind: "loading" }
@@ -15,8 +16,7 @@ interface TicketDetailProps {
 }
 
 function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  return formatDisplayDate(value);
 }
 
 function formatSize(sizeBytes: number): string {

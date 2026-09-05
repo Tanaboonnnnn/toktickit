@@ -2,8 +2,9 @@ import { useState } from "react";
 import { downloadAttachment, fetchTicketAttachments, removeAttachment, SafeApiError, uploadAttachment, type Ticket, type TicketAttachmentMetadata } from "./api.js";
 import { ATTACHMENT_ACCEPT, MAX_ACTIVE_ATTACHMENTS, formatAttachmentSize, validateLocalAttachment } from "./attachment-validation.js";
 import { useRequesterContext } from "./requester-context.js";
+import { formatDisplayDate } from "./date-format.js";
 
-function formatDate(value: string): string { const date = new Date(value); return Number.isNaN(date.getTime()) ? value : date.toLocaleString(); }
+function formatDate(value: string): string { return formatDisplayDate(value); }
 
 export default function AttachmentPanel({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () => void }) {
   const { currentRequester } = useRequesterContext();
