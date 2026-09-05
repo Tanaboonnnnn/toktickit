@@ -13,6 +13,7 @@ import {
 } from "./api.js";
 import { useRequesterContext } from "./requester-context.js";
 import { ATTACHMENT_ACCEPT, MAX_ATTACHMENT_BYTES, MAX_ACTIVE_ATTACHMENTS, formatAttachmentSize, validateLocalAttachment } from "./attachment-validation.js";
+import { formatDisplayDate } from "./date-format.js";
 
 type ReferenceState = "loading" | "ready" | "error" | "empty";
 
@@ -311,7 +312,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
           <dl>
             <dt>Ticket Number</dt><dd data-testid="ticket-number">{submission.ticket.ticketNumber}</dd>
             <dt>Current Status</dt><dd><span className="lab2-badge lab2-status-new">New</span></dd>
-            <dt>Ticket Date</dt><dd>{new Date(submission.ticket.createdAt).toLocaleString()}</dd>
+            <dt>Ticket Date</dt><dd>{formatDisplayDate(submission.ticket.createdAt)}</dd>
             <dt>Requester</dt><dd>{submission.ticket.requester.name}</dd>
             <dt>Category</dt><dd>{submission.ticket.category.name}</dd>
             <dt>Related System</dt><dd>{submission.ticket.relatedSystem.name}</dd>

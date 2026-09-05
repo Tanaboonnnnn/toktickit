@@ -58,6 +58,7 @@ describe("UI-07 My Tickets controls", () => {
   it("uses the documented initial defaults and applies search only on Search/Enter", async () => {
     const fetchMock = renderPage([pageOne, pageOne, pageOne]);
     await screen.findAllByText("Ticket 1");
+    expect(screen.getAllByText("27/08/2026, 07:00:00").length).toBeGreaterThan(0);
     expect(new URL(ticketUrls(fetchMock)[0]).search).toBe("?sortBy=updatedAt&sortDirection=desc&page=1&pageSize=10");
     const user = userEvent.setup();
     const search = screen.getByRole("searchbox", { name: /search ticket number or summary/i });

@@ -28,6 +28,7 @@ describe("UI-09 AttachmentPanel", () => {
     const file = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])], "proof.png", { type: "image/png" });
     fireEvent.change(screen.getByLabelText("Add an Attachment"), { target: { files: [file] } });
     expect(screen.getByText("Selected")).toBeInTheDocument();
+    expect(screen.getByText("8 B · image/png")).toBeInTheDocument();
     await userEvent.setup().click(screen.getByRole("button", { name: /upload attachment/i }));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/attachments"), expect.objectContaining({ method: "POST" })));
     await waitFor(() => expect(detailCalls).toBe(2));
@@ -75,13 +76,14 @@ describe("UI-09 AttachmentPanel", () => {
 
   it("shows the active five-file limit and removed metadata without actions", async () => {
     const active = Array.from({ length: 5 }, (_, i) => ({ id: i + 1, ticketId: 9, originalName: `a${i}.png`, mimeType: "image/png", sizeBytes: 8, state: "ACTIVE" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: null, removalReason: null, downloadUrl: `/download/${i}` }));
-    const removed = { id: 6, ticketId: 9, originalName: "old.pdf", mimeType: "application/pdf", sizeBytes: 8, state: "REMOVED" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: "2026-08-29T01:00:00.000Z", removalReason: "Old file", downloadUrl: null };
+    const removed = { id: 6, ticketId: 9, originalName: "old.pdf", mimeType: "application/pdf", sizeBytes: 8, state: "REMOVED" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: null, removalReason: "Old file", downloadUrl: null };
     vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("development-requesters") ? Promise.resolve(json([requester])) : Promise.resolve(json({ ticket: { ...baseTicket, attachments: [...active, removed] } }))));
     render(<RequesterContextProvider><TicketDetail ticketId={9} onBack={vi.fn()} /></RequesterContextProvider>);
     expect(await screen.findByText(/Maximum five active Attachments reached/i)).toBeInTheDocument();
     expect(screen.getByText("old.pdf")).toBeInTheDocument();
     const removedCard = screen.getByText("old.pdf").closest("article");
     expect(removedCard).not.toBeNull();
+    expect(within(removedCard as HTMLElement).getByText("—")).toBeInTheDocument();
     expect(within(removedCard as HTMLElement).queryByRole("button", { name: /download|remove/i })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Add an Attachment")).toBeDisabled();
   });
