@@ -80,7 +80,7 @@ describe("UI-08 Requester Ticket Detail", () => {
     expect(await screen.findByText(ticket.ticketNumber)).toBeInTheDocument();
     expect(screen.getByText(ticket.ticketNumber)).toBeInTheDocument();
     expect(screen.getByText("New")).toBeInTheDocument();
-    expect(screen.getByText(/8\/27\/2026|2026/)).toBeInTheDocument();
+    expect(screen.getByText("27/08/2026, 15:00:00")).toBeInTheDocument();
     expect(screen.getByText(/Anan Student/)).toBeInTheDocument();
     expect(screen.getByText("Hardware")).toBeInTheDocument();
     expect(screen.getByText("Campus Wi-Fi")).toBeInTheDocument();

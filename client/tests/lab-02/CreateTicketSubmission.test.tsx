@@ -159,6 +159,7 @@ describe("UI-05 Create Ticket Submission", () => {
     await user.click(submitButton());
 
     expect(await screen.findByText(/your ticket has been created/i)).toBeInTheDocument();
+    expect(screen.getByText("23/08/2026, 16:30:00")).toBeInTheDocument();
     const nextAction = screen.getByRole("button", { name: /create another ticket/i });
     expect(nextAction).toBeInTheDocument();
 

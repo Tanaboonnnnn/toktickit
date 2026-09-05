@@ -13,6 +13,7 @@ import {
   type RequestedPriority,
 } from "./api.js";
 import { useRequesterContext } from "./requester-context.js";
+import { formatDisplayDate } from "./date-format.js";
 
 type AppliedQuery = Required<Pick<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">>
   & Omit<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">;
@@ -39,8 +40,7 @@ type ListState =
   | { kind: "success"; response: TicketListResponse; zeroKind?: "empty" | "no-results" };
 
 function formatDate(value: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+  return formatDisplayDate(value);
 }
 
 function priorityLabel(priority: RequestedPriority): string {
