@@ -148,8 +148,17 @@ select:focus-visible {
   align-items: center;
   gap: 24px;
   padding: 20px clamp(16px, 4vw, 48px);
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  color: #fff;
+  background: var(--color-primary);
+  border-bottom: 1px solid var(--color-primary);
+}
+
+.lab2-shell-header .lab2-brand,
+.lab2-shell-header .lab2-muted,
+.lab2-shell-header .lab2-context,
+.lab2-shell-header .lab2-context span,
+.lab2-shell-header .lab2-context small {
+  color: #fff;
 }
 
 .lab2-shell-header > :first-child {
