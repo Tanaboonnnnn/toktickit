@@ -1,6 +1,6 @@
 # Lab 3 Sprint Engineering Specification
 
-Status: **Approved for peer review, not yet approved by a peer.** This document is the Issue #41 engineering contract draft. Product implementation, migration execution, and Lab 3 test results are not claimed here.
+Status: **Revised after peer Changes Requested; awaiting re-review.** This is the Issue #41 engineering contract. Product implementation, migration execution, and Lab 3 product-test results are not claimed here.
 
 Primary source: `Lab_3_sheet.pdf`. This contract extends the delivered Lab 2 product and preserves still-valid Lab 2 behavior unless a Lab 3 requirement explicitly changes it.
 
@@ -27,11 +27,11 @@ The temporary Development Requester selector must be replaced by secure email/pa
 - Requester Public Comments and `Problem Appears Resolved` indication.
 - Minimal Administrator User Management: list, name/email search, optional role filter, create, edit name/email/role/activation, and set new initial password.
 - Zen Green UI continuity, role-specific navigation, loading/validation/success/empty/no-results/forbidden/not-found/conflict/failure states, responsive desktop/tablet/mobile behavior, and accessibility expectations inherited from Lab 2.
-- Data-preserving migration, idempotent seed/provisioning behavior, regression verification, and final-main evidence.
+- Data-preserving migration, documented initial-password provisioning for migrated Requesters, idempotent seed/provisioning behavior, regression verification, and final-main evidence.
 
 ### Explicitly excluded
 
-- Email invitations, reset-email delivery, MFA, social login, SSO, and self-registration.
+- Email invitations, password-reset email delivery, MFA, social login, SSO, and self-registration.
 - Actions Taken.
 - SLA calculations, escalation rules, notification services, KPI/analytics dashboards, and cloud/deployment changes.
 - Multiple roles per user.
@@ -80,7 +80,7 @@ The first five rules preserve the mandatory meanings from the Lab 3 handout.
 - **BR-07:** Email identity is canonicalized by trimming surrounding whitespace and lowercasing for lookup/uniqueness. Canonical collisions block migration or mutation; accounts are never silently merged.
 - **BR-08:** Passwords are never stored in plaintext. The selected project implementation uses salted Argon2id hashing. Password values are never trimmed or normalized before verification/storage.
 - **BR-09:** A new password must contain 15–128 Unicode code points, match confirmation, and differ from the current password. These lengths are a project decision, not a lecturer-provided constant.
-- **BR-10:** Unknown email and incorrect password share generic invalid-credential feedback. Inactive accounts receive safe guidance without disclosing unnecessary account information.
+- **BR-10:** Unknown email, incorrect password, and an unprovisioned migrated account share generic invalid-credential feedback. An inactive account may receive safe inactive guidance only after the supplied credential is otherwise valid.
 - **BR-11:** Normal protected capabilities require a valid active session, current account state, matching authorization state, and completed mandatory password change.
 - **BR-12:** The selected implementation uses a server-side PostgreSQL session with an HttpOnly cookie; authentication secrets, session identifiers, hashes, and signing material are never serialized in User DTOs.
 - **BR-13:** The selected session policy uses a 10-minute pre-auth session, 30-minute authenticated idle timeout, and 8-hour absolute lifetime. These values are project decisions and are tested as such.
@@ -130,7 +130,7 @@ The first five rules preserve the mandatory meanings from the Lab 3 handout.
 | Public Comment | Allow | Allow | Allow | Requester only on own Ticket; staff on permitted Ticket |
 | Internal Note | Deny | Allow | Allow | Never exposed through Requester projection |
 | Problem Appears Resolved | Allow | Deny | Deny | Own Ticket; allowed Requester states only |
-| User list/search/create/edit/reset | Deny | Deny | Allow | Password-change complete Administrator only |
+| User list/search/create/edit/reset | Deny | Deny | Allow | Password-change-complete Administrator only |
 
 ### Status-Transition Matrix
 
@@ -162,31 +162,103 @@ The detailed UI contract is in `ui-spec.md`.
 
 ## 7. Data Changes
 
-The implementation must use forward migrations and preserve previously applied migrations.
+The implementation uses forward migrations and preserves previously applied Lab 2 migrations. Exact Prisma naming may vary only where the physical-table mapping below is preserved; observable relationships and constraints are contract requirements.
 
-| Model / concept | Planned change |
-|---|---|
-| `User` | Prisma model maps to the existing physical `RequesterUser` table to preserve IDs/FKs. Add one role, password hash, `mustChangePassword`, authorization/session invalidation version, edit version, and retained activation/timestamps. |
-| `Ticket` | Preserve requester FK and existing fields. Add nullable primary `ownerId`, `itPriority`, edit version, resolution summary/timestamps, cancel reason, and Requester-resolution-indication timestamp. Extend status enum to eight values. |
-| `PublicComment` | Ticket FK, author FK, body, backend-created timestamp; append-only. |
-| `InternalNote` | Ticket FK, author FK, body, backend-created timestamp; append-only and private from Requester projections. |
-| Session store | Versioned PostgreSQL session table compatible with the chosen session adapter; no runtime auto-create dependency in the delivered migration path. |
+### 7.1 User / existing `RequesterUser` table
 
-Migration requirements:
+Prisma model `User` maps to the existing physical PostgreSQL table `RequesterUser` so current IDs and Ticket requester FKs do not change.
 
-1. Existing Requester IDs and Ticket requester relationships remain unchanged.
-2. Existing Ticket/Attachment fields and original Attachment bytes remain valid.
-3. Existing Requesters become role `REQUESTER` with activation state preserved.
-4. IT Priority backfills from Requested Priority.
-5. Canonical email collisions abort rather than merging accounts.
-6. Existing accounts receive local-lab initial credentials through documented provisioning without committing plaintext real secrets.
-7. Seed remains idempotent and includes at least 4 active + 1 inactive Requester, 3 active + 1 inactive IT Staff, and 1 active Administrator, plus realistic Tickets across statuses/priorities/ownership and safe example comments/notes.
-8. Before a development-data migration, create and verify a private backup/recovery path and rehearse the populated upgrade in the isolated test environment. No destructive reset or `db push` is an accepted migration strategy.
-9. When #43 first introduces multi-status seeded records, the same integration point must also make current runtime status DTO/query/display code able to read those values. Until authentication activation, any temporary Development Requester selector must show only role `REQUESTER` accounts.
+| Field | Planned type / constraint | Migration rule |
+|---|---|---|
+| `id` | `Int`, existing PK | Preserve existing values |
+| `name` | `String` | Preserve existing value; Administrator may later edit |
+| `email` | canonical `String`, unique | Preflight canonical collisions before canonicalization; abort rather than merge |
+| `active` | `Boolean` | Preserve existing activation state |
+| `role` | enum `REQUESTER|IT_STAFF|ADMINISTRATOR` | Existing rows backfill `REQUESTER` |
+| `passwordHash` | nullable `String` | Existing rows start null until explicit local provisioning; never plaintext |
+| `mustChangePassword` | `Boolean` | Existing/migrated provisioned accounts remain true until first valid change |
+| `authVersion` | positive `Int` default 1 | Increment on credential reset, role/email change, or deactivation to revoke stale sessions |
+| `version` | positive `Int` default 1 | Optimistic edit/version conflict detection |
+| `createdAt`, `updatedAt` | existing timestamps | Preserve/continue current behavior |
+
+Relationships:
+
+- submitted Tickets: existing `Ticket.requesterId -> User.id` (`onDelete: Restrict`);
+- owned Tickets: new nullable `Ticket.ownerId -> User.id` (`onDelete: Restrict`);
+- authored Public Comments and Internal Notes: `authorId -> User.id` (`onDelete: Restrict`).
+
+Indexes/constraints:
+
+- unique canonical `email`;
+- index supporting active role/user selection, e.g. `(active, role, name, id)`;
+- no user-delete cascade is introduced.
+
+### 7.2 Ticket
+
+Existing Ticket ID, Ticket Number, client request ID, requester/category/system relationships, Summary, Description, Requested Priority, and timestamps remain.
+
+New/changed fields:
+
+| Field | Planned type / constraint | Rule |
+|---|---|---|
+| `ownerId` | nullable `Int` FK to User | zero/one primary owner; eligible active IT Staff/Admin |
+| `itPriority` | priority enum | backfill exactly once from `requestedPriority` |
+| `currentStatus` | eight-value enum | existing rows remain `NEW` |
+| `version` | positive `Int` default 1 | optimistic workflow/ownership conflict detection |
+| `resolutionSummary` | nullable `String` | required only on transition to Resolved; 10–2000 trimmed code points |
+| `resolvedAt` | nullable timestamp | backend-managed |
+| `closedAt` | nullable timestamp | backend-managed |
+| `cancelReason` | nullable `String` | required only on Cancel; 3–200 trimmed code points |
+| `cancelledAt` | nullable timestamp | backend-managed |
+| `requesterResolutionIndicatedAt` | nullable timestamp | backend-managed; no formal status change |
+
+Required operational indexes include owner/status/update lookup and status/IT-Priority/update lookup in addition to retained requester/query indexes. Exact index order may be tuned only if query behavior remains identical and migration tests prove no data loss.
+
+### 7.3 PublicComment
+
+- `id`: integer PK.
+- `ticketId`: required FK to Ticket, `onDelete: Restrict`.
+- `authorId`: required FK to User, `onDelete: Restrict`.
+- `body`: plain text, trimmed 1–2000 Unicode code points.
+- `createdAt`: backend-created timestamp.
+- append-only in Lab 3; no update/delete endpoint.
+- deterministic index/order support: `(ticketId, createdAt, id)`; author lookup index where needed.
+
+### 7.4 InternalNote
+
+Same structural fields/index/order as PublicComment, but available only to IT Staff/Administrator projections and endpoints. Requester DTOs/errors must not expose note text, IDs, authors, counts, or note-existence metadata.
+
+### 7.5 PostgreSQL session store
+
+The selected `express-session` PostgreSQL adapter uses a migration-owned session table rather than runtime table creation.
+
+| Field | Type / constraint | Purpose |
+|---|---|---|
+| `sid` | opaque string PK | session-store key; sensitive; never serialized/logged |
+| `sess` | JSONB | adapter session payload |
+| `expire` | timestamp with time zone | store expiry/cleanup |
+
+Required index: `expire`.
+
+The serialized payload may contain nullable authenticated `userId`, `authVersion` snapshot, session-bound CSRF state, cookie metadata, and absolute-expiry state. It must not contain plaintext passwords or password hashes. Protected requests re-read current User authorization state rather than trusting stale session role/activation alone.
+
+### 7.6 Forward-migration and provisioning sequence
+
+1. **Preflight/recovery:** before touching development data, create and verify a private backup/recovery path; rehearse the populated upgrade in the isolated test environment.
+2. **Canonical-email preflight:** compute the selected trim/lowercase canonical form for every existing Requester email. Any collision aborts before mutation; accounts are never silently merged.
+3. **Expand in place:** map Prisma `User` to physical `RequesterUser`; add role/credential/version fields; add Ticket workflow/owner/IT-Priority fields; add comment/note/session tables; extend Ticket status enum. Do not drop/recreate Lab 2 Ticket/Attachment tables.
+4. **Backfill:** existing Users -> `role=REQUESTER`; preserve `active`; existing Tickets keep requester IDs/FKs and `NEW`; `itPriority=requestedPriority`; new edit/auth versions receive initial values.
+5. **Unprovisioned migrated state:** existing Requesters have `passwordHash=null` and `mustChangePassword=true` until explicit local provisioning. This state cannot authenticate.
+6. **Local initial-password provisioning:** a local-only command selects migrated Requesters with null `passwordHash`, generates a cryptographically random one-time initial password per account, stores only its Argon2id hash, keeps `mustChangePassword=true`, and prints the email + one-time password once to the local terminal. It is not automatic server startup behavior and does not write plaintext credentials to the repository/database.
+7. **Repeat safety:** rerunning provisioning skips accounts that already have a hash and therefore does not reset edited passwords, roles, activation, auth versions, or Ticket workflow. Later intentional resets use the Administrator initial-password action.
+8. **Seed:** idempotently provide at least 4 active + 1 inactive Requester, 3 active + 1 inactive IT Staff, and 1 active Administrator, plus realistic Tickets across statuses/priorities/ownership and safe example Public Comments/Internal Notes. Seed credentials are fictional local-development credentials only and are clearly documented as such; no real personal password/secret is committed.
+9. **Integration gate:** when #43 first exposes non-`NEW` records, the same integrated change supplies the minimum backend/client DTO/query/display compatibility needed to read them. Before #45 activation, any remaining temporary selector lists only role `REQUESTER` accounts.
+
+Destructive reset, `db push` used as an upgrade substitute, silent account merging, or a migration that rewrites existing Ticket requester identity is not an accepted Lab 2 -> Lab 3 upgrade.
 
 ## 8. API Contract
 
-Detailed shapes and errors are in `api-spec.md`. Selected endpoint families:
+The exact endpoint/request/response/error/status contract is in `api-spec.md`. Endpoint families are:
 
 - `GET /api/auth/csrf`
 - `POST /api/auth/login`
@@ -208,17 +280,7 @@ Detailed shapes and errors are in `api-spec.md`. Selected endpoint families:
 - `PATCH /api/admin/users/:id`
 - `POST /api/admin/users/:id/initial-password`
 
-Status families:
-
-- `400` invalid input/query/body/path/CSRF shape where applicable.
-- `401` missing or invalid authentication.
-- `403` authenticated but forbidden, password-change-required, or policy denial where resource disclosure is not involved.
-- `404` missing/non-disclosable protected resource.
-- `409` version/state/identity/assignment conflict.
-- `413` retained oversized Attachment behavior.
-- `415` retained unsupported Attachment behavior.
-- `429` selected bounded login-attempt policy.
-- `500` safe unexpected error with no implementation secret leakage.
+The common HTTP/error families are `400` invalid input, `401` unauthenticated/invalid credentials, `403` authenticated policy/role/CSRF/password-change denial, `404` missing/non-disclosable protected resource, `409` state/version/identity/assignment conflict, retained `413/415` Attachment errors, `429` login throttling, and safe `500` unexpected failure. `api-spec.md` defines which families apply to each endpoint and the exact safe response DTOs.
 
 ## 9. Acceptance Criteria
 
@@ -248,7 +310,7 @@ Status families:
 - **AC-24 — Administrator safety:** Self-deactivation and removal/deactivation/demotion of the last active Administrator are prevented without partial mutation, including concurrent requests.
 - **AC-25 — Assigned-owner account safety:** Deactivation/demotion cannot leave an ineligible account as primary Ticket Owner; assignment/account races preserve the invariant.
 - **AC-26 — Initial-password reset:** Administrator reset stores no plaintext password, forces next-login password change, and invalidates old password/session access.
-- **AC-27 — Data-preserving migration:** Populated Lab 2 Requesters/Tickets/Attachments/Categories/Related Systems preserve required IDs, relationships, content, and file bytes after the forward migration.
+- **AC-27 — Data-preserving migration:** Populated Lab 2 Requesters/Tickets/Attachments/Categories/Related Systems preserve required IDs, relationships, content, and file bytes after the forward migration, and migrated Requesters enter the documented safe provisioning flow.
 - **AC-28 — Repeat-safe seed/provisioning:** Repeated seed/provisioning creates no duplicate required fixtures and does not reset existing edited passwords/roles/activation/workflow state.
 - **AC-29 — Safe errors:** Representative authentication, database, storage, and session-store failures expose no SQL, Prisma, stack, filesystem path, password/hash, session, or secret material.
 - **AC-30 — Zen Green and accessibility:** Major Lab 3 screens preserve the documented design tokens, editable/read-only states, labels, keyboard focus, non-color meaning, and no unintended clipping/overlap/horizontal overflow at required viewports.
@@ -265,7 +327,7 @@ Product completion requires all of the following:
 - Existing Requester Ticket/Attachment behavior remains working under authenticated identity.
 - Staff Queue/Detail, ownership, IT Priority, status workflow, Public Comments, Internal Notes, and Requester resolution indication satisfy the contract.
 - Minimalist Administrator User Management and its safety rules satisfy the contract.
-- Populated migration and repeat-safe seed/provisioning evidence preserve existing data.
+- Populated migration, existing-Requester initial-password provisioning, and repeat-safe seed/provisioning evidence preserve existing data.
 - Current server/client builds and all required unit/API/integration/UI/style/security/regression/responsive/E2E tests pass in the approved test environment.
 - Required desktop/tablet/mobile evidence is generated from the actual app and manually inspected against `ui-spec.md`.
 - `specification.md`, `tests.md`, `api-spec.md`, `ui-spec.md`, `reviewer.md`, and `ai-use.md` truthfully reflect implemented behavior and evidence.
@@ -278,12 +340,13 @@ Product completion requires all of the following:
 The following are engineering decisions made to remove ambiguity. They are not claims that the handout mandated these exact values or libraries.
 
 - Use Argon2id for password hashing.
-- Use `express-session` with a PostgreSQL session store and HttpOnly/SameSite cookie rather than a browser-stored JWT.
+- Use `express-session` with a migration-owned PostgreSQL session store and HttpOnly/SameSite cookie rather than a browser-stored JWT.
 - Use CSRF token plus allowed-Origin validation for unsafe requests.
 - Use password length 15–128 Unicode code points and preserve exact password characters.
 - Use pre-auth 10-minute, authenticated idle 30-minute, and absolute 8-hour session limits.
 - Use bounded local-lab login throttling; implementation constants are specified in `api-spec.md`.
 - Map Prisma `User` to the existing physical `RequesterUser` table to preserve IDs and relationships.
+- Migrate existing Requesters first as unprovisioned `REQUESTER` accounts, then issue one-time local initial passwords through the explicit repeat-safe provisioning flow; do not place migrated-user plaintext passwords in a migration, database, repository file, or normal server log.
 - Explicitly permit Administrator Ticket operations in the authorization matrix where the handout's ownership/priority/note rules allow Administrator, while keeping User Management as the Administrator's primary responsibility.
 - Permit Staff/Admin read-only Attachment metadata/download on permitted Tickets but do not add Staff/Admin Attachment upload/removal in Lab 3.
 - Use 1–2000-codepoint Public Comment/Internal Note bodies.
