@@ -4,6 +4,8 @@ Status: **Revised after peer Changes Requested; awaiting re-review.** This is th
 
 Primary source: `Lab_3_sheet.pdf`. This contract extends the delivered Lab 2 product and preserves still-valid Lab 2 behavior unless a Lab 3 requirement explicitly changes it.
 
+Lab 3 starts from delivered `main` commit `729b73faf9e91983d91c2bc8be6c0aaecd864051` (the Lab 2 integration point used before Issue #41 work). Historical Lab 2 commits/evidence remain historical; later Lab 3 work evolves the current product forward from that point.
+
 ## 1. Sprint Goal
 
 Evolve the existing TokTickIT Requester application into an authenticated, role-authorized service desk without discarding the Lab 2 Ticket or Attachment increment. By the end of Lab 3, Requesters use their authenticated identity, IT Staff can operate a shared Ticket Queue and Ticket workflow, and Administrators can perform the required minimalist user-management functions. Every protected operation is enforced by the backend and is supported by traceable tests and review evidence.
