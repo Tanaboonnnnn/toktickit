@@ -2,13 +2,15 @@
 
 Status: **Planned / Not run** for every Lab 3 Test ID in this Issue #41 contract. This file is intentionally created before product implementation. No row becomes Pass until the test exists, executes, and the result is verified on the relevant source SHA.
 
+Current contract count: **50 unique planned Test IDs**. Test-ID count is not the same as the eventual runner assertion/test-case count.
+
 ## 1. Strategy
 
 - Unit tests cover pure parsing, password policy, workflow edges, validation, and policy decisions.
 - API/integration tests use Supertest and the isolated PostgreSQL test database for authentication, authorization, migration, queue, workflow, comments/notes, Administrator operations, and retained Requester behavior.
 - UI component tests verify Login, Change Password, authenticated shell, Requester regression, Staff Queue/Detail, communication, and User Management states.
 - UI style/accessibility tests verify Zen Green state conventions, labels, focus, and non-color meaning.
-- Migration/regression tests prove populated Lab 2 preservation and map evolved Lab 2 expectations rather than silently deleting them.
+- Migration/regression tests prove populated Lab 2 preservation, the documented migrated-Requester initial-password provisioning flow, and evolved Lab 2 expectations rather than silently deleting them.
 - Playwright covers real browser authentication, Requester continuity, staff flow, communication privacy, user administration, responsive behavior, and security boundaries.
 - Tests use only the verified dedicated test database and temporary test uploads. They never silently fall back to working development data.
 
@@ -17,10 +19,10 @@ Status: **Planned / Not run** for every Lab 3 Test ID in this Issue #41 contract
 | Test ID | Type | Requirement / AC | Planned behavior | Expected result | Automated file | Final |
 |---|---|---|---|---|---|---|
 | ENV-01 | Unit | BR-40; AC-31 | Reject missing/shared/unapproved test DB and overlapping upload roots | Fail closed before mutation | `server/tests/lab-03/support/test-safety.unit.test.ts` | Planned / Not run |
-| MIG-01 | Integration | FR-23; AC-27 | Populated Lab 2 schema -> Lab 3 migration | Existing IDs/FKs/content/files preserved | `server/tests/lab-03/migration.integration.test.ts` | Planned / Not run |
-| MIG-02 | Integration | BR-07; AC-27 | Canonical email collision | Migration aborts without merge/partial data loss | `server/tests/lab-03/migration.integration.test.ts` | Planned / Not run |
+| MIG-01 | Integration | FR-23; AC-27 | Populated Lab 2 schema -> Lab 3 forward migration, then explicit existing-Requester local provisioning | Existing IDs/FKs/content/files preserved; migrated Requesters receive hash-only one-time initial credentials, remain `mustChangePassword=true`, and no plaintext credential is persisted | `server/tests/lab-03/migration.integration.test.ts` | Planned / Not run |
+| MIG-02 | Integration | BR-07; AC-27 | Canonical email collision before migration | Migration aborts before mutation; no merge/partial data loss | `server/tests/lab-03/migration.integration.test.ts` | Planned / Not run |
 | SEED-01 | Integration | FR-23; AC-28 | Required role/status/priority fixtures | Required safe local fixtures created | `server/tests/lab-03/seed.integration.test.ts` | Planned / Not run |
-| SEED-02 | Integration | AC-28 | Repeat seed/provisioning after edits | No credential/role/activation/workflow reset | `server/tests/lab-03/seed.integration.test.ts` | Planned / Not run |
+| SEED-02 | Integration | AC-28 | Repeat seed and migrated-Requester provisioning after user/workflow edits | No duplicate fixtures and no credential/role/activation/auth-version/workflow reset; already-provisioned accounts are skipped | `server/tests/lab-03/seed.integration.test.ts` | Planned / Not run |
 | HASH-01 | Unit | BR-08; AC-05 | Salted hashing/verification/malformed hash | No plaintext; correct/incorrect verification safe | `server/tests/lab-03/password.unit.test.ts` | Planned / Not run |
 | AUTH-01 | API | AC-01 | Valid active login and safe current User | Authenticated session; safe DTO only | `server/tests/lab-03/auth.api.test.ts` | Planned / Not run |
 | AUTH-02 | API | AC-05 | Wrong/unknown/inactive/unprovisioned login | Safe failure; no credential/account leak | `server/tests/lab-03/auth.api.test.ts` | Planned / Not run |
