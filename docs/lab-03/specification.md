@@ -121,6 +121,7 @@ The first five rules preserve the mandatory meanings from the Lab 3 handout.
 | Operation | Requester | IT Staff | Administrator | Resource / state rule |
 |---|---|---|---|---|
 | Login / current user / own password change / logout | Allow | Allow | Allow | Own authenticated account only |
+| Category / Related System reference data | Allow | Allow | Allow | Active, authenticated, password-change-complete session; active reference rows only |
 | Create Ticket / My Tickets | Allow | Deny | Deny | Requester uses own authenticated identity |
 | Requester Ticket Detail | Allow | Deny via Requester route | Deny via Requester route | Own submitted Ticket only |
 | Requester Attachment upload/remove | Allow | Deny | Deny | Own Ticket; retained Lab 2 rules |
@@ -267,6 +268,8 @@ The exact endpoint/request/response/error/status contract is in `api-spec.md`. E
 - `GET /api/auth/me`
 - `POST /api/auth/change-password`
 - `POST /api/auth/logout`
+- `GET /api/categories`
+- `GET /api/related-systems`
 - Existing `/api/tickets` and nested Attachment endpoints, changed to session-derived Requester identity.
 - `GET /api/staff/tickets`
 - `GET /api/staff/tickets/:id`
@@ -282,6 +285,8 @@ The exact endpoint/request/response/error/status contract is in `api-spec.md`. E
 - `PATCH /api/admin/users/:id`
 - `POST /api/admin/users/:id/initial-password`
 
+The temporary Lab 2 `GET /api/development-requesters` route is not part of the post-#45 authenticated API. #45 removes the route together with the Development Requester selector/client authority; the retained Category and Related System endpoints remain as authenticated reference-data APIs.
+
 The common HTTP/error families are `400` invalid input, `401` unauthenticated/invalid credentials, `403` authenticated policy/role/CSRF/password-change denial, `404` missing/non-disclosable protected resource, `409` state/version/identity/assignment conflict, retained `413/415` Attachment errors, `429` login throttling, and safe `500` unexpected failure. `api-spec.md` defines which families apply to each endpoint and the exact safe response DTOs.
 
 ## 9. Acceptance Criteria
@@ -293,7 +298,7 @@ The common HTTP/error families are `400` invalid input, `401` unauthenticated/in
 - **AC-05 — Inactive/invalid credential safety:** Wrong, unknown, inactive, and unprovisioned credential cases fail safely without exposing password/hash/role details.
 - **AC-06 — Session lifecycle:** Logout, expiration, password reset, role/email change, and deactivation remove or invalidate prior protected access as specified.
 - **AC-07 — CSRF/origin enforcement:** Unsafe authenticated mutations without the approved CSRF/Origin conditions change no data.
-- **AC-08 — Authenticated Requester continuation:** All retained Lab 2 Ticket/Attachment capabilities work using authenticated Requester identity with no Development Requester selector.
+- **AC-08 — Authenticated Requester continuation:** All retained Lab 2 Ticket/Attachment capabilities and required Category/Related System reference-data lookups work under the authenticated application with no Development Requester selector or Development Requester endpoint after #45.
 - **AC-09 — Requester isolation:** Requester A cannot list, view, mutate, download, remove, comment on, or otherwise infer protected Ticket/Attachment data owned by Requester B through Requester routes.
 - **AC-10 — Ticket creation continuity:** Existing validation, unique Ticket Number, `clientRequestId` replay/conflict/concurrency, and ambiguous-outcome behavior remain correct; replay never resets operational state.
 - **AC-11 — Attachment continuity:** Retained file type/signature/size/five-active/private-storage/soft-removal/compensation rules remain correct under authentication.
@@ -354,6 +359,7 @@ The following are engineering decisions made to remove ambiguity. They are not c
 - Use 1–2000-codepoint Public Comment/Internal Note bodies.
 - Use the status-transition matrix in this specification and optimistic version checks for operational edits.
 - Keep the existing simple React architecture and extend it with typed hash routes instead of adding a new routing/global-state framework.
+- After #45, protect retained Category/Related System reference-data endpoints with the same active-session and mandatory-password-change gate as normal application capabilities. This is a project security decision: the handout requires authenticated continuation of the Lab 2 Requester Ticket/Attachment APIs but does not prescribe whether these supporting lookup routes must be public or protected.
 - Activate real authentication across backend identity enforcement and frontend authenticated transport together in #45. #44 may establish the auth/session foundation, but the application is not considered converted while the legacy selector/header still drives normal Requester behavior.
 - When #43 first exposes additional status values/role fixtures, include the minimum current-consumer compatibility needed so the integrated application can read those records; #46 completes and regression-tests the full Requester continuity.
 - Update current source/tests/seed/configuration in Lab 3 commits when requirements evolve; preserve historical Lab 2 commits, evidence, and applied migrations rather than freezing current files.

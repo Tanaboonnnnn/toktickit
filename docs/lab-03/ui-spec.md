@@ -99,6 +99,8 @@ While `mustChangePassword=true`, normal application destinations are unavailable
 
 Retain Lab 2 field layout, validation, reference-data states, idempotent create UX, Attachment preselection, partial upload success, and ambiguous-outcome handling. Requester is now authenticated identity and read-only; no selector is rendered.
 
+After #45, Category and Related System reference data is loaded only after authentication bootstrap succeeds and any mandatory password change is complete. The Create Ticket flow does not call or render data from the retired Development Requester endpoint.
+
 ### My Tickets
 
 Retain search, Category, Requested Priority, status, sorting, pagination, Empty/No Results/Failure, table/card responsive behavior. Status control and badges support all eight Lab 3 states.

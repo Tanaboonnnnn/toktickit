@@ -17,7 +17,7 @@ Disposition values:
 | UT-05/UT-06 Attachment rules | Retain | Attachment rules unchanged | #46 ATT-01 + maintained existing tests |
 | UT-07 Development Requester context | Replace | Real authentication/current-user/session replaces selector/sessionStorage | #45 UI-01/AuthShell/routes + E2E-01 |
 | UT-08 safe error serializer | Retain/Evolve | Same no-leak principle plus auth/session cases | #51 SAFE-01 + maintained existing test |
-| API-01 reference data + Development Requesters | Split | Category/Related System retained; Development Requester endpoint removed after auth activation | #46 retained reference checks; #45 auth/current-user replacement |
+| API-01 reference data + Development Requesters | Split | Category/Related System retained behind the post-#45 authenticated/password-change-complete application gate; Development Requester endpoint removed after auth activation | #45 protected reference-data gate + Development Requester route removal; #46 REQ-01 retained reference checks |
 | API-02 Requester header errors | Replace | Missing/invalid auth + spoofing resistance | #44/#45 AZ-01; #46 REQ-02 |
 | API-03..API-10 Ticket create/list/detail | Retain/Evolve | Same capability with session-derived Requester and eight statuses | #45 activation setup; #46 REQ-01..03/STATUS-01 |
 | API-11..API-18 Attachment lifecycle | Retain/Evolve | Same lifecycle under auth/CSRF/resource checks | #46 ATT-01..03 |

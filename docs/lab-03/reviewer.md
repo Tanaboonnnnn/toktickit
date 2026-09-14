@@ -18,12 +18,16 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - GitHub username: `@Chxtamos`
 - Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 17:15 UTC.
 
+- GitHub username: `@thananun-7203`
+- Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 18:33 UTC against head `4ff85cb`.
+
 Other users may be requested for review on GitHub, but this file records a reviewer only after a real review submission is verifiable.
 
 ## Reviews received
 
 | PR | Scope | Reviewer(s) | Review trail (UTC) |
 |---|---|---|---|
+| [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; response revision prepared; re-review pending |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -56,6 +60,30 @@ Changes made for re-review:
 
 No product feature, migration execution, seed/reset, database mutation, or peer approval is claimed by these review-response changes.
 
+### Review 2 — 2026-09-14 18:33 UTC
+
+- Result: **Changes requested**
+- Reviewer: `@thananun-7203`
+- Review: [PR #53 review](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919)
+- Reviewed head: `4ff85cb35e7ce1063aa6a9e727556fe887e8889d`
+- Blocking finding: `regression-map.md` and `ui-spec.md` retained Category/Related System reference-data behavior, but `api-spec.md` did not define the post-authentication contract for `/api/categories` and `/api/related-systems` or explicitly define removal of `/api/development-requesters` after #45.
+- Required coverage: define authentication/password-change policy, response shape, active-only behavior, ordering/safe failures, endpoint retirement, and planned test mapping.
+- Minor/non-blocking finding: make all three `UI-01` automated test paths fully qualified.
+
+### Author response to Review 2
+
+The blocking finding was verified against the current repository before editing. The reviewer identified a real cross-document gap: Lab 2 currently implements all three reference-data routes; `regression-map.md` already says Category/Related System survive while Development Requester is replaced; `ui-spec.md` retains reference-data states; and the handout requires authenticated continuation of all Lab 2 Requester Ticket/Attachment APIs plus an exact Lab 3 API contract. The handout does not itself require these supporting lookup routes to be protected, so the chosen post-#45 authentication/password-change gate is recorded as a project security decision rather than a lecturer-mandated constant.
+
+Changes made for re-review:
+
+1. `api-spec.md` now defines the retained `/api/categories` and `/api/related-systems` contracts: protected-session/password-change gate, bare `ReferenceItem[]` response compatibility, active-only rows, deterministic ordering, empty success, safe failures, and no CSRF token requirement for the safe GET requests.
+2. `api-spec.md` explicitly retires `/api/development-requesters` at #45 and requires a safe `404 RESOURCE_NOT_FOUND` for the post-#45 authenticated check rather than a Requester list or compatibility fallback.
+3. `specification.md` now includes reference-data authorization/API-family decisions and extends AC-08 to include the retained reference-data lookup and Development Requester endpoint removal; `ui-spec.md` makes the post-#45 authenticated lookup timing explicit.
+4. `REQ-01` now plans direct coverage for the retained reference-data contract and endpoint retirement without increasing the Test ID count; `regression-map.md` points API-01 to that coverage.
+5. `UI-01` now uses fully qualified paths for all three planned client test files.
+
+These are contract/test-plan changes only. They do not claim that #45/#46 product behavior has already been implemented or executed.
+
 ## Review-resolution log
 
 | Review | Finding | Student response | File/change | Status |
@@ -66,11 +94,13 @@ No product feature, migration execution, seed/reset, database mutation, or peer 
 | Review 1 | PR claimed 44 tests while Test DD had 50 IDs | Made 50 unique Test IDs explicit and synchronized PR metadata | `tests.md`, PR #53 description | Resolved in revised head; pending re-review |
 | Review 1 follow-up | Internal implementation plan should not be uploaded | Remove `docs/lab-03/implementation-plan.md` from PR and remove repository references to it | PR #53 / Issue #41 / Issue #42 metadata | Resolved in revised head; pending re-review |
 | Post-review self-audit | AC-32 mapping cell did not explicitly name its planned Test ID | Mapped AC-32 directly to the already-declared `TRACE-01` test | `tests.md` | Resolved before re-review |
+| Review 2 | Retained Category/Related System endpoints missing from active Lab 3 API contract; Development Requester retirement/test gap unclear | Added exact retained-reference contract, explicit post-#45 route retirement, authorization/UI/API-family alignment, and REQ-01 coverage | `api-spec.md`, `specification.md`, `ui-spec.md`, `tests.md`, `regression-map.md` | Resolved in revised head; pending re-review |
+| Review 2 minor | `UI-01` listed two abbreviated automated paths | Fully qualified all three client test paths | `tests.md` | Resolved in revised head; pending re-review |
 
 ## Approval evidence
 
-- Current reviewer verdict for PR #53: **Changes Requested**.
-- Review link: [PR #53 Changes Requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235)
+- Current reviewer verdicts for PR #53: **Changes Requested** from both recorded reviewers; no later approval is recorded yet.
+- Review links: [Review 1](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235), [Review 2](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919)
 - Final approval: **None recorded yet.**
 - Passing-check link: no hosted passing-check result is claimed here. Issue #41 document consistency checks are separate engineering evidence, not peer approval.
 - Merge status: **Open and not merged into `lab3-staging`.**
@@ -81,4 +111,4 @@ No Lab 3 peer-review-given evidence has been added yet. Lab 2 reviews are not co
 
 ## Evidence integrity note
 
-This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53, Issue #41, the feature/base branches, the `@Chxtamos` Changes Requested review, and the review-response changes above are verifiable artifacts. No approval, successful re-review, merge, hosted CI result, or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
+This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53, Issue #41, the feature/base branches, the `@Chxtamos` and `@thananun-7203` Changes Requested reviews, and the review-response changes above are verifiable artifacts. No approval, successful re-review, merge, hosted CI result, or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.

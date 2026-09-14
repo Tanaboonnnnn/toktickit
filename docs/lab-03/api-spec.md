@@ -307,7 +307,37 @@ Headers: valid configured `Origin` and `X-CSRF-Token` when a session exists.
 - `403 CSRF_INVALID`: a live session submitted an unsafe request without the required CSRF/Origin conditions.
 - `500 INTERNAL_ERROR`: a known live session could not be invalidated safely.
 
-## 6. Authenticated Requester Ticket and Attachment APIs
+## 6. Retained Reference Data and Authenticated Requester APIs
+
+### 6.0 Retained Category and Related System reference data
+
+The retained Create Ticket and Ticket-filter UI still depends on Category and Related System lookup data. After the #45 authentication activation, both lookup routes are normal protected application capabilities rather than public pre-authentication data.
+
+Both endpoints require a valid, active, password-change-complete authenticated session. All three Lab 3 roles may read them because the values are shared non-user reference data. They are safe `GET` requests and therefore do not require `X-CSRF-Token` or an Origin check solely for CSRF protection.
+
+#### GET `/api/categories`
+
+- Query/body: none; unknown query parameters are rejected with `400 VALIDATION_ERROR` rather than ignored.
+- Success: `200 OK` with a bare `ReferenceItem[]`, preserving the Lab 2 response shape.
+- Contents: active Categories only.
+- Ordering: `id asc`.
+- Empty active set: `200 OK` with `[]`.
+- Failures: `400 VALIDATION_ERROR`, `401 AUTHENTICATION_REQUIRED`, `403 PASSWORD_CHANGE_REQUIRED`, `500 INTERNAL_ERROR` using the safe error envelope.
+
+#### GET `/api/related-systems`
+
+- Query/body: none; unknown query parameters are rejected with `400 VALIDATION_ERROR` rather than ignored.
+- Success: `200 OK` with a bare `ReferenceItem[]`, preserving the Lab 2 response shape.
+- Contents: active Related Systems only.
+- Ordering: `name asc`, then `id asc`.
+- Empty active set: `200 OK` with `[]`.
+- Failures: `400 VALIDATION_ERROR`, `401 AUTHENTICATION_REQUIRED`, `403 PASSWORD_CHANGE_REQUIRED`, `500 INTERNAL_ERROR` using the safe error envelope.
+
+If an authenticated session becomes invalid because the account is deactivated or its authorization version changes, the normal session-revocation contract applies and protected lookup access is rejected rather than returning reference data.
+
+#### Retirement of `GET /api/development-requesters`
+
+The Lab 2 Development Requester lookup is transitional only. Before #45 it may exist while the old selector still drives the unconverted application. Completion of #45 removes the route and all normal client calls to it. On the post-#45 application, an authenticated password-change-complete request to `/api/development-requesters` receives the application's safe `404 RESOURCE_NOT_FOUND` response and never a Requester list. No compatibility alias or test-only production fallback is retained.
 
 The Lab 2 Ticket Number rules, idempotency behavior, Attachment validation/storage/compensation rules, and 5 MiB / five-active limits remain authoritative except where this Lab 3 contract explicitly changes identity or Ticket status. `docs/lab-02/api-spec.md` remains historical rationale, but the active Lab 3 request contract is repeated here so implementation does not have to infer current behavior from two documents.
 
