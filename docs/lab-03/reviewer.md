@@ -46,12 +46,13 @@ The review findings were checked against `Lab_3_sheet.pdf` §5–6 and the curre
 
 Changes made for re-review:
 
-1. `api-spec.md` now defines shared response DTOs, endpoint-by-endpoint success responses, applicable safe error/status families, session/cookie/CSRF behavior, and exact response bodies for the new Lab 3 endpoint families.
+1. `api-spec.md` now defines shared response DTOs, endpoint-by-endpoint success responses, applicable safe error/status families, session/cookie/CSRF behavior, exact response bodies for the new Lab 3 endpoint families, and the active Requester Ticket/Attachment request/query/multipart/removal shapes directly in the Lab 3 contract rather than requiring implementation to reconstruct them from Lab 2 documentation.
 2. `specification.md` Data Changes now defines User/Ticket/Comment/Note fields and relationships, required indexes/constraints, the migration-owned PostgreSQL session-store table, and the ordered forward-migration/backfill sequence.
 3. The migration contract now defines an explicit local-only initial-password provisioning flow for existing migrated Requesters: unprovisioned accounts start with no hash, an explicit local command generates one-time random initial passwords, only hashes are stored, `mustChangePassword=true`, reruns skip already-provisioned accounts, and the behavior is covered by `MIG-01`/`SEED-02` planning.
 4. `tests.md` now states the exact **50 unique planned Test IDs** and clarifies that Test-ID count is different from eventual runner assertion/test-case count.
 5. The PR metadata is updated to use the current count and current document scope rather than the stale 44-test statement.
 6. The internal `implementation-plan.md` planning artifact is removed from the PR because it is not an instructor-required Lab 3 deliverable and the project owner explicitly requested that it not be uploaded. Issue references are synchronized so no later work treats that internal plan as repository source of truth.
+7. A post-review traceability self-audit found that AC-32's traceability row described the final-release gate in prose even though `TRACE-01` was already declared against AC-32 in the planned-test table. The row now names `TRACE-01` explicitly so every AC maps to an actual planned Test ID in both directions.
 
 No product feature, migration execution, seed/reset, database mutation, or peer approval is claimed by these review-response changes.
 
@@ -64,6 +65,7 @@ No product feature, migration execution, seed/reset, database mutation, or peer 
 | Review 1 | Existing Requester initial-password migration flow unspecified | Added explicit local one-time provisioning flow and planned migration/seed assertions | `specification.md`, `api-spec.md`, `tests.md` | Resolved in revised head; pending re-review |
 | Review 1 | PR claimed 44 tests while Test DD had 50 IDs | Made 50 unique Test IDs explicit and synchronized PR metadata | `tests.md`, PR #53 description | Resolved in revised head; pending re-review |
 | Review 1 follow-up | Internal implementation plan should not be uploaded | Remove `docs/lab-03/implementation-plan.md` from PR and remove repository references to it | PR #53 / Issue #41 / Issue #42 metadata | Resolved in revised head; pending re-review |
+| Post-review self-audit | AC-32 mapping cell did not explicitly name its planned Test ID | Mapped AC-32 directly to the already-declared `TRACE-01` test | `tests.md` | Resolved before re-review |
 
 ## Approval evidence
 

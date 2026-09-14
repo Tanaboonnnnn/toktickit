@@ -104,7 +104,7 @@ Current contract count: **50 unique planned Test IDs**. Test-ID count is not the
 | AC-29 | SAFE-01, SEC-01 |
 | AC-30 | STYLE-01, A11Y-01, RESP-01, RESP-02, RESP-03 |
 | AC-31 | TRACE-01 plus every row above |
-| AC-32 | Full final verification recorded only after final-main release |
+| AC-32 | TRACE-01 |
 
 ## 4. Lab 2 Regression Disposition Summary
 

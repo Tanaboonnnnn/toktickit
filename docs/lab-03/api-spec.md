@@ -309,7 +309,61 @@ Headers: valid configured `Origin` and `X-CSRF-Token` when a session exists.
 
 ## 6. Authenticated Requester Ticket and Attachment APIs
 
-The Lab 2 request bodies, Ticket Number rules, idempotency behavior, query semantics, Attachment validation/storage/compensation rules, and 5 MiB / five-active limits remain authoritative except where this Lab 3 contract explicitly changes identity or Ticket status. The exact retained details are in `docs/lab-02/api-spec.md`; the table below fixes the Lab 3 authentication and response contract.
+The Lab 2 Ticket Number rules, idempotency behavior, Attachment validation/storage/compensation rules, and 5 MiB / five-active limits remain authoritative except where this Lab 3 contract explicitly changes identity or Ticket status. `docs/lab-02/api-spec.md` remains historical rationale, but the active Lab 3 request contract is repeated here so implementation does not have to infer current behavior from two documents.
+
+All Requester mutations below require the valid configured `Origin` and `X-CSRF-Token` in addition to an authenticated, active, password-change-complete `REQUESTER` session. No Requester endpoint accepts `requesterId`, role, author identity, Ticket Owner, IT Priority, Current Status, or backend timestamps as client authority unless a field is explicitly listed below.
+
+### 6.1 `POST /api/tickets` request
+
+`Content-Type: application/json`
+
+```json
+{
+  "clientRequestId": "c5404d4c-0b9b-4c52-9f3a-24872db6996f",
+  "categoryId": 1,
+  "relatedSystemId": 3,
+  "summary": "Cannot access university email",
+  "requestedPriority": "HIGH",
+  "description": "Sign-in repeatedly returns an access denied message."
+}
+```
+
+Validation retained from Lab 2:
+
+- `clientRequestId`: required UUID;
+- `categoryId`, `relatedSystemId`: required positive integers and active references for a first create;
+- `summary`: required, trimmed, 5–120 characters;
+- `requestedPriority`: `LOW|MEDIUM|HIGH`;
+- `description`: required, trimmed, 10–2000 characters.
+
+Requester ownership is always the authenticated User. A new Ticket starts `currentStatus=NEW`, `ownerId=null`, and `itPriority=requestedPriority`. The retained `clientRequestId` replay/conflict/concurrency rules still apply; exact replay returns the current Ticket without resetting later operational state.
+
+### 6.2 `GET /api/tickets` query
+
+No body. Query contract:
+
+| Parameter | Default | Allowed / behavior |
+|---|---|---|
+| `search` | absent | Trimmed string up to 120 characters; case-insensitive substring across Ticket Number or Summary; blank after trim = unrestricted |
+| `categoryId` | absent | positive integer Category ID |
+| `requestedPriority` | absent | `LOW|MEDIUM|HIGH` |
+| `currentStatus` | absent | any of the eight Lab 3 `TicketStatus` values |
+| `sortBy` | `updatedAt` | `createdAt|updatedAt|ticketNumber|summary` |
+| `sortDirection` | `desc` | `asc|desc` |
+| `page` | `1` | positive integer, 1-based |
+| `pageSize` | `10` | `10|20|50` |
+
+Search fields combine with OR; supplied filters combine with search using AND. Primary ordering uses deterministic `id desc` as the secondary key. Unknown or repeated scalar query parameters return `400 VALIDATION_ERROR`; invalid values never fall back to an unrestricted query. A positive page beyond the last page is a successful empty page. `totalPages=0` when `totalItems=0`.
+
+### 6.3 Requester Ticket/Attachment path and body rules
+
+- `GET /api/tickets/:ticketId`: positive-integer `ticketId`; no query/body.
+- `POST /api/tickets/:ticketId/attachments`: positive-integer `ticketId`; `multipart/form-data`; exactly one file in field `file`; 1–5,242,880 bytes; permitted JPG/JPEG/PNG/WEBP/PDF extension + MIME + signature agreement; maximum five active Attachments.
+- `GET /api/tickets/:ticketId/attachments`: positive-integer `ticketId`; no query/body; returns active and removed Attachment metadata ordered `createdAt asc, id asc`.
+- `GET /api/tickets/:ticketId/attachments/:attachmentId/download`: both IDs positive; no query/body; Attachment must belong to the Ticket and be active.
+- `DELETE /api/tickets/:ticketId/attachments/:attachmentId`: both IDs positive; `Content-Type: application/json`; body `{ "removalReason": "Contained an outdated screenshot" }`; reason is required, trimmed, 3–200 characters; already-removed/missing/foreign resources use the non-disclosing resource contract.
+
+The upload path validates authentication/authorization/resource/CSRF conditions before unauthorized bytes can be staged. Stored filenames and filesystem paths never appear in any response.
 
 | Endpoint | Success | Response | Lab 3-specific failures |
 |---|---|---|---|
