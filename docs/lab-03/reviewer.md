@@ -13,7 +13,7 @@ This file records only review evidence that actually occurs. AI output, branch c
 ## Current Review Status
 
 - Peer reviewer: **Not yet requested/recorded in this file.**
-- Pull Request: **Not yet recorded at initial document creation.**
+- Pull Request: [#53 — docs: define Lab 3 Sprint 3 engineering contract](https://github.com/Tanaboonnnnn/toktickit/pull/53), open from `feature/41-lab3-contract` to `lab3-staging`.
 - Approval: **None claimed.**
 - Changes Requested: **None claimed.**
 - Merge: **Not performed.**
