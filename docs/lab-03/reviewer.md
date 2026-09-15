@@ -32,7 +32,7 @@ Other users may be requested for review on GitHub, but this file records a revie
 |---|---|---|---|
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376) 2026-09-14 19:09; merged 19:10 UTC |
 | [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595) 07:06; merged 07:07 UTC |
-| [#55](https://github.com/Tanaboonnnnn/toktickit/pull/55) | Issue #43 data-preserving User/workflow migration | `@L0u1sss` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5210721789) 2026-09-15 13:40; review-fix candidate prepared; re-review pending |
+| [#55](https://github.com/Tanaboonnnnn/toktickit/pull/55) | Issue #43 data-preserving User/workflow migration | `@L0u1sss` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5210721789) 2026-09-15 13:40; [second Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5211770377) 15:00; reviewer-verification helper prepared; re-review pending |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -147,6 +147,30 @@ All four requested changes were checked against the approved Lab 3 contract and 
 
 No PR #55 approval or merge is claimed by this response; human re-review is still required.
 
+### Review 6 — 2026-09-15 15:00 UTC
+
+- Result: **Changes requested**
+- Reviewer: `@L0u1sss`
+- Review: [PR #55 second review](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5211770377)
+- Reviewed head: `3e29876bdb927d67cbc2738d10d93c0136067b63`
+- The reviewer did not identify a new product-code defect in the four original findings. The review recorded that those fixes are documented on `db2090c`, but approval is still pending.
+- The reviewer reran HASH-01 successfully (4/4) but could not rerun the migration/seed integration suites because their environment did not have `DATABASE_URL` and `TEST_DATABASE_URL` configured.
+- The reviewer also noted that PR #55 is not the whole Lab 3 release: authentication UI/API, Staff Queue/Detail, Comments/Notes runtime, Admin UI, and later E2E work remain in subsequent planned issues. This matches the intentional Issue #43 scope rather than requiring those later features to be pulled into this PR.
+
+### Author response to Review 6
+
+The environment limitation was verified against the repository before changing anything. Both database URLs are intentionally mandatory: the integration safety guard compares development and test database identities and fails closed before mutation if either URL is missing or unsafe. Removing that requirement would weaken the database-isolation contract from Issue #42.
+
+To make the DB-backed review reproducible without weakening the guard:
+
+1. `server/package.json` now exposes `npm run test:lab3-review`, which runs HASH-01 plus the Issue #43 migration and seed integration suites in one command.
+2. `README.md` now has a reviewer/fresh-clone section showing how to copy `server/.env.example`, configure distinct `DATABASE_URL` / `TEST_DATABASE_URL` values, generate Prisma Client, and run the focused review command.
+3. The documentation states explicitly that the focused DB suites mutate only uniquely named temporary schemas under `TEST_DATABASE_URL`; `DATABASE_URL` is used for the fail-closed identity comparison and is not migrated/seeded/reset by this command.
+4. The new review command was executed on candidate `60aa202`: **3 files / 10 tests passed**, and the server build passed.
+5. No Authentication/Staff/Admin implementation is added here because those are intentionally owned by later Lab 3 issues and are outside Issue #43 acceptance scope.
+
+No PR #55 approval or merge is claimed after Review 6; another human re-review is required.
+
 ## Review-resolution log
 
 | Review | Finding | Student response | File/change | Status |
@@ -165,6 +189,8 @@ No PR #55 approval or merge is claimed by this response; human re-review is stil
 | Review 5 | Migration lacked explicit full-file transaction | Add `BEGIN`/`COMMIT`, inject a late migration failure, verify complete rollback, then restore/reapply local dev from the pre-#43 backup so migration history/checksum stays clean | `migration.sql`, `migration.integration.test.ts`, private local recovery evidence | Resolved in `db2090c`; pending re-review |
 | Review 5 | README omitted Lab 3 provisioning/repeat-safety workflow | Document Lab 3 seed, `provision:migrated-users`, one-time local credential handling, Argon2id-only persistence, and rerun rules | `README.md` | Resolved in `db2090c`; pending re-review |
 | Review 5 | Historical preservation assertions incomplete | Compare retained Ticket fields plus active/removed Attachment metadata and both file checksums across migration | `server/tests/lab-03/migration.integration.test.ts` | Resolved in `db2090c`; pending re-review |
+| Review 6 | Reviewer could not run DB-backed migration/seed suites without local database URLs | Keep the fail-closed DB isolation requirement; add a focused reviewer command and explicit fresh-clone DB setup/reproduction steps | `server/package.json`, `README.md` | Resolved in `60aa202`; pending re-review |
+| Review 6 scope note | PR #55 is not the complete Lab 3 product | Keep Issue #43 limited to migration/User/workflow foundation; later authentication/staff/admin/UI/E2E work remains in its planned issues | PR #55 scope / Lab 3 issue plan | Expected scope; no product change |
 
 ## Approval evidence
 
@@ -172,7 +198,7 @@ No PR #55 approval or merge is claimed by this response; human re-review is stil
 - PR #54 received a real **Approved** review from `@thananun-7203` on 2026-09-15 07:06 UTC after the earlier Changes Requested round and was merged into `lab3-staging` at 07:07 UTC.
 - Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801), [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595).
 - PR #54 final approval: **Approved** by `@thananun-7203` on reviewed head `f9274942dab73e8e802d8dbff66a319b4b0e4654`.
-- PR #55 current verdict: **Changes Requested** by `@L0u1sss` on reviewed head `5589ee9`; response candidate `db2090c` is pending human re-review and has no approval yet.
+- PR #55 current verdict: **Changes Requested** by `@L0u1sss`; the latest submitted review is on head `3e29876`. Reviewer-verification helper candidate `60aa202` is pending human re-review and has no approval yet.
 - Passing-check link: no hosted passing-check result is claimed here; local verification is recorded in `tests.md` and the PR conversation.
 - PR #54 merge status: **Merged** into `lab3-staging` at 2026-09-15 07:07 UTC; merge commit `63a4c8db4b1692e31508f4a3c6894f35e4fe6253`.
 - PR #55 merge status: **Open and not merged** into `lab3-staging`.
