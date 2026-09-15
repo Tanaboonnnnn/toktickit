@@ -4,9 +4,9 @@ Issue #41 establishes the disposition model. Issue #42 performs the exhaustive p
 
 Disposition values:
 
-- **Retain** โ€” requirement remains materially unchanged; run/update only setup/types needed by Lab 3.
-- **Evolve** โ€” same product capability remains but identity/status/role expectation changes.
-- **Replace** โ€” Lab 2-only mechanism is intentionally removed and receives explicit Lab 3 replacement coverage.
+- **Retain** — requirement remains materially unchanged; run/update only setup/types needed by Lab 3.
+- **Evolve** — same product capability remains but identity/status/role expectation changes.
+- **Replace** — Lab 2-only mechanism is intentionally removed and receives explicit Lab 3 replacement coverage.
 
 | Lab 2 Test ID / family | Disposition | Lab 3 requirement | Planned owner / replacement |
 |---|---|---|---|

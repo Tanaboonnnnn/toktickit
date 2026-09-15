@@ -27,7 +27,8 @@ Other users may be requested for review on GitHub, but this file records a revie
 
 | PR | Scope | Reviewer(s) | Review trail (UTC) |
 |---|---|---|---|
-| [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; response revision prepared; re-review pending |
+| [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376) 2026-09-14 19:09; merged 19:10 UTC |
+| [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; loopback-isolation fix prepared; re-review pending |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -84,6 +85,30 @@ Changes made for re-review:
 
 These are contract/test-plan changes only. They do not claim that #45/#46 product behavior has already been implemented or executed.
 
+### Review 3 - 2026-09-15 06:18 UTC
+
+- Result: **Changes requested**
+- Reviewer: `@thananun-7203`
+- Review: [PR #54 review](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801)
+- Reviewed head: `680fca4639b52363c9a9706265ba8f4716ad2483`
+- Blocking finding: `assertDistinctTestDatabase()` compared hostnames literally, so local PostgreSQL aliases such as `localhost`, `127.0.0.1`, other `127/8` addresses, or `::1` could identify the same server/database while bypassing the distinct-test-database guard.
+- Required change: normalize known local loopback identities before comparison and replace the test assumption that a different loopback hostname proves database separation.
+- Minor findings: replace the mojibake separator in `regression-map.md` and update ENV-01 execution evidence to the latest verified source candidate.
+
+### Author response to Review 3
+
+The blocker was reproduced before implementation with a focused ENV-01 regression: the first reviewer example (`localhost` vs `127.0.0.1` using the same port/database) failed because no error was thrown. The minimized suite was then expanded to cover `127.0.0.1`, another `127/8` address, `localhost.`, IPv6 loopback `::1`, and IPv4-mapped IPv6 loopback while retaining a distinct non-loopback-host success case.
+
+Changes prepared for re-review:
+
+1. `canonicalDatabaseHost()` now collapses recognized local loopback forms before database identity comparison; port and database name comparisons remain unchanged.
+2. ENV-01 now has 17 cases and the five loopback regression examples pass on verified code candidate `6d882a3`.
+3. The three corrupted separators in `regression-map.md` are restored to a real em dash.
+4. `tests.md` records 17/17 ENV-01 and the verified code candidate instead of the stale `23976ab` evidence.
+5. Full verification on the code candidate passed: server 31 files / 159 tests, client 17 files / 120 tests, E2E 23/23, responsive 10/10; managed-port and upload-overlap safety scenarios also passed.
+
+No product feature, schema migration, database reset, or approval is claimed by this response. PR #54 remains pending human re-review.
+
 ## Review-resolution log
 
 | Review | Finding | Student response | File/change | Status |
@@ -96,14 +121,17 @@ These are contract/test-plan changes only. They do not claim that #45/#46 produc
 | Post-review self-audit | AC-32 mapping cell did not explicitly name its planned Test ID | Mapped AC-32 directly to the already-declared `TRACE-01` test | `tests.md` | Resolved before re-review |
 | Review 2 | Retained Category/Related System endpoints missing from active Lab 3 API contract; Development Requester retirement/test gap unclear | Added exact retained-reference contract, explicit post-#45 route retirement, authorization/UI/API-family alignment, and REQ-01 coverage | `api-spec.md`, `specification.md`, `ui-spec.md`, `tests.md`, `regression-map.md` | Resolved in revised head; pending re-review |
 | Review 2 minor | `UI-01` listed two abbreviated automated paths | Fully qualified all three client test paths | `tests.md` | Resolved in revised head; pending re-review |
+| Review 3 | Loopback hostname aliases could bypass distinct test-database identity | Canonicalize known local loopback forms before host comparison and add red/green regression coverage | `server/tests/lab-03/support/database.ts`, `server/tests/lab-03/support/test-safety.unit.test.ts` | Resolved in `6d882a3`; pending re-review |
+| Review 3 minor | Mojibake separator and stale ENV-01 SHA/count | Restore em dash; update ENV-01 to 17/17 on verified code candidate | `regression-map.md`, `tests.md` | Resolved in review-response docs; pending re-review |
 
 ## Approval evidence
 
-- Current reviewer verdicts for PR #53: **Changes Requested** from both recorded reviewers; no later approval is recorded yet.
-- Review links: [Review 1](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235), [Review 2](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919)
-- Final approval: **None recorded yet.**
-- Passing-check link: no hosted passing-check result is claimed here. Issue #41 document consistency checks are separate engineering evidence, not peer approval.
-- Merge status: **Open and not merged into `lab3-staging`.**
+- PR #53 received a real **Approved** review from `@thananun-7203` on 2026-09-14 19:09 UTC and was merged into `lab3-staging` at 2026-09-14 19:10 UTC.
+- PR #54 current verdict: **Changes Requested** from `@thananun-7203` on 2026-09-15 06:18 UTC; no later approval is recorded yet.
+- Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801).
+- PR #54 final approval: **None recorded yet.**
+- Passing-check link: no hosted passing-check result is claimed here; local verification is recorded in `tests.md` and the PR conversation.
+- PR #54 merge status: **Open and not merged into `lab3-staging`.**
 
 ## Reviews given to peers
 
@@ -111,4 +139,4 @@ No Lab 3 peer-review-given evidence has been added yet. Lab 2 reviews are not co
 
 ## Evidence integrity note
 
-This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53, Issue #41, the feature/base branches, the `@Chxtamos` and `@thananun-7203` Changes Requested reviews, and the review-response changes above are verifiable artifacts. No approval, successful re-review, merge, hosted CI result, or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
+This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested, the feature/base branches, and the recorded review-response changes are verifiable artifacts. No PR #54 approval, PR #54 merge, hosted CI result, or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
