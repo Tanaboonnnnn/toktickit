@@ -137,6 +137,40 @@ creates a fresh temporary schema inside the dedicated test database and drops it
 afterward, so its clean-migration evidence does not reset either configured
 database.
 
+### Reviewer / fresh-clone Lab 3 DB verification
+
+The Lab 3 migration and seed integration tests intentionally require **both**
+`DATABASE_URL` and `TEST_DATABASE_URL`. This is a fail-closed safety check: the
+tests compare the two database identities before any mutation and refuse to run if
+the dedicated test database is missing or could be the development database. Do
+not remove or bypass this guard just to make the tests start.
+
+For a fresh clone or peer-review machine, use this minimal setup from the repository
+root:
+
+```powershell
+Copy-Item server/.env.example server/.env
+```
+
+Edit `server/.env` so both URLs contain credentials that work on that machine and
+use different database names. `DATABASE_URL` is used by these focused tests for the
+database-identity safety comparison; the migration/seed fixtures themselves are
+created only inside temporary schemas in the dedicated `TEST_DATABASE_URL` database.
+Create that test database first if it does not exist.
+
+Then run from `server`:
+
+```powershell
+npm.cmd install
+npx.cmd prisma generate
+npm.cmd run test:lab3-review
+```
+
+`test:lab3-review` runs the password unit tests plus the Issue #43 migration and
+seed integration suites. The DB-backed suites create uniquely named temporary
+schemas under `TEST_DATABASE_URL` and drop those schemas after the run; they do not
+migrate, seed, reset, or drop the database named by `DATABASE_URL`.
+
 ## Tests
 
 Install the root Playwright test dependency and Chromium once from the repository root:
