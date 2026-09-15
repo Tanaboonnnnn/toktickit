@@ -11,6 +11,7 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "provision:migrated-users": "tsx scripts/provision-migrated-users.ts",
     "test:lab3-review": "vitest run tests/lab-03/password.unit.test.ts tests/lab-03/migration.integration.test.ts tests/lab-03/seed.integration.test.ts --reporter=verbose",
+    "test:lab3-auth-review": "vitest run tests/lab-03/auth-policy.unit.test.ts tests/lab-03/auth.api.test.ts tests/lab-03/authorization.api.test.ts --reporter=verbose",
     "test": "vitest run"
   },
   "prisma": {
@@ -19,15 +20,21 @@
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "argon2": "0.45.1",
+    "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
-    "multer": "^2.2.0"
+    "express-session": "^1.19.0",
+    "multer": "^2.2.0",
+    "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@types/connect-pg-simple": "^7.0.3",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/express-session": "^1.19.0",
     "@types/multer": "^2.2.0",
     "@types/node": "^22.10.2",
+    "@types/pg": "^8.23.1",
     "@types/supertest": "^6.0.2",
     "prisma": "^5.22.0",
     "supertest": "^7.0.0",

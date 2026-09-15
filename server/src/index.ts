@@ -1,4 +1,12 @@
-import { app } from "./app.js";
+try {
+  process.loadEnvFile();
+} catch (error) {
+  if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+}
+
+const { app } = await import("./app.js");
+
+export {};
 
 const PORT = Number(process.env.PORT) || 3000;
 

@@ -40,12 +40,23 @@ Copy-Item client/.env.example client/.env
 
 Edit `server/.env` and set `DATABASE_URL` to your own PostgreSQL connection
 string. Lab 2 integration tests also require a separate PostgreSQL database through
-`TEST_DATABASE_URL`. For example:
+`TEST_DATABASE_URL`. Lab 3 authentication additionally requires the exact frontend
+origin and a private session-signing secret of at least 32 characters. For example:
 
 ```text
 DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/toktickit?schema=public"
 TEST_DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/toktickit_test?schema=public"
+FRONTEND_ORIGIN="http://localhost:5173"
+SESSION_SECRET=""
 ```
+
+Do not reuse the placeholder above as a real secret. The checked-in
+`server/.env.example` intentionally leaves `SESSION_SECRET` empty so a copied file
+fails closed until a unique local value is supplied. The authentication cookie is
+`HttpOnly` and `SameSite=Lax`; it is automatically `Secure` for HTTPS origins. Plain
+HTTP authentication is accepted only for loopback development origins such as
+`localhost` / `127.0.0.1`. Keep `SESSION_SECRET` out of Git, documentation,
+screenshots, issues, and Pull Requests.
 
 Create the `toktickit_test` database (or another dedicated test database) before
 running the server test suite. Using pgAdmin or another PostgreSQL administrator,
@@ -170,6 +181,18 @@ npm.cmd run test:lab3-review
 seed integration suites. The DB-backed suites create uniquely named temporary
 schemas under `TEST_DATABASE_URL` and drop those schemas after the run; they do not
 migrate, seed, reset, or drop the database named by `DATABASE_URL`.
+
+For Issue #44 authentication/session/authorization review, run from `server`:
+
+```powershell
+npm.cmd run test:lab3-auth-review
+npm.cmd run build
+```
+
+`test:lab3-auth-review` exercises the real PostgreSQL-backed Supertest session/CSRF
+fixtures plus login, mandatory password change, logout/revocation/expiry, bounded
+login throttling, Origin/CORS policy, and direct backend role/resource authorization.
+It requires the same distinct `DATABASE_URL` / `TEST_DATABASE_URL` safety setup.
 
 ## Tests
 
