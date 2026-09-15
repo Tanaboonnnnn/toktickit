@@ -2,6 +2,7 @@ import { existsSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
+import { assertDistinctTestDatabase, assertSeparateUploadRoots } from "../../../server/dist/tests/lab-03/support/database.js";
 
 function readEnvFile() {
   const envPath = path.resolve(process.cwd(), "server/.env");
@@ -24,10 +25,12 @@ function databaseName(connectionString) {
 const fileEnv = readEnvFile();
 const developmentUrl = process.env.E2E_DEVELOPMENT_DATABASE_URL ?? process.env.DATABASE_URL ?? fileEnv.DATABASE_URL;
 const testUrl = process.env.E2E_TEST_DATABASE_URL ?? process.env.TEST_DATABASE_URL ?? fileEnv.TEST_DATABASE_URL;
-if (!developmentUrl || !testUrl) throw new Error("E2E requires DATABASE_URL and TEST_DATABASE_URL in server/.env or the environment");
-if (databaseName(developmentUrl) === databaseName(testUrl)) throw new Error("E2E TEST_DATABASE_URL must not resolve to the development database");
+assertDistinctTestDatabase({ developmentUrl, testUrl });
 
-const uploadRoot = mkdtempSync(path.join(os.tmpdir(), `toktickit-e2e-${process.pid}-${randomUUID().slice(0, 8)}-`));
+const uploadPrefix = path.join(os.tmpdir(), `toktickit-e2e-${process.pid}-${randomUUID().slice(0, 8)}-`);
+const configuredLiveUploadRoot = process.env.UPLOAD_DIR ?? fileEnv.UPLOAD_DIR ?? path.resolve(process.cwd(), "server/uploads");
+assertSeparateUploadRoots(configuredLiveUploadRoot, uploadPrefix);
+const uploadRoot = mkdtempSync(uploadPrefix);
 process.env.DATABASE_URL = testUrl;
 process.env.UPLOAD_DIR = uploadRoot;
 const port = Number(process.env.E2E_PORT || 4311);

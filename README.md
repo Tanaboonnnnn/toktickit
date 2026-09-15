@@ -146,7 +146,7 @@ npm.cmd run test:e2e
 npm.cmd run test:responsive
 ```
 
-`test:e2e` runs the full Lab 2 Chromium E2E/responsive suite. `test:responsive` runs the dedicated Desktop (`1440×900`), Tablet (`834×1112`), and Mobile (`390×844`) responsive specs. The supported scripts own API/client startup and cleanup; direct `npx playwright test` does not start those services.
+`test:e2e` runs the current Chromium E2E suite, collecting retained/evolved specs under `e2e/lab-02/` and Lab 3 specs under `e2e/lab-03/` as they are added. `test:responsive` runs the current Desktop (`1440×900`), Tablet (`834×1112`), and Mobile (`390×844`) responsive specs. Current screenshots write under `artifacts/lab-03/screenshots/` so submitted Lab 2 evidence is not overwritten. The supported scripts own API/client startup and cleanup; direct `npx playwright test` does not start those services. Run `npm.cmd run verify` for the aggregate current-suite gate.
 
 ## Lab 1 branch and review workflow
 

@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test:e2e": "npm.cmd --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-02 --project=chromium",
+    "test:e2e": "npm.cmd --prefix server run build && node e2e/lab-02/support/run-playwright.mjs --project=chromium",
     "test:responsive": "npm.cmd --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-02/responsive-desktop.spec.ts e2e/lab-02/responsive-tablet.spec.ts e2e/lab-02/responsive-mobile.spec.ts --project=chromium",
+    "verify": "npm.cmd --prefix server run build && npm.cmd --prefix server test && npm.cmd --prefix client run build && npm.cmd --prefix client test && npm.cmd run test:e2e && npm.cmd run test:responsive",
     "test:quality": "npm.cmd run test:e2e && npm.cmd run test:responsive"
   },
   "devDependencies": {

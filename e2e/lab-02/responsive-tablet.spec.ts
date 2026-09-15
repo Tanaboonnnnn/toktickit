@@ -40,7 +40,7 @@ test.describe("RESP-02 tablet 834x1112", () => {
     await expect(page.getByText("Uploaded")).toBeVisible();
     await assertNoHorizontalOverflow(page);
     await assertVisibleWithinViewport(page, ["#create-ticket-heading", ".lab2-success", ".lab2-success-actions button"]);
-    await screenshot(page, "artifacts/lab-02/screenshots/create-ticket/create-ticket-partial-failure-tablet.png");
+    await screenshot(page, "artifacts/lab-03/screenshots/create-ticket/create-ticket-partial-failure-tablet.png");
   });
 
   test("keeps Ticket Detail and Attachment actions usable", async ({ page }) => {

@@ -3,18 +3,19 @@ import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = process.cwd();
-mkdirSync(resolve(root, "artifacts/lab-02/screenshots/requester-selection"), { recursive: true });
-mkdirSync(resolve(root, "artifacts/lab-02/screenshots/create-ticket"), { recursive: true });
-mkdirSync(resolve(root, "artifacts/lab-02/screenshots/my-tickets"), { recursive: true });
-mkdirSync(resolve(root, "artifacts/lab-02/screenshots/ticket-detail"), { recursive: true });
+const evidenceRoot = resolve(root, "artifacts/lab-03/screenshots");
+for (const area of ["requester-selection", "create-ticket", "my-tickets", "ticket-detail"]) {
+  mkdirSync(resolve(evidenceRoot, area), { recursive: true });
+}
 
 export default defineConfig({
-  testDir: "./e2e/lab-02",
+  testDir: "./e2e",
+  testMatch: ["lab-02/**/*.spec.ts", "lab-03/**/*.spec.ts"],
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
   workers: 1,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: true,
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"], ["html", { outputFolder: "playwright-report", open: "never" }]],
   use: {
