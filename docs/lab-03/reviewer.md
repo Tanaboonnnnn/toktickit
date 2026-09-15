@@ -9,7 +9,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - GitHub username: `@Tanaboonnnnn`
 - Current accepted Lab 3 evidence: Issues #41–#43 / PRs #53–#55 through the merged Issue #43 integration point.
 - Current accepted staging merge: `9d3a7c982450e5de719b66dd5baab313014fb1b1` (PR #55 merged to `lab3-staging` on 2026-09-15 16:38 UTC).
-- Current active implementation branch after that accepted baseline: `feature/44-lab3-auth-foundation`; no Issue #44 human review or merge is claimed until it actually occurs.
+- Current active implementation branch after that accepted baseline: `feature/44-lab3-auth-foundation`; PR #56 has received a real **Changes requested** review, but no Issue #44 approval or merge is claimed until it actually occurs.
 
 ## Reviewers
 
@@ -20,6 +20,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - GitHub username: `@thananun-7203`
 - Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 18:33 UTC against head `4ff85cb`.
 - Lab 3 review coverage verified on GitHub: PR #55 final approval submitted 2026-09-15 16:38 UTC against approved head `b194087`.
+- Lab 3 review coverage verified on GitHub: PR #56 Issue #44 authentication review submitted 2026-09-15 19:19 UTC against head `17e507a` with **Changes requested**.
 
 - GitHub username: `@L0u1sss`
 - Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
@@ -33,6 +34,7 @@ Other users may be requested for review on GitHub, but this file records a revie
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376) 2026-09-14 19:09; merged 19:10 UTC |
 | [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595) 07:06; merged 07:07 UTC |
 | [#55](https://github.com/Tanaboonnnnn/toktickit/pull/55) | Issue #43 data-preserving User/workflow migration | `@L0u1sss`, `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5210721789) 2026-09-15 13:40; [second Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5211770377) 15:00; final **Approved** by `@thananun-7203` 16:38; merged 16:38 UTC |
+| [#56](https://github.com/Tanaboonnnnn/toktickit/pull/56) | Issue #44 backend authentication/session/authorization foundation | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/56#pullrequestreview-5214771144) 2026-09-15 19:19 against head `17e507a`; review-fix candidate `ba3e2b6` adds the requested session-expiry/store evidence and the non-blocking dummy-hash timing hardening; re-review pending |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
