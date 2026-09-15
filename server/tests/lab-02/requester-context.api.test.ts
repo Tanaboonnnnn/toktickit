@@ -45,12 +45,12 @@ beforeAll(async () => {
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
-  const active = await prisma.requesterUser.upsert({
+  const active = await prisma.user.upsert({
     where: { email: activeEmail },
     update: { name: "API-02 Active Requester", active: true },
     create: { name: "API-02 Active Requester", email: activeEmail, active: true },
   });
-  const inactive = await prisma.requesterUser.upsert({
+  const inactive = await prisma.user.upsert({
     where: { email: inactiveEmail },
     update: { name: "API-02 Inactive Requester", active: false },
     create: { name: "API-02 Inactive Requester", email: inactiveEmail, active: false },
@@ -62,7 +62,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (prisma) {
-    await prisma.requesterUser.deleteMany({
+    await prisma.user.deleteMany({
       where: { email: { in: [activeEmail, inactiveEmail] } },
     });
   }

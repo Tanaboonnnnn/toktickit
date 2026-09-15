@@ -38,7 +38,7 @@ beforeAll(async () => {
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
-  const requester = await prisma.requesterUser.create({ data: { name: `${tag} Requester`, email: requesterEmail, active: true } });
+  const requester = await prisma.user.create({ data: { name: `${tag} Requester`, email: requesterEmail, active: true } });
   const category = await prisma.category.create({ data: { name: categoryName, active: true } });
   const system = await prisma.relatedSystem.create({ data: { name: systemName, active: true } });
   requesterId = requester.id;
@@ -59,6 +59,7 @@ beforeAll(async () => {
         summary: index % 2 === 0 ? "Alpha" : "Beta",
         description: `Pagination fixture description ${index}`,
         requestedPriority: index % 2 === 0 ? "LOW" : "HIGH",
+        itPriority: index % 2 === 0 ? "LOW" : "HIGH",
         createdAt,
         updatedAt,
       },
@@ -73,7 +74,7 @@ afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { in: clientRequestIds } } });
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: requesterId } });
+  await prisma?.user.deleteMany({ where: { id: requesterId } });
   await prisma?.$disconnect();
 });
 

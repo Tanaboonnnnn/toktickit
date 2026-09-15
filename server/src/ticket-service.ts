@@ -120,6 +120,7 @@ export async function createTicket(
             summary: input.summary,
             description: input.description,
             requestedPriority: input.requestedPriority,
+            itPriority: input.requestedPriority,
           },
           include: ticketArgs.include,
         });

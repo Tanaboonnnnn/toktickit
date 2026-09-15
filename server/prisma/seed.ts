@@ -40,7 +40,7 @@ async function main() {
   }
 
   for (const requester of requesters) {
-    await prisma.requesterUser.upsert({
+    await prisma.user.upsert({
       where: { email: requester.email },
       update: { name: requester.name, active: requester.active },
       create: requester,

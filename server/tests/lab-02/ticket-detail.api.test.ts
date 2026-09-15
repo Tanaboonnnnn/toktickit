@@ -46,8 +46,8 @@ beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
 
-  const requesterA = await prisma.requesterUser.create({ data: { name: `${fixtureTag} Requester A`, email: requesterAEmail, active: true } });
-  const requesterB = await prisma.requesterUser.create({ data: { name: `${fixtureTag} Requester B`, email: requesterBEmail, active: true } });
+  const requesterA = await prisma.user.create({ data: { name: `${fixtureTag} Requester A`, email: requesterAEmail, active: true } });
+  const requesterB = await prisma.user.create({ data: { name: `${fixtureTag} Requester B`, email: requesterBEmail, active: true } });
   const category = await prisma.category.create({ data: { name: categoryName, active: true } });
   const system = await prisma.relatedSystem.create({ data: { name: systemName, active: true } });
   requesterAId = requesterA.id;
@@ -65,6 +65,7 @@ beforeAll(async () => {
       summary: `${fixtureTag} owned ticket`,
       description: "A detailed description for the owned Ticket fixture.",
       requestedPriority: "HIGH",
+      itPriority: "HIGH",
       createdAt: new Date("2026-01-01T09:00:00.000Z"),
       updatedAt: new Date("2026-01-02T09:00:00.000Z"),
     },
@@ -79,6 +80,7 @@ beforeAll(async () => {
       summary: `${fixtureTag} foreign ticket`,
       description: "A foreign Ticket fixture must never be disclosed.",
       requestedPriority: "LOW",
+      itPriority: "LOW",
     },
   });
   ownedTicketId = owned.id;
@@ -125,7 +127,7 @@ afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { startsWith: fixtureTag } } });
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: { in: [requesterAId, requesterBId] } } });
+  await prisma?.user.deleteMany({ where: { id: { in: [requesterAId, requesterBId] } } });
   await prisma?.$disconnect();
 });
 

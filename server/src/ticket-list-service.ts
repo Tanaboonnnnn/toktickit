@@ -1,4 +1,4 @@
-import { Prisma, type PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient, type TicketStatus } from "@prisma/client";
 import type { RequesterContext } from "./requester-context.js";
 import type { TicketListQuery } from "./ticket-query.js";
 
@@ -23,7 +23,7 @@ export interface TicketListItem {
   relatedSystem: { id: number; name: string };
   summary: string;
   requestedPriority: "LOW" | "MEDIUM" | "HIGH";
-  currentStatus: "NEW";
+  currentStatus: TicketStatus;
   createdAt: string;
   updatedAt: string;
 }

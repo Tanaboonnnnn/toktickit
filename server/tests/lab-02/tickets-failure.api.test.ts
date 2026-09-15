@@ -52,7 +52,7 @@ beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
   await prisma.ticket.deleteMany({ where: { clientRequestId: { in: [clientRequestId, collisionClientRequestId] } } });
-  const requester = await prisma.requesterUser.upsert({
+  const requester = await prisma.user.upsert({
     where: { email: requesterEmail },
     update: { name: "API-06 Failure Requester", active: true },
     create: { name: "API-06 Failure Requester", email: requesterEmail, active: true },
@@ -82,7 +82,7 @@ afterAll(async () => {
   });
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: requesterId } });
+  await prisma?.user.deleteMany({ where: { id: requesterId } });
   await prisma?.$disconnect();
 });
 

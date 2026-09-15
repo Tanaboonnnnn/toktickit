@@ -47,8 +47,8 @@ export async function createE2eFixture(prefix: string, ticketCount = 1): Promise
   const prisma = new PrismaClient({ datasources: { db: { url } } });
   await prisma.$connect();
   const tag = `e2e-${prefix}-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
-  const requesterA = await prisma.requesterUser.create({ data: { name: `${tag} Requester A`, email: `${tag}-a@example.test`, active: true } });
-  const requesterB = await prisma.requesterUser.create({ data: { name: `${tag} Requester B`, email: `${tag}-b@example.test`, active: true } });
+  const requesterA = await prisma.user.create({ data: { name: `${tag} Requester A`, email: `${tag}-a@example.test`, active: true } });
+  const requesterB = await prisma.user.create({ data: { name: `${tag} Requester B`, email: `${tag}-b@example.test`, active: true } });
   const category = await prisma.category.findFirst({ where: { name: "Hardware", active: true }, select: { id: true, name: true } });
   const relatedSystem = await prisma.relatedSystem.findFirst({ where: { name: "University Email", active: true }, select: { id: true, name: true } });
   if (!category || !relatedSystem) throw new Error("E2E fixtures require seeded Hardware and University Email reference data");
@@ -66,6 +66,7 @@ export async function createE2eFixture(prefix: string, ticketCount = 1): Promise
         summary,
         description: `${tag} detailed description ${i + 1}.`,
         requestedPriority: (i % 3 === 0 ? "LOW" : i % 3 === 1 ? "MEDIUM" : "HIGH"),
+        itPriority: (i % 3 === 0 ? "LOW" : i % 3 === 1 ? "MEDIUM" : "HIGH"),
         createdAt: new Date(Date.UTC(2026, 0, 1, 9, i, 0)),
         updatedAt: new Date(Date.UTC(2026, 0, 2, 9, i, 0)),
       },
@@ -81,7 +82,7 @@ export async function createOwnedTicket(fixture: E2eFixture, requesterId = fixtu
     data: {
       ticketNumber: ticketNumber(), clientRequestId: randomUUID(), requesterId,
       categoryId: fixture.category.id, relatedSystemId: fixture.relatedSystem.id,
-      summary, description: `${fixture.tag} additional detailed description.`, requestedPriority: "LOW",
+      summary, description: `${fixture.tag} additional detailed description.`, requestedPriority: "LOW", itPriority: "LOW",
     },
     select: { id: true, ticketNumber: true, summary: true },
   });
@@ -110,7 +111,7 @@ export async function destroyE2eFixture(fixture: E2eFixture): Promise<void> {
   if (ticketIds.length > 0) await fixture.prisma.attachment.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.ticket.deleteMany({ where: { summary: { startsWith: fixture.tag } } });
   await fixture.prisma.category.deleteMany({ where: { id: fixture.secondCategory.id } });
-  await fixture.prisma.requesterUser.deleteMany({ where: { id: { in: [fixture.requesterA.id, fixture.requesterB.id] } } });
+  await fixture.prisma.user.deleteMany({ where: { id: { in: [fixture.requesterA.id, fixture.requesterB.id] } } });
   await fixture.prisma.$disconnect();
 }
 
