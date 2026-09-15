@@ -1,6 +1,6 @@
 # Lab 3 Test DD Plan
 
-Status: **Planned / Not run** for every Lab 3 Test ID in this Issue #41 contract. This file is intentionally created before product implementation. No row becomes Pass until the test exists, executes, and the result is verified on the relevant source SHA.
+Status: **Living Test DD / execution ledger.** The plan was created before product implementation. Test IDs remain `Planned / Not run` until their executable checks run on a relevant source SHA; rows for Issues #42 and #43 contain the verified execution evidence already produced by those accepted increments.
 
 Current contract count: **50 unique planned Test IDs**. Test-ID count is not the same as the eventual runner assertion/test-case count.
 
