@@ -15,6 +15,7 @@ import multer, { MulterError } from "multer";
 import { MAX_ATTACHMENT_BYTES, parsePositiveId } from "./attachment-contract.js";
 import { getDownloadAttachment, listAttachments, removeAttachment, uploadAttachment } from "./attachment-service.js";
 import { attachmentStorage } from "./attachment-storage.js";
+import { createAuthRouter } from "./auth/auth-routes.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -23,7 +24,11 @@ void getPrisma;
 // Supertest can import `app` without opening a port. Do not merge these files.
 export const app = express();
 
-app.use(cors());          // already wired: lets the Vite dev server call this API
+// Issue #44 scopes credentialed exact-origin CORS and server sessions to the
+// dedicated auth foundation. Existing Requester routes remain pre-activation
+// until Issue #45 switches backend identity and frontend transport together.
+app.use("/api/auth", createAuthRouter());
+app.use(cors());          // retained pre-activation CORS for the Lab 2 Requester flow
 app.use(express.json());
 
 app.post("/api/tickets", async (req: Request, res: Response) => {
