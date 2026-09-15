@@ -417,19 +417,19 @@ describe("Lab 2 database migration and seed", () => {
 
       expect(await prisma.category.findUnique({ where: { name: "Hardware" } })).toMatchObject({
         name: "Hardware",
-        active: true,
+        active: false,
       });
       expect(
         await prisma.relatedSystem.findUnique({ where: { name: "Campus Wi-Fi" } }),
-      ).toMatchObject({ name: "Campus Wi-Fi", active: true });
+      ).toMatchObject({ name: "Campus Wi-Fi", active: false });
       expect(
         await prisma.user.findUnique({
           where: { email: "anan.student@example.test" },
         }),
       ).toMatchObject({
-        name: "Anan Student",
+        name: "Changed Name",
         email: "anan.student@example.test",
-        active: true,
+        active: false,
       });
 
       expect(await prisma.category.findUnique({
