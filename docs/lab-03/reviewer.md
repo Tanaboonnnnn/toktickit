@@ -28,7 +28,7 @@ Other users may be requested for review on GitHub, but this file records a revie
 | PR | Scope | Reviewer(s) | Review trail (UTC) |
 |---|---|---|---|
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376) 2026-09-14 19:09; merged 19:10 UTC |
-| [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; loopback-isolation fix prepared; re-review pending |
+| [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595) 07:06; merged 07:07 UTC |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -107,7 +107,17 @@ Changes prepared for re-review:
 4. `tests.md` records 17/17 ENV-01 and the verified code candidate instead of the stale `23976ab` evidence.
 5. Full verification on the code candidate passed: server 31 files / 159 tests, client 17 files / 120 tests, E2E 23/23, responsive 10/10; managed-port and upload-overlap safety scenarios also passed.
 
-No product feature, schema migration, database reset, or approval is claimed by this response. PR #54 remains pending human re-review.
+No product feature, schema migration, or database reset is claimed by this response. At this point in the chronology PR #54 still remained pending human re-review; the later approval is recorded separately below.
+
+### Review 4 — 2026-09-15 07:06 UTC
+
+- Result: **Approved**
+- Reviewer: `@thananun-7203`
+- Review: [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595)
+- Reviewed head: `f9274942dab73e8e802d8dbff66a319b4b0e4654`
+- Reviewer re-checked the loopback database-identity fix and confirmed coverage for `localhost`, `localhost.`, `127/8`, IPv6 loopback, and IPv4-mapped IPv6 loopback while preserving a legitimate non-loopback-host case.
+- Reviewer confirmed the requested mojibake/evidence cleanup was resolved, `git diff --check` was clean, the PR remained scoped to Issue #42 verification-harness work, and no blocking finding remained.
+- PR #54 merged into `lab3-staging` at 2026-09-15 07:07 UTC as merge commit `63a4c8db4b1692e31508f4a3c6894f35e4fe6253`.
 
 ## Review-resolution log
 
@@ -121,17 +131,17 @@ No product feature, schema migration, database reset, or approval is claimed by 
 | Post-review self-audit | AC-32 mapping cell did not explicitly name its planned Test ID | Mapped AC-32 directly to the already-declared `TRACE-01` test | `tests.md` | Resolved before re-review |
 | Review 2 | Retained Category/Related System endpoints missing from active Lab 3 API contract; Development Requester retirement/test gap unclear | Added exact retained-reference contract, explicit post-#45 route retirement, authorization/UI/API-family alignment, and REQ-01 coverage | `api-spec.md`, `specification.md`, `ui-spec.md`, `tests.md`, `regression-map.md` | Resolved in revised head; pending re-review |
 | Review 2 minor | `UI-01` listed two abbreviated automated paths | Fully qualified all three client test paths | `tests.md` | Resolved in revised head; pending re-review |
-| Review 3 | Loopback hostname aliases could bypass distinct test-database identity | Canonicalize known local loopback forms before host comparison and add red/green regression coverage | `server/tests/lab-03/support/database.ts`, `server/tests/lab-03/support/test-safety.unit.test.ts` | Resolved in `6d882a3`; pending re-review |
-| Review 3 minor | Mojibake separator and stale ENV-01 SHA/count | Restore em dash; update ENV-01 to 17/17 on verified code candidate | `regression-map.md`, `tests.md` | Resolved in review-response docs; pending re-review |
+| Review 3 | Loopback hostname aliases could bypass distinct test-database identity | Canonicalize known local loopback forms before host comparison and add red/green regression coverage | `server/tests/lab-03/support/database.ts`, `server/tests/lab-03/support/test-safety.unit.test.ts` | Resolved; verified by Review 4 approval |
+| Review 3 minor | Mojibake separator and stale ENV-01 SHA/count | Restore em dash; update ENV-01 to 17/17 on verified code candidate | `regression-map.md`, `tests.md` | Resolved; verified by Review 4 approval |
 
 ## Approval evidence
 
 - PR #53 received a real **Approved** review from `@thananun-7203` on 2026-09-14 19:09 UTC and was merged into `lab3-staging` at 2026-09-14 19:10 UTC.
-- PR #54 current verdict: **Changes Requested** from `@thananun-7203` on 2026-09-15 06:18 UTC; no later approval is recorded yet.
-- Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801).
-- PR #54 final approval: **None recorded yet.**
+- PR #54 received a real **Approved** review from `@thananun-7203` on 2026-09-15 07:06 UTC after the earlier Changes Requested round and was merged into `lab3-staging` at 07:07 UTC.
+- Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801), [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595).
+- PR #54 final approval: **Approved** by `@thananun-7203` on reviewed head `f9274942dab73e8e802d8dbff66a319b4b0e4654`.
 - Passing-check link: no hosted passing-check result is claimed here; local verification is recorded in `tests.md` and the PR conversation.
-- PR #54 merge status: **Open and not merged into `lab3-staging`.**
+- PR #54 merge status: **Merged** into `lab3-staging` at 2026-09-15 07:07 UTC; merge commit `63a4c8db4b1692e31508f4a3c6894f35e4fe6253`.
 
 ## Reviews given to peers
 
@@ -139,4 +149,4 @@ No Lab 3 peer-review-given evidence has been added yet. Lab 2 reviews are not co
 
 ## Evidence integrity note
 
-This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested, the feature/base branches, and the recorded review-response changes are verifiable artifacts. No PR #54 approval, PR #54 merge, hosted CI result, or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
+This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested followed by Approval/merge, the feature/base branches, and the recorded review-response changes are verifiable artifacts. No hosted CI result or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
