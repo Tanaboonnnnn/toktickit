@@ -12,6 +12,29 @@ interface DatabaseIdentity {
   database: string;
 }
 
+function canonicalDatabaseHost(hostname: string): string {
+  let normalized = hostname.trim().toLowerCase();
+  if (normalized.endsWith(".")) normalized = normalized.slice(0, -1);
+  if (normalized.startsWith("[") && normalized.endsWith("]")) {
+    normalized = normalized.slice(1, -1);
+  }
+
+  if (normalized === "localhost" || normalized === "::1") return "loopback";
+
+  const ipv4Octets = normalized.split(".");
+  if (
+    ipv4Octets.length === 4
+    && ipv4Octets.every((part) => /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255)
+    && Number(ipv4Octets[0]) === 127
+  ) {
+    return "loopback";
+  }
+
+  if (/^::ffff:7f[0-9a-f]{2}:[0-9a-f]{1,4}$/i.test(normalized)) return "loopback";
+
+  return normalized;
+}
+
 function parsePostgresIdentity(value: string, label: string): DatabaseIdentity {
   let url: URL;
   try {
@@ -26,7 +49,7 @@ function parsePostgresIdentity(value: string, label: string): DatabaseIdentity {
   if (!database) throw new Error(`${label} must be a valid PostgreSQL URL with a database name`);
   return {
     protocol: "postgresql",
-    hostname: url.hostname.toLowerCase(),
+    hostname: canonicalDatabaseHost(url.hostname),
     port: url.port || "5432",
     database,
   };

@@ -35,10 +35,20 @@ describe("ENV-01 database safety", () => {
     })).toThrow(/development database/i);
   });
 
-  it("allows the same database name on a different host because it is a distinct database server", () => {
+  it.each([
+    "postgresql://test:secret@127.0.0.1:5432/toktickit",
+    "postgresql://test:secret@127.0.0.2:5432/toktickit",
+    "postgresql://test:secret@localhost.:5432/toktickit",
+    "postgresql://test:secret@[::1]:5432/toktickit",
+    "postgresql://test:secret@[::ffff:127.0.0.1]:5432/toktickit",
+  ])("rejects the same database across a local loopback alias: %s", (testUrl) => {
+    expect(() => assertDistinctTestDatabase({ developmentUrl: DEV, testUrl })).toThrow(/development database/i);
+  });
+
+  it("allows the same database name on a distinct non-loopback host", () => {
     expect(() => assertDistinctTestDatabase({
       developmentUrl: DEV,
-      testUrl: "postgresql://test:secret@127.0.0.2:5432/toktickit",
+      testUrl: "postgresql://test:secret@192.0.2.10:5432/toktickit",
     })).not.toThrow();
   });
   it("allows a configured dedicated test database without requiring a lab3 name", () => {
