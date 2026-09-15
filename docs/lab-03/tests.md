@@ -18,7 +18,7 @@ Current contract count: **50 unique planned Test IDs**. Test-ID count is not the
 
 | Test ID | Type | Requirement / AC | Planned behavior | Expected result | Automated file | Final |
 |---|---|---|---|---|---|---|
-| ENV-01 | Unit | BR-40; AC-31 | Reject missing/shared/unapproved test DB and overlapping upload roots | Fail closed before mutation | `server/tests/lab-03/support/test-safety.unit.test.ts` | Planned / Not run |
+| ENV-01 | Unit | BR-40; AC-31 | Reject missing/shared/unapproved test DB and overlapping upload roots | Fail closed before mutation | `server/tests/lab-03/support/test-safety.unit.test.ts` | **Pass — 12/12 on `23976ab`** |
 | MIG-01 | Integration | FR-23; AC-27 | Populated Lab 2 schema -> Lab 3 forward migration, then explicit existing-Requester local provisioning | Existing IDs/FKs/content/files preserved; migrated Requesters receive hash-only one-time initial credentials, remain `mustChangePassword=true`, and no plaintext credential is persisted | `server/tests/lab-03/migration.integration.test.ts` | Planned / Not run |
 | MIG-02 | Integration | BR-07; AC-27 | Canonical email collision before migration | Migration aborts before mutation; no merge/partial data loss | `server/tests/lab-03/migration.integration.test.ts` | Planned / Not run |
 | SEED-01 | Integration | FR-23; AC-28 | Required role/status/priority fixtures | Required safe local fixtures created | `server/tests/lab-03/seed.integration.test.ts` | Planned / Not run |
@@ -123,3 +123,24 @@ Current contract count: **50 unique planned Test IDs**. Test-ID count is not the
 - Test-ID counts and runner assertion counts are different measures; record both honestly.
 - Historical Lab 2 results remain evidence for the delivered Lab 2 SHA only. Lab 3 completion requires fresh execution on the current source and final `main`.
 - The current Issue #41 documentation change requires document consistency and `git diff --check`; it does not fabricate product-test results.
+## 6. Issue #42 Executed Verification Baseline
+
+Source candidate: `23976ab751da8325ba44b52347d6273e1ece833c` on `feature/42-lab3-verification-harness`. The database boundary was checked without printing credentials: configured development database `toktickit` and dedicated test database `toktickit_test` resolved to distinct database names; managed ports 4311/4312 were free before the run. Test uploads were run-owned temporary directories. These results are current-branch verification, not final-main Lab 3 product evidence.
+
+| Check | Actual result |
+|---|---|
+| `npm.cmd --prefix server test -- --run tests/lab-03/support/test-safety.unit.test.ts --reporter=verbose` | ENV-01 GREEN: 1 file / 12 tests passed after an observed RED of 8 failing safety assertions before implementation |
+| `npm.cmd --prefix server run build` | Pass; TypeScript build emitted the maintained `dist/src/*` tree |
+| Current start/health smoke using owned `node dist/src/index.js` child | Pass; `/api/health` returned `status=ok`, service `TokTickIT API`; owned child was stopped and port 3000 was free afterward |
+| `node e2e/lab-02/support/harness-lifecycle-smoke.mjs clean` | Pass; managed children exited and ports were released |
+| `node e2e/lab-02/support/harness-lifecycle-smoke.mjs second` | Pass twice consecutively; no managed listener leaked |
+| `node e2e/lab-02/support/harness-lifecycle-smoke.mjs failure` | Pass; expected Playwright failure propagated non-zero internally and managed listeners were cleaned |
+| `node e2e/lab-02/support/harness-lifecycle-smoke.mjs preoccupied` | Pass; occupied unowned port was refused and the dummy listener remained alive |
+| `node e2e/lab-02/support/run-playwright.mjs --project=chromium --list` | Pass; current default discovery listed 23 tests in 10 retained Lab 2 spec files and is configured to include future `e2e/lab-03/**/*.spec.ts` without excluding retained specs |
+| `npm.cmd run verify` | Pass; server 31 files / 154 tests, client 17 files / 120 tests, current E2E 23/23, dedicated responsive 10/10; builds passed |
+| `cd server; node node_modules/prisma/build/index.js validate --schema prisma/schema.prisma` | Pass; schema valid using the existing local environment |
+| `git diff --check` | Pass on the candidate changes before evidence commit |
+
+Warnings observed but non-fatal: the client suite still emits jsdom's `Not implemented: navigation (except hash changes)` diagnostic during the AttachmentPanel download test; Playwright emits the Node `NO_COLOR`/`FORCE_COLOR` warning. Neither warning caused a failed test. A first Prisma validation attempt from the repository root failed because `.env` was not loaded from `server/`; rerunning the same validation from `server/` succeeded. This setup-path failure is not counted as a TDD RED or product failure.
+
+Only ENV-01 changes from `Planned / Not run` in the planned-test table because it is the only Lab 3 Test ID implemented and executed by Issue #42. All authentication, migration, workflow, staff, admin, communication, and final Lab 3 E2E Test IDs remain planned.
