@@ -8,6 +8,7 @@ import { LoginLimiter } from "./login-limit.js";
 import { regenerateSession, saveSession, setAuthenticatedSessionState } from "./session.js";
 
 const loginLimiter = new LoginLimiter();
+const DUMMY_LOGIN_PASSWORD_HASH = "$argon2id$v=19$m=19456,p=1,t=2$rxda4ZcJKiWT5fRHYuls5g$3/4YF2vPwvMPTf9rbVRI6xXKhJRHmtm/+B/F1alyhiQ";
 
 function currentUser(user: { id: number; name: string; email: string; role: CurrentUserDto["role"]; mustChangePassword: boolean }): CurrentUserDto {
   return { id: user.id, name: user.name, email: user.email, role: user.role, mustChangePassword: user.mustChangePassword };
@@ -15,6 +16,11 @@ function currentUser(user: { id: number; name: string; email: string; role: Curr
 
 function requestIp(req: Request): string {
   return req.ip || req.socket.remoteAddress || "unknown";
+}
+
+export async function verifyLoginPassword(passwordHash: string | null | undefined, password: string): Promise<boolean> {
+  const matched = await verifyPassword(passwordHash ?? DUMMY_LOGIN_PASSWORD_HASH, password);
+  return Boolean(passwordHash) && matched;
 }
 
 export async function login(req: Request, input: LoginInput): Promise<CurrentUserDto> {
@@ -27,7 +33,8 @@ export async function login(req: Request, input: LoginInput): Promise<CurrentUse
     where: { email: input.email },
     select: { id: true, name: true, email: true, role: true, active: true, passwordHash: true, mustChangePassword: true, authVersion: true },
   });
-  if (!user?.passwordHash || !(await verifyPassword(user.passwordHash, input.password))) {
+  const passwordMatches = await verifyLoginPassword(user?.passwordHash, input.password);
+  if (!passwordMatches || !user?.passwordHash) {
     loginLimiter.recordFailure(input.email, ip);
     throw new ApiError(401, "INVALID_CREDENTIALS", "Invalid email or password");
   }

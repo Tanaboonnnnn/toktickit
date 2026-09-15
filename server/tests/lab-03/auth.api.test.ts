@@ -2,6 +2,11 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { hashPassword } from "../../src/password.js";
 import {
+  AUTH_ABSOLUTE_SESSION_MS,
+  AUTH_IDLE_SESSION_MS,
+  PREAUTH_SESSION_MS,
+} from "../../src/auth/session.js";
+import {
   createAuthFixture,
   csrf,
   destroyAuthFixture,
@@ -218,9 +223,75 @@ describe("AUTH-04 session lifecycle", () => {
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe("AUTHENTICATION_REQUIRED");
   });
+
+  it("stores authenticated sessions with a 30-minute idle expiry and rejects an expired store row", async () => {
+    const agent = request.agent(fixture.app);
+    const beforeIds = new Set((await fixture.prisma.session.findMany({ select: { sid: true } })).map((row) => row.sid));
+    const startedAt = Date.now();
+    expect((await login(agent, fixture, fixture.administrator.email)).status).toBe(200);
+    const stored = (await fixture.prisma.session.findMany({ select: { sid: true, sess: true, expire: true } }))
+      .find((row) => !beforeIds.has(row.sid) && Number((row.sess as Record<string, unknown>).userId) === fixture.administrator.id);
+    expect(stored).toBeDefined();
+    expect(stored!.expire.getTime()).toBeGreaterThanOrEqual(startedAt + AUTH_IDLE_SESSION_MS - 2_000);
+    expect(stored!.expire.getTime()).toBeLessThanOrEqual(Date.now() + AUTH_IDLE_SESSION_MS + 2_000);
+
+    await fixture.prisma.session.update({
+      where: { sid: stored!.sid },
+      data: { expire: new Date(Date.now() - 1) },
+    });
+    const expired = await agent.get("/api/auth/me");
+    expect(expired.status).toBe(401);
+    expect(expired.body.error.code).toBe("AUTHENTICATION_REQUIRED");
+  });
+
+  it("refreshes authenticated idle expiry but never beyond the remaining absolute lifetime", async () => {
+    const agent = request.agent(fixture.app);
+    const beforeIds = new Set((await fixture.prisma.session.findMany({ select: { sid: true } })).map((row) => row.sid));
+    expect((await login(agent, fixture, fixture.administrator.email)).status).toBe(200);
+    let stored = (await fixture.prisma.session.findMany({ select: { sid: true, sess: true, expire: true } }))
+      .find((row) => !beforeIds.has(row.sid) && Number((row.sess as Record<string, unknown>).userId) === fixture.administrator.id);
+    expect(stored).toBeDefined();
+    const payload = stored!.sess as Record<string, unknown>;
+    expect(Number(payload.absoluteExpiresAt)).toBeGreaterThanOrEqual(Date.now() + AUTH_ABSOLUTE_SESSION_MS - 2_000);
+
+    await fixture.prisma.session.update({
+      where: { sid: stored!.sid },
+      data: { expire: new Date(Date.now() + 60_000) },
+    });
+    const refreshedAt = Date.now();
+    await agent.get("/api/auth/me").expect(200);
+    stored = await fixture.prisma.session.findUniqueOrThrow({ where: { sid: stored!.sid } });
+    expect(stored.expire.getTime()).toBeGreaterThanOrEqual(refreshedAt + AUTH_IDLE_SESSION_MS - 2_000);
+    expect(stored.expire.getTime()).toBeLessThanOrEqual(Date.now() + AUTH_IDLE_SESSION_MS + 2_000);
+
+    const absoluteCap = Date.now() + 90_000;
+    await fixture.prisma.session.update({
+      where: { sid: stored.sid },
+      data: {
+        sess: { ...(stored.sess as Record<string, unknown>), absoluteExpiresAt: absoluteCap },
+        expire: new Date(Date.now() + AUTH_IDLE_SESSION_MS),
+      },
+    });
+    await agent.get("/api/auth/me").expect(200);
+    const capped = await fixture.prisma.session.findUniqueOrThrow({ where: { sid: stored.sid } });
+    expect(capped.expire.getTime()).toBeGreaterThan(Date.now());
+    expect(capped.expire.getTime()).toBeLessThanOrEqual(absoluteCap + 2_000);
+  });
 });
 
 describe("AUTH-05 CSRF, Origin and exact CORS", () => {
+  it("stores pre-authentication CSRF sessions with a 10-minute lifetime", async () => {
+    const agent = request.agent(fixture.app);
+    const startedAt = Date.now();
+    const token = await csrf(agent, fixture);
+    const stored = (await fixture.prisma.session.findMany({ select: { sid: true, sess: true, expire: true } }))
+      .find((row) => (row.sess as Record<string, unknown>).csrfToken === token);
+    expect(stored).toBeDefined();
+    expect(stored!.expire.getTime()).toBeGreaterThanOrEqual(startedAt + PREAUTH_SESSION_MS - 2_000);
+    expect(stored!.expire.getTime()).toBeLessThanOrEqual(Date.now() + PREAUTH_SESSION_MS + 2_000);
+    await fixture.prisma.session.delete({ where: { sid: stored!.sid } });
+  });
+
   it("returns credentialed CORS only for the configured frontend origin", async () => {
     const allowed = await request(fixture.app).get("/api/auth/csrf").set("Origin", fixture.origin).expect(200);
     expect(allowed.headers["access-control-allow-origin"]).toBe(fixture.origin);

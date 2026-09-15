@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseChangePasswordBody, parseLoginBody } from "../../src/auth/auth-contract.js";
 import { LoginLimiter } from "../../src/auth/login-limit.js";
+import * as authService from "../../src/auth/auth-service.js";
 import {
   configuredFrontendOrigin,
   createSessionMiddleware,
@@ -8,6 +9,12 @@ import {
 } from "../../src/auth/session.js";
 
 describe("AUTH-05 authentication policy", () => {
+  it("uses a real Argon2 verification path even when no account hash exists", async () => {
+    const verifyLoginPassword = Reflect.get(authService, "verifyLoginPassword");
+    expect(typeof verifyLoginPassword).toBe("function");
+    await expect(verifyLoginPassword(null, "unknown-account-password")).resolves.toBe(false);
+  });
+
   it("canonicalizes login email without altering the password", () => {
     expect(parseLoginBody({ email: "  USER@Example.Test  ", password: "  exact password  " })).toEqual({
       email: "user@example.test",
