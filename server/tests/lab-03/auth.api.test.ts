@@ -1,5 +1,6 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { hashPassword } from "../../src/password.js";
 import {
   createAuthFixture,
   csrf,
@@ -163,7 +164,7 @@ describe("AUTH-04 session lifecycle", () => {
     await agent.post("/api/auth/logout").expect(204);
   });
 
-  it("re-reads role/email/authVersion and activation on every protected request", async () => {
+  it("re-reads reset/role/email/authVersion and activation on every protected request", async () => {
     const agent = request.agent(fixture.app);
     expect((await login(agent, fixture, fixture.staff.email)).status).toBe(200);
     await fixture.prisma.user.update({
@@ -180,8 +181,23 @@ describe("AUTH-04 session lifecycle", () => {
 
     const requesterAgent = request.agent(fixture.app);
     expect((await login(requesterAgent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const resetPassword = "Reset-Password-For-Auth04!";
+    await fixture.prisma.user.update({
+      where: { id: fixture.normalRequester.id },
+      data: {
+        passwordHash: await hashPassword(resetPassword),
+        mustChangePassword: true,
+        authVersion: { increment: 1 },
+      },
+    });
+    const resetStale = await requesterAgent.get("/api/auth/me");
+    expect(resetStale.status).toBe(401);
+    expect(resetStale.body.error.code).toBe("AUTHENTICATION_REQUIRED");
+
+    const resetAgent = request.agent(fixture.app);
+    expect((await login(resetAgent, fixture, fixture.normalRequester.email, resetPassword)).status).toBe(200);
     await fixture.prisma.user.update({ where: { id: fixture.normalRequester.id }, data: { active: false } });
-    const inactive = await requesterAgent.get("/api/auth/me");
+    const inactive = await resetAgent.get("/api/auth/me");
     expect(inactive.status).toBe(401);
     expect(inactive.body.error.code).toBe("AUTHENTICATION_REQUIRED");
   });
