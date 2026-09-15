@@ -136,6 +136,7 @@ Source candidate: `23976ab751da8325ba44b52347d6273e1ece833c` on `feature/42-lab3
 | `node e2e/lab-02/support/harness-lifecycle-smoke.mjs second` | Pass twice consecutively; no managed listener leaked |
 | `node e2e/lab-02/support/harness-lifecycle-smoke.mjs failure` | Pass; expected Playwright failure propagated non-zero internally and managed listeners were cleaned |
 | `node e2e/lab-02/support/harness-lifecycle-smoke.mjs preoccupied` | Pass; occupied unowned port was refused and the dummy listener remained alive |
+| `node e2e/lab-02/support/harness-lifecycle-smoke.mjs upload-overlap` | Pass; a configured live upload root containing the generated E2E temp root was refused before managed services became ready, and no listener leaked |
 | `node e2e/lab-02/support/run-playwright.mjs --project=chromium --list` | Pass; current default discovery listed 23 tests in 10 retained Lab 2 spec files and is configured to include future `e2e/lab-03/**/*.spec.ts` without excluding retained specs |
 | `npm.cmd run verify` | Pass; server 31 files / 154 tests, client 17 files / 120 tests, current E2E 23/23, dedicated responsive 10/10; builds passed |
 | `cd server; node node_modules/prisma/build/index.js validate --schema prisma/schema.prisma` | Pass; schema valid using the existing local environment |

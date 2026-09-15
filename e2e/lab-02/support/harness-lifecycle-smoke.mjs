@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import http from "node:http";
+import os from "node:os";
 import net from "node:net";
 import path from "node:path";
 
@@ -16,10 +17,10 @@ function listening(port) {
   });
 }
 
-function invoke(extraArgs) {
+function invoke(extraArgs, envOverrides = {}) {
   const result = spawnSync(process.execPath, [runnerPath, ...extraArgs], {
     cwd: root,
-    env: { ...process.env },
+    env: { ...process.env, ...envOverrides },
     encoding: "utf8",
     timeout: 120_000,
   });
@@ -60,6 +61,13 @@ async function failureRun() {
   if (await listening(apiPort) || await listening(clientPort)) throw new Error("failure run: managed listener remained after failure");
 }
 
+async function uploadOverlap() {
+  await assertFree("upload overlap");
+  const result = invoke(["e2e/lab-02/my-tickets.spec.ts", "--project=chromium", "--list"], { UPLOAD_DIR: os.tmpdir() });
+  if (result.status === 0) throw new Error("upload overlap: runner silently accepted a test upload root inside the configured live upload root");
+  if (await listening(apiPort) || await listening(clientPort)) throw new Error("upload overlap: managed listener remained after safety refusal");
+}
+
 async function preoccupiedPort() {
   await assertFree("preoccupied port");
   const dummy = http.createServer((_request, response) => response.end("test-owned dummy"));
@@ -79,6 +87,7 @@ try {
   else if (scenario === "second") await secondRun();
   else if (scenario === "failure") await failureRun();
   else if (scenario === "preoccupied") await preoccupiedPort();
+  else if (scenario === "upload-overlap") await uploadOverlap();
   else throw new Error(`Unknown scenario: ${scenario}`);
   console.log(`HARNESS_SCENARIO_PASS ${scenario}`);
 } catch (error) {
