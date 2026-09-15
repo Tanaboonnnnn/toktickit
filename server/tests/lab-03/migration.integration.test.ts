@@ -13,6 +13,8 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { verifyPassword } from "../../src/password.js";
+import { provisionMigratedRequesters, type InitialCredential } from "../../src/provisioning.js";
 import { assertDistinctTestDatabase } from "./support/database.js";
 
 const LAB3_MIGRATION = "20260915173000_lab3_users_workflow";
@@ -165,6 +167,37 @@ describe("MIG-01 / MIG-02 Lab 2 -> Lab 3 forward migration", () => {
         authVersion: 1,
         version: 1,
       }]);
+
+      const generatedPassword = "migration-test-initial-password";
+      const credentials: InitialCredential[] = [];
+      expect(await provisionMigratedRequesters(db, {
+        generatePassword: () => generatedPassword,
+        onCredential: (credential) => credentials.push(credential),
+      })).toBe(1);
+      expect(credentials).toEqual([{
+        email: "legacy.user@example.test",
+        password: generatedPassword,
+      }]);
+
+      const provisionedUser = await db.user.findUniqueOrThrow({
+        where: { id: before.requesterId },
+        select: { passwordHash: true, mustChangePassword: true },
+      });
+      expect(provisionedUser.passwordHash).toMatch(/^\$argon2id\$/);
+      expect(provisionedUser.passwordHash).not.toContain(generatedPassword);
+      expect(await verifyPassword(provisionedUser.passwordHash!, generatedPassword)).toBe(true);
+      expect(provisionedUser.mustChangePassword).toBe(true);
+
+      const secondRunCredentials: InitialCredential[] = [];
+      expect(await provisionMigratedRequesters(db, {
+        generatePassword: () => "must-not-be-used",
+        onCredential: (credential) => secondRunCredentials.push(credential),
+      })).toBe(0);
+      expect(secondRunCredentials).toEqual([]);
+      expect(await db.user.findUniqueOrThrow({
+        where: { id: before.requesterId },
+        select: { passwordHash: true },
+      })).toEqual({ passwordHash: provisionedUser.passwordHash });
 
       const ticketRows = await db.$queryRawUnsafe<Array<{
         id: number; requesterId: number; categoryId: number; relatedSystemId: number;
