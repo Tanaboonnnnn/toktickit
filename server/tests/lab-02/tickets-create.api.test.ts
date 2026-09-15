@@ -142,6 +142,7 @@ describe("API-03 Ticket creation", () => {
       summary: "Cannot access university email",
       description: "Sign-in repeatedly returns an access denied message.",
       requestedPriority: "HIGH",
+      itPriority: "HIGH",
       currentStatus: "NEW",
     });
     expect(await prisma.ticket.count({ where: { requesterId } })).toBe(beforeCount + 1);

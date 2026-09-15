@@ -131,7 +131,7 @@ describe("API-09 My Tickets sorting and pagination", () => {
 
   it.each([
     "?page=0", "?page=1.5", "?pageSize=1", "?sortBy=id", "?sortDirection=sideways",
-    "?categoryId=0", "?requestedPriority=URGENT", "?currentStatus=CLOSED", "?unknown=value",
+    "?categoryId=0", "?requestedPriority=URGENT", "?currentStatus=PENDING", "?unknown=value",
   ])("rejects invalid query %s without falling back to unrestricted results", async (query) => {
     const response = await list(query);
     expect(response.status).toBe(400);

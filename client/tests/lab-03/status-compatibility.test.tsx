@@ -1,0 +1,83 @@
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import MyTickets from "../../src/MyTickets.js";
+import TicketDetail from "../../src/TicketDetail.js";
+import { RequesterContextProvider } from "../../src/requester-context.js";
+import type { Ticket } from "../../src/api.js";
+
+const requester = { id: 9101, name: "Lab 3 Requester", email: "lab3-requester@example.test" };
+const baseItem = {
+  id: 91,
+  ticketNumber: "TKT-20260915-STAT01",
+  category: { id: 1, name: "Hardware" },
+  relatedSystem: { id: 1, name: "University Email" },
+  summary: "Status compatibility",
+  requestedPriority: "HIGH",
+  createdAt: "2026-09-15T01:00:00.000Z",
+  updatedAt: "2026-09-15T02:00:00.000Z",
+};
+
+function response(body: unknown) {
+  return { ok: true, status: 200, json: async () => body };
+}
+
+describe("STATUS-01 client runtime status compatibility", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    sessionStorage.setItem("toktickit.developmentRequesterId", String(requester.id));
+  });
+  afterEach(() => {
+    cleanup();
+    sessionStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it("renders every Lab 3 status as an available My Tickets filter", async () => {
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("development-requesters")) return Promise.resolve(response([requester]));
+      if (url.includes("categories")) return Promise.resolve(response([]));
+      return Promise.resolve(response({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 }));
+    }));
+    render(<RequesterContextProvider><MyTickets /></RequesterContextProvider>);
+    const filter = await screen.findByRole("combobox", { name: "Current Status" });
+    const labels = Array.from((filter as HTMLSelectElement).options).map(({ text }) => text);
+    expect(labels).toEqual([
+      "All Statuses", "New", "Open", "In Progress", "Waiting for Requester",
+      "Resolved", "Closed", "Reopened", "Cancelled",
+    ]);
+  });
+
+  it("accepts and renders a non-NEW status returned by the API", async () => {
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("development-requesters")) return Promise.resolve(response([requester]));
+      if (url.includes("categories")) return Promise.resolve(response([]));
+      return Promise.resolve(response({
+        items: [{ ...baseItem, currentStatus: "WAITING_FOR_REQUESTER" }],
+        page: 1,
+        pageSize: 10,
+        totalItems: 1,
+        totalPages: 1,
+      }));
+    }));
+    render(<RequesterContextProvider><MyTickets /></RequesterContextProvider>);
+    expect((await screen.findAllByText("Waiting for Requester")).length).toBeGreaterThan(0);
+  });
+
+  it("shows the actual non-NEW status on Ticket Detail", async () => {
+    const ticket = {
+      ...baseItem,
+      requester,
+      currentStatus: "RESOLVED",
+      description: "A sufficiently detailed status compatibility description.",
+      attachments: [],
+    } as unknown as Ticket;
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("development-requesters")
+      ? Promise.resolve(response([requester]))
+      : Promise.resolve(response({ ticket }))));
+    render(<RequesterContextProvider><TicketDetail ticketId={ticket.id} onBack={vi.fn()} /></RequesterContextProvider>);
+    expect(await screen.findByText("Resolved")).toBeInTheDocument();
+    expect(screen.queryByText("New")).not.toBeInTheDocument();
+  });
+});

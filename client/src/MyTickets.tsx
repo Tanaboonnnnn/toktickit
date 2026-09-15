@@ -11,9 +11,11 @@ import {
   type TicketSortDirection,
   type TicketSortField,
   type RequestedPriority,
+  type TicketStatus,
 } from "./api.js";
 import { useRequesterContext } from "./requester-context.js";
 import { formatDisplayDate } from "./date-format.js";
+import { TICKET_STATUSES, ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
 
 type AppliedQuery = Required<Pick<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">>
   & Omit<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">;
@@ -237,9 +239,9 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
         <div className="lab2-field-group">
           <label htmlFor="my-tickets-status">Current Status</label>
           <select id="my-tickets-status" value={query.currentStatus ?? ""}
-            onChange={(event) => changeQuery("currentStatus", event.target.value ? "NEW" : undefined)}>
+            onChange={(event) => changeQuery("currentStatus", event.target.value ? event.target.value as TicketStatus : undefined)}>
             <option value="">All Statuses</option>
-            <option value="NEW">New</option>
+            {TICKET_STATUSES.map((status) => <option key={status} value={status}>{ticketStatusLabel(status)}</option>)}
           </select>
         </div>
 
@@ -331,7 +333,7 @@ function TicketTableRow({ ticket, onViewTicket }: { ticket: TicketListItem; onVi
     <td className="lab2-summary-cell">{ticket.summary}</td>
     <td>{ticket.category.name}</td>
     <td><span className={`lab2-badge lab2-priority-${ticket.requestedPriority.toLowerCase()}`}>{priorityLabel(ticket.requestedPriority)}</span></td>
-    <td><span className="lab2-badge lab2-status-new">New</span></td>
+    <td><span className={`lab2-badge ${ticketStatusClassName(ticket.currentStatus)}`}>{ticketStatusLabel(ticket.currentStatus)}</span></td>
     <td>{formatDate(ticket.updatedAt)}</td>
     <td><button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" onClick={() => onViewTicket?.(ticket.id)}>View ticket</button></td>
   </tr>;
@@ -345,7 +347,7 @@ function TicketCard({ ticket, onViewTicket }: { ticket: TicketListItem; onViewTi
       <dt>Created</dt><dd>{formatDate(ticket.createdAt)}</dd>
       <dt>Category</dt><dd>{ticket.category.name}</dd>
       <dt>Requested Priority</dt><dd><span className={`lab2-badge lab2-priority-${ticket.requestedPriority.toLowerCase()}`}>{priorityLabel(ticket.requestedPriority)}</span></dd>
-      <dt>Current Status</dt><dd><span className="lab2-badge lab2-status-new">New</span></dd>
+      <dt>Current Status</dt><dd><span className={`lab2-badge ${ticketStatusClassName(ticket.currentStatus)}`}>{ticketStatusLabel(ticket.currentStatus)}</span></dd>
       <dt>Last Updated</dt><dd>{formatDate(ticket.updatedAt)}</dd>
     </dl>
     <button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" onClick={() => onViewTicket?.(ticket.id)}>View ticket</button>

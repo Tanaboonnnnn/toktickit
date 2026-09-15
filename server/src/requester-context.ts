@@ -35,7 +35,7 @@ export async function resolveRequesterContext(
 ): Promise<RequesterContext> {
   const id = parseRequesterIdHeader(headerValue);
   const requester = await prisma.user.findFirst({
-    where: { id, active: true },
+    where: { id, active: true, role: "REQUESTER" },
     select: { id: true, name: true, email: true },
   });
 

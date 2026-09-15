@@ -1,3 +1,7 @@
+import { isTicketStatus, type TicketStatus } from "./ticket-status.js";
+
+export type { TicketStatus } from "./ticket-status.js";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export interface Category {
@@ -17,7 +21,6 @@ export interface RelatedSystem {
 }
 
 export type RequestedPriority = "LOW" | "MEDIUM" | "HIGH";
-export type TicketStatus = "NEW";
 
 export type TicketSortField = "createdAt" | "updatedAt" | "ticketNumber" | "summary";
 export type TicketSortDirection = "asc" | "desc";
@@ -173,7 +176,7 @@ function isTicketListItem(value: unknown): value is TicketListItem {
     && isReferenceItem(item.relatedSystem)
     && typeof item.summary === "string"
     && (item.requestedPriority === "LOW" || item.requestedPriority === "MEDIUM" || item.requestedPriority === "HIGH")
-    && item.currentStatus === "NEW"
+    && isTicketStatus(item.currentStatus)
     && typeof item.createdAt === "string"
     && typeof item.updatedAt === "string";
 }
@@ -229,7 +232,7 @@ function appendListQuery(params: URLSearchParams, query: TicketListQuery): void 
   if (query.requestedPriority && ["LOW", "MEDIUM", "HIGH"].includes(query.requestedPriority)) {
     params.set("requestedPriority", query.requestedPriority);
   }
-  if (query.currentStatus === "NEW") params.set("currentStatus", query.currentStatus);
+  if (query.currentStatus && isTicketStatus(query.currentStatus)) params.set("currentStatus", query.currentStatus);
   if (query.sortBy && ["createdAt", "updatedAt", "ticketNumber", "summary"].includes(query.sortBy)) {
     params.set("sortBy", query.sortBy);
   }

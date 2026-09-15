@@ -197,7 +197,7 @@ app.get("/api/related-systems", async (_req: Request, res: Response) => {
 app.get("/api/development-requesters", async (_req: Request, res: Response) => {
   try {
     const requesters = await getPrisma().user.findMany({
-      where: { active: true },
+      where: { active: true, role: "REQUESTER" },
       orderBy: [{ name: "asc" }, { id: "asc" }],
       select: { id: true, name: true, email: true },
     });
