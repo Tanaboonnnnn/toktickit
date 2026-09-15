@@ -161,7 +161,7 @@ model InternalNote {
 model Session {
   sid    String   @id
   sess   Json
-  expire DateTime
+  expire DateTime @db.Timestamptz(6)
 
   @@index([expire])
   @@map("session")

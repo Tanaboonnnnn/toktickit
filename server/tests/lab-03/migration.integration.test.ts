@@ -52,7 +52,20 @@ function runPrisma(databaseUrl: string, schemaPath: string, ...args: string[]): 
   });
 }
 
-function prepareMigrationProject(includeLab3: boolean): { root: string; schemaPath: string } {
+function runPrismaOutput(databaseUrl: string, schemaPath: string, ...args: string[]): string {
+  const prismaCli = resolve(process.cwd(), "node_modules/prisma/build/index.js");
+  return execFileSync(process.execPath, [prismaCli, ...args], {
+    cwd: process.cwd(),
+    env: { ...process.env, DATABASE_URL: databaseUrl },
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+}
+
+function prepareMigrationProject(
+  includeLab3: boolean,
+  options: { injectLateFailure?: boolean } = {},
+): { root: string; schemaPath: string } {
   const root = mkdtempSync(join(tmpdir(), "toktickit-lab3-migration-"));
   const prismaDir = join(root, "prisma");
   const migrationsDir = join(prismaDir, "migrations");
@@ -73,6 +86,15 @@ function prepareMigrationProject(includeLab3: boolean): { root: string; schemaPa
     const source = resolve(process.cwd(), "prisma/migrations", LAB3_MIGRATION);
     expect(existsSync(source), `Expected Lab 3 migration ${LAB3_MIGRATION}`).toBe(true);
     cpSync(source, join(migrationsDir, LAB3_MIGRATION), { recursive: true });
+    if (options.injectLateFailure) {
+      const migrationPath = join(migrationsDir, LAB3_MIGRATION, "migration.sql");
+      const sql = readFileSync(migrationPath, "utf8");
+      const failureSql = `\n-- test-only injected late failure\nSELECT 1 / 0;\n`;
+      const updated = /\bCOMMIT;\s*$/i.test(sql)
+        ? sql.replace(/\bCOMMIT;\s*$/i, `${failureSql}COMMIT;\n`)
+        : `${sql}${failureSql}`;
+      writeFileSync(migrationPath, updated, "utf8");
+    }
   }
   return { root, schemaPath: join(prismaDir, "schema.prisma") };
 }
@@ -119,9 +141,13 @@ describe("MIG-01 / MIG-02 Lab 2 -> Lab 3 forward migration", () => {
     const uploadRoot = mkdtempSync(join(tmpdir(), "toktickit-lab3-upload-"));
     tempRoots.push(uploadRoot);
     const storedName = `${randomUUID()}.pdf`;
+    const removedStoredName = `${randomUUID()}.png`;
     const attachmentBytes = Buffer.from("%PDF-1.7\nLab 2 preserved attachment bytes\n", "utf8");
+    const removedAttachmentBytes = Buffer.from("\x89PNG\r\n\x1a\nLab 2 removed attachment bytes", "binary");
     writeFileSync(join(uploadRoot, storedName), attachmentBytes);
+    writeFileSync(join(uploadRoot, removedStoredName), removedAttachmentBytes);
     const beforeChecksum = checksum(readFileSync(join(uploadRoot, storedName)));
+    const beforeRemovedChecksum = checksum(readFileSync(join(uploadRoot, removedStoredName)));
 
     try {
       const category = await db.$queryRawUnsafe<Array<{ id: number }>>(
@@ -133,12 +159,26 @@ describe("MIG-01 / MIG-02 Lab 2 -> Lab 3 forward migration", () => {
       const requester = await db.$queryRawUnsafe<Array<{ id: number }>>(
         `INSERT INTO "RequesterUser" ("name", "email", "active", "createdAt", "updatedAt") VALUES ('Legacy Requester', '  Legacy.User@Example.Test  ', false, NOW(), NOW()) RETURNING id`,
       );
+      const clientRequestId = randomUUID();
       const ticket = await db.$queryRawUnsafe<Array<{ id: number }>>(
-        `INSERT INTO "Ticket" ("ticketNumber", "clientRequestId", "requesterId", "categoryId", "relatedSystemId", "summary", "description", "requestedPriority", "currentStatus", "createdAt", "updatedAt") VALUES ('TKT-20990115-MIG001', '${randomUUID()}', ${requester[0].id}, ${category[0].id}, ${system[0].id}, 'Preserve me', 'Historical Lab 2 migration fixture description.', 'HIGH', 'NEW', NOW(), NOW()) RETURNING id`,
+        `INSERT INTO "Ticket" ("ticketNumber", "clientRequestId", "requesterId", "categoryId", "relatedSystemId", "summary", "description", "requestedPriority", "currentStatus", "createdAt", "updatedAt") VALUES ('TKT-20990115-MIG001', '${clientRequestId}', ${requester[0].id}, ${category[0].id}, ${system[0].id}, 'Preserve me', 'Historical Lab 2 migration fixture description.', 'HIGH', 'NEW', TIMESTAMP '2026-08-25 10:11:12.345', TIMESTAMP '2026-08-25 10:12:13.456') RETURNING id`,
       );
       const attachment = await db.$queryRawUnsafe<Array<{ id: number }>>(
-        `INSERT INTO "Attachment" ("ticketId", "originalName", "storedName", "mimeType", "sizeBytes", "createdAt") VALUES (${ticket[0].id}, 'legacy-proof.pdf', '${storedName}', 'application/pdf', ${attachmentBytes.length}, NOW()) RETURNING id`,
+        `INSERT INTO "Attachment" ("ticketId", "originalName", "storedName", "mimeType", "sizeBytes", "createdAt") VALUES (${ticket[0].id}, 'legacy-proof.pdf', '${storedName}', 'application/pdf', ${attachmentBytes.length}, TIMESTAMP '2026-08-25 10:13:14.567') RETURNING id`,
       );
+      const removedAttachment = await db.$queryRawUnsafe<Array<{ id: number }>>(
+        `INSERT INTO "Attachment" ("ticketId", "originalName", "storedName", "mimeType", "sizeBytes", "createdAt", "removedAt", "removalReason") VALUES (${ticket[0].id}, 'legacy-removed.png', '${removedStoredName}', 'image/png', ${removedAttachmentBytes.length}, TIMESTAMP '2026-08-25 10:14:15.678', TIMESTAMP '2026-08-25 10:15:16.789', 'Historical removal reason') RETURNING id`,
+      );
+
+      const beforeTicketRows = await db.$queryRawUnsafe<Array<{
+        id: number; ticketNumber: string; clientRequestId: string; requesterId: number;
+        categoryId: number; relatedSystemId: number; summary: string; description: string;
+        requestedPriority: string; currentStatus: string; createdAt: Date; updatedAt: Date;
+      }>>(`SELECT id, "ticketNumber", "clientRequestId", "requesterId", "categoryId", "relatedSystemId", summary, description, "requestedPriority"::text, "currentStatus"::text, "createdAt", "updatedAt" FROM "Ticket" WHERE id = ${ticket[0].id}`);
+      const beforeAttachmentRows = await db.$queryRawUnsafe<Array<{
+        id: number; ticketId: number; originalName: string; storedName: string; mimeType: string;
+        sizeBytes: number; createdAt: Date; removedAt: Date | null; removalReason: string | null;
+      }>>(`SELECT id, "ticketId", "originalName", "storedName", "mimeType", "sizeBytes", "createdAt", "removedAt", "removalReason" FROM "Attachment" WHERE id IN (${attachment[0].id}, ${removedAttachment[0].id}) ORDER BY id`);
 
       const before = {
         requesterId: requester[0].id,
@@ -146,6 +186,7 @@ describe("MIG-01 / MIG-02 Lab 2 -> Lab 3 forward migration", () => {
         systemId: system[0].id,
         ticketId: ticket[0].id,
         attachmentId: attachment[0].id,
+        removedAttachmentId: removedAttachment[0].id,
       };
 
       const upgraded = prepareMigrationProject(true);
@@ -200,34 +241,21 @@ describe("MIG-01 / MIG-02 Lab 2 -> Lab 3 forward migration", () => {
       })).toEqual({ passwordHash: provisionedUser.passwordHash });
 
       const ticketRows = await db.$queryRawUnsafe<Array<{
-        id: number; requesterId: number; categoryId: number; relatedSystemId: number;
-        summary: string; requestedPriority: string; itPriority: string; currentStatus: string;
-        ownerId: number | null; version: number;
-      }>>(`SELECT id, "requesterId", "categoryId", "relatedSystemId", summary, "requestedPriority"::text, "itPriority"::text, "currentStatus"::text, "ownerId", version FROM "Ticket" WHERE id = ${before.ticketId}`);
-      expect(ticketRows).toEqual([{
-        id: before.ticketId,
-        requesterId: before.requesterId,
-        categoryId: before.categoryId,
-        relatedSystemId: before.systemId,
-        summary: "Preserve me",
-        requestedPriority: "HIGH",
-        itPriority: "HIGH",
-        currentStatus: "NEW",
-        ownerId: null,
-        version: 1,
-      }]);
+        id: number; ticketNumber: string; clientRequestId: string; requesterId: number;
+        categoryId: number; relatedSystemId: number; summary: string; description: string;
+        requestedPriority: string; itPriority: string; currentStatus: string;
+        ownerId: number | null; version: number; createdAt: Date; updatedAt: Date;
+      }>>(`SELECT id, "ticketNumber", "clientRequestId", "requesterId", "categoryId", "relatedSystemId", summary, description, "requestedPriority"::text, "itPriority"::text, "currentStatus"::text, "ownerId", version, "createdAt", "updatedAt" FROM "Ticket" WHERE id = ${before.ticketId}`);
+      expect(ticketRows.map(({ itPriority: _itPriority, ownerId: _ownerId, version: _version, ...historical }) => historical)).toEqual(beforeTicketRows);
+      expect(ticketRows[0]).toMatchObject({ itPriority: "HIGH", ownerId: null, version: 1 });
 
       const attachmentRows = await db.$queryRawUnsafe<Array<{
-        id: number; ticketId: number; originalName: string; storedName: string; sizeBytes: number;
-      }>>(`SELECT id, "ticketId", "originalName", "storedName", "sizeBytes" FROM "Attachment" WHERE id = ${before.attachmentId}`);
-      expect(attachmentRows).toEqual([{
-        id: before.attachmentId,
-        ticketId: before.ticketId,
-        originalName: "legacy-proof.pdf",
-        storedName,
-        sizeBytes: attachmentBytes.length,
-      }]);
+        id: number; ticketId: number; originalName: string; storedName: string; mimeType: string;
+        sizeBytes: number; createdAt: Date; removedAt: Date | null; removalReason: string | null;
+      }>>(`SELECT id, "ticketId", "originalName", "storedName", "mimeType", "sizeBytes", "createdAt", "removedAt", "removalReason" FROM "Attachment" WHERE id IN (${before.attachmentId}, ${before.removedAttachmentId}) ORDER BY id`);
+      expect(attachmentRows).toEqual(beforeAttachmentRows);
       expect(checksum(readFileSync(join(uploadRoot, storedName)))).toBe(beforeChecksum);
+      expect(checksum(readFileSync(join(uploadRoot, removedStoredName)))).toBe(beforeRemovedChecksum);
 
       const enumValues = await db.$queryRawUnsafe<Array<{ enumlabel: string }>>(`
         SELECT e.enumlabel FROM pg_type t
@@ -248,6 +276,28 @@ describe("MIG-01 / MIG-02 Lab 2 -> Lab 3 forward migration", () => {
         ORDER BY table_name
       `);
       expect(tables.map(({ table_name }) => table_name)).toEqual(["InternalNote", "PublicComment", "session"]);
+
+      const sessionExpiryColumn = await db.$queryRawUnsafe<Array<{
+        data_type: string; datetime_precision: number | null;
+      }>>(`
+        SELECT data_type, datetime_precision
+        FROM information_schema.columns
+        WHERE table_schema = current_schema() AND table_name = 'session' AND column_name = 'expire'
+      `);
+      expect(sessionExpiryColumn).toEqual([{ data_type: "timestamp with time zone", datetime_precision: 6 }]);
+
+      const drift = runPrismaOutput(
+        url,
+        upgraded.schemaPath,
+        "migrate",
+        "diff",
+        "--from-url",
+        url,
+        "--to-schema-datamodel",
+        upgraded.schemaPath,
+        "--script",
+      );
+      expect(drift).not.toContain('ALTER TABLE "session" ALTER COLUMN "expire"');
     } finally {
       await db.$disconnect();
     }
@@ -293,6 +343,57 @@ describe("MIG-01 / MIG-02 Lab 2 -> Lab 3 forward migration", () => {
         ORDER BY e.enumsortorder
       `);
       expect(enumValues.map(({ enumlabel }) => enumlabel)).toEqual(["NEW"]);
+    } finally {
+      await db.$disconnect();
+    }
+  }, 60_000);
+
+  it("rolls back all Lab 3 mutations when a late migration statement fails", async () => {
+    const schema = await createSchema(admin, "lab3_mig03");
+    schemas.push(schema);
+    const url = withSchema(testDatabaseUrl!, schema);
+    const historical = prepareMigrationProject(false);
+    tempRoots.push(historical.root);
+    runPrisma(url, historical.schemaPath, "migrate", "deploy");
+    const db = new PrismaClient({ datasources: { db: { url } } });
+
+    try {
+      await db.$executeRawUnsafe(
+        `INSERT INTO "RequesterUser" ("name", "email", "active", "createdAt", "updatedAt") VALUES ('Atomic Requester', 'Atomic.User@Example.Test', true, NOW(), NOW())`,
+      );
+      const beforeUsers = await db.$queryRawUnsafe<Array<{ id: number; email: string }>>(
+        `SELECT id, email FROM "RequesterUser" ORDER BY id`,
+      );
+
+      const upgraded = prepareMigrationProject(true, { injectLateFailure: true });
+      tempRoots.push(upgraded.root);
+      expect(() => runPrisma(url, upgraded.schemaPath, "migrate", "deploy")).toThrow();
+
+      const roleColumn = await db.$queryRawUnsafe<Array<{ count: bigint }>>(`
+        SELECT COUNT(*)::bigint AS count FROM information_schema.columns
+        WHERE table_schema = current_schema() AND table_name = 'RequesterUser' AND column_name = 'role'
+      `);
+      expect(Number(roleColumn[0].count)).toBe(0);
+      expect(await db.$queryRawUnsafe<Array<{ id: number; email: string }>>(
+        `SELECT id, email FROM "RequesterUser" ORDER BY id`,
+      )).toEqual(beforeUsers);
+
+      const enumValues = await db.$queryRawUnsafe<Array<{ enumlabel: string }>>(`
+        SELECT e.enumlabel FROM pg_type t
+        JOIN pg_enum e ON t.oid = e.enumtypid
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE n.nspname = current_schema() AND t.typname = 'TicketStatus'
+        ORDER BY e.enumsortorder
+      `);
+      expect(enumValues.map(({ enumlabel }) => enumlabel)).toEqual(["NEW"]);
+
+      const lab3Tables = await db.$queryRawUnsafe<Array<{ table_name: string }>>(`
+        SELECT table_name FROM information_schema.tables
+        WHERE table_schema = current_schema()
+          AND table_name IN ('PublicComment', 'InternalNote', 'session')
+        ORDER BY table_name
+      `);
+      expect(lab3Tables).toEqual([]);
     } finally {
       await db.$disconnect();
     }
