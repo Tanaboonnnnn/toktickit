@@ -38,7 +38,7 @@ beforeAll(async () => {
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
-  const requester = await prisma.requesterUser.create({ data: { name: `${tag} Requester`, email: requesterEmail, active: true } });
+  const requester = await prisma.user.create({ data: { name: `${tag} Requester`, email: requesterEmail, active: true } });
   const category = await prisma.category.create({ data: { name: categoryName, active: true } });
   const system = await prisma.relatedSystem.create({ data: { name: systemName, active: true } });
   requesterId = requester.id;
@@ -59,6 +59,7 @@ beforeAll(async () => {
         summary: index % 2 === 0 ? "Alpha" : "Beta",
         description: `Pagination fixture description ${index}`,
         requestedPriority: index % 2 === 0 ? "LOW" : "HIGH",
+        itPriority: index % 2 === 0 ? "LOW" : "HIGH",
         createdAt,
         updatedAt,
       },
@@ -73,7 +74,7 @@ afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { in: clientRequestIds } } });
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: requesterId } });
+  await prisma?.user.deleteMany({ where: { id: requesterId } });
   await prisma?.$disconnect();
 });
 
@@ -130,7 +131,7 @@ describe("API-09 My Tickets sorting and pagination", () => {
 
   it.each([
     "?page=0", "?page=1.5", "?pageSize=1", "?sortBy=id", "?sortDirection=sideways",
-    "?categoryId=0", "?requestedPriority=URGENT", "?currentStatus=CLOSED", "?unknown=value",
+    "?categoryId=0", "?requestedPriority=URGENT", "?currentStatus=PENDING", "?unknown=value",
   ])("rejects invalid query %s without falling back to unrestricted results", async (query) => {
     const response = await list(query);
     expect(response.status).toBe(400);

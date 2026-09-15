@@ -30,12 +30,12 @@ export function parseRequesterIdHeader(value: string | undefined): number {
 }
 
 export async function resolveRequesterContext(
-  prisma: Pick<PrismaClient, "requesterUser">,
+  prisma: Pick<PrismaClient, "user">,
   headerValue: string | undefined,
 ): Promise<RequesterContext> {
   const id = parseRequesterIdHeader(headerValue);
-  const requester = await prisma.requesterUser.findFirst({
-    where: { id, active: true },
+  const requester = await prisma.user.findFirst({
+    where: { id, active: true, role: "REQUESTER" },
     select: { id: true, name: true, email: true },
   });
 

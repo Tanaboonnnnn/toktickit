@@ -39,7 +39,7 @@ beforeAll(async () => {
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
-  const requester = await prisma.requesterUser.create({ data: { name: `${tag} Requester`, email: requesterEmail, active: true } });
+  const requester = await prisma.user.create({ data: { name: `${tag} Requester`, email: requesterEmail, active: true } });
   const categoryOne = await prisma.category.create({ data: { name: categoryOneName, active: true } });
   const categoryTwo = await prisma.category.create({ data: { name: categoryTwoName, active: true } });
   const system = await prisma.relatedSystem.create({ data: { name: systemName, active: true } });
@@ -49,10 +49,10 @@ beforeAll(async () => {
   systemId = system.id;
   await prisma.ticket.createMany({
     data: [
-      { ticketNumber: `TKT-20990201-${String(requesterId).padStart(6, "0")}`, clientRequestId: clientRequestIds[0], requesterId, categoryId: categoryOneId, relatedSystemId: systemId, summary: "University email access denied", description: "Email access is denied for this ownership fixture.", requestedPriority: "HIGH" },
-      { ticketNumber: `TKT-20990202-${String(requesterId + 1).padStart(6, "0")}`, clientRequestId: clientRequestIds[1], requesterId, categoryId: categoryTwoId, relatedSystemId: systemId, summary: "Laptop keyboard is broken", description: "The keyboard does not respond to several keys.", requestedPriority: "LOW" },
-      { ticketNumber: `TKT-20990203-${String(requesterId + 2).padStart(6, "0")}`, clientRequestId: clientRequestIds[2], requesterId, categoryId: categoryOneId, relatedSystemId: systemId, summary: "Portal password reset", description: "The student portal password reset needs assistance.", requestedPriority: "MEDIUM" },
-      { ticketNumber: `TKT-20990204-${String(requesterId + 3).padStart(6, "0")}`, clientRequestId: clientRequestIds[3], requesterId, categoryId: categoryTwoId, relatedSystemId: systemId, summary: "Wireless signal issue", description: "Campus wireless signal drops in the lab.", requestedPriority: "HIGH" },
+      { ticketNumber: `TKT-20990201-${String(requesterId).padStart(6, "0")}`, clientRequestId: clientRequestIds[0], requesterId, categoryId: categoryOneId, relatedSystemId: systemId, summary: "University email access denied", description: "Email access is denied for this ownership fixture.", requestedPriority: "HIGH", itPriority: "HIGH" },
+      { ticketNumber: `TKT-20990202-${String(requesterId + 1).padStart(6, "0")}`, clientRequestId: clientRequestIds[1], requesterId, categoryId: categoryTwoId, relatedSystemId: systemId, summary: "Laptop keyboard is broken", description: "The keyboard does not respond to several keys.", requestedPriority: "LOW", itPriority: "LOW" },
+      { ticketNumber: `TKT-20990203-${String(requesterId + 2).padStart(6, "0")}`, clientRequestId: clientRequestIds[2], requesterId, categoryId: categoryOneId, relatedSystemId: systemId, summary: "Portal password reset", description: "The student portal password reset needs assistance.", requestedPriority: "MEDIUM", itPriority: "MEDIUM" },
+      { ticketNumber: `TKT-20990204-${String(requesterId + 3).padStart(6, "0")}`, clientRequestId: clientRequestIds[3], requesterId, categoryId: categoryTwoId, relatedSystemId: systemId, summary: "Wireless signal issue", description: "Campus wireless signal drops in the lab.", requestedPriority: "HIGH", itPriority: "HIGH" },
     ],
   });
   ({ app } = await import("../../src/app.js"));
@@ -62,7 +62,7 @@ afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { in: clientRequestIds } } });
   await prisma?.category.deleteMany({ where: { id: { in: [categoryOneId, categoryTwoId] } } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: requesterId } });
+  await prisma?.user.deleteMany({ where: { id: requesterId } });
   await prisma?.$disconnect();
 });
 

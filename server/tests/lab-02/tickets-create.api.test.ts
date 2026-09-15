@@ -49,7 +49,7 @@ beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
   await prisma.ticket.deleteMany({ where: { clientRequestId } });
-  const requester = await prisma.requesterUser.upsert({
+  const requester = await prisma.user.upsert({
     where: { email: requesterEmail },
     update: { name: "API-03 Create Requester", active: true },
     create: { name: "API-03 Create Requester", email: requesterEmail, active: true },
@@ -74,7 +74,7 @@ afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId } });
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: relatedSystemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: requesterId } });
+  await prisma?.user.deleteMany({ where: { id: requesterId } });
   await prisma?.$disconnect();
 });
 
@@ -142,6 +142,7 @@ describe("API-03 Ticket creation", () => {
       summary: "Cannot access university email",
       description: "Sign-in repeatedly returns an access denied message.",
       requestedPriority: "HIGH",
+      itPriority: "HIGH",
       currentStatus: "NEW",
     });
     expect(await prisma.ticket.count({ where: { requesterId } })).toBe(beforeCount + 1);

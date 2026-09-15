@@ -104,7 +104,7 @@ beforeAll(async () => {
     }));
   }
   for (const requesterFixture of Object.values(requesterFixtures)) {
-    originalRequesters.set(requesterFixture.email, await prisma.requesterUser.findUnique({
+    originalRequesters.set(requesterFixture.email, await prisma.user.findUnique({
       where: { email: requesterFixture.email },
       select: { id: true, name: true, email: true, active: true },
     }));
@@ -140,12 +140,12 @@ beforeAll(async () => {
     }
   }
   for (const requesterFixture of Object.values(requesterFixtures)) {
-    await prisma.requesterUser.upsert({
+    await prisma.user.upsert({
       where: { email: requesterFixture.email },
       update: requesterFixture,
       create: requesterFixture,
     });
-    const requester = await prisma.requesterUser.findUnique({
+    const requester = await prisma.user.findUnique({
       where: { email: requesterFixture.email },
     });
     if (!originalRequesters.get(requesterFixture.email) && requester) {
@@ -162,13 +162,13 @@ afterAll(async () => {
   if (prisma) {
     for (const [email, original] of originalRequesters) {
       if (original) {
-        await prisma.requesterUser.update({
+        await prisma.user.update({
           where: { id: original.id },
           data: { name: original.name, email: original.email, active: original.active },
         });
       } else {
         const createdId = createdRequesterIds.get(email);
-        if (createdId) await prisma.requesterUser.deleteMany({ where: { id: createdId } });
+        if (createdId) await prisma.user.deleteMany({ where: { id: createdId } });
       }
     }
     for (const [name, original] of originalRelatedSystems) {
@@ -263,7 +263,7 @@ describe("API-01 reference data", () => {
   it("returns valid empty arrays when reference queries find no active rows", async () => {
     vi.spyOn(routePrisma.category, "findMany").mockResolvedValueOnce([]);
     vi.spyOn(routePrisma.relatedSystem, "findMany").mockResolvedValueOnce([]);
-    vi.spyOn(routePrisma.requesterUser, "findMany").mockResolvedValueOnce([]);
+    vi.spyOn(routePrisma.user, "findMany").mockResolvedValueOnce([]);
 
     const [categories, relatedSystems, requesters] = await Promise.all([
       request(app).get("/api/categories"),
@@ -292,7 +292,7 @@ describe("API-01 reference data", () => {
   });
 
   it("returns the exact safe Development Requester failure envelope", async () => {
-    vi.spyOn(routePrisma.requesterUser, "findMany").mockRejectedValueOnce(
+    vi.spyOn(routePrisma.user, "findMany").mockRejectedValueOnce(
       new Error("Prisma database credentials must not escape"),
     );
 

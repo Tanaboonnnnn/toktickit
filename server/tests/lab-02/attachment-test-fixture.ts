@@ -47,12 +47,12 @@ export async function createAttachmentFixture(prefix: string): Promise<Attachmen
   const prisma = new PrismaClient({ datasources: { db: { url: test } } });
   await prisma.$connect();
   const tag = `${prefix}-${process.pid}-${Date.now()}-${randomUUID().slice(0, 8)}`;
-  const requesterA = await prisma.requesterUser.create({ data: { name: `${tag} A`, email: `${tag}-a@example.test` } });
-  const requesterB = await prisma.requesterUser.create({ data: { name: `${tag} B`, email: `${tag}-b@example.test` } });
+  const requesterA = await prisma.user.create({ data: { name: `${tag} A`, email: `${tag}-a@example.test` } });
+  const requesterB = await prisma.user.create({ data: { name: `${tag} B`, email: `${tag}-b@example.test` } });
   const category = await prisma.category.create({ data: { name: `${tag} Category` } });
   const system = await prisma.relatedSystem.create({ data: { name: `${tag} System` } });
-  const ticket = await prisma.ticket.create({ data: { ticketNumber: `TKT-20990101-${requesterA.id.toString().padStart(6, "0")}`, clientRequestId: randomUUID(), requesterId: requesterA.id, categoryId: category.id, relatedSystemId: system.id, summary: `${tag} ticket`, description: "A sufficiently detailed attachment fixture ticket.", requestedPriority: "LOW" } });
-  const foreignTicket = await prisma.ticket.create({ data: { ticketNumber: `TKT-20990102-${requesterB.id.toString().padStart(6, "0")}`, clientRequestId: randomUUID(), requesterId: requesterB.id, categoryId: category.id, relatedSystemId: system.id, summary: `${tag} foreign ticket`, description: "A foreign attachment fixture ticket.", requestedPriority: "LOW" } });
+  const ticket = await prisma.ticket.create({ data: { ticketNumber: `TKT-20990101-${requesterA.id.toString().padStart(6, "0")}`, clientRequestId: randomUUID(), requesterId: requesterA.id, categoryId: category.id, relatedSystemId: system.id, summary: `${tag} ticket`, description: "A sufficiently detailed attachment fixture ticket.", requestedPriority: "LOW", itPriority: "LOW" } });
+  const foreignTicket = await prisma.ticket.create({ data: { ticketNumber: `TKT-20990102-${requesterB.id.toString().padStart(6, "0")}`, clientRequestId: randomUUID(), requesterId: requesterB.id, categoryId: category.id, relatedSystemId: system.id, summary: `${tag} foreign ticket`, description: "A foreign attachment fixture ticket.", requestedPriority: "LOW", itPriority: "LOW" } });
   return { prisma, app, requesterA, requesterB, categoryId: category.id, systemId: system.id, ticketId: ticket.id, foreignTicketId: foreignTicket.id, root, tag };
 }
 
@@ -61,7 +61,7 @@ export async function destroyAttachmentFixture(fixture: AttachmentFixture): Prom
   await fixture.prisma.ticket.deleteMany({ where: { id: { in: [fixture.ticketId, fixture.foreignTicketId] } } });
   await fixture.prisma.category.deleteMany({ where: { name: { startsWith: fixture.tag } } });
   await fixture.prisma.relatedSystem.deleteMany({ where: { name: { startsWith: fixture.tag } } });
-  await fixture.prisma.requesterUser.deleteMany({ where: { email: { startsWith: fixture.tag } } });
+  await fixture.prisma.user.deleteMany({ where: { email: { startsWith: fixture.tag } } });
   await fixture.prisma.$disconnect();
   await rm(fixture.root, { recursive: true, force: true });
 }

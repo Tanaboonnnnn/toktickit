@@ -9,6 +9,8 @@
     "start": "node dist/src/index.js",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
+    "provision:migrated-users": "tsx scripts/provision-migrated-users.ts",
+    "test:lab3-review": "vitest run tests/lab-03/password.unit.test.ts tests/lab-03/migration.integration.test.ts tests/lab-03/seed.integration.test.ts --reporter=verbose",
     "test": "vitest run"
   },
   "prisma": {
@@ -16,6 +18,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "argon2": "0.45.1",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "multer": "^2.2.0"

@@ -43,8 +43,8 @@ beforeAll(async () => {
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
-  const requesterA = await prisma.requesterUser.create({ data: { name: `${fixtureTag} Requester A`, email: requesterAEmail, active: true } });
-  const requesterB = await prisma.requesterUser.create({ data: { name: `${fixtureTag} Requester B`, email: requesterBEmail, active: true } });
+  const requesterA = await prisma.user.create({ data: { name: `${fixtureTag} Requester A`, email: requesterAEmail, active: true } });
+  const requesterB = await prisma.user.create({ data: { name: `${fixtureTag} Requester B`, email: requesterBEmail, active: true } });
   const category = await prisma.category.create({ data: { name: categoryName, active: true } });
   const system = await prisma.relatedSystem.create({ data: { name: systemName, active: true } });
   requesterAId = requesterA.id;
@@ -53,10 +53,10 @@ beforeAll(async () => {
   systemId = system.id;
   await prisma.ticket.createMany({
     data: [
-      { ticketNumber: `TKT-20990101-${String(requesterAId).padStart(6, "0")}`, clientRequestId: clientRequestIds[0], requesterId: requesterAId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} A ticket one`, description: "Ownership fixture description A one", requestedPriority: "LOW" },
-      { ticketNumber: `TKT-20990102-${String(requesterAId).padStart(6, "0")}`, clientRequestId: clientRequestIds[1], requesterId: requesterAId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} A ticket two`, description: "Ownership fixture description A two", requestedPriority: "MEDIUM" },
-      { ticketNumber: `TKT-20990101-${String(requesterBId).padStart(6, "0")}`, clientRequestId: clientRequestIds[2], requesterId: requesterBId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} B ticket one`, description: "Ownership fixture description B one", requestedPriority: "HIGH" },
-      { ticketNumber: `TKT-20990102-${String(requesterBId).padStart(6, "0")}`, clientRequestId: clientRequestIds[3], requesterId: requesterBId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} B ticket two`, description: "Ownership fixture description B two", requestedPriority: "LOW" },
+      { ticketNumber: `TKT-20990101-${String(requesterAId).padStart(6, "0")}`, clientRequestId: clientRequestIds[0], requesterId: requesterAId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} A ticket one`, description: "Ownership fixture description A one", requestedPriority: "LOW", itPriority: "LOW" },
+      { ticketNumber: `TKT-20990102-${String(requesterAId).padStart(6, "0")}`, clientRequestId: clientRequestIds[1], requesterId: requesterAId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} A ticket two`, description: "Ownership fixture description A two", requestedPriority: "MEDIUM", itPriority: "MEDIUM" },
+      { ticketNumber: `TKT-20990101-${String(requesterBId).padStart(6, "0")}`, clientRequestId: clientRequestIds[2], requesterId: requesterBId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} B ticket one`, description: "Ownership fixture description B one", requestedPriority: "HIGH", itPriority: "HIGH" },
+      { ticketNumber: `TKT-20990102-${String(requesterBId).padStart(6, "0")}`, clientRequestId: clientRequestIds[3], requesterId: requesterBId, categoryId, relatedSystemId: systemId, summary: `${fixtureTag} B ticket two`, description: "Ownership fixture description B two", requestedPriority: "LOW", itPriority: "LOW" },
     ],
   });
   ({ app } = await import("../../src/app.js"));
@@ -66,7 +66,7 @@ afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { in: clientRequestIds } } });
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: { in: [requesterAId, requesterBId] } } });
+  await prisma?.user.deleteMany({ where: { id: { in: [requesterAId, requesterBId] } } });
   await prisma?.$disconnect();
 });
 

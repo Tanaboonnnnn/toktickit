@@ -3,6 +3,7 @@ import { fetchTicketDetail, SafeApiError, type Ticket } from "./api.js";
 import { useRequesterContext } from "./requester-context.js";
 import AttachmentPanel from "./AttachmentPanel.js";
 import { formatDisplayDate } from "./date-format.js";
+import { ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
 
 type DetailState =
   | { kind: "loading" }
@@ -92,7 +93,7 @@ function TicketContents({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () =
         <h2 id="ticket-information-heading">Ticket information</h2>
         <dl className="lab2-detail-grid">
           <dt>Ticket Number</dt><dd>{ticket.ticketNumber}</dd>
-          <dt>Current Status</dt><dd><span className="lab2-badge lab2-status-new">New</span></dd>
+          <dt>Current Status</dt><dd><span className={`lab2-badge ${ticketStatusClassName(ticket.currentStatus)}`}>{ticketStatusLabel(ticket.currentStatus)}</span></dd>
           <dt>Ticket Date</dt><dd>{formatDate(ticket.createdAt)}</dd>
           <dt>Last Updated</dt><dd>{formatDate(ticket.updatedAt)}</dd>
           <dt>Requester</dt><dd>{ticket.requester.name} ({ticket.requester.email})</dd>

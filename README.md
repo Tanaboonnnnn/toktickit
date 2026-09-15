@@ -91,13 +91,32 @@ npx prisma validate
 npx prisma generate
 npx prisma migrate deploy
 npm run prisma:seed
+npm run provision:migrated-users
 npx prisma migrate status
 ```
 
 `migrate deploy` applies the existing migration files; it does not create a new
-migration. `prisma:seed` runs the configured idempotent Lab 2 seed, preserving the
-four required Categories and creating the required Related Systems and Development
-Requester fixtures used by the current requester-context flow.
+migration. The current Lab 3 migration evolves the existing Lab 2 data in place;
+do not reset or recreate the database to simulate an upgrade.
+
+`prisma:seed` runs the repeat-safe Lab 3 seed. It preserves existing edited User
+credentials, roles, activation state, and Ticket workflow state while creating any
+missing safe local fixtures required by Lab 3: Requester, IT Staff, and Administrator
+accounts, reference data, and mixed Ticket/status/comment/note examples. On a clean
+local database, newly created seed Users receive one-time initial passwords printed
+only to that local terminal and the database stores only Argon2id hashes.
+
+`provision:migrated-users` is specifically for Requesters that already existed before
+the Lab 3 migration and therefore still have `passwordHash=null`. It generates a
+one-time random initial password, prints it once to the local terminal, stores only
+the Argon2id hash, keeps `mustChangePassword=true`, and skips accounts that were
+already provisioned. Treat printed initial passwords as local-only credentials: do
+not commit them, copy them into documentation, screenshots, issues, or Pull Requests,
+or share them outside the intended local handoff.
+
+Rerunning either seed or migrated-Requester provisioning must not rotate an existing
+credential or reset edited role/activation/workflow state. A provisioning rerun that
+finds no unprovisioned migrated Requester may legitimately report zero changes.
 `migrate status` checks the database connection and migration state after setup.
 Do not use destructive commands such as `prisma migrate reset` or `prisma db
 push` for this lab.
@@ -117,6 +136,40 @@ After removing the temporary shell override, `npm.cmd test` reads both
 creates a fresh temporary schema inside the dedicated test database and drops it
 afterward, so its clean-migration evidence does not reset either configured
 database.
+
+### Reviewer / fresh-clone Lab 3 DB verification
+
+The Lab 3 migration and seed integration tests intentionally require **both**
+`DATABASE_URL` and `TEST_DATABASE_URL`. This is a fail-closed safety check: the
+tests compare the two database identities before any mutation and refuse to run if
+the dedicated test database is missing or could be the development database. Do
+not remove or bypass this guard just to make the tests start.
+
+For a fresh clone or peer-review machine, use this minimal setup from the repository
+root:
+
+```powershell
+Copy-Item server/.env.example server/.env
+```
+
+Edit `server/.env` so both URLs contain credentials that work on that machine and
+use different database names. `DATABASE_URL` is used by these focused tests for the
+database-identity safety comparison; the migration/seed fixtures themselves are
+created only inside temporary schemas in the dedicated `TEST_DATABASE_URL` database.
+Create that test database first if it does not exist.
+
+Then run from `server`:
+
+```powershell
+npm.cmd install
+npx.cmd prisma generate
+npm.cmd run test:lab3-review
+```
+
+`test:lab3-review` runs the password unit tests plus the Issue #43 migration and
+seed integration suites. The DB-backed suites create uniquely named temporary
+schemas under `TEST_DATABASE_URL` and drop those schemas after the run; they do not
+migrate, seed, reset, or drop the database named by `DATABASE_URL`.
 
 ## Tests
 

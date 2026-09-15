@@ -21,6 +21,9 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - GitHub username: `@thananun-7203`
 - Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 18:33 UTC against head `4ff85cb`.
 
+- GitHub username: `@L0u1sss`
+- Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
+
 Other users may be requested for review on GitHub, but this file records a reviewer only after a real review submission is verifiable.
 
 ## Reviews received
@@ -28,7 +31,8 @@ Other users may be requested for review on GitHub, but this file records a revie
 | PR | Scope | Reviewer(s) | Review trail (UTC) |
 |---|---|---|---|
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376) 2026-09-14 19:09; merged 19:10 UTC |
-| [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; loopback-isolation fix prepared; re-review pending |
+| [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595) 07:06; merged 07:07 UTC |
+| [#55](https://github.com/Tanaboonnnnn/toktickit/pull/55) | Issue #43 data-preserving User/workflow migration | `@L0u1sss` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5210721789) 2026-09-15 13:40; [second Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5211770377) 15:00; reviewer-verification helper prepared; re-review pending |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -107,7 +111,65 @@ Changes prepared for re-review:
 4. `tests.md` records 17/17 ENV-01 and the verified code candidate instead of the stale `23976ab` evidence.
 5. Full verification on the code candidate passed: server 31 files / 159 tests, client 17 files / 120 tests, E2E 23/23, responsive 10/10; managed-port and upload-overlap safety scenarios also passed.
 
-No product feature, schema migration, database reset, or approval is claimed by this response. PR #54 remains pending human re-review.
+No product feature, schema migration, or database reset is claimed by this response. At this point in the chronology PR #54 still remained pending human re-review; the later approval is recorded separately below.
+
+### Review 4 — 2026-09-15 07:06 UTC
+
+- Result: **Approved**
+- Reviewer: `@thananun-7203`
+- Review: [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595)
+- Reviewed head: `f9274942dab73e8e802d8dbff66a319b4b0e4654`
+- Reviewer re-checked the loopback database-identity fix and confirmed coverage for `localhost`, `localhost.`, `127/8`, IPv6 loopback, and IPv4-mapped IPv6 loopback while preserving a legitimate non-loopback-host case.
+- Reviewer confirmed the requested mojibake/evidence cleanup was resolved, `git diff --check` was clean, the PR remained scoped to Issue #42 verification-harness work, and no blocking finding remained.
+- PR #54 merged into `lab3-staging` at 2026-09-15 07:07 UTC as merge commit `63a4c8db4b1692e31508f4a3c6894f35e4fe6253`.
+
+### Review 5 — 2026-09-15 13:40 UTC
+
+- Result: **Changes requested**
+- Reviewer: `@L0u1sss`
+- Review: [PR #55 review](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5210721789)
+- Reviewed head: `5589ee9160420f1e920753f0c7f382a11250e5e9`
+- Finding 1: Prisma `Session.expire` was plain `DateTime` while the migration and approved session-store contract use PostgreSQL `timestamp with time zone`, producing schema drift toward `TIMESTAMP(3)`.
+- Finding 2: the migration file did not explicitly bracket the full migration with `BEGIN`/`COMMIT`; the reviewer requested an atomic late-failure proof rather than relying on the opening `DO` block.
+- Finding 3: `README.md` still described the seed as Lab 2-only and omitted the explicit `provision:migrated-users` local handoff, one-time terminal credential, hash-only storage, and repeat-safety rules.
+- Finding 4: MIG-01 asserted only a subset of historical Ticket/Attachment fields even though the PR claimed preservation of historical content, Attachment metadata, and bytes.
+- The reviewer could not rerun DB-backed tests in their environment because `server/.env`/`TEST_DATABASE_URL` were not available there; that environment limitation was recorded separately from the requested product/document changes.
+
+### Author response to Review 5
+
+All four requested changes were checked against the approved Lab 3 contract and the executable migration path before editing. The response candidate is `db2090c`.
+
+1. `Session.expire` is now `DateTime @db.Timestamptz(6)`, matching both `migration.sql` and the contract. MIG-01 queries `information_schema` for `timestamp with time zone`/precision 6 and runs Prisma `migrate diff` against the migrated temporary schema so this mismatch cannot silently return.
+2. `migration.sql` now explicitly wraps the full migration in `BEGIN; ... COMMIT;`. MIG-01 injects a test-only failure immediately before `COMMIT` and verifies that User role columns, new status enum values, and new Lab 3 tables leave no partial state. Because the earlier migration text had already been applied only to the local development database, a second private safety dump was created, development was restored from the rehearsed pre-#43 backup, and the corrected migration was reapplied rather than editing `_prisma_migrations` manually. The resulting database checksum matches the current migration file and Prisma reports no schema drift.
+3. `README.md` now documents migration -> repeat-safe Lab 3 seed -> migrated-Requester provisioning, including local-only one-time credential output, Argon2id hash-only persistence, `mustChangePassword=true`, rerun behavior, and the rule not to commit/share displayed credentials.
+4. MIG-01 now compares the complete retained historical Ticket fields used by Lab 2 and both active and soft-removed Attachment metadata (`mimeType`, timestamps, `removedAt`, `removalReason`) before/after migration, plus SHA-256 checks of both fixture files.
+5. Fresh aggregate verification on `db2090c` passed: server 36 files / 189 tests, client 18 files / 123 tests, E2E 23/23, responsive 10/10, with server/client builds passing. Prisma validate/status pass and the live development schema diff is empty.
+
+No PR #55 approval or merge is claimed by this response; human re-review is still required.
+
+### Review 6 — 2026-09-15 15:00 UTC
+
+- Result: **Changes requested**
+- Reviewer: `@L0u1sss`
+- Review: [PR #55 second review](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5211770377)
+- Reviewed head: `3e29876bdb927d67cbc2738d10d93c0136067b63`
+- The reviewer did not identify a new product-code defect in the four original findings. The review recorded that those fixes are documented on `db2090c`, but approval is still pending.
+- The reviewer reran HASH-01 successfully (4/4) but could not rerun the migration/seed integration suites because their environment did not have `DATABASE_URL` and `TEST_DATABASE_URL` configured.
+- The reviewer also noted that PR #55 is not the whole Lab 3 release: authentication UI/API, Staff Queue/Detail, Comments/Notes runtime, Admin UI, and later E2E work remain in subsequent planned issues. This matches the intentional Issue #43 scope rather than requiring those later features to be pulled into this PR.
+
+### Author response to Review 6
+
+The environment limitation was verified against the repository before changing anything. Both database URLs are intentionally mandatory: the integration safety guard compares development and test database identities and fails closed before mutation if either URL is missing or unsafe. Removing that requirement would weaken the database-isolation contract from Issue #42.
+
+To make the DB-backed review reproducible without weakening the guard:
+
+1. `server/package.json` now exposes `npm run test:lab3-review`, which runs HASH-01 plus the Issue #43 migration and seed integration suites in one command.
+2. `README.md` now has a reviewer/fresh-clone section showing how to copy `server/.env.example`, configure distinct `DATABASE_URL` / `TEST_DATABASE_URL` values, generate Prisma Client, and run the focused review command.
+3. The documentation states explicitly that the focused DB suites mutate only uniquely named temporary schemas under `TEST_DATABASE_URL`; `DATABASE_URL` is used for the fail-closed identity comparison and is not migrated/seeded/reset by this command.
+4. The new review command was executed on candidate `60aa202`: **3 files / 10 tests passed**, and the server build passed.
+5. No Authentication/Staff/Admin implementation is added here because those are intentionally owned by later Lab 3 issues and are outside Issue #43 acceptance scope.
+
+No PR #55 approval or merge is claimed after Review 6; another human re-review is required.
 
 ## Review-resolution log
 
@@ -121,17 +183,25 @@ No product feature, schema migration, database reset, or approval is claimed by 
 | Post-review self-audit | AC-32 mapping cell did not explicitly name its planned Test ID | Mapped AC-32 directly to the already-declared `TRACE-01` test | `tests.md` | Resolved before re-review |
 | Review 2 | Retained Category/Related System endpoints missing from active Lab 3 API contract; Development Requester retirement/test gap unclear | Added exact retained-reference contract, explicit post-#45 route retirement, authorization/UI/API-family alignment, and REQ-01 coverage | `api-spec.md`, `specification.md`, `ui-spec.md`, `tests.md`, `regression-map.md` | Resolved in revised head; pending re-review |
 | Review 2 minor | `UI-01` listed two abbreviated automated paths | Fully qualified all three client test paths | `tests.md` | Resolved in revised head; pending re-review |
-| Review 3 | Loopback hostname aliases could bypass distinct test-database identity | Canonicalize known local loopback forms before host comparison and add red/green regression coverage | `server/tests/lab-03/support/database.ts`, `server/tests/lab-03/support/test-safety.unit.test.ts` | Resolved in `6d882a3`; pending re-review |
-| Review 3 minor | Mojibake separator and stale ENV-01 SHA/count | Restore em dash; update ENV-01 to 17/17 on verified code candidate | `regression-map.md`, `tests.md` | Resolved in review-response docs; pending re-review |
+| Review 3 | Loopback hostname aliases could bypass distinct test-database identity | Canonicalize known local loopback forms before host comparison and add red/green regression coverage | `server/tests/lab-03/support/database.ts`, `server/tests/lab-03/support/test-safety.unit.test.ts` | Resolved; verified by Review 4 approval |
+| Review 3 minor | Mojibake separator and stale ENV-01 SHA/count | Restore em dash; update ENV-01 to 17/17 on verified code candidate | `regression-map.md`, `tests.md` | Resolved; verified by Review 4 approval |
+| Review 5 | Prisma session expiry native type drift | Map `Session.expire` explicitly to PostgreSQL `Timestamptz(6)` and assert native type + zero Prisma drift | `server/prisma/schema.prisma`, `server/tests/lab-03/migration.integration.test.ts` | Resolved in `db2090c`; pending re-review |
+| Review 5 | Migration lacked explicit full-file transaction | Add `BEGIN`/`COMMIT`, inject a late migration failure, verify complete rollback, then restore/reapply local dev from the pre-#43 backup so migration history/checksum stays clean | `migration.sql`, `migration.integration.test.ts`, private local recovery evidence | Resolved in `db2090c`; pending re-review |
+| Review 5 | README omitted Lab 3 provisioning/repeat-safety workflow | Document Lab 3 seed, `provision:migrated-users`, one-time local credential handling, Argon2id-only persistence, and rerun rules | `README.md` | Resolved in `db2090c`; pending re-review |
+| Review 5 | Historical preservation assertions incomplete | Compare retained Ticket fields plus active/removed Attachment metadata and both file checksums across migration | `server/tests/lab-03/migration.integration.test.ts` | Resolved in `db2090c`; pending re-review |
+| Review 6 | Reviewer could not run DB-backed migration/seed suites without local database URLs | Keep the fail-closed DB isolation requirement; add a focused reviewer command and explicit fresh-clone DB setup/reproduction steps | `server/package.json`, `README.md` | Resolved in `60aa202`; pending re-review |
+| Review 6 scope note | PR #55 is not the complete Lab 3 product | Keep Issue #43 limited to migration/User/workflow foundation; later authentication/staff/admin/UI/E2E work remains in its planned issues | PR #55 scope / Lab 3 issue plan | Expected scope; no product change |
 
 ## Approval evidence
 
 - PR #53 received a real **Approved** review from `@thananun-7203` on 2026-09-14 19:09 UTC and was merged into `lab3-staging` at 2026-09-14 19:10 UTC.
-- PR #54 current verdict: **Changes Requested** from `@thananun-7203` on 2026-09-15 06:18 UTC; no later approval is recorded yet.
-- Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801).
-- PR #54 final approval: **None recorded yet.**
+- PR #54 received a real **Approved** review from `@thananun-7203` on 2026-09-15 07:06 UTC after the earlier Changes Requested round and was merged into `lab3-staging` at 07:07 UTC.
+- Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801), [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595).
+- PR #54 final approval: **Approved** by `@thananun-7203` on reviewed head `f9274942dab73e8e802d8dbff66a319b4b0e4654`.
+- PR #55 current verdict: **Changes Requested** by `@L0u1sss`; the latest submitted review is on head `3e29876`. Reviewer-verification helper candidate `60aa202` is pending human re-review and has no approval yet.
 - Passing-check link: no hosted passing-check result is claimed here; local verification is recorded in `tests.md` and the PR conversation.
-- PR #54 merge status: **Open and not merged into `lab3-staging`.**
+- PR #54 merge status: **Merged** into `lab3-staging` at 2026-09-15 07:07 UTC; merge commit `63a4c8db4b1692e31508f4a3c6894f35e4fe6253`.
+- PR #55 merge status: **Open and not merged** into `lab3-staging`.
 
 ## Reviews given to peers
 
@@ -139,4 +209,4 @@ No Lab 3 peer-review-given evidence has been added yet. Lab 2 reviews are not co
 
 ## Evidence integrity note
 
-This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested, the feature/base branches, and the recorded review-response changes are verifiable artifacts. No PR #54 approval, PR #54 merge, hosted CI result, or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
+This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested followed by Approval/merge, PR #55 Changes Requested plus its recorded response candidate, the feature/base branches, and the review-response changes are verifiable artifacts. No PR #55 approval/merge, hosted CI result, or future review activity is inferred. Automated document checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
