@@ -46,6 +46,19 @@ describe("UI-01 authenticated shell and routing", () => {
     expect(screen.queryByRole("heading", { name: "Login" })).not.toBeInTheDocument();
   });
 
+  it("clears the obsolete Lab 2 requester-selection storage key during auth bootstrap", () => {
+    sessionStorage.setItem("toktickit.developmentRequesterId", "11");
+    localStorage.setItem("toktickit.developmentRequesterId", "11");
+    localStorage.setItem("unrelated", "keep-me");
+    vi.stubGlobal("fetch", vi.fn(() => new Promise(() => undefined)));
+
+    render(<App />);
+
+    expect(sessionStorage.getItem("toktickit.developmentRequesterId")).toBeNull();
+    expect(localStorage.getItem("toktickit.developmentRequesterId")).toBeNull();
+    expect(localStorage.getItem("unrelated")).toBe("keep-me");
+  });
+
   it("shows Access Denied for an authenticated wrong-role route and Not Found for malformed routes", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(200, { user: requester })));
     window.location.hash = "#/admin/users";

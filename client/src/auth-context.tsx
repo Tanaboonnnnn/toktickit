@@ -46,6 +46,16 @@ export function AuthProvider({ children, initialUser }: { children: ReactNode; i
   const generation = useRef(0);
 
   useEffect(() => {
+    for (const store of [window.sessionStorage, window.localStorage]) {
+      try {
+        store.removeItem("toktickit.developmentRequesterId");
+      } catch {
+        // Storage availability is not part of authentication authority.
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (initialUser) return;
     const requestGeneration = ++generation.current;
     setState({ kind: "loading" });
