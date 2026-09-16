@@ -9,7 +9,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - GitHub username: `@Tanaboonnnnn`
 - Current accepted Lab 3 evidence: Issues #41–#44 / PRs #53–#56 through the merged Issue #44 authentication foundation.
 - Current accepted staging merge: `7304b5e746cc3449b3074537038515d61fba9384` (PR #56 merged to `lab3-staging` on 2026-09-15 19:53 UTC).
-- Current active implementation branch after that accepted baseline: `feature/45-lab3-auth-activation`; code/test candidate `781b6fd` has focused local verification recorded in `tests.md`, but no Issue #45 peer approval or merge is claimed before a real PR review occurs.
+- Current active implementation branch after that accepted baseline: `feature/45-lab3-auth-activation`; code/test candidate `860f0af` has focused local verification recorded in `tests.md`, but no Issue #45 peer approval or merge is claimed before a real PR review occurs.
 
 ## Reviewers
 
