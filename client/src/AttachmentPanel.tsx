@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { downloadAttachment, fetchTicketAttachments, removeAttachment, SafeApiError, uploadAttachment, type Ticket, type TicketAttachmentMetadata } from "./api.js";
 import { ATTACHMENT_ACCEPT, MAX_ACTIVE_ATTACHMENTS, formatAttachmentSize, validateLocalAttachment } from "./attachment-validation.js";
-import { useRequesterContext } from "./requester-context.js";
 import { formatDisplayDate } from "./date-format.js";
 
 function formatDate(value: string): string { return formatDisplayDate(value); }
 
 export default function AttachmentPanel({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () => void }) {
-  const { currentRequester } = useRequesterContext();
   const [selected, setSelected] = useState<File | null>(null);
   const [selectionError, setSelectionError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,9 +24,9 @@ export default function AttachmentPanel({ ticket, onRefresh }: { ticket: Ticket;
     setSelected(error ? null : file);
   }
   async function upload() {
-    if (!selected || !currentRequester) return;
+    if (!selected) return;
     setBusy(true); setActionError(""); setUploadStatus("uploading");
-    try { await uploadAttachment(currentRequester.id, ticket.id, selected); setUploadStatus("uploaded"); setSelected(null); onRefresh(); }
+    try { await uploadAttachment(ticket.id, selected); setUploadStatus("uploaded"); setSelected(null); onRefresh(); }
     catch (error) {
       if (error instanceof SafeApiError) { setUploadStatus("failed-definitive"); setActionError(error.message); }
       else { setUploadStatus("ambiguous-awaiting-reconciliation"); await reconcileUpload(); }
@@ -36,25 +34,23 @@ export default function AttachmentPanel({ ticket, onRefresh }: { ticket: Ticket;
     finally { setBusy(false); }
   }
   async function reconcileUpload() {
-    if (!currentRequester) return;
     setUploadStatus("reconciling");
-    try { await fetchTicketAttachments(currentRequester.id, ticket.id); setUploadStatus("reconciled-retry-allowed"); onRefresh(); }
+    try { await fetchTicketAttachments(ticket.id); setUploadStatus("reconciled-retry-allowed"); onRefresh(); }
     catch { setUploadStatus("reconciliation-failed"); setActionError("Unable to check upload status."); }
   }
   function retryUpload() { if (uploadStatus === "failed-definitive" || uploadStatus === "reconciled-retry-allowed") void upload(); }
   function retryStatusCheck() { if (uploadStatus === "reconciliation-failed") void reconcileUpload(); }
   async function download(attachment: TicketAttachmentMetadata) {
-    if (!currentRequester) return;
     setActionError("");
-    try { await downloadAttachment(currentRequester.id, ticket.id, attachment.id, attachment.originalName); }
+    try { await downloadAttachment(ticket.id, attachment.id, attachment.originalName); }
     catch (error) { setActionError(error instanceof SafeApiError ? "Unable to download attachment" : "Unable to download attachment"); }
   }
   async function remove() {
-    if (!currentRequester || removeId === null) return;
+    if (removeId === null) return;
     const trimmed = reason.trim();
     if (trimmed.length < 3 || trimmed.length > 200) { setReasonError("Removal reason must contain 3 to 200 characters."); return; }
     setBusy(true); setActionError("");
-    try { await removeAttachment(currentRequester.id, ticket.id, removeId, trimmed); setRemoveId(null); setReason(""); setReasonError(""); onRefresh(); }
+    try { await removeAttachment(ticket.id, removeId, trimmed); setRemoveId(null); setReason(""); setReasonError(""); onRefresh(); }
     catch (error) { setActionError(error instanceof SafeApiError ? error.message : "Unable to remove attachment"); }
     finally { setBusy(false); }
   }

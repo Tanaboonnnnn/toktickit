@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
 import TicketDetail from "../../src/TicketDetail.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = { id: 1, name: "A11y Requester", email: "a11y@example.test" };
 const category = { id: 1, name: "Hardware" };

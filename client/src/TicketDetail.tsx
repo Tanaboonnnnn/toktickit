@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { fetchTicketDetail, SafeApiError, type Ticket } from "./api.js";
-import { useRequesterContext } from "./requester-context.js";
 import AttachmentPanel from "./AttachmentPanel.js";
 import { formatDisplayDate } from "./date-format.js";
 import { ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
@@ -31,17 +30,14 @@ function priorityLabel(priority: Ticket["requestedPriority"]): string {
 }
 
 export default function TicketDetail({ ticketId, onBack }: TicketDetailProps) {
-  const { currentRequester } = useRequesterContext();
-  const requesterId = currentRequester?.id;
   const [state, setState] = useState<DetailState>({ kind: "loading" });
   const [retryToken, setRetryToken] = useState(0);
-  const requestKey = `${requesterId ?? "none"}:${ticketId}`;
+  const requestKey = String(ticketId);
 
   useEffect(() => {
-    if (!requesterId) return;
     let active = true;
     setState({ kind: "loading" });
-    void fetchTicketDetail(requesterId, ticketId)
+    void fetchTicketDetail(ticketId)
       .then((ticket) => { if (active) setState({ kind: "success", ticket, key: requestKey }); })
       .catch((error: unknown) => {
         if (!active) return;
@@ -54,7 +50,7 @@ export default function TicketDetail({ ticketId, onBack }: TicketDetailProps) {
         setState({ kind: "failure", message: "Unable to load ticket", key: requestKey });
       });
     return () => { active = false; };
-  }, [requesterId, ticketId, retryToken]);
+  }, [ticketId, retryToken]);
 
   const visibleState: DetailState = state.kind !== "loading" && state.key !== requestKey
     ? { kind: "loading" }

@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TicketDetail from "../../src/TicketDetail.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = { id: 1, name: "Test Requester", email: "test@example.test" };
 const baseTicket = { id: 9, ticketNumber: "TKT-20260829-ABC123", requester, category: { id: 1, name: "Hardware" }, relatedSystem: { id: 1, name: "Wi-Fi" }, summary: "Network issue", requestedPriority: "LOW" as const, currentStatus: "NEW" as const, createdAt: "2026-08-29T00:00:00.000Z", updatedAt: "2026-08-29T00:00:00.000Z", description: "A sufficiently detailed test description.", attachments: [] };

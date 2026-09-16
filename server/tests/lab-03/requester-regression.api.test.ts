@@ -1,119 +1,208 @@
-import { existsSync, readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { resolve } from "node:path";
-import type { Express } from "express";
-import { PrismaClient, type TicketStatus } from "@prisma/client";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { assertDistinctTestDatabase } from "./support/database.js";
+import type { AuthFixture } from "./support/auth-fixture.js";
+import {
+  createAuthFixture,
+  csrf,
+  destroyAuthFixture,
+  login,
+} from "./support/auth-fixture.js";
 
-function readLocalEnv(name: string): string | undefined {
-  if (process.env[name]) return process.env[name];
-  const envPath = resolve(process.cwd(), ".env");
-  if (!existsSync(envPath)) return undefined;
-  const line = readFileSync(envPath, "utf8")
-    .split(/\r?\n/)
-    .find((candidate) => candidate.trimStart().startsWith(`${name}=`));
-  return line?.slice(line.indexOf("=") + 1).trim().replace(/^(["'])(.*)\1$/, "$2");
-}
-
-const developmentDatabaseUrl = readLocalEnv("DATABASE_URL");
-const testDatabaseUrl = readLocalEnv("TEST_DATABASE_URL");
-const tag = `lab3-requester-${process.pid}-${Date.now()}`;
-let prisma: PrismaClient;
-let app: Express;
-let requesterId = 0;
-let staffId = 0;
-let adminId = 0;
+let fixture: AuthFixture;
 let categoryId = 0;
+let inactiveCategoryId = 0;
 let relatedSystemId = 0;
-
-const statuses: TicketStatus[] = [
-  "NEW",
-  "OPEN",
-  "IN_PROGRESS",
-  "WAITING_FOR_REQUESTER",
-  "RESOLVED",
-  "CLOSED",
-  "REOPENED",
-  "CANCELLED",
-];
+let inactiveRelatedSystemId = 0;
+let ownTicketId = 0;
+let foreignTicketId = 0;
+const tag = `issue45-requester-${process.pid}-${Date.now()}`;
 
 beforeAll(async () => {
-  assertDistinctTestDatabase({ developmentUrl: developmentDatabaseUrl, testUrl: testDatabaseUrl });
-  process.env.DATABASE_URL = testDatabaseUrl!;
-  prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl! } } });
-  await prisma.$connect();
-  const requester = await prisma.user.create({ data: { name: `${tag} Requester`, email: `${tag}-r@example.test`, role: "REQUESTER", active: true } });
-  const staff = await prisma.user.create({ data: { name: `${tag} Staff`, email: `${tag}-s@example.test`, role: "IT_STAFF", active: true } });
-  const admin = await prisma.user.create({ data: { name: `${tag} Admin`, email: `${tag}-a@example.test`, role: "ADMINISTRATOR", active: true } });
-  requesterId = requester.id;
-  staffId = staff.id;
-  adminId = admin.id;
-  const category = await prisma.category.create({ data: { name: `${tag} Category`, active: true } });
-  const system = await prisma.relatedSystem.create({ data: { name: `${tag} System`, active: true } });
+  fixture = await createAuthFixture();
+
+  const [category, inactiveCategory, relatedSystem, inactiveRelatedSystem] = await Promise.all([
+    fixture.prisma.category.create({ data: { name: `${tag} Category`, active: true } }),
+    fixture.prisma.category.create({ data: { name: `${tag} Inactive Category`, active: false } }),
+    fixture.prisma.relatedSystem.create({ data: { name: `${tag} System`, active: true } }),
+    fixture.prisma.relatedSystem.create({ data: { name: `${tag} Inactive System`, active: false } }),
+  ]);
   categoryId = category.id;
-  relatedSystemId = system.id;
-  for (const [index, currentStatus] of statuses.entries()) {
-    await prisma.ticket.create({
+  inactiveCategoryId = inactiveCategory.id;
+  relatedSystemId = relatedSystem.id;
+  inactiveRelatedSystemId = inactiveRelatedSystem.id;
+
+  const [ownTicket, foreignTicket] = await Promise.all([
+    fixture.prisma.ticket.create({
       data: {
-        ticketNumber: `TKT-20991231-${String(requester.id + index).padStart(6, "0")}`,
+        ticketNumber: `TKT-20991231-${String(fixture.normalRequester.id).padStart(6, "0")}`,
         clientRequestId: randomUUID(),
-        requesterId: requester.id,
+        requesterId: fixture.normalRequester.id,
         categoryId,
         relatedSystemId,
-        summary: `${tag} ${currentStatus}`,
-        description: `Lab 3 status projection fixture for ${currentStatus}.`,
+        summary: `${tag} own ticket`,
+        description: "Authenticated Requester ownership fixture.",
         requestedPriority: "MEDIUM",
         itPriority: "MEDIUM",
-        currentStatus,
+        currentStatus: "OPEN",
       },
-    });
-  }
-  ({ app } = await import("../../src/app.js"));
+    }),
+    fixture.prisma.ticket.create({
+      data: {
+        ticketNumber: `TKT-20991230-${String(fixture.requester.id).padStart(6, "0")}`,
+        clientRequestId: randomUUID(),
+        requesterId: fixture.requester.id,
+        categoryId,
+        relatedSystemId,
+        summary: `${tag} foreign ticket`,
+        description: "Foreign Requester ownership fixture.",
+        requestedPriority: "LOW",
+        itPriority: "LOW",
+        currentStatus: "NEW",
+      },
+    }),
+  ]);
+  ownTicketId = ownTicket.id;
+  foreignTicketId = foreignTicket.id;
 });
 
 afterAll(async () => {
-  await prisma?.ticket.deleteMany({ where: { requesterId } });
-  await prisma?.user.deleteMany({ where: { id: { in: [requesterId, staffId, adminId] } } });
-  if (categoryId) await prisma?.category.delete({ where: { id: categoryId } });
-  if (relatedSystemId) await prisma?.relatedSystem.delete({ where: { id: relatedSystemId } });
-  await prisma?.$disconnect();
+  await fixture?.prisma.ticket.deleteMany({
+    where: {
+      OR: [
+        { id: { in: [ownTicketId, foreignTicketId].filter(Boolean) } },
+        { categoryId: { in: [categoryId, inactiveCategoryId].filter(Boolean) } },
+        { relatedSystemId: { in: [relatedSystemId, inactiveRelatedSystemId].filter(Boolean) } },
+      ],
+    },
+  });
+  if (categoryId || inactiveCategoryId) {
+    await fixture?.prisma.category.deleteMany({ where: { id: { in: [categoryId, inactiveCategoryId].filter(Boolean) } } });
+  }
+  if (relatedSystemId || inactiveRelatedSystemId) {
+    await fixture?.prisma.relatedSystem.deleteMany({ where: { id: { in: [relatedSystemId, inactiveRelatedSystemId].filter(Boolean) } } });
+  }
+  if (fixture) await destroyAuthFixture(fixture);
 });
 
-describe("REQ-01 transitional Development Requester safety", () => {
-  it("lists only active REQUESTER accounts while the temporary selector exists", async () => {
-    const response = await request(app).get("/api/development-requesters");
-    expect(response.status).toBe(200);
-    const ids = response.body.map((user: { id: number }) => user.id);
-    expect(ids).toContain(requesterId);
-    expect(ids).not.toContain(staffId);
-    expect(ids).not.toContain(adminId);
+describe("REQ-01 / REQ-02 post-#45 authenticated Requester activation", () => {
+  it("protects retained reference data behind completed authentication", async () => {
+    const unauthenticated = await request(fixture.app).get("/api/categories");
+    expect(unauthenticated.status).toBe(401);
+    expect(unauthenticated.body.error.code).toBe("AUTHENTICATION_REQUIRED");
+
+    const pendingAgent = request.agent(fixture.app);
+    expect((await login(pendingAgent, fixture, fixture.requester.email)).status).toBe(200);
+    const pending = await pendingAgent.get("/api/related-systems");
+    expect(pending.status).toBe(403);
+    expect(pending.body.error.code).toBe("PASSWORD_CHANGE_REQUIRED");
   });
 
-  it.each([
-    ["IT Staff", () => staffId],
-    ["Administrator", () => adminId],
-  ])("does not accept an active %s account as Requester identity", async (_label, id) => {
-    const response = await request(app)
-      .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(id()))
-      .send({});
+  it("returns only active deterministic reference rows to a completed authenticated user", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+
+    const categories = await agent.get("/api/categories").expect(200);
+    const categoryIds = categories.body.map((item: { id: number }) => item.id);
+    expect(categoryIds).toContain(categoryId);
+    expect(categoryIds).not.toContain(inactiveCategoryId);
+    expect(categoryIds).toEqual([...categoryIds].sort((a, b) => a - b));
+
+    const systems = await agent.get("/api/related-systems").expect(200);
+    const systemIds = systems.body.map((item: { id: number }) => item.id);
+    expect(systemIds).toContain(relatedSystemId);
+    expect(systemIds).not.toContain(inactiveRelatedSystemId);
+    const systemNames = systems.body.map((item: { name: string }) => item.name);
+    expect(systemNames).toEqual([...systemNames].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it("rejects unknown reference-data query parameters", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const response = await agent.get("/api/categories?unexpected=1");
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("retires the Development Requester lookup with the safe authenticated 404", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const response = await agent.get("/api/development-requesters");
     expect(response.status).toBe(404);
-    expect(response.body.error.code).toBe("RESOURCE_NOT_FOUND");
+    expect(response.body).toEqual({
+      error: { code: "RESOURCE_NOT_FOUND", message: "Resource not found" },
+    });
   });
 
-  it.each(statuses)("filters and projects %s through the current Requester list API", async (currentStatus) => {
-    const response = await request(app)
-      .get(`/api/tickets?currentStatus=${currentStatus}&page=1&pageSize=10`)
-      .set("X-Development-Requester-Id", String(requesterId));
+  it("derives My Tickets ownership from the session and ignores a forged legacy header", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const response = await agent
+      .get("/api/tickets?page=1&pageSize=50")
+      .set("X-Development-Requester-Id", String(fixture.requester.id))
+      .expect(200);
 
-    expect(response.status).toBe(200);
-    expect(response.body.totalItems).toBe(1);
-    expect(response.body.items).toHaveLength(1);
-    expect(response.body.items[0]).toMatchObject({
-      summary: `${tag} ${currentStatus}`,
-      currentStatus,
+    const ids = response.body.items.map((item: { id: number }) => item.id);
+    expect(ids).toContain(ownTicketId);
+    expect(ids).not.toContain(foreignTicketId);
+  });
+
+  it("uses the authenticated Requester for create even when legacy header/body identity is forged", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const token = await csrf(agent, fixture);
+    const response = await agent
+      .post("/api/tickets")
+      .set("Origin", fixture.origin)
+      .set("X-CSRF-Token", token)
+      .set("X-Development-Requester-Id", String(fixture.requester.id))
+      .send({
+        requesterId: fixture.requester.id,
+        clientRequestId: randomUUID(),
+        categoryId,
+        relatedSystemId,
+        summary: `${tag} authenticated create`,
+        requestedPriority: "HIGH",
+        description: "The server must derive Requester ownership from the authenticated session.",
+      })
+      .expect(201);
+
+    expect(response.body.ticket.requester.id).toBe(fixture.normalRequester.id);
+    await fixture.prisma.ticket.delete({ where: { id: response.body.ticket.id } });
+  });
+
+  it("requires CSRF for authenticated Requester mutations", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const response = await agent.post("/api/tickets").send({
+      clientRequestId: randomUUID(),
+      categoryId,
+      relatedSystemId,
+      summary: `${tag} no csrf`,
+      requestedPriority: "LOW",
+      description: "This mutation must be rejected before Ticket creation without CSRF.",
     });
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe("CSRF_INVALID");
+  });
+
+  it("denies wrong-role and mandatory-change sessions on Requester Ticket routes", async () => {
+    const staffAgent = request.agent(fixture.app);
+    expect((await login(staffAgent, fixture, fixture.staff.email)).status).toBe(200);
+    const wrongRole = await staffAgent.get("/api/tickets");
+    expect(wrongRole.status).toBe(403);
+    expect(wrongRole.body.error.code).toBe("FORBIDDEN");
+
+    const pendingAgent = request.agent(fixture.app);
+    expect((await login(pendingAgent, fixture, fixture.requester.email)).status).toBe(200);
+    const pending = await pendingAgent.get("/api/tickets");
+    expect(pending.status).toBe(403);
+    expect(pending.body.error.code).toBe("PASSWORD_CHANGE_REQUIRED");
+  });
+
+  it("checks authentication before multipart validation on Requester uploads", async () => {
+    const response = await request(fixture.app).post(`/api/tickets/${ownTicketId}/attachments`);
+    expect(response.status).toBe(401);
+    expect(response.body.error.code).toBe("AUTHENTICATION_REQUIRED");
   });
 });

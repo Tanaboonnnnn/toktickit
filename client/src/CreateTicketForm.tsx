@@ -11,7 +11,7 @@ import {
   type RequestedPriority,
   type Ticket,
 } from "./api.js";
-import { useRequesterContext } from "./requester-context.js";
+import { useAuth } from "./auth-context.js";
 import { ATTACHMENT_ACCEPT, MAX_ATTACHMENT_BYTES, MAX_ACTIVE_ATTACHMENTS, formatAttachmentSize, validateLocalAttachment } from "./attachment-validation.js";
 import { formatDisplayDate } from "./date-format.js";
 
@@ -63,7 +63,7 @@ interface CreateTicketFormProps {
 }
 
 export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTicketFormProps) {
-  const { currentRequester } = useRequesterContext();
+  const { user } = useAuth();
 
   const [categoryState, setCategoryState] = useState<ReferenceState>("loading");
   const [categories, setCategories] = useState<Category[]>([]);
@@ -170,10 +170,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
     setSubmission({ kind: "busy" });
 
     try {
-      const result = await createTicket(
-        currentRequester?.id ?? 0,
-        { clientRequestId: bound.clientRequestId, ...bound.payload },
-      );
+      const result = await createTicket({ clientRequestId: bound.clientRequestId, ...bound.payload });
       boundRef.current = null;
       setSubmission({ kind: "success", ticket: result.ticket, replayed: result.replayed });
       void uploadSelectedAttachments(result.ticket.id);
@@ -255,7 +252,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
   async function reconcileAttachment(entry: SelectedAttachment, ticketId: number) {
     setUploadStates((previous) => ({ ...previous, [entry.id]: "reconciling" }));
     try {
-      await fetchTicketAttachments(currentRequester?.id ?? 0, ticketId);
+      await fetchTicketAttachments(ticketId);
       setUploadStates((previous) => ({ ...previous, [entry.id]: "reconciled-retry-allowed" }));
     } catch {
       setUploadStates((previous) => ({ ...previous, [entry.id]: "reconciliation-failed" }));
@@ -266,7 +263,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
     if (entry.error) return;
     setUploadStates((previous) => ({ ...previous, [entry.id]: "uploading" }));
     try {
-      await uploadAttachment(currentRequester?.id ?? 0, ticketId, entry.file);
+      await uploadAttachment(ticketId, entry.file);
       setUploadStates((previous) => ({ ...previous, [entry.id]: "uploaded" }));
     } catch (error) {
       if (!(error instanceof SafeApiError)) {
@@ -360,7 +357,7 @@ export default function CreateTicketForm({ onViewTicket, onMyTickets }: CreateTi
               <legend>Ticket identity and context</legend>
               <div className="lab2-field-group"><label htmlFor="ticket-number">Ticket Number</label><output id="ticket-number">Generated after creation</output></div>
               <div className="lab2-field-group"><label htmlFor="ticket-date">Ticket Date</label><output id="ticket-date">Set after creation</output></div>
-              <div className="lab2-field-group"><label htmlFor="requester-display">Requester</label><output id="requester-display">{currentRequester?.name ?? ""}</output></div>
+              <div className="lab2-field-group"><label htmlFor="requester-display">Requester</label><output id="requester-display">{user?.name ?? ""}</output></div>
             </fieldset>
 
             <fieldset disabled={formLocked} aria-label="Ticket details">

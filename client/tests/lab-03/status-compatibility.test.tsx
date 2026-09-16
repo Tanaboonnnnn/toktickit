@@ -2,10 +2,11 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MyTickets from "../../src/MyTickets.js";
 import TicketDetail from "../../src/TicketDetail.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { AuthProvider } from "../../src/auth-context.js";
 import type { Ticket } from "../../src/api.js";
 
 const requester = { id: 9101, name: "Lab 3 Requester", email: "lab3-requester@example.test" };
+const authenticatedRequester = { ...requester, role: "REQUESTER" as const, mustChangePassword: false };
 const baseItem = {
   id: 91,
   ticketNumber: "TKT-20260915-STAT01",
@@ -22,10 +23,7 @@ function response(body: unknown) {
 }
 
 describe("STATUS-01 client runtime status compatibility", () => {
-  beforeEach(() => {
-    sessionStorage.clear();
-    sessionStorage.setItem("toktickit.developmentRequesterId", String(requester.id));
-  });
+  beforeEach(() => sessionStorage.clear());
   afterEach(() => {
     cleanup();
     sessionStorage.clear();
@@ -35,11 +33,10 @@ describe("STATUS-01 client runtime status compatibility", () => {
   it("renders every Lab 3 status as an available My Tickets filter", async () => {
     vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("development-requesters")) return Promise.resolve(response([requester]));
       if (url.includes("categories")) return Promise.resolve(response([]));
       return Promise.resolve(response({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 }));
     }));
-    render(<RequesterContextProvider><MyTickets /></RequesterContextProvider>);
+    render(<AuthProvider initialUser={authenticatedRequester}><MyTickets /></AuthProvider>);
     const filter = await screen.findByRole("combobox", { name: "Current Status" });
     const labels = Array.from((filter as HTMLSelectElement).options).map(({ text }) => text);
     expect(labels).toEqual([
@@ -51,7 +48,6 @@ describe("STATUS-01 client runtime status compatibility", () => {
   it("accepts and renders a non-NEW status returned by the API", async () => {
     vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("development-requesters")) return Promise.resolve(response([requester]));
       if (url.includes("categories")) return Promise.resolve(response([]));
       return Promise.resolve(response({
         items: [{ ...baseItem, currentStatus: "WAITING_FOR_REQUESTER" }],
@@ -61,7 +57,7 @@ describe("STATUS-01 client runtime status compatibility", () => {
         totalPages: 1,
       }));
     }));
-    render(<RequesterContextProvider><MyTickets /></RequesterContextProvider>);
+    render(<AuthProvider initialUser={authenticatedRequester}><MyTickets /></AuthProvider>);
     expect((await screen.findAllByText("Waiting for Requester")).length).toBeGreaterThan(0);
   });
 
@@ -73,10 +69,8 @@ describe("STATUS-01 client runtime status compatibility", () => {
       description: "A sufficiently detailed status compatibility description.",
       attachments: [],
     } as unknown as Ticket;
-    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("development-requesters")
-      ? Promise.resolve(response([requester]))
-      : Promise.resolve(response({ ticket }))));
-    render(<RequesterContextProvider><TicketDetail ticketId={ticket.id} onBack={vi.fn()} /></RequesterContextProvider>);
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(response({ ticket }))));
+    render(<AuthProvider initialUser={authenticatedRequester}><TicketDetail ticketId={ticket.id} onBack={vi.fn()} /></AuthProvider>);
     expect(await screen.findByText("Resolved")).toBeInTheDocument();
     expect(screen.queryByText("New")).not.toBeInTheDocument();
   });
