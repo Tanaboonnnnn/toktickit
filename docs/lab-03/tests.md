@@ -183,7 +183,7 @@ The retained client jsdom navigation diagnostic and Playwright `NO_COLOR`/`FORCE
 
 ## 9. Issue #45 Cross-layer Authentication Activation Evidence
 
-Code/test candidate: `860f0af` on `feature/45-lab3-auth-activation`, based on the accepted PR #56 staging merge `7304b5e`. This increment activates real authenticated Requester identity across backend routes and the Zen Green client. It removes the active Development Requester selector/header/body identity path rather than preserving a hidden compatibility bypass. The exhaustive retained Ticket/Attachment behavior mapped to Issue #46 is not promoted to Pass here.
+Accepted reviewed head: `2e7c16acf410ba76d0f1127ef5884cb13b393041` on `feature/45-lab3-auth-activation`; merged by PR #57 into `lab3-staging` as `d443741ef2c61c21653885208e1fcb1f719e8ca1`. The earlier product candidate `860f0af` introduced the cross-layer activation; the later commits on the reviewed head are evidence/documentation cleanup. This increment activates real authenticated Requester identity across backend routes and the Zen Green client. It removes the active Development Requester selector/header/body identity path rather than preserving a hidden compatibility bypass. The exhaustive retained Ticket/Attachment behavior mapped to Issue #46 is not promoted to Pass here.
 
 | Check | Actual result |
 |---|---|
@@ -191,5 +191,9 @@ Code/test candidate: `860f0af` on `feature/45-lab3-auth-activation`, based on th
 | Active production legacy-identity audit | Pass: no `X-Development-Requester-Id`, `/api/development-requesters`, `RequesterSelection`, `RequesterContextProvider`, `useRequesterContext`, or browser `requesterId` authority remains in `client/src` or `server/src`. The sole `toktickit.developmentRequesterId` occurrence in active source is a one-way `removeItem(...)` cleanup of obsolete Lab 2 browser state; it is never read or written as identity. Legacy header/route strings remain only where tests intentionally prove spoofing/retired-route denial or in historical Git history. |
 | `node node_modules/prisma/build/index.js validate --schema prisma/schema.prisma` from `server/` | Pass; current schema is valid. Issue #45 adds no schema migration. |
 | `git diff --check` / staged diff check | Pass before the code/test commit after removing transient untracked screenshot outputs. |
+
+### Post-merge predecessor reproduction before Issue #46
+
+The Issue #45 reviewer gate was rerun on the exact accepted staging merge `d443741ef2c61c21653885208e1fcb1f719e8ca1` before any Issue #46 product edit. `npm.cmd run test:lab3-auth-activation-review` passed with server build + 4 focused server files / **37 tests**, client production build + 4 focused client files / **13 tests**, and Chromium E2E-01 **1/1**. A first worktree attempt stopped at the fail-closed test database guard because the fresh worktree did not contain ignored `server/.env`; after copying the existing private local environment file without printing/tracking it, the identical command passed. The setup-only stop is not treated as a TDD RED or product failure.
 
 The focused Issue #45 command is the reviewer reproduction gate for this activation increment. A full `npm.cmd run verify` result is **not** claimed for `860f0af`: the retained Lab 1/Lab 2 Ticket/Attachment suites still contain pre-authentication setup/signature expectations that `regression-map.md` assigns to Issue #46 for exhaustive authenticated evolution. No production impersonation fallback is reintroduced merely to keep those superseded test setups green.
