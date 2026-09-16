@@ -7,7 +7,7 @@ test.beforeAll(async () => { fixture = await createE2eFixture("retry", 0); });
 test.afterAll(async () => { await destroyE2eFixture(fixture); });
 
 test("E2E-02 validates locally, retains values, and retries a safe backend failure", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   const createRegion = page.getByRole("region", { name: /create ticket/i });
   let createRequests = 0;
   page.on("request", (request) => {

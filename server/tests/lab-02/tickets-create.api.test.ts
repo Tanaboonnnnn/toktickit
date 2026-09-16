@@ -4,6 +4,7 @@ import type { Express } from "express";
 import { PrismaClient } from "@prisma/client";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers, testOrigin } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -36,6 +37,7 @@ let prisma: PrismaClient;
 let requesterId: number;
 let categoryId: number;
 let relatedSystemId: number;
+let requesterSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!developmentDatabaseUrl || !testDatabaseUrl) {
@@ -45,6 +47,7 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
@@ -68,10 +71,12 @@ beforeAll(async () => {
   categoryId = category.id;
   relatedSystemId = relatedSystem.id;
   ({ app } = await import("../../src/app.js"));
+  requesterSession = await authenticatedRequester(app, prisma, requesterId);
 });
 
 afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId } });
+  if (prisma && requesterId) await deleteSessionsForUsers(prisma, [requesterId]);
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: relatedSystemId } });
   await prisma?.user.deleteMany({ where: { id: requesterId } });
@@ -81,9 +86,10 @@ afterAll(async () => {
 describe("API-03 Ticket creation", () => {
   it("creates exactly one Ticket with backend-controlled values and the documented shape", async () => {
     const beforeCount = await prisma.ticket.count({ where: { requesterId } });
-    const response = await request(app)
+    const response = await requesterSession.agent
       .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .send({
         clientRequestId,
         categoryId,
@@ -91,11 +97,6 @@ describe("API-03 Ticket creation", () => {
         summary: "  Cannot access university email  ",
         requestedPriority: "HIGH",
         description: "  Sign-in repeatedly returns an access denied message.  ",
-        requesterId: 999999,
-        ticketNumber: "TKT-20000101-CLIENT1",
-        currentStatus: "CLOSED",
-        createdAt: "2000-01-01T00:00:00.000Z",
-        updatedAt: "2000-01-01T00:00:00.000Z",
       });
 
     expect(response.status).toBe(201);

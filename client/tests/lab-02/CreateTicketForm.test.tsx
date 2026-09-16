@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor, within } from "@testing-library/react
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
+import { authenticatedAppResponse, openAuthenticatedRequesterRoute } from "./support/authenticated-app.js";
 
 const activeRequesters = [
   { id: 1, name: "Anan Student", email: "anan.student@example.test" },
@@ -24,7 +25,8 @@ function jsonResponse(body: unknown) {
 function stubFetchSequence(requesters: unknown, categories: unknown, systems: unknown) {
   const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
     const url = String(input);
-    if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(requesters));
+    const auth = authenticatedAppResponse(input);
+    if (auth) return Promise.resolve(auth);
     if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(categories));
     if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(systems));
     return Promise.reject(new Error("unexpected fetch"));
@@ -39,16 +41,15 @@ function submitButton() {
 }
 
 async function enterShell() {
-  const user = userEvent.setup();
-  const select = await screen.findByRole("combobox", { name: /development requester/i });
-  await user.selectOptions(select, "1");
-  await user.click(screen.getByRole("button", { name: /continue/i }));
-  return user;
+  await screen.findByRole("heading", { name: /create ticket/i });
+  return userEvent.setup();
 }
 
 describe("UI-03 Create Ticket Form", () => {
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
+    openAuthenticatedRequesterRoute();
   });
 
   afterEach(() => {
@@ -57,7 +58,7 @@ describe("UI-03 Create Ticket Form", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders required and read-only fields after selecting a Requester", async () => {
+  it("renders required and read-only fields for the authenticated Requester", async () => {
     stubFetchSequence(activeRequesters, activeCategories, activeSystems);
 
     render(<App />);
@@ -92,7 +93,8 @@ describe("UI-03 Create Ticket Form", () => {
     const pendingCategories = new Promise((resolve) => { resolveCategories = resolve; });
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return pendingCategories.then((value) => jsonResponse(value));
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       return Promise.reject(new Error("unexpected fetch"));
@@ -140,7 +142,8 @@ describe("UI-03 Create Ticket Form", () => {
     let failCategories = true;
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories"))
         return failCategories
           ? Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to load categories" } }) })
@@ -173,7 +176,8 @@ describe("UI-03 Create Ticket Form", () => {
     let failSystems = true;
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (url.includes("/api/related-systems"))
         return failSystems
@@ -205,7 +209,8 @@ describe("UI-03 Create Ticket Form", () => {
   it("preserves successful reference list when only one resource fails", async () => {
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories"))
         return Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to load categories" } }) });
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));

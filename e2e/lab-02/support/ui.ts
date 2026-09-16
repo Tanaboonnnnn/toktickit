@@ -1,13 +1,48 @@
-import type { Page } from "@playwright/test";
+import type { APIRequestContext, Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
+import { E2E_REQUESTER_PASSWORD } from "./fixtures.js";
 
-export async function openRequesterShell(page: Page, requesterId: number): Promise<void> {
-  await page.goto("/");
-  const requester = page.getByRole("combobox", { name: "Development Requester" });
-  await requester.waitFor();
-  await requester.selectOption(String(requesterId));
-  await page.getByRole("button", { name: "Continue" }).click();
+const API_URL = "http://127.0.0.1:4311";
+const FRONTEND_ORIGIN = "http://127.0.0.1:4312";
+
+export type LoginRequester = { email: string };
+
+export async function loginRequester(page: Page, requester: LoginRequester): Promise<void> {
+  await page.goto("/#/login");
+  const loginHeading = page.getByRole("heading", { name: "Login" });
+  const ticketsHeading = page.getByRole("heading", { name: "My Tickets" });
+  await Promise.race([
+    loginHeading.waitFor(),
+    ticketsHeading.waitFor(),
+  ]);
+  if (await ticketsHeading.isVisible().catch(() => false)) return;
+  await page.getByLabel("Email").fill(requester.email);
+  await page.getByLabel("Password").fill(E2E_REQUESTER_PASSWORD);
+  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByRole("heading", { name: "My Tickets" }).waitFor();
+}
+
+export async function logoutRequester(page: Page): Promise<void> {
+  await page.getByRole("button", { name: "Logout" }).click();
+  await page.getByRole("heading", { name: "Login" }).waitFor();
+}
+
+export async function csrfToken(request: APIRequestContext): Promise<string> {
+  const response = await request.get(`${API_URL}/api/auth/csrf`, { headers: { Origin: FRONTEND_ORIGIN } });
+  if (response.status() !== 200) throw new Error(`Unable to load E2E CSRF token: ${response.status()}`);
+  const body = await response.json() as { csrfToken?: string };
+  if (!body.csrfToken) throw new Error("E2E CSRF response did not include csrfToken");
+  return body.csrfToken;
+}
+
+export async function unsafeApiHeaders(request: APIRequestContext): Promise<Record<string, string>> {
+  return { Origin: FRONTEND_ORIGIN, "X-CSRF-Token": await csrfToken(request) };
+}
+
+export async function openRequesterShell(page: Page, requester: LoginRequester): Promise<void> {
+  await loginRequester(page, requester);
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "Create Ticket" }).click();
   await page.getByRole("heading", { name: "Create Ticket" }).waitFor();
 }
 

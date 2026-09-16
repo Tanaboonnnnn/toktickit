@@ -7,7 +7,7 @@ test.beforeAll(async () => { fixture = await createE2eFixture("a11y-e2e", 1); })
 test.afterAll(async () => { await destroyE2eFixture(fixture); });
 
 test("E2E-07 supports keyboard focus, validation, and non-color cues", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   const createRegion = page.getByRole("region", { name: /create ticket/i });
   await createRegion.getByRole("button", { name: "Create Ticket", exact: true }).focus();
   await page.keyboard.press("Tab");
@@ -44,7 +44,7 @@ test("E2E-07 supports keyboard focus, validation, and non-color cues", async ({ 
 });
 
 test("E2E-07 presents a safe 500 failure without server internals", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   await page.route("**/api/tickets**", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: { code: "INTERNAL_ERROR", message: "Unable to load tickets" } }) });

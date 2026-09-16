@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { authenticatedAppResponse, openAuthenticatedRequesterRoute } from "./support/authenticated-app.js";
 
 const requester = { id: 1, name: "Style Requester", email: "style@example.test" };
 const category = { id: 1, name: "Hardware" };
@@ -15,7 +16,8 @@ function json(body: unknown, ok = true, status = 200) {
 function styleFetch() {
   vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
     const url = String(input);
-    if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+    const auth = authenticatedAppResponse(input);
+    if (auth) return Promise.resolve(auth);
     if (url.includes("categories")) return Promise.resolve(json([category]));
     if (url.includes("related-systems")) return Promise.resolve(json([relatedSystem]));
     return Promise.resolve(json({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 }));
@@ -24,7 +26,9 @@ function styleFetch() {
 
 describe("STYLE-01 Zen Green tokens", () => {
   beforeEach(() => {
-    sessionStorage.setItem("toktickit.developmentRequesterId", "1");
+    sessionStorage.clear();
+    localStorage.clear();
+    openAuthenticatedRequesterRoute();
     styleFetch();
   });
 

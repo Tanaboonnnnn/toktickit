@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, within, waitFor } from "@testing-li
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
+import { authenticatedAppResponse, openAuthenticatedRequesterRoute } from "./support/authenticated-app.js";
 
 const activeRequesters = [
   { id: 1, name: "Anan Initial", email: "anan.initial@example.test" },
@@ -24,7 +25,8 @@ function jsonResponse(body: unknown) {
 function stubFetch() {
   const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
     const url = String(input);
-    if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+    const auth = authenticatedAppResponse(input);
+    if (auth) return Promise.resolve(auth);
     if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
     if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
     if (url.includes("/api/tickets")) {
@@ -65,9 +67,7 @@ async function enterShellAndFillValidForm() {
   stubFetch();
   render(<App />);
   const user = userEvent.setup();
-  const select = await screen.findByRole("combobox", { name: /development requester/i });
-  await user.selectOptions(select, "1");
-  await user.click(screen.getByRole("button", { name: /continue/i }));
+  await screen.findByRole("heading", { name: /create ticket/i });
   await screen.findByRole("option", { name: "Hardware" });
   await screen.findByRole("option", { name: "Library Portal" });
   await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -81,6 +81,8 @@ async function enterShellAndFillValidForm() {
 describe("UI-04 Create Ticket Validation", () => {
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
+    openAuthenticatedRequesterRoute();
   });
 
   afterEach(() => {
@@ -94,9 +96,7 @@ describe("UI-04 Create Ticket Validation", () => {
     const user = userEvent.setup();
 
     render(<App />);
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
 
     // Fill everything except Category
@@ -121,9 +121,7 @@ describe("UI-04 Create Ticket Validation", () => {
     const user = userEvent.setup();
 
     render(<App />);
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
 
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -240,9 +238,7 @@ describe("UI-04 Create Ticket Validation", () => {
     const fetchMock = stubFetch();
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
     await screen.findByRole("option", { name: "Library Portal" });
 
@@ -268,9 +264,7 @@ describe("UI-04 Create Ticket Validation", () => {
     stubFetch();
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
 
     await user.click(submitButton());
@@ -281,9 +275,7 @@ describe("UI-04 Create Ticket Validation", () => {
     stubFetch();
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
 
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");

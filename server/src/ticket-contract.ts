@@ -13,6 +13,18 @@ export type NormalizedTicketCreateInput = {
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const priorities = new Set<RequestedPriority>(["LOW", "MEDIUM", "HIGH"]);
+const serverOwnedCreateFields = [
+  "requesterId",
+  "ticketNumber",
+  "ownerId",
+  "role",
+  "currentStatus",
+  "itPriority",
+  "authorId",
+  "author",
+  "createdAt",
+  "updatedAt",
+] as const;
 
 export function parseTicketCreateBody(body: unknown): NormalizedTicketCreateInput {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
@@ -20,6 +32,12 @@ export function parseTicketCreateBody(body: unknown): NormalizedTicketCreateInpu
   }
   const record = body as Record<string, unknown>;
   const fieldErrors: Record<string, string> = {};
+
+  for (const field of serverOwnedCreateFields) {
+    if (Object.prototype.hasOwnProperty.call(record, field)) {
+      fieldErrors[field] = `${field} is controlled by the server`;
+    }
+  }
 
   const clientRequestId = record.clientRequestId;
   if (typeof clientRequestId !== "string" || !uuidPattern.test(clientRequestId)) {

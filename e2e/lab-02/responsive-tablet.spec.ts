@@ -10,7 +10,7 @@ test.afterAll(async () => { await destroyE2eFixture(fixture); });
 
 test.describe("RESP-02 tablet 834x1112", () => {
   test("reflows filters and keeps Summary/Description readable", async ({ page }) => {
-    await openRequesterShell(page, fixture.requesterA.id);
+    await openRequesterShell(page, fixture.requesterA);
     await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
     await expect(page.getByRole("table")).toBeVisible();
     await expect(page.getByLabel("Search Ticket Number or Summary")).toBeVisible();
@@ -20,7 +20,7 @@ test.describe("RESP-02 tablet 834x1112", () => {
   });
 
   test("captures a real partial-success Create Ticket state", async ({ page }) => {
-    await openRequesterShell(page, fixture.requesterA.id);
+    await openRequesterShell(page, fixture.requesterA);
     await fillCreateTicket(page, fixture.category.id, fixture.relatedSystem.id, `${fixture.tag} partial tablet`, `${fixture.tag} tablet partial-success description.`);
     await page.getByLabel("Select files").setInputFiles([
       { name: "tablet-good.png", mimeType: "image/png", buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]) },
@@ -44,7 +44,7 @@ test.describe("RESP-02 tablet 834x1112", () => {
   });
 
   test("keeps Ticket Detail and Attachment actions usable", async ({ page }) => {
-    await openRequesterShell(page, fixture.requesterA.id);
+    await openRequesterShell(page, fixture.requesterA);
     await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
     await page.getByRole("button", { name: "View ticket" }).first().click();
     await expect(page.getByRole("heading", { name: "Ticket Detail" })).toBeVisible();

@@ -2,6 +2,9 @@ import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaClient } from "../../../server/node_modules/@prisma/client/index.js";
+import { hashPassword } from "../../../server/dist/src/password.js";
+
+export const E2E_REQUESTER_PASSWORD = "Requester-E2E-Password-46!";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -47,8 +50,9 @@ export async function createE2eFixture(prefix: string, ticketCount = 1): Promise
   const prisma = new PrismaClient({ datasources: { db: { url } } });
   await prisma.$connect();
   const tag = `e2e-${prefix}-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
-  const requesterA = await prisma.user.create({ data: { name: `${tag} Requester A`, email: `${tag}-a@example.test`, active: true } });
-  const requesterB = await prisma.user.create({ data: { name: `${tag} Requester B`, email: `${tag}-b@example.test`, active: true } });
+  const passwordHash = await hashPassword(E2E_REQUESTER_PASSWORD);
+  const requesterA = await prisma.user.create({ data: { name: `${tag} Requester A`, email: `${tag}-a@example.test`, active: true, role: "REQUESTER", passwordHash, mustChangePassword: false } });
+  const requesterB = await prisma.user.create({ data: { name: `${tag} Requester B`, email: `${tag}-b@example.test`, active: true, role: "REQUESTER", passwordHash, mustChangePassword: false } });
   const category = await prisma.category.findFirst({ where: { name: "Hardware", active: true }, select: { id: true, name: true } });
   const relatedSystem = await prisma.relatedSystem.findFirst({ where: { name: "University Email", active: true }, select: { id: true, name: true } });
   if (!category || !relatedSystem) throw new Error("E2E fixtures require seeded Hardware and University Email reference data");
@@ -111,6 +115,12 @@ export async function destroyE2eFixture(fixture: E2eFixture): Promise<void> {
   if (ticketIds.length > 0) await fixture.prisma.attachment.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.ticket.deleteMany({ where: { summary: { startsWith: fixture.tag } } });
   await fixture.prisma.category.deleteMany({ where: { id: fixture.secondCategory.id } });
+  const sessions = await fixture.prisma.session.findMany({ select: { sid: true, sess: true } });
+  const userIds = new Set([fixture.requesterA.id, fixture.requesterB.id]);
+  const sessionIds = sessions
+    .filter((row) => userIds.has(Number((row.sess as Record<string, unknown>).userId)))
+    .map((row) => row.sid);
+  if (sessionIds.length > 0) await fixture.prisma.session.deleteMany({ where: { sid: { in: sessionIds } } });
   await fixture.prisma.user.deleteMany({ where: { id: { in: [fixture.requesterA.id, fixture.requesterB.id] } } });
   await fixture.prisma.$disconnect();
 }
