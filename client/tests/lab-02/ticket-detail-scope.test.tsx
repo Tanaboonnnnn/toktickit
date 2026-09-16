@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TicketDetail from "../../src/TicketDetail.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = [{ id: 1, name: "Anan Student", email: "anan.student@example.test" }];
 const ticket = {

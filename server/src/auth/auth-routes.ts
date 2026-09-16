@@ -16,17 +16,23 @@ function clearSessionCookie(res: Response): void {
   res.clearCookie(SESSION_COOKIE_NAME, { path: "/", httpOnly: true, sameSite: "lax", secure: secureCookieEnabled() });
 }
 
-export function createAuthRouter(): Router {
-  const router = Router();
+export function createCredentialedCorsMiddleware() {
   const allowedOrigin = configuredFrontendOrigin();
-  router.use(cors({
+  return cors({
     credentials: true,
     origin(origin, callback) {
       callback(null, !origin || origin === allowedOrigin);
     },
-  }));
-  router.use(createSessionMiddleware());
-  router.use(json());
+  });
+}
+
+export function createAuthRouter(options: { infrastructureMounted?: boolean } = {}): Router {
+  const router = Router();
+  if (!options.infrastructureMounted) {
+    router.use(createCredentialedCorsMiddleware());
+    router.use(createSessionMiddleware());
+    router.use(json());
+  }
 
   router.get("/csrf", async (req, res, next) => {
     try {

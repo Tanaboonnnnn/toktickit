@@ -15,16 +15,16 @@ Disposition values:
 | UT-03 Ticket Number | Retain | Backend unique official number remains | #46 maintained existing test |
 | UT-04 Ticket query | Evolve | Same list contract plus eight statuses | #43 minimum status compatibility; #46 STATUS-01 |
 | UT-05/UT-06 Attachment rules | Retain | Attachment rules unchanged | #46 ATT-01 + maintained existing tests |
-| UT-07 Development Requester context | Replace | Real authentication/current-user/session replaces selector/sessionStorage | #45 UI-01/AuthShell/routes + E2E-01 |
+| UT-07 Development Requester context | Replace | Real authentication/current-user/session replaces selector/sessionStorage | #45 UI-01/AuthShell/routes + E2E-01 — replacement executed on `860f0af`; old selector/context production files removed |
 | UT-08 safe error serializer | Retain/Evolve | Same no-leak principle plus auth/session cases | #51 SAFE-01 + maintained existing test |
 | API-01 reference data + Development Requesters | Split | Category/Related System retained behind the post-#45 authenticated/password-change-complete application gate; Development Requester endpoint removed after auth activation | #45 protected reference-data gate + Development Requester route removal; #46 REQ-01 retained reference checks |
-| API-02 Requester header errors | Replace | Missing/invalid auth + spoofing resistance | #44/#45 AZ-01; #46 REQ-02 |
+| API-02 Requester header errors | Replace | Missing/invalid auth + spoofing resistance | #44/#45 AZ-01 + #45 REQ-02 activation subset passed on `860f0af`; #46 completes exhaustive resource isolation |
 | API-03..API-10 Ticket create/list/detail | Retain/Evolve | Same capability with session-derived Requester and eight statuses | #45 activation setup; #46 REQ-01..03/STATUS-01 |
 | API-11..API-18 Attachment lifecycle | Retain/Evolve | Same lifecycle under auth/CSRF/resource checks | #46 ATT-01..03 |
 | API-19 migration/seed | Evolve | Populated forward migration and Lab 3 repeat-safe seed/provisioning | #43 MIG/SEED tests |
 | API-20 all-endpoint failures | Retain/Evolve | Safe failure across new auth/staff/admin APIs | #51 SAFE-01 |
-| UI-01 Requester Selection | Replace | Login/current-user bootstrap | #45 `Login.test.tsx`, `AuthShell.test.tsx` |
-| UI-02 Requester Switcher | Replace | Logout/login identity transition and stale-state clearing | #45 AuthShell/E2E-01; #46 UI-02 |
+| UI-01 Requester Selection | Replace | Login/current-user bootstrap | #45 `Login.test.tsx`, `AuthShell.test.tsx` — replacement UI tests passed on `860f0af` |
+| UI-02 Requester Switcher | Replace | Logout/login identity transition and stale-state clearing | #45 AuthShell/E2E-01 passed on `860f0af`; #46 UI-02 completes retained Requester regression |
 | UI-03..UI-05 Create Ticket | Retain/Evolve | Same form/idempotency/Attachment behavior with authenticated identity | #46 UI-02/E2E-02 plus maintained existing tests |
 | UI-06..UI-07 My Tickets | Evolve | Same states/controls plus all statuses | #46 UI-02/E2E-02 |
 | UI-08 Ticket Detail | Evolve | Authenticated ownership + Public Comments/indication later | #46 UI-02; #49 UI-05 |
@@ -33,7 +33,7 @@ Disposition values:
 | STYLE-01..03 Zen Green/responsive states | Retain/Extend | Same design system across Lab 3 screens | #51 STYLE-01/A11Y-01/RESP-01..03 |
 | STYLE-04 no Staff/Comments controls | Replace selectively | Lab 3 intentionally adds Public Comments and role-specific Staff UI; Requester still must not see Internal Notes/staff mutations | #49 privacy UI/API + #51 security matrix |
 | RESP-01..03 | Retain/Extend | Same evidence viewports, now all major Lab 3 screens | #51 RESP-01..03 |
-| E2E-01 Requester selector/create/switch | Replace/Evolve | Real login -> Requester create/list/isolation | #45 E2E-01 + #46 E2E-02 |
+| E2E-01 Requester selector/create/switch | Replace/Evolve | Real login -> Requester create/list/isolation | #45 E2E-01 real-session auth/logout smoke passed on `860f0af`; #46 E2E-02 completes create/upload/list/detail/remove/isolation |
 | E2E-02..E2E-06 Requester/Ticket/Attachment | Retain/Evolve | Same user value through authenticated identity | #46 E2E-02 plus maintained relevant specs |
 | E2E-07 accessibility/failure | Retain/Extend | Same quality/security expectations across Lab 3 | #51 A11Y/SAFE/security-boundaries |
 

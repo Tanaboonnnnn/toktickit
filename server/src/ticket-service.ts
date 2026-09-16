@@ -1,5 +1,5 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
-import type { RequesterContext } from "./requester-context.js";
+import type { RequesterIdentity } from "./requester-identity.js";
 import { ApiError, validationError } from "./errors.js";
 import type { NormalizedTicketCreateInput } from "./ticket-contract.js";
 import { isReplayCompatible } from "./ticket-idempotency.js";
@@ -68,7 +68,7 @@ async function findByClientRequestId(
 
 function replayOrConflict(
   existing: TicketWithRelations,
-  requester: RequesterContext,
+  requester: RequesterIdentity,
   input: NormalizedTicketCreateInput,
 ): TicketCreateResult {
   if (!isReplayCompatible(existing, requester.id, input)) throw duplicateConflict();
@@ -99,7 +99,7 @@ async function validateActiveReferences(prisma: PrismaClient, input: NormalizedT
 
 export async function createTicket(
   prisma: PrismaClient,
-  requester: RequesterContext,
+  requester: RequesterIdentity,
   input: NormalizedTicketCreateInput,
 ): Promise<TicketCreateResult> {
   const existing = await findByClientRequestId(prisma, input.clientRequestId);
@@ -146,7 +146,7 @@ export async function createTicket(
 
 export async function getTicketDetail(
   prisma: PrismaClient,
-  requester: RequesterContext,
+  requester: RequesterIdentity,
   ticketId: number,
 ): Promise<ReturnType<typeof serializeTicket>> {
   const ticket = await prisma.ticket.findFirst({

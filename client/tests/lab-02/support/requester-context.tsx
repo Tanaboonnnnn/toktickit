@@ -9,12 +9,16 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  fetchDevelopmentRequesters,
-  type DevelopmentRequester,
-} from "./api.js";
 
+// Historical Lab 2 test compatibility only. The production application no
+// longer has Development Requester selection or client-controlled identity.
 export const DEVELOPMENT_REQUESTER_STORAGE_KEY = "toktickit.developmentRequesterId";
+
+export interface DevelopmentRequester {
+  id: number;
+  name: string;
+  email: string;
+}
 
 export type RequesterContextStatus = "loading" | "selection" | "ready" | "error";
 
@@ -31,28 +35,24 @@ export interface RequesterContextValue {
 const RequesterContext = createContext<RequesterContextValue | null>(null);
 
 function storage(): Storage | null {
-  try {
-    return window.sessionStorage;
-  } catch {
-    return null;
-  }
+  try { return window.sessionStorage; } catch { return null; }
 }
 
 function readPersistedRequesterId(): number | null {
   const store = storage();
   if (!store) return null;
-
   const raw = store.getItem(DEVELOPMENT_REQUESTER_STORAGE_KEY);
   if (raw === null) return null;
-
   const parsed = Number(raw);
-  const valid = /^[1-9]\d*$/.test(raw)
-    && Number.isSafeInteger(parsed)
-    && String(parsed) === raw;
-  if (valid) return parsed;
-
+  if (/^[1-9]\d*$/.test(raw) && Number.isSafeInteger(parsed) && String(parsed) === raw) return parsed;
   store.removeItem(DEVELOPMENT_REQUESTER_STORAGE_KEY);
   return null;
+}
+
+async function fetchHistoricalRequesters(): Promise<DevelopmentRequester[]> {
+  const response = await fetch("http://localhost:3000/api/development-requesters");
+  if (!response.ok) throw new Error("Unable to load Development Requesters");
+  return response.json() as Promise<DevelopmentRequester[]>;
 }
 
 export function RequesterContextProvider({ children }: { children: ReactNode }) {
@@ -66,17 +66,15 @@ export function RequesterContextProvider({ children }: { children: ReactNode }) 
     setStatus("loading");
     setError(null);
     try {
-      const loadedRequesters = await fetchDevelopmentRequesters();
-      setRequesters(loadedRequesters);
-
+      const loaded = await fetchHistoricalRequesters();
+      setRequesters(loaded);
       const restored = persistedRequesterId.current === null
         ? null
-        : loadedRequesters.find(({ id }) => id === persistedRequesterId.current) ?? null;
+        : loaded.find(({ id }) => id === persistedRequesterId.current) ?? null;
       if (persistedRequesterId.current !== null && restored === null) {
         storage()?.removeItem(DEVELOPMENT_REQUESTER_STORAGE_KEY);
         persistedRequesterId.current = null;
       }
-
       setCurrentRequester(restored);
       setStatus(restored ? "ready" : "selection");
     } catch {
@@ -86,14 +84,11 @@ export function RequesterContextProvider({ children }: { children: ReactNode }) 
     }
   }, []);
 
-  useEffect(() => {
-    void loadRequesters();
-  }, [loadRequesters]);
+  useEffect(() => { void loadRequesters(); }, [loadRequesters]);
 
   const selectRequester = useCallback((id: number) => {
     const selected = requesters.find((requester) => requester.id === id);
     if (!selected) return false;
-
     storage()?.setItem(DEVELOPMENT_REQUESTER_STORAGE_KEY, String(selected.id));
     persistedRequesterId.current = selected.id;
     setCurrentRequester(selected);

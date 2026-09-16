@@ -12,6 +12,7 @@
     "provision:migrated-users": "tsx scripts/provision-migrated-users.ts",
     "test:lab3-review": "vitest run tests/lab-03/password.unit.test.ts tests/lab-03/migration.integration.test.ts tests/lab-03/seed.integration.test.ts --reporter=verbose",
     "test:lab3-auth-review": "vitest run tests/lab-03/auth-policy.unit.test.ts tests/lab-03/auth.api.test.ts tests/lab-03/authorization.api.test.ts --reporter=verbose",
+    "test:lab3-auth-activation-review": "vitest run tests/lab-03/auth-policy.unit.test.ts tests/lab-03/auth.api.test.ts tests/lab-03/authorization.api.test.ts tests/lab-03/requester-regression.api.test.ts --reporter=verbose",
     "test": "vitest run"
   },
   "prisma": {

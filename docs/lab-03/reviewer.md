@@ -7,9 +7,9 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Author name: `แทนบุญ เตียวสวัสดิ์`
 - Student ID: `67070507211`
 - GitHub username: `@Tanaboonnnnn`
-- Current accepted Lab 3 evidence: Issues #41–#43 / PRs #53–#55 through the merged Issue #43 integration point.
-- Current accepted staging merge: `9d3a7c982450e5de719b66dd5baab313014fb1b1` (PR #55 merged to `lab3-staging` on 2026-09-15 16:38 UTC).
-- Current active implementation branch after that accepted baseline: `feature/44-lab3-auth-foundation`; PR #56 has received a real **Changes requested** review, but no Issue #44 approval or merge is claimed until it actually occurs.
+- Current accepted Lab 3 evidence: Issues #41–#44 / PRs #53–#56 through the merged Issue #44 authentication foundation.
+- Current accepted staging merge: `7304b5e746cc3449b3074537038515d61fba9384` (PR #56 merged to `lab3-staging` on 2026-09-15 19:53 UTC).
+- Current active implementation branch after that accepted baseline: `feature/45-lab3-auth-activation`; code/test candidate `860f0af` has focused local verification recorded in `tests.md`, but no Issue #45 peer approval or merge is claimed before a real PR review occurs.
 
 ## Reviewers
 
@@ -21,6 +21,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 18:33 UTC against head `4ff85cb`.
 - Lab 3 review coverage verified on GitHub: PR #55 final approval submitted 2026-09-15 16:38 UTC against approved head `b194087`.
 - Lab 3 review coverage verified on GitHub: PR #56 Issue #44 authentication review submitted 2026-09-15 19:19 UTC against head `17e507a` with **Changes requested**.
+- Lab 3 review coverage verified on GitHub: PR #56 final **Approved** review submitted 2026-09-15 19:53 UTC against latest reviewed head `0c216ed`; PR #56 then merged to `lab3-staging` at 19:53 UTC as `7304b5e`.
 
 - GitHub username: `@L0u1sss`
 - Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
@@ -34,7 +35,7 @@ Other users may be requested for review on GitHub, but this file records a revie
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Cross-document reference-data/API/Test DD consistency | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201418919) 2026-09-14 18:33; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376) 2026-09-14 19:09; merged 19:10 UTC |
 | [#54](https://github.com/Tanaboonnnnn/toktickit/pull/54) | Issue #42 verification safety: database isolation + evidence cleanup | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801) 2026-09-15 06:18; [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595) 07:06; merged 07:07 UTC |
 | [#55](https://github.com/Tanaboonnnnn/toktickit/pull/55) | Issue #43 data-preserving User/workflow migration | `@L0u1sss`, `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5210721789) 2026-09-15 13:40; [second Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5211770377) 15:00; final **Approved** by `@thananun-7203` 16:38; merged 16:38 UTC |
-| [#56](https://github.com/Tanaboonnnnn/toktickit/pull/56) | Issue #44 backend authentication/session/authorization foundation | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/56#pullrequestreview-5214771144) 2026-09-15 19:19 against head `17e507a`; review-fix candidate `ba3e2b6` adds the requested session-expiry/store evidence and the non-blocking dummy-hash timing hardening; re-review pending |
+| [#56](https://github.com/Tanaboonnnnn/toktickit/pull/56) | Issue #44 backend authentication/session/authorization foundation | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/56#pullrequestreview-5214771144) 2026-09-15 19:19 against head `17e507a`; review-fix candidate `ba3e2b6` added the requested session-expiry/store evidence and dummy-hash timing hardening; final **Approved** 19:53 against latest reviewed head `0c216ed`; merged 19:53 UTC as `7304b5e` |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -209,12 +210,15 @@ No PR #55 approval or merge is claimed after Review 6; another human re-review i
 - PR #53 received a real **Approved** review from `@thananun-7203` on 2026-09-14 19:09 UTC and was merged into `lab3-staging` at 2026-09-14 19:10 UTC.
 - PR #54 received a real **Approved** review from `@thananun-7203` on 2026-09-15 07:06 UTC after the earlier Changes Requested round and was merged into `lab3-staging` at 07:07 UTC.
 - PR #55 received a real **Approved** review from `@thananun-7203` on 2026-09-15 16:38 UTC against head `b1940879f7e4d040dcf173585809ca2553611bb6` and was merged into `lab3-staging` at 16:38 UTC as `9d3a7c982450e5de719b66dd5baab313014fb1b1`.
+- PR #56 received a real **Approved** review from `@thananun-7203` on 2026-09-15 19:53 UTC against latest reviewed head `0c216edab18edb428e61943191054a69da0e6801` after the earlier Changes Requested round and was merged into `lab3-staging` at 19:53 UTC as `7304b5e746cc3449b3074537038515d61fba9384`.
 - Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801), [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595).
 - PR #54 final approval: **Approved** by `@thananun-7203` on reviewed head `f9274942dab73e8e802d8dbff66a319b4b0e4654`.
 - PR #55 final verdict: **Approved** by `@thananun-7203` after the two earlier Changes Requested submissions from `@L0u1sss`.
+- PR #56 final verdict: **Approved** by `@thananun-7203` after the earlier session-lifecycle verification request; the final reviewed branch retained the #44/#45 activation boundary.
 - Passing-check link: no hosted passing-check result is claimed here; local verification is recorded in `tests.md` and the PR conversation.
 - PR #54 merge status: **Merged** into `lab3-staging` at 2026-09-15 07:07 UTC; merge commit `63a4c8db4b1692e31508f4a3c6894f35e4fe6253`.
 - PR #55 merge status: **Merged** into `lab3-staging` at 2026-09-15 16:38 UTC; merge commit `9d3a7c982450e5de719b66dd5baab313014fb1b1`.
+- PR #56 merge status: **Merged** into `lab3-staging` at 2026-09-15 19:53 UTC; merge commit `7304b5e746cc3449b3074537038515d61fba9384`.
 
 ## Reviews given to peers
 
@@ -222,4 +226,4 @@ No Lab 3 peer-review-given evidence has been added yet. Lab 2 reviews are not co
 
 ## Evidence integrity note
 
-This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested followed by Approval/merge, and PR #55's two Changes Requested rounds followed by the verified final Approval/merge are recorded from actual GitHub events. No hosted CI result or future Issue #44 review activity is inferred. Automated checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
+This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested followed by Approval/merge, PR #55's two Changes Requested rounds followed by final Approval/merge, and PR #56 Changes Requested followed by final Approval/merge are recorded from actual GitHub events. No hosted CI result or future Issue #45 review activity is inferred. Automated checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.

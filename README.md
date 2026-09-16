@@ -5,23 +5,24 @@ TokTickIT Lab 1 demonstrates a full-stack vertical slice with React + TypeScript
 Vitest + Supertest. Its Lab 1 regression harness includes the `Check System`
 control for checking backend health and loading the four IT request categories.
 
-The current Lab 2 application flow starts with Development Requester Selection;
-the legacy Lab 1 `Check System` control is not rendered in that normal flow.
+Lab 3 activates real email/password authentication across the existing Requester
+application. The Lab 2 Development Requester selector/header identity mechanism is
+retired from the active application; Requester ownership now comes from the
+server-authenticated session.
 
-## Lab 2 requester flow
+## Lab 3 authenticated Requester flow
 
-1. Select a seeded Development Requester.
-2. Create a Ticket with active Category and Related System data.
-3. Add permitted JPG/JPEG, PNG, WEBP, or PDF Attachments.
-4. Open My Tickets.
-5. Search, filter, sort, and page through Tickets owned by the selected Requester.
-6. Open Ticket Detail.
-7. Download active Attachments.
-8. Soft-remove an Attachment with a required reason; its Removed metadata remains visible.
-9. Change Development Requester and confirm that requester-owned data is isolated.
+1. Sign in with an active TokTickIT User account.
+2. If the account has an initial password, complete the mandatory Change Password flow before opening normal app screens.
+3. Create a Ticket with active Category and Related System data.
+4. Add permitted JPG/JPEG, PNG, WEBP, or PDF Attachments.
+5. Open My Tickets and search, filter, sort, and page through only the authenticated Requester's Tickets.
+6. Open Ticket Detail, download active Attachments, and soft-remove an Attachment with a required reason.
+7. Use Change Password when needed; the shell shows the authenticated User name and role.
+8. Logout to invalidate the server session. Direct/protected Requester routes require authentication again after logout.
 
-The selector and `X-Development-Requester-Id` header are temporary Lab 2 testing
-context, not authentication.
+`X-Development-Requester-Id`, browser `requesterId` authority, Development Requester
+Selection, and Change Requester are not part of the post-#45 application contract.
 
 ## Prerequisites
 
@@ -193,6 +194,20 @@ npm.cmd run build
 fixtures plus login, mandatory password change, logout/revocation/expiry, bounded
 login throttling, Origin/CORS policy, and direct backend role/resource authorization.
 It requires the same distinct `DATABASE_URL` / `TEST_DATABASE_URL` safety setup.
+
+For Issue #45 cross-layer authentication-activation review, run from the repository root:
+
+```powershell
+npm.cmd run test:lab3-auth-activation-review
+```
+
+This focused reviewer gate builds both applications, runs the Issue #44 auth/security
+foundation together with the post-#45 authenticated Requester activation API tests,
+runs Login/Change Password/AuthShell/status client tests, and executes the real-browser
+`E2E-01` Login -> mandatory password change -> Requester app -> Logout journey. The
+exhaustive retained Ticket/Attachment regression remains owned by Issue #46 as mapped
+in `docs/lab-03/regression-map.md`; the focused command is not a substitute for the
+final product-wide `verify` gate.
 
 ## Tests
 

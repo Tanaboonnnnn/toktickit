@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MyTickets from "../../src/MyTickets.js";
-import { RequesterContextProvider, useRequesterContext } from "../../src/requester-context.js";
+import { RequesterContextProvider, useRequesterContext } from "./support/requester-context.js";
 
 const requester = [{ id: 1, name: "Anan Student", email: "anan.student@example.test" }];
 const category = [{ id: 1, name: "Hardware" }];
