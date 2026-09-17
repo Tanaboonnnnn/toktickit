@@ -84,8 +84,8 @@ describe("UI-02 authenticated Requester continuity", () => {
 
     expect(await screen.findByRole("heading", { name: "My Tickets" })).toBeInTheDocument();
     expect(screen.getByText(AUTHENTICATED_REQUESTER.name, { exact: true })).toBeInTheDocument();
-    expect(screen.getAllByText("Authenticated Requester continuity").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Reopened").length).toBeGreaterThanOrEqual(1);
+    expect((await screen.findAllByText("Authenticated Requester continuity")).length).toBeGreaterThanOrEqual(1);
+    expect((await screen.findAllByText("Reopened")).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText(/development requester/i)).not.toBeInTheDocument();
 
     const listCall = fetchMock.mock.calls.find(([input]) => String(input).includes("/api/tickets?"));

@@ -15,6 +15,7 @@ import { createSessionMiddleware } from "./auth/session.js";
 import { requireActor } from "./auth/actor.js";
 import { requireCsrf } from "./auth/csrf.js";
 import { requireCapability } from "./authorization.js";
+import { createStaffRouter } from "./staff/staff-routes.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -36,6 +37,7 @@ app.use("/api/auth", (_req: Request, res: Response, next: NextFunction) => {
 });
 app.use(express.json());
 app.use("/api/auth", createAuthRouter({ infrastructureMounted: true }));
+app.use("/api/staff", createStaffRouter());
 
 app.post(
   "/api/tickets",
