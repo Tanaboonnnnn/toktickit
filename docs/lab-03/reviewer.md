@@ -9,7 +9,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - GitHub username: `@Tanaboonnnnn`
 - Current accepted Lab 3 evidence: Issues #41–#46 / PRs #53–#58 through the merged authenticated Requester regression increment.
 - Current accepted staging merge: `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc` (PR #58 merged to `lab3-staging` on 2026-09-17 07:37 UTC / 14:37 Thailand time).
-- Current active implementation branch after that accepted baseline: `feature/47-lab3-staff-queue`, created from the exact merged staging SHA above. Issue #47 evidence remains pre-review until its own Pull Request is opened and reviewed.
+- Current active implementation branch after that accepted baseline: `feature/47-lab3-staff-queue`, created from the exact merged staging SHA above. PR #59 is open against `lab3-staging` at head `013939a6d65fbd073e78f289dc5c406bfa98617f`; peer review has been requested and no Issue #47 approval or merge is claimed yet.
 
 ## Reviewers
 
@@ -24,6 +24,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Lab 3 review coverage verified on GitHub: PR #56 final **Approved** review submitted 2026-09-15 19:53 UTC against latest reviewed head `0c216ed`; PR #56 then merged to `lab3-staging` at 19:53 UTC as `7304b5e`.
 - Lab 3 review coverage verified on GitHub: PR #57 Issue #45 activation received **Approved** from `@thananun-7203` on 2026-09-16 16:13 UTC against reviewed head `2e7c16a`; no unresolved inline review thread was present, and PR #57 merged to `lab3-staging` as `d443741`.
 - Lab 3 review coverage verified on GitHub: PR #58 Issue #46 authenticated Requester regression received **Approved** from `@thananun-7203` on 2026-09-17 07:37 UTC against reviewed head `7252dd7`; PR #58 merged to `lab3-staging` as `eaa483b`.
+- PR #59 Issue #47 shared Staff Ticket Queue is open for peer review at head `013939a`; review requests were sent to `@thananun-7203` and `@Chxtamos`. This is request evidence only, not a submitted review or approval.
 
 - GitHub username: `@L0u1sss`
 - Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
