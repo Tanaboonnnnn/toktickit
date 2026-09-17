@@ -88,6 +88,40 @@ describe("UI-04 Staff Ticket Detail operations", () => {
     expect(screen.getByText("High", { selector: "dd" })).toBeInTheDocument();
   });
 
+  it("hides non-Cancelled status actions while a NEW Ticket is unassigned, then enables them after claim", async () => {
+    const unassigned = { ...base, currentStatus: "NEW" as const, owner: null };
+    const claimed = { ...unassigned, owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const }, version: 3 };
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/api/staff/tickets/91") && !init?.method) return json({ ticket: unassigned });
+      if (url.endsWith("/api/staff/assignees")) return json({ items: [{ id: 21, name: "Niran Staff", role: "IT_STAFF" }] });
+      if (url.endsWith("/api/auth/csrf")) return json({ csrfToken: "csrf-48" });
+      if (url.endsWith("/api/staff/tickets/91/claim")) return json({ ticket: claimed });
+      return json({});
+    });
+    renderDetail(fetchMock);
+    const user = userEvent.setup();
+    const status = await screen.findByRole("combobox", { name: "Next status" });
+    expect(Array.from((status as HTMLSelectElement).options).map((o) => o.value)).toEqual(["", "CANCELLED"]);
+
+    await user.click(screen.getByRole("button", { name: "Claim ticket" }));
+    await waitFor(() => expect(screen.getByRole("combobox", { name: "Next status" })).toHaveValue(""));
+    expect(Array.from((screen.getByRole("combobox", { name: "Next status" }) as HTMLSelectElement).options).map((o) => o.value)).toEqual(["", "OPEN", "CANCELLED"]);
+  });
+
+  it("shows no status action for an unassigned CLOSED Ticket", async () => {
+    const closed = { ...base, currentStatus: "CLOSED" as const, owner: null, closedAt: "2026-09-17T06:00:00.000Z" };
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/api/staff/tickets/91")) return json({ ticket: closed });
+      if (url.endsWith("/api/staff/assignees")) return json({ items: [{ id: 21, name: "Niran Staff", role: "IT_STAFF" }] });
+      return json({});
+    });
+    renderDetail(fetchMock);
+    const status = await screen.findByRole("combobox", { name: "Next status" });
+    expect(status).toBeDisabled();
+    expect(Array.from((status as HTMLSelectElement).options).map((o) => o.value)).toEqual([""]);
+  });
   it("shows only permitted next statuses and requires contextual confirmation fields", async () => {
     const owned = { ...base, currentStatus: "IN_PROGRESS" as const, owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const } };
     const resolved = { ...owned, currentStatus: "RESOLVED" as const, resolutionSummary: "Validated and restored access", resolvedAt: "2026-09-17T05:00:00.000Z", version: 3 };

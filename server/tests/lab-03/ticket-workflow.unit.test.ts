@@ -69,5 +69,3 @@ describe("FLOW-01 Ticket workflow policy", () => {
     expect(evaluateStatusTransition({ from: "OPEN", to: "CANCELLED", actorRole: "IT_STAFF", hasEligibleOwner: false, confirmed: true, cancelReason: "x".repeat(201) }).reason).toBe("CANCEL_REASON_INVALID");
   });
 });
-
-

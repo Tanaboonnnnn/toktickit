@@ -70,6 +70,7 @@ export default function TicketOperations({ ticket, onUpdated, onConflict }: {
     }
   }
 
+  const permittedNextStatuses = ticket.owner ? nextStatuses[ticket.currentStatus] : nextStatuses[ticket.currentStatus].filter((status) => status === "CANCELLED");
   const ownerChanged = ownerId !== (ticket.owner ? String(ticket.owner.id) : "");
   const mayUnassign = ticket.currentStatus === "NEW" || ticket.currentStatus === "CLOSED" || ticket.currentStatus === "CANCELLED";
   const ownerValue = ownerId === "" ? null : Number(ownerId);
@@ -115,9 +116,9 @@ export default function TicketOperations({ ticket, onUpdated, onConflict }: {
 
       <div className="lab2-field lab3-status-operation">
         <label htmlFor="staff-next-status">Next status</label>
-        <select id="staff-next-status" value={nextStatus} disabled={pending || nextStatuses[ticket.currentStatus].length === 0} onChange={(e) => { setNextStatus(e.target.value as TicketStatus | ""); setStatusConfirmed(false); }}>
+        <select id="staff-next-status" value={nextStatus} disabled={pending || permittedNextStatuses.length === 0} onChange={(e) => { setNextStatus(e.target.value as TicketStatus | ""); setStatusConfirmed(false); }}>
           <option value="">Select permitted status</option>
-          {nextStatuses[ticket.currentStatus].map((status) => <option key={status} value={status}>{ticketStatusLabel(status)}</option>)}
+          {permittedNextStatuses.map((status) => <option key={status} value={status}>{ticketStatusLabel(status)}</option>)}
         </select>
         {nextStatus === "RESOLVED" && <><label htmlFor="resolution-summary">Resolution Summary</label><textarea id="resolution-summary" value={resolutionSummary} maxLength={2000} onChange={(e) => setResolutionSummary(e.target.value)} /></>}
         {nextStatus === "CANCELLED" && <><label htmlFor="cancel-reason">Cancel reason</label><textarea id="cancel-reason" value={cancelReason} maxLength={200} onChange={(e) => setCancelReason(e.target.value)} /></>}

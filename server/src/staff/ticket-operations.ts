@@ -156,5 +156,3 @@ export async function updateTicketStatus(prisma: PrismaClient, actor: Actor, tic
     await tx.ticket.update({ where: { id: ticketId }, data });
   });
 }
-
-
