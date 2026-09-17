@@ -7,9 +7,9 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Author name: `แทนบุญ เตียวสวัสดิ์`
 - Student ID: `67070507211`
 - GitHub username: `@Tanaboonnnnn`
-- Current accepted Lab 3 evidence: Issues #41–#45 / PRs #53–#57 through the merged Issue #45 cross-layer authentication activation.
-- Current accepted staging merge: `d443741ef2c61c21653885208e1fcb1f719e8ca1` (PR #57 merged to `lab3-staging` on 2026-09-16 16:13 UTC / 23:13 Thailand time).
-- Current active implementation branch after that accepted baseline: `feature/46-lab3-requester-regression`, created from the exact merged staging SHA above. Issue #46 evidence remains pre-review until its own Pull Request is opened and reviewed.
+- Current accepted Lab 3 evidence: Issues #41–#46 / PRs #53–#58 through the merged authenticated Requester regression increment.
+- Current accepted staging merge: `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc` (PR #58 merged to `lab3-staging` on 2026-09-17 07:37 UTC / 14:37 Thailand time).
+- Current active implementation branch after that accepted baseline: `feature/47-lab3-staff-queue`, created from the exact merged staging SHA above. Issue #47 evidence remains pre-review until its own Pull Request is opened and reviewed.
 
 ## Reviewers
 
@@ -23,6 +23,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Lab 3 review coverage verified on GitHub: PR #56 Issue #44 authentication review submitted 2026-09-15 19:19 UTC against head `17e507a` with **Changes requested**.
 - Lab 3 review coverage verified on GitHub: PR #56 final **Approved** review submitted 2026-09-15 19:53 UTC against latest reviewed head `0c216ed`; PR #56 then merged to `lab3-staging` at 19:53 UTC as `7304b5e`.
 - Lab 3 review coverage verified on GitHub: PR #57 Issue #45 activation received **Approved** from `@thananun-7203` on 2026-09-16 16:13 UTC against reviewed head `2e7c16a`; no unresolved inline review thread was present, and PR #57 merged to `lab3-staging` as `d443741`.
+- Lab 3 review coverage verified on GitHub: PR #58 Issue #46 authenticated Requester regression received **Approved** from `@thananun-7203` on 2026-09-17 07:37 UTC against reviewed head `7252dd7`; PR #58 merged to `lab3-staging` as `eaa483b`.
 
 - GitHub username: `@L0u1sss`
 - Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
@@ -38,6 +39,7 @@ Other users may be requested for review on GitHub, but this file records a revie
 | [#55](https://github.com/Tanaboonnnnn/toktickit/pull/55) | Issue #43 data-preserving User/workflow migration | `@L0u1sss`, `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5210721789) 2026-09-15 13:40; [second Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/55#pullrequestreview-5211770377) 15:00; final **Approved** by `@thananun-7203` 16:38; merged 16:38 UTC |
 | [#56](https://github.com/Tanaboonnnnn/toktickit/pull/56) | Issue #44 backend authentication/session/authorization foundation | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/56#pullrequestreview-5214771144) 2026-09-15 19:19 against head `17e507a`; review-fix candidate `ba3e2b6` added the requested session-expiry/store evidence and dummy-hash timing hardening; final **Approved** 19:53 against latest reviewed head `0c216ed`; merged 19:53 UTC as `7304b5e` |
 | [#57](https://github.com/Tanaboonnnnn/toktickit/pull/57) | Issue #45 cross-layer authentication activation | `@thananun-7203` | **Approved** 2026-09-16 16:13 UTC against reviewed head `2e7c16a`; reviewer confirmed server-derived Requester identity, CSRF/multipart ordering, selector/header retirement, Login/mandatory password change/authenticated shell, E2E-01, and truthful deferral of exhaustive Ticket/Attachment regression to #46; merged to `lab3-staging` as `d443741` |
+| [#58](https://github.com/Tanaboonnnnn/toktickit/pull/58) | Issue #46 authenticated Requester + Attachment continuity | `@thananun-7203` | **Approved** 2026-09-17 07:37 UTC against reviewed head `7252dd79f0277132ca7e4c8647994e9d5e560dc7`; reviewer confirmed session-derived Requester identity, retained Ticket/Attachment regression, non-disclosing ownership, idempotency, all-status UI compatibility, and Staff/Admin read-only Attachment access; merged to `lab3-staging` as `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc` |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -226,16 +228,19 @@ No PR #55 approval or merge is claimed after Review 6; another human re-review i
 - PR #55 received a real **Approved** review from `@thananun-7203` on 2026-09-15 16:38 UTC against head `b1940879f7e4d040dcf173585809ca2553611bb6` and was merged into `lab3-staging` at 16:38 UTC as `9d3a7c982450e5de719b66dd5baab313014fb1b1`.
 - PR #56 received a real **Approved** review from `@thananun-7203` on 2026-09-15 19:53 UTC against latest reviewed head `0c216edab18edb428e61943191054a69da0e6801` after the earlier Changes Requested round and was merged into `lab3-staging` at 19:53 UTC as `7304b5e746cc3449b3074537038515d61fba9384`.
 - PR #57 received a real **Approved** review from `@thananun-7203` on 2026-09-16 16:13 UTC against reviewed head `2e7c16acf410ba76d0f1127ef5884cb13b393041` and was merged into `lab3-staging` as `d443741ef2c61c21653885208e1fcb1f719e8ca1`.
+- PR #58 received a real **Approved** review from `@thananun-7203` on 2026-09-17 07:37 UTC against reviewed head `7252dd79f0277132ca7e4c8647994e9d5e560dc7` and was merged into `lab3-staging` as `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc`.
 - Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801), [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595).
 - PR #54 final approval: **Approved** by `@thananun-7203` on reviewed head `f9274942dab73e8e802d8dbff66a319b4b0e4654`.
 - PR #55 final verdict: **Approved** by `@thananun-7203` after the two earlier Changes Requested submissions from `@L0u1sss`.
 - PR #56 final verdict: **Approved** by `@thananun-7203` after the earlier session-lifecycle verification request; the final reviewed branch retained the #44/#45 activation boundary.
 - PR #57 final verdict: **Approved** by `@thananun-7203`; the review explicitly left exhaustive retained Requester Ticket/Attachment regression to Issue #46 rather than requiring an authentication bypass for old setup code.
+- PR #58 final verdict: **Approved** by `@thananun-7203`; the two documentation follow-ups about stale Issue #46 review wording and exact SHA provenance were explicitly non-blocking and are carried into the Issue #47 branch without rewriting Issue #46 history.
 - Passing-check link: no hosted passing-check result is claimed here; local verification is recorded in `tests.md` and the PR conversation.
 - PR #54 merge status: **Merged** into `lab3-staging` at 2026-09-15 07:07 UTC; merge commit `63a4c8db4b1692e31508f4a3c6894f35e4fe6253`.
 - PR #55 merge status: **Merged** into `lab3-staging` at 2026-09-15 16:38 UTC; merge commit `9d3a7c982450e5de719b66dd5baab313014fb1b1`.
 - PR #56 merge status: **Merged** into `lab3-staging` at 2026-09-15 19:53 UTC; merge commit `7304b5e746cc3449b3074537038515d61fba9384`.
 - PR #57 merge status: **Merged** into `lab3-staging`; merge commit `d443741ef2c61c21653885208e1fcb1f719e8ca1`.
+- PR #58 merge status: **Merged** into `lab3-staging`; merge commit `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc`.
 
 ## Reviews given to peers
 
@@ -243,4 +248,4 @@ No Lab 3 peer-review-given evidence has been added yet. Lab 2 reviews are not co
 
 ## Evidence integrity note
 
-This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested followed by Approval/merge, PR #55's two Changes Requested rounds followed by final Approval/merge, PR #56 Changes Requested followed by final Approval/merge, and PR #57 Approval/merge are recorded from actual GitHub events. No hosted CI result or future Issue #46 peer approval is inferred. Automated checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
+This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested followed by Approval/merge, PR #55's two Changes Requested rounds followed by final Approval/merge, PR #56 Changes Requested followed by final Approval/merge, PR #57 Approval/merge, and PR #58 Approval/merge are recorded from actual GitHub events. No hosted CI result or future Issue #47 peer approval is inferred. Automated checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
