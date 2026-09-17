@@ -184,7 +184,7 @@ export async function parseSafeError(response: Response): Promise<SafeApiError> 
   return new SafeApiError(response.status, code, message, fieldErrors);
 }
 
-async function fetchCsrfToken(): Promise<string> {
+export async function fetchCsrfToken(): Promise<string> {
   const response = await fetch(`${API_URL}/api/auth/csrf`, { credentials: "include" });
   if (!response.ok) throw await parseSafeError(response);
   const body = await response.json() as { csrfToken?: unknown };

@@ -1,5 +1,6 @@
 import {
   SafeApiError,
+  fetchCsrfToken,
   notifyAuthenticationFailure,
   parseSafeError,
   type Category,
@@ -74,7 +75,6 @@ function detail(value: unknown): value is StaffTicketDetail {
     && (value.cancelReason === null || typeof value.cancelReason === "string") && (value.cancelledAt === null || typeof value.cancelledAt === "string")
     && (value.requesterResolutionIndicatedAt === null || typeof value.requesterResolutionIndicatedAt === "string");
 }
-
 function append(params: URLSearchParams, query: StaffQueueQuery): void {
   const search = query.search?.trim(); if (search) params.set("search", search);
   if (query.categoryId) params.set("categoryId", String(query.categoryId));
@@ -85,29 +85,36 @@ function append(params: URLSearchParams, query: StaffQueueQuery): void {
   params.set("sortBy", query.sortBy ?? "updatedAt"); params.set("sortDirection", query.sortDirection ?? "desc");
   params.set("page", String(query.page ?? 1)); params.set("pageSize", String(query.pageSize ?? 10));
 }
-
 async function safeJson(response: Response): Promise<unknown> {
   if (!response.ok) { const error = await parseSafeError(response); notifyAuthenticationFailure(error); throw error; }
   try { return await response.json(); } catch { throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); }
 }
+async function mutation(ticketId: number, suffix: string, method: "POST" | "PATCH", body: Record<string, unknown>): Promise<StaffTicketDetail> {
+  const csrfToken = await fetchCsrfToken();
+  const response = await fetch(`${API_URL}/api/staff/tickets/${ticketId}${suffix}`, {
+    method, credentials: "include",
+    headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+    body: JSON.stringify(body),
+  });
+  const payload = await safeJson(response);
+  if (!isRecord(payload) || !detail(payload.ticket)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  return payload.ticket;
+}
 
 export function staffQueueContext(query: StaffQueueQuery): string { const params = new URLSearchParams(); append(params, query); return params.toString(); }
-
 export async function fetchStaffQueue(query: StaffQueueQuery = {}): Promise<StaffQueueResponse> {
-  const context = staffQueueContext(query);
-  const body = await safeJson(await fetch(`${API_URL}/api/staff/tickets?${context}`, { credentials: "include" }));
-  if (!queueResponse(body)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
-  return body;
+  const context = staffQueueContext(query); const body = await safeJson(await fetch(`${API_URL}/api/staff/tickets?${context}`, { credentials: "include" }));
+  if (!queueResponse(body)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); return body;
 }
-
 export async function fetchStaffAssignees(): Promise<StaffUserSummary[]> {
   const body = await safeJson(await fetch(`${API_URL}/api/staff/assignees`, { credentials: "include" }));
-  if (!isRecord(body) || !Array.isArray(body.items) || !body.items.every(userSummary)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
-  return body.items;
+  if (!isRecord(body) || !Array.isArray(body.items) || !body.items.every(userSummary)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); return body.items;
 }
-
 export async function fetchStaffTicketDetail(ticketId: number): Promise<StaffTicketDetail> {
   const body = await safeJson(await fetch(`${API_URL}/api/staff/tickets/${ticketId}`, { credentials: "include" }));
-  if (!isRecord(body) || !detail(body.ticket)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
-  return body.ticket;
+  if (!isRecord(body) || !detail(body.ticket)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); return body.ticket;
 }
+export const claimStaffTicket = (ticketId: number, expectedVersion: number) => mutation(ticketId, "/claim", "POST", { expectedVersion });
+export const updateStaffOwner = (ticketId: number, ownerId: number | null, expectedVersion: number) => mutation(ticketId, "/owner", "PATCH", { ownerId, expectedVersion, confirmed: true });
+export const updateStaffPriority = (ticketId: number, itPriority: RequestedPriority, expectedVersion: number) => mutation(ticketId, "/priority", "PATCH", { itPriority, expectedVersion });
+export const updateStaffStatus = (ticketId: number, body: { status: TicketStatus; expectedVersion: number; confirmed?: boolean; resolutionSummary?: string; cancelReason?: string }) => mutation(ticketId, "/status", "POST", body);
