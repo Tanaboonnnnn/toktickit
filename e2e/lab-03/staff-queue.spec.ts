@@ -103,7 +103,7 @@ test.afterAll(async () => {
   await prisma.$disconnect();
 });
 
-test("Issue #47 Staff can search/page the shared queue and return from read-only Detail with context", async ({ page }) => {
+test("Issue #47 Staff can search/page the shared queue and return from evolved Detail with context", async ({ page }) => {
   await loginStaff(page);
   await applyFixtureSearch(page);
 
@@ -121,7 +121,8 @@ test("Issue #47 Staff can search/page the shared queue and return from read-only
   await expect(page.getByRole("heading", { name: "Staff Ticket Detail" })).toBeVisible();
   await expect(page.getByText(`${tag} Requester`, { exact: false })).toBeVisible();
   await expect(page.getByText(/read-only Staff Queue detail/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /claim|reassign|resolve|close|reopen|cancel/i })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Ticket operations" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /public comments|internal notes/i })).toHaveCount(0);
   await expect(page).toHaveURL(new RegExp(`#\\/staff\\/tickets\\/\\d+\\?.*search=${encodeURIComponent(tag)}.*owner=me`));
 
   await page.getByRole("button", { name: "Back to Ticket Queue" }).click();
