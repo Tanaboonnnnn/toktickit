@@ -3,6 +3,8 @@ import { roleLabel, useAuth } from "./auth-context.js";
 import CreateTicketForm from "./CreateTicketForm.js";
 import MyTickets from "./MyTickets.js";
 import TicketDetail from "./TicketDetail.js";
+import StaffTicketQueue from "./staff/StaffTicketQueue.js";
+import StaffTicketDetail from "./staff/StaffTicketDetail.js";
 
 function navigate(hash: string): void {
   window.location.hash = hash;
@@ -30,6 +32,14 @@ function requesterRoute(route: string) {
   if (route === "#/tickets/new") return { kind: "create" } as const;
   const match = /^#\/tickets\/([1-9]\d*)$/.exec(route);
   if (match) return { kind: "detail", ticketId: Number(match[1]) } as const;
+  return null;
+}
+
+function staffRoute(route: string) {
+  const [path, query = ""] = route.split("?", 2);
+  if (path === "#/staff/tickets") return { kind: "queue", context: query } as const;
+  const match = /^#\/staff\/tickets\/([1-9]\d*)$/.exec(path);
+  if (match) return { kind: "detail", ticketId: Number(match[1]), context: query } as const;
   return null;
 }
 
@@ -63,9 +73,12 @@ export default function AppShell({ route }: { route: string }) {
         : requestRoute.kind === "detail"
           ? <TicketDetail ticketId={requestRoute.ticketId} onBack={() => navigate("#/tickets")} />
           : <CreateTicketForm onViewTicket={(ticketId) => navigate(`#/tickets/${ticketId}`)} onMyTickets={() => navigate("#/tickets")} />;
-  } else if (route === "#/staff/tickets") {
+  } else if (staffRoute(route)) {
+    const staff = staffRoute(route)!;
     content = user.role === "IT_STAFF" || user.role === "ADMINISTRATOR"
-      ? <DeferredRoleHome title="IT Staff Ticket Queue" />
+      ? staff.kind === "queue"
+        ? <StaffTicketQueue initialContext={staff.context} onViewTicket={(ticketId, context) => navigate(`#/staff/tickets/${ticketId}?${context}`)} />
+        : <StaffTicketDetail ticketId={staff.ticketId} queueContext={staff.context} onBack={(context) => navigate(`#/staff/tickets${context ? `?${context}` : ""}`)} />
       : <AccessDenied />;
   } else if (route === "#/admin/users") {
     content = user.role === "ADMINISTRATOR"

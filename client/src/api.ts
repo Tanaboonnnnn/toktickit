@@ -133,7 +133,7 @@ export function setAuthenticationFailureHandler(handler: ((error: SafeApiError) 
   };
 }
 
-function notifyAuthenticationFailure(error: SafeApiError): void {
+export function notifyAuthenticationFailure(error: SafeApiError): void {
   if (error.status === 401 || error.code === "PASSWORD_CHANGE_REQUIRED") {
     authenticationFailureHandler?.(error);
   }
@@ -165,7 +165,7 @@ function safeErrorMessage(response: { status: number; json?: () => Promise<unkno
   );
 }
 
-async function parseSafeError(response: Response): Promise<SafeApiError> {
+export async function parseSafeError(response: Response): Promise<SafeApiError> {
   let code = "INTERNAL_ERROR";
   let message = "Unable to complete the request";
   let fieldErrors: Record<string, string> | undefined;
