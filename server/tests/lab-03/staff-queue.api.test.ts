@@ -107,6 +107,9 @@ describe("QUEUE-02 shared Staff Ticket Queue API", () => {
     const denied = await requesterAgent.get("/api/staff/tickets");
     expect(denied.status).toBe(403);
     expect(denied.body.error.code).toBe("FORBIDDEN");
+    const deniedDetail = await requesterAgent.get(`/api/staff/tickets/${ticketIds[0]}`);
+    expect(deniedDetail.status).toBe(403);
+    expect(deniedDetail.body.error.code).toBe("FORBIDDEN");
 
     const pending = request.agent(fixture.app);
     expect((await login(pending, fixture, fixture.requester.email)).status).toBe(200);

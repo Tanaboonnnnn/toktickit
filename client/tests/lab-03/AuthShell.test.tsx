@@ -61,6 +61,11 @@ describe("UI-01 authenticated shell and routing", () => {
 
   it("shows Access Denied for an authenticated wrong-role route and Not Found for malformed routes", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response(200, { user: requester })));
+    window.location.hash = "#/staff/tickets/123";
+    const staffRoute = render(<App />);
+    expect(await screen.findByRole("heading", { name: "Access Denied" })).toBeInTheDocument();
+    staffRoute.unmount();
+
     window.location.hash = "#/admin/users";
     const { unmount } = render(<App />);
     expect(await screen.findByRole("heading", { name: "Access Denied" })).toBeInTheDocument();
