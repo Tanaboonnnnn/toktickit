@@ -10,7 +10,7 @@ test.afterAll(async () => { await destroyE2eFixture(fixture); });
 
 test.describe("RESP-03 mobile 390x844", () => {
   test("stacks Create Ticket fields and focuses the first invalid field", async ({ page }) => {
-    await openRequesterShell(page, fixture.requesterA.id);
+    await openRequesterShell(page, fixture.requesterA);
     await page.getByRole("region", { name: /create ticket/i }).getByRole("button", { name: "Create Ticket", exact: true }).click();
     await expect(page.getByText("Category is required.")).toBeVisible();
     await expect(page.locator("#ticket-category")).toBeFocused();
@@ -21,7 +21,7 @@ test.describe("RESP-03 mobile 390x844", () => {
   });
 
   test("uses readable ticket cards and a no-results state", async ({ page }) => {
-    await openRequesterShell(page, fixture.requesterA.id);
+    await openRequesterShell(page, fixture.requesterA);
     await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
     await expect(page.locator(".lab2-ticket-cards")).toBeVisible();
     await page.getByLabel("Search Ticket Number or Summary").fill(`${fixture.tag} no-match`);
@@ -37,7 +37,7 @@ test.describe("RESP-03 mobile 390x844", () => {
   test("wraps long removed Attachment metadata and hides unavailable actions", async ({ page }) => {
     const longFilename = `${"very-long-attachment-name-".repeat(12)}.pdf`;
     await createFixtureAttachment(fixture, fixture.tickets[0].id, true, longFilename);
-    await openRequesterShell(page, fixture.requesterA.id);
+    await openRequesterShell(page, fixture.requesterA);
     await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
     await page.getByRole("button", { name: "View ticket" }).first().click();
     const removed = page.getByText(longFilename);

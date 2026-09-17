@@ -3,14 +3,23 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App, { Lab1SystemCheck } from "../../src/App.js";
 import * as api from "../../src/api.js";
+import { authenticatedAppResponse, openAuthenticatedRequesterRoute } from "../lab-02/support/authenticated-app.js";
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("App", () => {
   // WORKED EXAMPLE — provided for you.
-  it("renders the TokTickIT heading", () => {
+  it("renders TokTickIT after authenticated bootstrap", async () => {
+    openAuthenticatedRequesterRoute("#/tickets");
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
+      if (String(input).includes("/api/categories")) return Promise.resolve({ ok: true, status: 200, json: async () => [] });
+      if (String(input).includes("/api/tickets")) return Promise.resolve({ ok: true, status: 200, json: async () => ({ items: [], page: 1, pageSize: 10, totalItems: 0, totalPages: 0 }) });
+      return Promise.reject(new Error("unexpected fetch"));
+    }));
     render(<App />);
-    expect(screen.getByText(/TokTickIT/i)).toBeInTheDocument();
+    expect(await screen.findByText(/TokTickIT/i)).toBeInTheDocument();
   });
 
   it("shows Online after a successful system response", async () => {

@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import type { Express } from "express";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers, testOrigin } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -38,6 +39,7 @@ let ticketId: number;
 let attachmentId: number;
 let categoryId: number;
 let systemId: number;
+let requesterSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 function expectSafe500(response: request.Response, message: string): void {
   expect(response.status).toBe(500);
@@ -55,6 +57,7 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
@@ -94,11 +97,13 @@ beforeAll(async () => {
   ({ app } = await import("../../src/app.js"));
   const { getPrisma } = await import("../../src/prisma.js");
   routePrisma = getPrisma();
+  requesterSession = await authenticatedRequester(app, prisma, requesterId);
 });
 
 afterAll(async () => {
   await prisma?.attachment.deleteMany({ where: { id: attachmentId } });
   await prisma?.ticket.deleteMany({ where: { id: ticketId } });
+  if (prisma && requesterId) await deleteSessionsForUsers(prisma, [requesterId]);
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
   await prisma?.user.deleteMany({ where: { id: requesterId } });
@@ -110,7 +115,7 @@ describe("API-20 safe unexpected failures", () => {
     const spy = vi.spyOn(routePrisma.category, "findMany").mockRejectedValueOnce(
       new Error("Prisma SQL postgres://user:secret@host/db C:\\private\\categories"),
     );
-    const response = await request(app).get("/api/categories");
+    const response = await requesterSession.agent.get("/api/categories");
     expectSafe500(response, "Unable to load categories");
     spy.mockRestore();
   });
@@ -119,9 +124,7 @@ describe("API-20 safe unexpected failures", () => {
     const spy = vi.spyOn(routePrisma.ticket, "count").mockRejectedValueOnce(
       new Error("DATABASE_URL=postgresql://user:secret@host/db Prisma stack"),
     );
-    const response = await request(app)
-      .get("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId));
+    const response = await requesterSession.agent.get("/api/tickets");
     expectSafe500(response, "Unable to load tickets");
     spy.mockRestore();
   });
@@ -130,9 +133,7 @@ describe("API-20 safe unexpected failures", () => {
     const spy = vi.spyOn(routePrisma.ticket, "findFirst").mockRejectedValueOnce(
       new Error("Prisma query failed at C:\\private\\ticket.sql"),
     );
-    const response = await request(app)
-      .get(`/api/tickets/${ticketId}`)
-      .set("X-Development-Requester-Id", String(requesterId));
+    const response = await requesterSession.agent.get(`/api/tickets/${ticketId}`);
     expectSafe500(response, "Unable to load ticket");
     spy.mockRestore();
   });
@@ -141,9 +142,7 @@ describe("API-20 safe unexpected failures", () => {
     const spy = vi.spyOn(routePrisma.attachment, "findMany").mockRejectedValueOnce(
       new Error("storedName /var/private/secret Prisma error"),
     );
-    const response = await request(app)
-      .get(`/api/tickets/${ticketId}/attachments`)
-      .set("X-Development-Requester-Id", String(requesterId));
+    const response = await requesterSession.agent.get(`/api/tickets/${ticketId}/attachments`);
     expectSafe500(response, "Unable to load attachments");
     spy.mockRestore();
   });
@@ -152,9 +151,10 @@ describe("API-20 safe unexpected failures", () => {
     const spy = vi.spyOn(routePrisma, "$transaction").mockRejectedValueOnce(
       new Error("Prisma SQL password=secret C:\\private\\remove"),
     );
-    const response = await request(app)
+    const response = await requesterSession.agent
       .delete(`/api/tickets/${ticketId}/attachments/${attachmentId}`)
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .send({ removalReason: "valid removal reason" });
     expectSafe500(response, "Unable to remove attachment");
     spy.mockRestore();

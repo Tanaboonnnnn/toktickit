@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Express } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
-import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers, testOrigin } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -39,6 +39,7 @@ let requesterId: number;
 let categoryId: number;
 let systemId: number;
 let originalTicketCreate: PrismaClient["ticket"]["create"];
+let requesterSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!developmentDatabaseUrl || !testDatabaseUrl) {
@@ -48,6 +49,7 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
@@ -74,12 +76,14 @@ beforeAll(async () => {
   const { getPrisma } = await import("../../src/prisma.js");
   routePrisma = getPrisma();
   originalTicketCreate = routePrisma.ticket.create.bind(routePrisma.ticket);
+  requesterSession = await authenticatedRequester(app, prisma, requesterId);
 });
 
 afterAll(async () => {
   await prisma?.ticket.deleteMany({
     where: { clientRequestId: { in: [clientRequestId, collisionClientRequestId] } },
   });
+  if (prisma && requesterId) await deleteSessionsForUsers(prisma, [requesterId]);
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
   await prisma?.user.deleteMany({ where: { id: requesterId } });
@@ -100,9 +104,10 @@ describe("API-06 Ticket creation failure behavior", () => {
       description: "Sign-in repeatedly returns an access denied message.",
     };
 
-    const failed = await request(app)
+    const failed = await requesterSession.agent
       .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .send(body);
 
     expect(failed.status).toBe(500);
@@ -113,9 +118,10 @@ describe("API-06 Ticket creation failure behavior", () => {
     expect(await prisma.ticket.findUnique({ where: { clientRequestId } })).toBeNull();
 
     createSpy.mockImplementation(originalTicketCreate);
-    const retry = await request(app)
+    const retry = await requesterSession.agent
       .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .send(body);
 
     expect(retry.status).toBe(201);
@@ -133,9 +139,10 @@ describe("API-06 Ticket creation failure behavior", () => {
         meta: { target: ["ticketNumber"] },
       }),
     );
-    const response = await request(app)
+    const response = await requesterSession.agent
       .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .send({
         clientRequestId: collisionClientRequestId,
         categoryId,

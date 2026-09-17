@@ -147,7 +147,7 @@ describe("REQ-01 / REQ-02 post-#45 authenticated Requester activation", () => {
     expect(ids).not.toContain(foreignTicketId);
   });
 
-  it("uses the authenticated Requester for create even when legacy header/body identity is forged", async () => {
+  it("uses the authenticated Requester for create even when the retired legacy header is forged", async () => {
     const agent = request.agent(fixture.app);
     expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
     const token = await csrf(agent, fixture);
@@ -157,7 +157,6 @@ describe("REQ-01 / REQ-02 post-#45 authenticated Requester activation", () => {
       .set("X-CSRF-Token", token)
       .set("X-Development-Requester-Id", String(fixture.requester.id))
       .send({
-        requesterId: fixture.requester.id,
         clientRequestId: randomUUID(),
         categoryId,
         relatedSystemId,
@@ -169,6 +168,62 @@ describe("REQ-01 / REQ-02 post-#45 authenticated Requester activation", () => {
 
     expect(response.body.ticket.requester.id).toBe(fixture.normalRequester.id);
     await fixture.prisma.ticket.delete({ where: { id: response.body.ticket.id } });
+  });
+
+  it("rejects privileged Ticket fields when a Requester overposts server-owned authority", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const token = await csrf(agent, fixture);
+    const beforeCount = await fixture.prisma.ticket.count({ where: { requesterId: fixture.normalRequester.id } });
+    const response = await agent
+      .post("/api/tickets")
+      .set("Origin", fixture.origin)
+      .set("X-CSRF-Token", token)
+      .send({
+        clientRequestId: randomUUID(),
+        categoryId,
+        relatedSystemId,
+        summary: `${tag} overpost guard`,
+        requestedPriority: "MEDIUM",
+        description: "Privileged Ticket fields in this payload must never become client authority.",
+        requesterId: fixture.requester.id,
+        ticketNumber: "TKT-20000101-CLIENT",
+        ownerId: fixture.staff.id,
+        role: "ADMINISTRATOR",
+        currentStatus: "CLOSED",
+        itPriority: "HIGH",
+        authorId: fixture.staff.id,
+        author: { id: fixture.staff.id },
+        createdAt: "2000-01-01T00:00:00.000Z",
+        updatedAt: "2000-01-01T00:00:00.000Z",
+      })
+      .expect(400);
+
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    expect(response.body.error.fieldErrors).toMatchObject({
+      requesterId: expect.any(String),
+      ticketNumber: expect.any(String),
+      ownerId: expect.any(String),
+      role: expect.any(String),
+      currentStatus: expect.any(String),
+      itPriority: expect.any(String),
+      authorId: expect.any(String),
+      author: expect.any(String),
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    });
+    expect(await fixture.prisma.ticket.count({ where: { requesterId: fixture.normalRequester.id } })).toBe(beforeCount);
+  });
+
+  it("uses the same non-disclosing 404 for a missing and another Requester's Ticket detail", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const foreign = await agent.get(`/api/tickets/${foreignTicketId}`);
+    const missing = await agent.get("/api/tickets/2147483647");
+    expect(foreign.status).toBe(404);
+    expect(missing.status).toBe(404);
+    expect(foreign.body).toEqual(missing.body);
+    expect(foreign.body.error.code).toBe("RESOURCE_NOT_FOUND");
   });
 
   it("requires CSRF for authenticated Requester mutations", async () => {
@@ -204,5 +259,85 @@ describe("REQ-01 / REQ-02 post-#45 authenticated Requester activation", () => {
     const response = await request(fixture.app).post(`/api/tickets/${ownTicketId}/attachments`);
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe("AUTHENTICATION_REQUIRED");
+  });
+});
+
+describe("REQ-03 authenticated Ticket idempotency continuity", () => {
+  function createPayload(clientRequestId: string) {
+    return {
+      clientRequestId,
+      categoryId,
+      relatedSystemId,
+      summary: `${tag} idempotent ticket`,
+      requestedPriority: "LOW" as const,
+      description: "An exact authenticated replay must preserve later operational Ticket state.",
+    };
+  }
+
+  it("returns the current logical Ticket on exact replay without resetting Staff operational state", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const token = await csrf(agent, fixture);
+    const clientRequestId = randomUUID();
+    const payload = createPayload(clientRequestId);
+    const created = await agent.post("/api/tickets").set("Origin", fixture.origin).set("X-CSRF-Token", token).send(payload).expect(201);
+    const operationalUpdatedAt = new Date("2026-09-17T00:00:00.000Z");
+    await fixture.prisma.ticket.update({
+      where: { id: created.body.ticket.id },
+      data: {
+        ownerId: fixture.staff.id,
+        currentStatus: "IN_PROGRESS",
+        itPriority: "HIGH",
+        version: 7,
+        updatedAt: operationalUpdatedAt,
+      },
+    });
+
+    const replay = await agent.post("/api/tickets").set("Origin", fixture.origin).set("X-CSRF-Token", token).send(payload).expect(200);
+    expect(replay.body.replayed).toBe(true);
+    expect(replay.body.ticket.id).toBe(created.body.ticket.id);
+    expect(replay.body.ticket.currentStatus).toBe("IN_PROGRESS");
+    const stored = await fixture.prisma.ticket.findUniqueOrThrow({ where: { id: created.body.ticket.id } });
+    expect(stored.ownerId).toBe(fixture.staff.id);
+    expect(stored.currentStatus).toBe("IN_PROGRESS");
+    expect(stored.itPriority).toBe("HIGH");
+    expect(stored.version).toBe(7);
+    expect(stored.updatedAt.toISOString()).toBe(operationalUpdatedAt.toISOString());
+  });
+
+  it("rejects a conflicting payload or authenticated Requester for the same clientRequestId", async () => {
+    const ownerAgent = request.agent(fixture.app);
+    expect((await login(ownerAgent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const ownerToken = await csrf(ownerAgent, fixture);
+    const clientRequestId = randomUUID();
+    const payload = createPayload(clientRequestId);
+    await ownerAgent.post("/api/tickets").set("Origin", fixture.origin).set("X-CSRF-Token", ownerToken).send(payload).expect(201);
+
+    const changed = await ownerAgent
+      .post("/api/tickets")
+      .set("Origin", fixture.origin)
+      .set("X-CSRF-Token", ownerToken)
+      .send({ ...payload, summary: `${payload.summary} changed` });
+    expect(changed.status).toBe(409);
+    expect(changed.body.error.code).toBe("DUPLICATE_REQUEST_CONFLICT");
+
+    const otherAgent = request.agent(fixture.app);
+    expect((await login(otherAgent, fixture, fixture.requester.email)).status).toBe(200);
+    // fixture.requester is intentionally still on an initial password and cannot exercise normal mutations.
+    expect((await otherAgent.post("/api/tickets").send(payload)).status).toBe(403);
+    expect(await fixture.prisma.ticket.count({ where: { clientRequestId } })).toBe(1);
+  });
+
+  it("serializes concurrent identical creates into one logical Ticket", async () => {
+    const agent = request.agent(fixture.app);
+    expect((await login(agent, fixture, fixture.normalRequester.email)).status).toBe(200);
+    const token = await csrf(agent, fixture);
+    const clientRequestId = randomUUID();
+    const payload = createPayload(clientRequestId);
+    const send = () => agent.post("/api/tickets").set("Origin", fixture.origin).set("X-CSRF-Token", token).send(payload);
+    const [a, b] = await Promise.all([send(), send()]);
+    expect([a.status, b.status].sort()).toEqual([200, 201]);
+    expect(a.body.ticket.id).toBe(b.body.ticket.id);
+    expect(await fixture.prisma.ticket.count({ where: { clientRequestId } })).toBe(1);
   });
 });

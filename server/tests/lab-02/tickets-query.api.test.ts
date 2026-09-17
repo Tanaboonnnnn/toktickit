@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaClient } from "@prisma/client";
-import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Express } from "express";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers } from "./support/authenticated-requester.js";
 
 function env(name: string) {
   if (process.env[name]) return process.env[name];
@@ -32,10 +32,12 @@ let requesterId: number;
 let categoryOneId: number;
 let categoryTwoId: number;
 let systemId: number;
+let requesterSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!developmentDatabaseUrl || !testDatabaseUrl) throw new Error("DATABASE_URL and TEST_DATABASE_URL are required for Lab 2 API tests");
   if (dbName(developmentDatabaseUrl) === dbName(testDatabaseUrl)) throw new Error("TEST_DATABASE_URL must not resolve to the development database");
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
@@ -56,10 +58,12 @@ beforeAll(async () => {
     ],
   });
   ({ app } = await import("../../src/app.js"));
+  requesterSession = await authenticatedRequester(app, prisma, requesterId);
 });
 
 afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { in: clientRequestIds } } });
+  if (prisma && requesterId) await deleteSessionsForUsers(prisma, [requesterId]);
   await prisma?.category.deleteMany({ where: { id: { in: [categoryOneId, categoryTwoId] } } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
   await prisma?.user.deleteMany({ where: { id: requesterId } });
@@ -67,7 +71,7 @@ afterAll(async () => {
 });
 
 async function list(query = "") {
-  return request(app).get(`/api/tickets${query}`).set("X-Development-Requester-Id", String(requesterId));
+  return requesterSession.agent.get(`/api/tickets${query}`);
 }
 
 describe("API-08 My Tickets search and filters", () => {

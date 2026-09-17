@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TicketDetail from "../../src/TicketDetail.js";
 import MyTickets from "../../src/MyTickets.js";
-import { RequesterContextProvider, useRequesterContext } from "./support/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = [{ id: 1, name: "Anan Student", email: "anan.student@example.test" }];
 const ticket = {
@@ -106,7 +106,7 @@ describe("UI-08 Requester Ticket Detail", () => {
     expect(screen.getByRole("status")).not.toHaveTextContent(/another requester|owned by|Requester B/i);
   });
 
-  it("shows safe failure text and retries with the same Ticket ID and requester context", async () => {
+  it("shows safe failure text and retries the same Ticket with authenticated cookie transport", async () => {
     let calls = 0;
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
@@ -124,7 +124,8 @@ describe("UI-08 Requester Ticket Detail", () => {
     await userEvent.setup().click(screen.getByRole("button", { name: "Retry" }));
     expect(await screen.findByText(ticket.ticketNumber)).toBeInTheDocument();
     const detailCall = fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/tickets/7")).at(-1);
-    expect(detailCall?.[1]).toEqual(expect.objectContaining({ headers: { "X-Development-Requester-Id": "1" } }));
+    expect(detailCall?.[1]).toEqual(expect.objectContaining({ credentials: "include" }));
+    expect(JSON.stringify(detailCall?.[1] ?? {})).not.toMatch(/X-Development-Requester-Id/i);
     expect(String(detailCall?.[0])).toContain("/api/tickets/7");
   });
 
@@ -162,25 +163,4 @@ describe("UI-08 Requester Ticket Detail", () => {
     expect(onViewTicket).toHaveBeenNthCalledWith(2, 7);
   });
 
-  it("clears the previous detail before loading a newly selected Requester", async () => {
-    const requesters = [requester[0], { id: 2, name: "Mali Student", email: "mali.student@example.test" }];
-    const otherTicket = { ...ticket, requester: requesters[1], summary: "Mali requester ticket" };
-    function Switcher() {
-      const { selectRequester } = useRequesterContext();
-      return <button type="button" onClick={() => selectRequester(2)}>Switch requester</button>;
-    }
-    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input);
-      if (url.includes("development-requesters")) return Promise.resolve(response(requesters));
-      const headers = (init?.headers ?? {}) as Record<string, string>;
-      return Promise.resolve(response({ ticket: headers["X-Development-Requester-Id"] === "2" ? otherTicket : ticket }));
-    });
-    vi.stubGlobal("fetch", fetchMock);
-    sessionStorage.setItem("toktickit.developmentRequesterId", "1");
-    render(<RequesterContextProvider><Switcher /><TicketDetail ticketId={7} onBack={vi.fn()} /></RequesterContextProvider>);
-    await screen.findByText(ticket.summary);
-    await userEvent.setup().click(screen.getByRole("button", { name: "Switch requester" }));
-    expect(screen.queryByText(ticket.summary)).not.toBeInTheDocument();
-    expect(await screen.findByText(otherTicket.summary)).toBeInTheDocument();
-  });
 });

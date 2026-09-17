@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaClient } from "@prisma/client";
-import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Express } from "express";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -36,10 +36,13 @@ let requesterBId: number;
 let categoryId: number;
 let systemId: number;
 const clientRequestIds = [`${fixtureTag}-a1`, `${fixtureTag}-a2`, `${fixtureTag}-b1`, `${fixtureTag}-b2`];
+let requesterASession: Awaited<ReturnType<typeof authenticatedRequester>>;
+let requesterBSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!developmentDatabaseUrl || !testDatabaseUrl) throw new Error("DATABASE_URL and TEST_DATABASE_URL are required for Lab 2 API tests");
   if (databaseName(developmentDatabaseUrl) === databaseName(testDatabaseUrl)) throw new Error("TEST_DATABASE_URL must not resolve to the development database");
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
@@ -60,10 +63,13 @@ beforeAll(async () => {
     ],
   });
   ({ app } = await import("../../src/app.js"));
+  requesterASession = await authenticatedRequester(app, prisma, requesterAId);
+  requesterBSession = await authenticatedRequester(app, prisma, requesterBId);
 });
 
 afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { in: clientRequestIds } } });
+  if (prisma) await deleteSessionsForUsers(prisma, [requesterAId, requesterBId].filter(Boolean));
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
   await prisma?.user.deleteMany({ where: { id: { in: [requesterAId, requesterBId] } } });
@@ -72,8 +78,7 @@ afterAll(async () => {
 
 describe("API-07 My Tickets ownership", () => {
   it("enforces requester ownership in the database query and exposes only TicketListItem fields", async () => {
-    const responseA = await request(app).get("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterAId));
+    const responseA = await requesterASession.agent.get("/api/tickets");
     expect(responseA.status).toBe(200);
     expect(responseA.body.totalItems).toBe(2);
     expect(responseA.body.items.map((item: { summary: string }) => item.summary).sort()).toEqual([
@@ -93,8 +98,7 @@ describe("API-07 My Tickets ownership", () => {
     ]);
     expect(JSON.stringify(responseA.body)).not.toMatch(/requesterId|clientRequestId|description|storedName|Prisma/i);
 
-    const responseB = await request(app).get("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterBId));
+    const responseB = await requesterBSession.agent.get("/api/tickets");
     expect(responseB.status).toBe(200);
     expect(responseB.body.totalItems).toBe(2);
     expect(responseB.body.items.map((item: { summary: string }) => item.summary).sort()).toEqual([

@@ -116,7 +116,7 @@ app.post(
   },
 );
 
-app.get("/api/tickets/:ticketId/attachments", requireActor(), requireCapability("REQUESTER_TICKET_READ_OWN"), async (req: Request, res: Response) => {
+app.get("/api/tickets/:ticketId/attachments", requireActor(), requireCapability("ATTACHMENT_READ_PERMITTED"), async (req: Request, res: Response) => {
   try {
     const requester = req.actor!;
     const ticketId = parsePositiveId(req.params.ticketId, "ticketId");
@@ -127,7 +127,7 @@ app.get("/api/tickets/:ticketId/attachments", requireActor(), requireCapability(
   }
 });
 
-app.get("/api/tickets/:ticketId/attachments/:attachmentId/download", requireActor(), requireCapability("REQUESTER_TICKET_READ_OWN"), async (req: Request, res: Response) => {
+app.get("/api/tickets/:ticketId/attachments/:attachmentId/download", requireActor(), requireCapability("ATTACHMENT_READ_PERMITTED"), async (req: Request, res: Response) => {
   try {
     const requester = req.actor!;
     const ticketId = parsePositiveId(req.params.ticketId, "ticketId");

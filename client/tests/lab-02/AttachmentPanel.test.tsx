@@ -17,6 +17,7 @@ describe("UI-09 AttachmentPanel", () => {
     const refreshTicket = { ...baseTicket, attachments: [{ id: 2, ticketId: 9, originalName: "proof.png", mimeType: "image/png", sizeBytes: 8, state: "ACTIVE" as const, createdAt: "2026-08-29T00:01:00.000Z", removedAt: null, removalReason: null, downloadUrl: "/api/tickets/9/attachments/2/download" }] };
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (url.endsWith("/attachments") && init?.method === "POST") return Promise.resolve(json({ attachment: refreshTicket.attachments[0] }, true, 201));
       detailCalls += 1;
@@ -40,6 +41,7 @@ describe("UI-09 AttachmentPanel", () => {
     let postCount = 0;
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (url.endsWith("/attachments") && init?.method === "POST") { postCount += 1; return Promise.resolve(json({ error: { code: "INTERNAL_ERROR", message: "Unable to upload attachment" } }, false, 500)); }
       return Promise.resolve(json({ ticket: baseTicket }));
@@ -61,6 +63,7 @@ describe("UI-09 AttachmentPanel", () => {
     let postCount = 0;
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (init?.method === "POST" && url.includes("/attachments")) postCount += 1;
       return Promise.resolve(json({ ticket: baseTicket }));
@@ -93,6 +96,7 @@ describe("UI-09 AttachmentPanel", () => {
     let refreshes = 0;
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (url.endsWith("/attachments/3") && init?.method === "DELETE") return Promise.resolve(json({ attachment: { ...active, state: "REMOVED", removedAt: "2026-08-29T02:00:00.000Z", removalReason: "done", downloadUrl: null } }));
       if (url.includes("/api/tickets/9") && !url.includes("/attachments/3")) { refreshes += 1; return Promise.resolve(json({ ticket: { ...baseTicket, attachments: [active] } })); }
@@ -119,6 +123,7 @@ describe("UI-09 AttachmentPanel", () => {
     const active = { id: 4, ticketId: 9, originalName: longName, mimeType: "image/png", sizeBytes: 8, state: "ACTIVE" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: null, removalReason: null, downloadUrl: "/download" };
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (url.includes("/download")) return Promise.resolve(json({ error: { code: "INTERNAL_ERROR", message: "bad internal detail" } }, false, 500));
       if (url.includes("/attachments") && init?.method === "POST") return Promise.resolve(json({ error: { code: "INTERNAL_ERROR", message: "Unable to upload attachment" } }, false, 500));
@@ -137,6 +142,7 @@ describe("UI-09 AttachmentPanel", () => {
     let detailGets = 0; let statusGets = 0; let postCount = 0;
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (url.endsWith("/attachments") && init?.method === "POST") { postCount += 1; return postCount === 1 ? Promise.reject(new TypeError("network lost")) : Promise.resolve(json({ attachment: uploaded }, true, 201)); }
       if (url.endsWith("/attachments")) { statusGets += 1; return Promise.resolve(json({ items: statusGets === 1 ? [] : [uploaded] })); }
@@ -160,6 +166,7 @@ describe("UI-09 AttachmentPanel", () => {
     let statusGets = 0; let postCount = 0;
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (url.endsWith("/attachments") && init?.method === "POST") { postCount += 1; return Promise.reject(new TypeError("network lost")); }
       if (url.endsWith("/attachments")) { statusGets += 1; return statusGets === 1 ? Promise.resolve(json({}, false, 500)) : Promise.resolve(json({ items: [] })); }
@@ -199,6 +206,7 @@ describe("UI-09 AttachmentPanel", () => {
     let detailGets = 0; const calls: string[] = [];
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input); calls.push(`${init?.method ?? "GET"} ${url}`);
+      if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
       if (init?.method === "DELETE") return Promise.resolve(json({ attachment: removed }));
       detailGets += 1;
