@@ -9,16 +9,15 @@ test.afterAll(async () => { await destroyE2eFixture(fixture); });
 test("E2E-07 supports keyboard focus, validation, and non-color cues", async ({ page }) => {
   await openRequesterShell(page, fixture.requesterA);
   const createRegion = page.getByRole("region", { name: /create ticket/i });
-  await createRegion.getByRole("button", { name: "Create Ticket", exact: true }).focus();
+  const category = page.getByLabel("Category *");
+  const relatedSystem = page.getByLabel("Related System *");
+  await expect(category).toBeEnabled();
+  await expect(relatedSystem).toBeEnabled();
+  await category.focus();
   await page.keyboard.press("Tab");
-  const focusRing = await page.evaluate(() => getComputedStyle(document.activeElement as Element).boxShadow);
+  await expect(relatedSystem).toBeFocused();
+  const focusRing = await relatedSystem.evaluate((element) => getComputedStyle(element).boxShadow);
   expect(focusRing).not.toBe("none");
-
-  await expect(page.getByLabel("Category *")).toBeEnabled();
-  await expect(page.getByLabel("Related System *")).toBeEnabled();
-  await page.getByLabel("Category *").focus();
-  await page.keyboard.press("Tab");
-  await expect(page.getByLabel("Related System *")).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByLabel("Ticket Summary *")).toBeFocused();
   await page.keyboard.press("Tab");

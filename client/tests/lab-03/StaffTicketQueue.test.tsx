@@ -121,15 +121,16 @@ describe("UI-03 Staff Ticket Queue", () => {
   });
 });
 
-describe("Issue #47 read-only Staff Ticket Detail", () => {
-  it("renders the staff projection and returns with preserved queue context without mutation controls", async () => {
+describe("Issue #47 Staff Ticket Detail continuity", () => {
+  it("preserves the staff projection and Queue back-context as Issue #48 adds operations", async () => {
     const detail = { ...item, relatedSystem: { id: 5, name: "VPN" }, description: "Long diagnostic description", attachments: [], resolutionSummary: null, resolvedAt: null, closedAt: null, cancelReason: null, cancelledAt: null, requesterResolutionIndicatedAt: null };
     vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("/api/staff/tickets/91") ? json({ ticket: detail }) : json({})));
     const onBack = vi.fn();
     render(<AuthProvider initialUser={staff}><StaffTicketDetail ticketId={91} queueContext="search=vpn&page=2&pageSize=20" onBack={onBack} /></AuthProvider>);
     expect(await screen.findByText("Long diagnostic description")).toBeInTheDocument();
     expect(screen.getByText("Niran Staff")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /claim|reassign|resolve|close|change status/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Ticket operations" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /public comments|internal notes/i })).not.toBeInTheDocument();
     await userEvent.setup().click(screen.getByRole("button", { name: "Back to Ticket Queue" }));
     expect(onBack).toHaveBeenCalledWith("search=vpn&page=2&pageSize=20");
   });

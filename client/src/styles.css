@@ -812,3 +812,15 @@ select:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+/* Lab 3 Staff Ticket operational controls */
+.lab3-ticket-operations { border-left: 4px solid var(--color-primary); }
+.lab3-operation-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.lab3-operation-grid .lab2-field { display: grid; gap: 8px; min-width: 0; }
+.lab3-operation-grid select,
+.lab3-operation-grid textarea { width: 100%; min-height: 44px; }
+.lab3-operation-grid textarea { min-height: 96px; resize: vertical; }
+.lab3-confirm { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+.lab3-confirm input { margin-top: 4px; }
+@media (max-width: 991.98px) { .lab3-operation-grid { grid-template-columns: 1fr 1fr; } .lab3-status-operation { grid-column: 1 / -1; } }
+@media (max-width: 767.98px) { .lab3-operation-grid { grid-template-columns: 1fr; } .lab3-status-operation { grid-column: auto; } .lab3-operation-grid .lab2-button { width: 100%; } }
