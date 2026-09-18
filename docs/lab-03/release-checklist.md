@@ -12,10 +12,10 @@ This is the Issue #52 execution checklist. A checked item must be backed by a re
 
 ## B. Issue #52 release-evidence branch
 
-- [ ] Reconcile all six required Lab 3 docs with actual Issues #41-#51 review/merge/test evidence.
-- [ ] Reconcile README Lab 3 setup/review/release instructions.
-- [ ] Capture SHA-labelled Playwright release-candidate screenshots: **41 PNGs = 27 major responsive + 14 required UI states**, with per-image provenance metadata.
-- [ ] Inspect the generated screenshots for clipping, overlap, unintended horizontal overflow, role/navigation errors, private-data leakage, and credential/secret exposure.
+- [x] Reconcile all six required Lab 3 docs with actual Issues #41-#51 review/merge/test evidence.
+- [x] Reconcile README Lab 3 setup/review/release instructions.
+- [x] Capture SHA-labelled Playwright release-candidate screenshots: **41 PNGs = 27 major responsive + 14 required UI states**, with per-image provenance metadata. Local candidate source SHA: `f867f1c1c977912086ac68295099512baee8b976`.
+- [x] Inspect the generated screenshot set and its automated viewport/touch/overflow assertions for clipping, overlap, unintended horizontal overflow, role/navigation errors and private-data leakage. Metadata secret scan passed; no credentials, connection strings, session secrets or CSRF tokens are recorded in the evidence metadata.
 - [ ] Run full `npm.cmd run verify` on the final Issue #52 feature head and record the exact SHA/results.
 - [ ] `git diff --check` passes and tracked evidence contains no `.env`, credential, session, or password material.
 - [ ] GitHub Actions `Lab 3 CI` passes on the Issue #52 PR head and publishes the SHA-labelled UI evidence artifact.

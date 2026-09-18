@@ -1,0 +1,14 @@
+{
+  "role": "Requester",
+  "route": "/#/tickets",
+  "scenario": "Authenticated Requester My Tickets with role shell and query controls",
+  "mapping": [
+    "UI-02",
+    "RESP-01",
+    "RESP-02",
+    "RESP-03",
+    "Answer Part 9"
+  ],
+  "file": "major/mobile-390x844/02-requester-my-tickets.png",
+  "viewport": "390x844"
+}

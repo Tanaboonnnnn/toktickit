@@ -1,0 +1,12 @@
+{
+  "file": "states/requester/create-ticket-attachment-success.png",
+  "role": "Requester",
+  "route": "/#/tickets/new",
+  "scenario": "Create Ticket success with retained Attachment upload feedback",
+  "mapping": [
+    "E2E-02",
+    "ATT-01",
+    "Answer Part 9"
+  ],
+  "viewport": "1440x900"
+}

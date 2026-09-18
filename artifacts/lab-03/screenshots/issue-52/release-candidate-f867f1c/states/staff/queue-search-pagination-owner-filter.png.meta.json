@@ -1,0 +1,12 @@
+{
+  "file": "states/staff/queue-search-pagination-owner-filter.png",
+  "role": "IT Staff",
+  "route": "/#/staff/tickets",
+  "scenario": "Ticket Queue with applied search, pagination history and Owner=Me filter",
+  "mapping": [
+    "QUEUE-02",
+    "UI-03",
+    "Answer Part 6"
+  ],
+  "viewport": "1440x900"
+}
