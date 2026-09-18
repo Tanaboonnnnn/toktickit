@@ -254,4 +254,6 @@ Run `npm.cmd run capture:evidence:lab3 -- <label>` from the repository root. The
 
 For a moving Pull Request, the authoritative exact-head set is the newest successful CI artifact, not a screenshot directory committed into that same branch. CI checks out `pull_request.head.sha`, supplies it as `EXPECTED_EVIDENCE_SHA`, and the capture command rejects a mismatch before producing evidence. This prevents a generated-evidence commit from invalidating its own SHA provenance.
 
+The course-facing repository also retains one browsable `repository-evidence-<source-sha>/` snapshot. It contains the same 41-image coverage plus per-image metadata and is committed in an evidence-only follow-up commit so instructors can inspect screenshots directly from GitHub. The snapshot manifest names the source commit that rendered the application; exact latest-head proof remains the CI artifact.
+
 Final visual inspection must cover all major screens at Desktop/Tablet/Mobile, plus representative validation/empty/no-results/forbidden/conflict/failure states supplied by the broader E2E/UI suites. Screenshot evidence must not contain credentials or session secrets.

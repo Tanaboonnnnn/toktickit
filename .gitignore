@@ -10,9 +10,13 @@ build/
 # Playwright transient output (course screenshots under artifacts/ remain tracked)
 playwright-report/
 test-results/
-# Issue #52 exact-head/final-main evidence is generated from an already-existing SHA.
-# Keep it out of that same commit or the commit would invalidate its own provenance.
-artifacts/lab-03/screenshots/issue-52/
+# Issue #52 exact-head CI/final-main captures are transient, but the course-facing
+# repository-evidence snapshot stays tracked so a reviewer/instructor can browse it
+# directly in GitHub without opening an Actions artifact.
+artifacts/lab-03/screenshots/issue-52/*
+!artifacts/lab-03/screenshots/issue-52/README.md
+!artifacts/lab-03/screenshots/issue-52/repository-evidence-*/
+!artifacts/lab-03/screenshots/issue-52/repository-evidence-*/**
 # prisma
 server/prisma/*.db
 # private runtime attachment bytes

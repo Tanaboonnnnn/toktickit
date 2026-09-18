@@ -312,6 +312,15 @@ out `pull_request.head.sha`, passes that SHA to the capture command, and fails i
 `git rev-parse HEAD` does not match it. Reviewers should use the newest successful
 `lab3-ui-evidence-<PR-head-SHA>` artifact for exact-head visual proof.
 
+For course/instructor browsing, Issue #52 also keeps one **repository-visible evidence
+snapshot** under `artifacts/lab-03/screenshots/issue-52/repository-evidence-<source-sha>/`.
+That directory is intentionally committed so opening the GitHub repository is enough to
+see all 41 screenshots and their metadata. Its manifest records the application-source
+SHA that produced the images; the following evidence-only commit may have a different
+HEAD because it adds the PNG/metadata files themselves. No application code is allowed
+to change between that source SHA and the repository-evidence container commit. CI still
+provides the separate exact-current-PR-head artifact described above.
+
 ### GitHub Actions CI for Lab 3
 
 `.github/workflows/lab3-ci.yml` runs on pull requests targeting `lab3-staging` or
