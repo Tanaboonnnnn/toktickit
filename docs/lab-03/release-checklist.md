@@ -22,7 +22,7 @@ This is the Issue #52 execution checklist. A checked item must be backed by a re
 - [ ] GitHub Actions `Lab 3 CI` passes on the Issue #52 PR head and publishes the SHA-labelled UI evidence artifact.
 - [x] PR #64 (`feature/52-lab3-release-evidence -> lab3-staging`) had successful CI evidence and a real **Approved** review from `@L0u1sss` at 2026-09-18 19:20:47 UTC, then merged as `51f2b4bc710025c92eb17173c9d17efca8aef50d` at 19:20:58 UTC. The later user-requested professional evidence-data cleanup was still unfinished at that point, which is why this corrective follow-up exists.
 - [x] Confirmed that the accidental GitHub Revert click created only a remote revert branch; no Revert PR/merge occurred. The unused revert branch was deleted because reverting the whole PR would remove valid CI/evidence infrastructure.
-- [ ] Open the corrective `fix/52-professional-evidence-data -> lab3-staging` PR and explicitly explain the accidental early merge / narrow follow-up scope.
+- [x] Opened corrective PR #65 (`fix/52-professional-evidence-data -> lab3-staging`) with the approved PR #64 history and later unfinished presentation-cleanup scope explained explicitly; requested fresh review from `@L0u1sss`.
 - [ ] Obtain a real peer approval on the corrective follow-up before merging it.
 - [ ] After that approved corrective merge, rerun the staging release-candidate gate before any `lab3-staging -> main` release PR.
 
