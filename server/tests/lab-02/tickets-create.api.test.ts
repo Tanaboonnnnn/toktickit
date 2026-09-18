@@ -116,12 +116,22 @@ describe("API-03 Ticket creation", () => {
       currentStatus: "NEW",
       description: "Sign-in repeatedly returns an access denied message.",
       attachments: [],
+      resolutionSummary: null,
+      resolvedAt: null,
+      closedAt: null,
+      cancelReason: null,
+      cancelledAt: null,
+      requesterResolutionIndicatedAt: null,
+      version: 1,
     });
     expect(response.body.ticket.createdAt).toEqual(expect.any(String));
     expect(response.body.ticket.updatedAt).toEqual(expect.any(String));
     expect(Object.keys(response.body.ticket).sort()).toEqual([
       "attachments",
+      "cancelReason",
+      "cancelledAt",
       "category",
+      "closedAt",
       "createdAt",
       "currentStatus",
       "description",
@@ -129,9 +139,13 @@ describe("API-03 Ticket creation", () => {
       "relatedSystem",
       "requestedPriority",
       "requester",
+      "requesterResolutionIndicatedAt",
+      "resolutionSummary",
+      "resolvedAt",
       "summary",
       "ticketNumber",
       "updatedAt",
+      "version",
     ]);
     expect(JSON.stringify(response.body)).not.toMatch(/clientRequestId|requesterId|storedName|password|Prisma/i);
 

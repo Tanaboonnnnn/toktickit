@@ -5,7 +5,15 @@ import TicketDetail from "../../src/TicketDetail.js";
 import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = { id: 1, name: "Test Requester", email: "test@example.test" };
-const baseTicket = { id: 9, ticketNumber: "TKT-20260829-ABC123", requester, category: { id: 1, name: "Hardware" }, relatedSystem: { id: 1, name: "Wi-Fi" }, summary: "Network issue", requestedPriority: "LOW" as const, currentStatus: "NEW" as const, createdAt: "2026-08-29T00:00:00.000Z", updatedAt: "2026-08-29T00:00:00.000Z", description: "A sufficiently detailed test description.", attachments: [] };
+const baseTicket = {
+  id: 9, ticketNumber: "TKT-20260829-ABC123", requester,
+  category: { id: 1, name: "Hardware" }, relatedSystem: { id: 1, name: "Wi-Fi" },
+  summary: "Network issue", requestedPriority: "LOW" as const, currentStatus: "NEW" as const,
+  createdAt: "2026-08-29T00:00:00.000Z", updatedAt: "2026-08-29T00:00:00.000Z",
+  description: "A sufficiently detailed test description.", attachments: [],
+  resolutionSummary: null, resolvedAt: null, closedAt: null, cancelReason: null, cancelledAt: null,
+  requesterResolutionIndicatedAt: null, version: 1,
+};
 function json(body: unknown, ok = true, status = 200) { return { ok, status, json: async () => body, blob: async () => new Blob(["bytes"]) }; }
 
 describe("UI-09 AttachmentPanel", () => {
@@ -19,6 +27,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (url.endsWith("/attachments") && init?.method === "POST") return Promise.resolve(json({ attachment: refreshTicket.attachments[0] }, true, 201));
       detailCalls += 1;
       return Promise.resolve(json({ ticket: detailCalls > 1 ? { ...refreshTicket, updatedAt: "2026-08-29T01:00:00.000Z" } : baseTicket }));
@@ -43,6 +52,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (url.endsWith("/attachments") && init?.method === "POST") { postCount += 1; return Promise.resolve(json({ error: { code: "INTERNAL_ERROR", message: "Unable to upload attachment" } }, false, 500)); }
       return Promise.resolve(json({ ticket: baseTicket }));
     });
@@ -65,6 +75,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (init?.method === "POST" && url.includes("/attachments")) postCount += 1;
       return Promise.resolve(json({ ticket: baseTicket }));
     });
@@ -80,7 +91,12 @@ describe("UI-09 AttachmentPanel", () => {
   it("shows the active five-file limit and removed metadata without actions", async () => {
     const active = Array.from({ length: 5 }, (_, i) => ({ id: i + 1, ticketId: 9, originalName: `a${i}.png`, mimeType: "image/png", sizeBytes: 8, state: "ACTIVE" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: null, removalReason: null, downloadUrl: `/download/${i}` }));
     const removed = { id: 6, ticketId: 9, originalName: "old.pdf", mimeType: "application/pdf", sizeBytes: 8, state: "REMOVED" as const, createdAt: "2026-08-29T00:00:00.000Z", removedAt: null, removalReason: "Old file", downloadUrl: null };
-    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("development-requesters") ? Promise.resolve(json([requester])) : Promise.resolve(json({ ticket: { ...baseTicket, attachments: [...active, removed] } }))));
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
+      return Promise.resolve(json({ ticket: { ...baseTicket, attachments: [...active, removed] } }));
+    }));
     render(<RequesterContextProvider><TicketDetail ticketId={9} onBack={vi.fn()} /></RequesterContextProvider>);
     expect(await screen.findByText(/Maximum five active Attachments reached/i)).toBeInTheDocument();
     expect(screen.getByText("old.pdf")).toBeInTheDocument();
@@ -98,6 +114,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (url.endsWith("/attachments/3") && init?.method === "DELETE") return Promise.resolve(json({ attachment: { ...active, state: "REMOVED", removedAt: "2026-08-29T02:00:00.000Z", removalReason: "done", downloadUrl: null } }));
       if (url.includes("/api/tickets/9") && !url.includes("/attachments/3")) { refreshes += 1; return Promise.resolve(json({ ticket: { ...baseTicket, attachments: [active] } })); }
       return Promise.resolve(json({ ticket: { ...baseTicket, attachments: [active] } }));
@@ -125,6 +142,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (url.includes("/download")) return Promise.resolve(json({ error: { code: "INTERNAL_ERROR", message: "bad internal detail" } }, false, 500));
       if (url.includes("/attachments") && init?.method === "POST") return Promise.resolve(json({ error: { code: "INTERNAL_ERROR", message: "Unable to upload attachment" } }, false, 500));
       return Promise.resolve(json({ ticket: { ...baseTicket, attachments: [active] } }));
@@ -144,6 +162,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (url.endsWith("/attachments") && init?.method === "POST") { postCount += 1; return postCount === 1 ? Promise.reject(new TypeError("network lost")) : Promise.resolve(json({ attachment: uploaded }, true, 201)); }
       if (url.endsWith("/attachments")) { statusGets += 1; return Promise.resolve(json({ items: statusGets === 1 ? [] : [uploaded] })); }
       detailGets += 1; return Promise.resolve(json({ ticket: { ...baseTicket, updatedAt: detailGets > 1 ? "2026-08-29T02:00:00.000Z" : baseTicket.updatedAt, attachments: detailGets > 1 ? [uploaded] : [] } }));
@@ -168,6 +187,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (url.endsWith("/attachments") && init?.method === "POST") { postCount += 1; return Promise.reject(new TypeError("network lost")); }
       if (url.endsWith("/attachments")) { statusGets += 1; return statusGets === 1 ? Promise.resolve(json({}, false, 500)) : Promise.resolve(json({ items: [] })); }
       return Promise.resolve(json({ ticket: baseTicket }));
@@ -187,7 +207,13 @@ describe("UI-09 AttachmentPanel", () => {
 
   it("revokes the temporary object URL after a successful download", async () => {
     const active = { ...baseTicket, attachments: [{ id: 10, ticketId: 9, originalName: "download.png", mimeType: "image/png", sizeBytes: 8, state: "ACTIVE" as const, createdAt: baseTicket.createdAt, removedAt: null, removalReason: null, downloadUrl: "/download" }] };
-    const fetchMock = vi.fn((input: RequestInfo | URL) => String(input).includes("development-requesters") ? Promise.resolve(json([requester])) : String(input).includes("/download") ? Promise.resolve(json({}, true, 200)) : Promise.resolve(json({ ticket: active })));
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
+      if (url.includes("/download")) return Promise.resolve(json({}, true, 200));
+      return Promise.resolve(json({ ticket: active }));
+    });
     vi.stubGlobal("fetch", fetchMock);
     const createUrl = vi.fn().mockReturnValue("blob:test");
     const revokeUrl = vi.fn();
@@ -208,6 +234,7 @@ describe("UI-09 AttachmentPanel", () => {
       const url = String(input); calls.push(`${init?.method ?? "GET"} ${url}`);
       if (url.endsWith("/api/auth/csrf")) return Promise.resolve(json({ csrfToken: "csrf-attachment" }));
       if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+      if (url.endsWith("/comments")) return Promise.resolve(json({ items: [] }));
       if (init?.method === "DELETE") return Promise.resolve(json({ attachment: removed }));
       detailGets += 1;
       return Promise.resolve(json({ ticket: { ...baseTicket, updatedAt: detailGets > 1 ? "2026-08-29T03:00:00.000Z" : baseTicket.updatedAt, attachments: detailGets > 1 ? [removed, ...active.slice(1)] : active } }));

@@ -24,6 +24,13 @@ const detailTicket = {
   ...listTicket,
   requester,
   description: "A sufficiently detailed description for accessibility checks.",
+  resolutionSummary: null,
+  resolvedAt: null,
+  closedAt: null,
+  cancelReason: null,
+  cancelledAt: null,
+  requesterResolutionIndicatedAt: null,
+  version: 1,
   attachments: [
     {
       id: 1,

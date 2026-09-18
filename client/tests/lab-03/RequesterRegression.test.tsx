@@ -31,6 +31,13 @@ const detailTicket = {
     email: AUTHENTICATED_REQUESTER.email,
   },
   description: "The retained Requester detail still works after authentication activation.",
+  resolutionSummary: null,
+  resolvedAt: null,
+  closedAt: null,
+  cancelReason: null,
+  cancelledAt: null,
+  requesterResolutionIndicatedAt: null,
+  version: 1,
   attachments: [{
     id: 9,
     ticketId: 42,
@@ -111,6 +118,8 @@ describe("UI-02 authenticated Requester continuity", () => {
     render(<App />);
     const user = userEvent.setup();
     await screen.findByRole("heading", { name: "Create Ticket" });
+    await screen.findByRole("option", { name: "Hardware" });
+    await screen.findByRole("option", { name: "University Email" });
     await user.selectOptions(screen.getByRole("combobox", { name: "Category *" }), "2");
     await user.selectOptions(screen.getByRole("combobox", { name: "Related System *" }), "3");
     await user.type(screen.getByRole("textbox", { name: "Ticket Summary *" }), "Authenticated Requester continuity");
