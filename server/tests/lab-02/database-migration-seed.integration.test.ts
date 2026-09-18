@@ -295,11 +295,11 @@ describe("Lab 2 database migration and seed", () => {
       "Finance and Registration",
     ];
     const requesterFixtures = [
-      { name: "Anan Student", email: "anan.student@example.test", active: true },
-      { name: "Mali Student", email: "mali.student@example.test", active: true },
-      { name: "Niran Student", email: "niran.student@example.test", active: true },
-      { name: "Ploy Student", email: "ploy.student@example.test", active: true },
-      { name: "Somchai Former Student", email: "somchai.former@example.test", active: false },
+      { name: "Anan Kittisak", email: "anan.student@example.test", active: true },
+      { name: "Mali Charoensuk", email: "mali.student@example.test", active: true },
+      { name: "Niran Prasert", email: "niran.student@example.test", active: true },
+      { name: "Ploy Rattanakorn", email: "ploy.student@example.test", active: true },
+      { name: "Somchai Wattanapong", email: "somchai.former@example.test", active: false },
     ];
     const unrelatedCategoryName = "API-19 Unrelated Category";
     const unrelatedSystemName = "API-19 Unrelated System";

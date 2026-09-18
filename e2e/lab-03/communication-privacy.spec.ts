@@ -26,8 +26,9 @@ function testDatabaseUrl(): string {
 }
 
 const password = "Communication-E2E-Password-49!";
+const PUBLIC_REPLY = "I reset your email session. Please try signing in again and let us know if the problem continues.";
+const PRIVATE_DIAGNOSTIC = "SSO logs show a stale session token. Monitor the next sign-in before escalating.";
 let prisma: PrismaClient;
-let tag = "";
 let staff: { id: number; email: string };
 let requester: { id: number; email: string };
 let categoryId = 0;
@@ -45,17 +46,16 @@ async function login(page: Page, email: string, home: "Ticket Queue" | "My Ticke
 test.beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
   await prisma.$connect();
-  tag = `e2e-communication-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
   const passwordHash = await hashPassword(password);
-  staff = await prisma.user.create({ data: { name: `${tag} Staff`, email: `${tag}-staff@example.test`, active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  requester = await prisma.user.create({ data: { name: `${tag} Requester`, email: `${tag}-requester@example.test`, active: true, role: "REQUESTER", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  const category = await prisma.category.create({ data: { name: `${tag} Category`, active: true } });
-  const system = await prisma.relatedSystem.create({ data: { name: `${tag} System`, active: true } });
+  staff = await prisma.user.create({ data: { name: "Korn Chaiyasit", email: "korn.chaiyasit@example.test", active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  requester = await prisma.user.create({ data: { name: "Anan Srisuk", email: "anan.srisuk@example.test", active: true, role: "REQUESTER", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  const category = await prisma.category.upsert({ where: { name: "Software" }, update: { active: true }, create: { name: "Software", active: true } });
+  const system = await prisma.relatedSystem.upsert({ where: { name: "University Email" }, update: { active: true }, create: { name: "University Email", active: true } });
   categoryId = category.id; relatedSystemId = system.id;
   const ticket = await prisma.ticket.create({ data: {
     ticketNumber: `TKT-20991118-${randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase()}`,
     clientRequestId: randomUUID(), requesterId: requester.id, categoryId, relatedSystemId,
-    summary: `${tag} communication privacy`, description: `${tag} communication privacy journey`,
+    summary: "University email keeps signing out unexpectedly", description: "The requester is repeatedly signed out of University Email and needs help restoring a stable session.",
     requestedPriority: "MEDIUM", itPriority: "MEDIUM", currentStatus: "IN_PROGRESS", ownerId: staff.id,
   }, select: { id: true } });
   ticketId = ticket.id;
@@ -71,8 +71,6 @@ test.afterAll(async () => {
   const sessions = await prisma.session.findMany({ select: { sid: true, sess: true } });
   const sessionIds = sessions.filter((row) => ids.includes(Number((row.sess as Record<string, unknown>).userId))).map((row) => row.sid);
   if (sessionIds.length) await prisma.session.deleteMany({ where: { sid: { in: sessionIds } } });
-  await prisma.category.deleteMany({ where: { id: categoryId } });
-  await prisma.relatedSystem.deleteMany({ where: { id: relatedSystemId } });
   await prisma.user.deleteMany({ where: { id: { in: ids } } });
   await prisma.$disconnect();
 });
@@ -82,12 +80,12 @@ test("E2E-04 Staff public/private communication stays separated and Requester in
   await login(page, staff.email, "Ticket Queue");
   await page.goto(`/#/staff/tickets/${ticketId}`);
   await expect(page.getByRole("heading", { name: "Public Comments" })).toBeVisible();
-  await page.getByRole("textbox", { name: "Public Comment", exact: true }).fill(`${tag} public reply`);
+  await page.getByRole("textbox", { name: "Public Comment", exact: true }).fill(PUBLIC_REPLY);
   await page.getByRole("button", { name: "Post Public Comment" }).click();
-  await expect(page.getByText(`${tag} public reply`)).toBeVisible();
-  await page.getByRole("textbox", { name: "Internal Note", exact: true }).fill(`${tag} private diagnostic`);
+  await expect(page.getByText(PUBLIC_REPLY)).toBeVisible();
+  await page.getByRole("textbox", { name: "Internal Note", exact: true }).fill(PRIVATE_DIAGNOSTIC);
   await page.getByRole("button", { name: "Add Internal Note" }).click();
-  await expect(page.getByText(`${tag} private diagnostic`)).toBeVisible();
+  await expect(page.getByText(PRIVATE_DIAGNOSTIC)).toBeVisible();
   await expect(page.getByText("Internal / Staff only")).toBeVisible();
   await captureReleaseEvidence(page, {
     file: "states/staff/public-vs-internal-communication.png",
@@ -101,8 +99,8 @@ test("E2E-04 Staff public/private communication stays separated and Requester in
   await login(page, requester.email, "My Tickets");
   await page.goto(`/#/tickets/${ticketId}`);
   await expect(page.getByRole("heading", { name: "Public Comments" })).toBeVisible();
-  await expect(page.getByText(`${tag} public reply`)).toBeVisible();
-  await expect(page.getByText(`${tag} private diagnostic`)).toHaveCount(0);
+  await expect(page.getByText(PUBLIC_REPLY)).toBeVisible();
+  await expect(page.getByText(PRIVATE_DIAGNOSTIC)).toHaveCount(0);
   await expect(page.getByText(/Internal \/ Staff only/i)).toHaveCount(0);
   await captureReleaseEvidence(page, {
     file: "states/requester/public-comment-private-note-hidden.png",

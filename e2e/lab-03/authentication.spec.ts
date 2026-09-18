@@ -29,14 +29,13 @@ function testDatabaseUrl(): string {
 test("E2E-01 login -> forced password change -> Requester app -> logout -> protected access denied", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   const prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
-  const tag = `e2e-auth-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
-  const email = `${tag}@example.test`;
+  const email = "ploy.charoen@example.test";
   const initialPassword = "Initial-E2E-Password-45!";
   const newPassword = "Changed-E2E-Password-45!";
   const passwordHash = await hashPassword(initialPassword);
   const user = await prisma.user.create({
     data: {
-      name: "Issue 45 Requester",
+      name: "Ploy Charoen",
       email,
       active: true,
       role: "REQUESTER",
@@ -73,7 +72,7 @@ test("E2E-01 login -> forced password change -> Requester app -> logout -> prote
     await page.getByRole("button", { name: "Change Password" }).click();
 
     await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
-    await expect(page.getByText("Issue 45 Requester", { exact: true })).toBeVisible();
+    await expect(page.getByText("Ploy Charoen", { exact: true })).toBeVisible();
     await expect(page.getByText("Requester", { exact: true })).toBeVisible();
     await expect(page).toHaveURL(/#\/tickets$/);
 

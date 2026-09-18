@@ -4,11 +4,13 @@ This folder exists so the instructor/reviewer can inspect the Lab 3 screenshots 
 
 Current repository-visible snapshot:
 
-- `repository-evidence-2f56ea8/`
-- rendered application source SHA: `2f56ea8b4c36a8d642c7358c06715e70b5dbeed9`
+- `repository-evidence-6452f4d/`
+- rendered application source SHA: `6452f4df2fdbe091ff378a0e35d60f6e4a180dd0`
 - capture result: **41 PNGs** = **27 major responsive screens + 14 state screenshots**
 - required viewports: Desktop `1440x900`, Tablet `834x1112`, Mobile `390x844`
 - every PNG has a sibling `.meta.json`; `manifest.json` records the full source SHA and all role/route/scenario/viewport/Test-ID/rubric mappings.
+
+This corrective snapshot replaces the earlier PR #64 course-facing set that exposed technical fixture identifiers such as `issue51-...` in visible account names. The current evidence uses realistic human display names/product content while keeping technical uniqueness internal to the tests. The capture helper now rejects known fixture-token patterns if they leak into visible text or entered form values.
 
 The commit that contains this directory is intentionally an **evidence-only follow-up commit**. The screenshots were rendered from the clean source SHA above before the PNG/metadata files were added to Git. Therefore the repository-visible snapshot is not claimed to be self-referential proof of its own container commit.
 

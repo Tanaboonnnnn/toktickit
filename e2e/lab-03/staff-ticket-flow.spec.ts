@@ -25,8 +25,9 @@ function testDatabaseUrl(): string {
 }
 
 const password = "Staff-Ticket-E2E-Password-48!";
+const STAFF_NAME = "Nida Sombat";
+const REQUESTER_NAME = "Mali Charoen";
 let prisma: PrismaClient;
-let tag = "";
 let staff: { id: number; email: string };
 let requester: { id: number; email: string };
 let categoryId = 0;
@@ -54,18 +55,17 @@ async function chooseStatus(page: Page, status: string): Promise<void> {
 test.beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
   await prisma.$connect();
-  tag = `e2e-staff-flow-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
   const passwordHash = await hashPassword(password);
-  staff = await prisma.user.create({ data: { name: `${tag} Staff`, email: `${tag}-staff@example.test`, active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  requester = await prisma.user.create({ data: { name: `${tag} Requester`, email: `${tag}-requester@example.test`, active: true, role: "REQUESTER", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  const category = await prisma.category.create({ data: { name: `${tag} Category`, active: true }, select: { id: true } });
-  const system = await prisma.relatedSystem.create({ data: { name: `${tag} System`, active: true }, select: { id: true } });
+  staff = await prisma.user.create({ data: { name: STAFF_NAME, email: "nida.sombat@example.test", active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  requester = await prisma.user.create({ data: { name: REQUESTER_NAME, email: "mali.charoen@example.test", active: true, role: "REQUESTER", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  const category = await prisma.category.upsert({ where: { name: "Account and Access" }, update: { active: true }, create: { name: "Account and Access", active: true }, select: { id: true } });
+  const system = await prisma.relatedSystem.upsert({ where: { name: "Student Portal" }, update: { active: true }, create: { name: "Student Portal", active: true }, select: { id: true } });
   categoryId = category.id; relatedSystemId = system.id;
   ticketNumber = `TKT-20991018-${randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase()}`;
   const ticket = await prisma.ticket.create({
     data: {
       ticketNumber, clientRequestId: randomUUID(), requesterId: requester.id, categoryId, relatedSystemId,
-      summary: `${tag} operational journey`, description: `${tag} operational Staff Detail journey`,
+      summary: "Student Portal access request needs staff follow-up", description: "The requester cannot access the Student Portal after completing a password reset and needs staff assistance.",
       requestedPriority: "LOW", itPriority: "LOW", currentStatus: "NEW", ownerId: null,
     }, select: { id: true },
   });
@@ -82,8 +82,6 @@ test.afterAll(async () => {
   const sessions = await prisma.session.findMany({ select: { sid: true, sess: true } });
   const sessionIds = sessions.filter((row) => userIds.includes(Number((row.sess as Record<string, unknown>).userId))).map((row) => row.sid);
   if (sessionIds.length) await prisma.session.deleteMany({ where: { sid: { in: sessionIds } } });
-  await prisma.category.deleteMany({ where: { id: categoryId } });
-  await prisma.relatedSystem.deleteMany({ where: { id: relatedSystemId } });
   await prisma.user.deleteMany({ where: { id: { in: userIds } } });
   await prisma.$disconnect();
 });
@@ -93,9 +91,9 @@ test("E2E-03 Queue -> claim -> priority -> resolve -> close -> reopen follows th
   await login(page, staff.email, "Ticket Queue");
   await expect(page.getByRole("heading", { name: "Ticket Queue" })).toBeVisible();
   const search = page.getByRole("searchbox", { name: /search ticket number, summary, or requester/i });
-  await search.fill(tag);
+  await search.fill(ticketNumber);
   await search.press("Enter");
-  await expect(page.getByText(`${tag} operational journey`).first()).toBeVisible();
+  await expect(page.getByText("Student Portal access request needs staff follow-up").first()).toBeVisible();
   const targetRowHeader = page.getByRole("rowheader", { name: ticketNumber, exact: true });
   await expect(targetRowHeader).toHaveCount(1);
   await targetRowHeader.locator("xpath=ancestor::tr").getByRole("button", { name: "View ticket" }).click();
@@ -111,7 +109,7 @@ test("E2E-03 Queue -> claim -> priority -> resolve -> close -> reopen follows th
 
   await page.getByRole("button", { name: "Claim ticket" }).click();
   await expect(page.getByText("Ticket claimed successfully")).toBeVisible();
-  await expect(page.getByText(`${tag} Staff`).first()).toBeVisible();
+  await expect(page.getByText(STAFF_NAME).first()).toBeVisible();
   await expect(page.getByText("New", { exact: true }).first()).toBeVisible();
 
   await page.getByLabel("IT Priority").selectOption("HIGH");

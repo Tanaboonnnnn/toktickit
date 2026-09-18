@@ -17,6 +17,15 @@ export async function captureReleaseEvidence(page: Page, meta: ReleaseEvidenceMe
   if (!evidenceRoot) return;
 
   await assertNoHorizontalOverflow(page);
+  const visibleText = await page.locator("body").innerText();
+  const enteredValues = await page.locator("input, textarea").evaluateAll((elements) =>
+    elements.map((element) => (element as HTMLInputElement | HTMLTextAreaElement).value).filter(Boolean).join("\n"),
+  );
+  const evidenceSurface = `${visibleText}\n${enteredValues}`;
+  const leakedFixtureToken = evidenceSurface.match(/\b(?:issue\s*\d+\s+(?:requester|staff|administrator|admin)|issue\d+-[a-z0-9-]+|e2e-(?:auth|communication|staff-queue|staff-flow|user-admin)-[a-z0-9-]+)/i);
+  if (leakedFixtureToken) {
+    throw new Error(`Release evidence contains technical fixture text: ${leakedFixtureToken[0]}`);
+  }
   const viewport = page.viewportSize();
   const relativePng = `${evidenceRoot}/${meta.file}`;
   const absolutePng = resolve(process.cwd(), relativePng);

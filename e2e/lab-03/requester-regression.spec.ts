@@ -16,19 +16,50 @@ import { captureReleaseEvidence } from "./support/release-evidence.js";
 const API_URL = "http://127.0.0.1:4311";
 
 let fixture: E2eFixture;
+let createdTicketId = 0;
+let evidenceCategoryId = 0;
+let evidenceRelatedSystemId = 0;
 
 test.beforeAll(async () => {
   fixture = await createE2eFixture("requester-regression", 0);
+  const requesterA = await fixture.prisma.user.update({
+    where: { id: fixture.requesterA.id },
+    data: { name: "Mali Srisuk", email: "mali.requester@example.test" },
+    select: { name: true, email: true },
+  });
+  const requesterB = await fixture.prisma.user.update({
+    where: { id: fixture.requesterB.id },
+    data: { name: "Anan Charoen", email: "anan.requester@example.test" },
+    select: { name: true, email: true },
+  });
+  evidenceCategoryId = (await fixture.prisma.category.upsert({
+    where: { name: "Account and Access" },
+    update: { active: true },
+    create: { name: "Account and Access", active: true },
+    select: { id: true },
+  })).id;
+  evidenceRelatedSystemId = (await fixture.prisma.relatedSystem.upsert({
+    where: { name: "Student Portal" },
+    update: { active: true },
+    create: { name: "Student Portal", active: true },
+    select: { id: true },
+  })).id;
+  Object.assign(fixture.requesterA, requesterA);
+  Object.assign(fixture.requesterB, requesterB);
 });
 
 test.afterAll(async () => {
+  if (createdTicketId) {
+    await fixture.prisma.attachment.deleteMany({ where: { ticketId: createdTicketId } });
+    await fixture.prisma.ticket.deleteMany({ where: { id: createdTicketId } });
+  }
   await destroyE2eFixture(fixture);
 });
 
 test("E2E-02 preserves authenticated Requester create/upload/list/detail/remove/isolation", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  const summary = `${fixture.tag} authenticated continuity`;
-  const description = `${fixture.tag} authenticated Requester regression description.`;
+  const summary = "Student Portal access still fails after password reset";
+  const description = "The requester can sign in successfully but is returned to the login page when opening the Student Portal dashboard.";
   const observedUnsafeRequests: Array<{ url: string; headers: Record<string, string>; body: string | null }> = [];
   page.on("request", (request) => {
     if (request.method() !== "POST") return;
@@ -41,8 +72,8 @@ test("E2E-02 preserves authenticated Requester create/upload/list/detail/remove/
   });
 
   await openRequesterShell(page, fixture.requesterA);
-  await page.getByLabel("Category *").selectOption(String(fixture.category.id));
-  await page.getByLabel("Related System *").selectOption(String(fixture.relatedSystem.id));
+  await page.getByLabel("Category *").selectOption(String(evidenceCategoryId));
+  await page.getByLabel("Related System *").selectOption(String(evidenceRelatedSystemId));
   await page.getByLabel("Ticket Summary *").fill(summary);
   await page.getByLabel("Requested Priority *").selectOption("HIGH");
   await page.getByLabel("Description *").fill(description);
@@ -67,6 +98,7 @@ test("E2E-02 preserves authenticated Requester create/upload/list/detail/remove/
     where: { ticketNumber, requesterId: fixture.requesterA.id },
     select: { id: true, itPriority: true, requestedPriority: true },
   });
+  createdTicketId = persistedTicket.id;
   expect(persistedTicket.itPriority).toBe("HIGH");
   expect(persistedTicket.requestedPriority).toBe("HIGH");
 

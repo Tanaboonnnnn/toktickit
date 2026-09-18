@@ -14,16 +14,16 @@ const relatedSystems = [
 ] as const;
 
 const users = [
-  { name: "Anan Student", email: "anan.student@example.test", active: true, role: "REQUESTER" },
-  { name: "Mali Student", email: "mali.student@example.test", active: true, role: "REQUESTER" },
-  { name: "Niran Student", email: "niran.student@example.test", active: true, role: "REQUESTER" },
-  { name: "Ploy Student", email: "ploy.student@example.test", active: true, role: "REQUESTER" },
-  { name: "Somchai Former Student", email: "somchai.former@example.test", active: false, role: "REQUESTER" },
-  { name: "Nida IT", email: "nida.it@example.test", active: true, role: "IT_STAFF" },
-  { name: "Korn IT", email: "korn.it@example.test", active: true, role: "IT_STAFF" },
-  { name: "Dao IT", email: "dao.it@example.test", active: true, role: "IT_STAFF" },
-  { name: "Som IT (Inactive)", email: "som.it@example.test", active: false, role: "IT_STAFF" },
-  { name: "Lab 3 Administrator", email: "admin.lab3@example.test", active: true, role: "ADMINISTRATOR" },
+  { name: "Anan Kittisak", email: "anan.student@example.test", active: true, role: "REQUESTER" },
+  { name: "Mali Charoensuk", email: "mali.student@example.test", active: true, role: "REQUESTER" },
+  { name: "Niran Prasert", email: "niran.student@example.test", active: true, role: "REQUESTER" },
+  { name: "Ploy Rattanakorn", email: "ploy.student@example.test", active: true, role: "REQUESTER" },
+  { name: "Somchai Wattanapong", email: "somchai.former@example.test", active: false, role: "REQUESTER" },
+  { name: "Nida Chaiyasit", email: "nida.it@example.test", active: true, role: "IT_STAFF" },
+  { name: "Korn Sombat", email: "korn.it@example.test", active: true, role: "IT_STAFF" },
+  { name: "Dao Kittipong", email: "dao.it@example.test", active: true, role: "IT_STAFF" },
+  { name: "Som Prasert", email: "som.it@example.test", active: false, role: "IT_STAFF" },
+  { name: "Kanya Wattanakul", email: "admin.lab3@example.test", active: true, role: "ADMINISTRATOR" },
 ] as const satisfies ReadonlyArray<{ name: string; email: string; active: boolean; role: UserRole }>;
 
 async function ensureReferenceData(prisma: PrismaClient): Promise<void> {

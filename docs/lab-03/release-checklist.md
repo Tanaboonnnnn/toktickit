@@ -14,15 +14,17 @@ This is the Issue #52 execution checklist. A checked item must be backed by a re
 
 - [x] Reconcile all six required Lab 3 docs with actual Issues #41-#51 review/merge/test evidence.
 - [x] Reconcile README Lab 3 setup/review/release instructions.
-- [ ] Confirm the **latest PR head** has a successful exact-head CI evidence artifact: **41 PNGs = 27 major responsive + 14 required UI states**, with per-image provenance metadata and `manifest.sourceSha == pull_request.head.sha`. Do not treat a committed older candidate as proof of a newer HEAD.
-- [x] Prepare one **repository-visible** 41-image evidence snapshot from clean application source `2f56ea8b4c36a8d642c7358c06715e70b5dbeed9` so instructors can browse the PNGs directly in GitHub. The next commit is evidence-only; the manifest retains the rendering source SHA while exact newest-HEAD proof remains CI-owned.
+- [ ] Confirm the **corrective follow-up PR head** has a successful exact-head CI evidence artifact: **41 PNGs = 27 major responsive + 14 required UI states**, with per-image provenance metadata and `manifest.sourceSha == pull_request.head.sha`.
+- [x] Replaced the earlier repository-visible Issue #52 snapshot with the professional-data snapshot `repository-evidence-6452f4d/`, rendered from clean corrective source `6452f4df2fdbe091ff378a0e35d60f6e4a180dd0`. It contains **41 PNGs = 27 major responsive + 14 state screenshots**, 41 sibling metadata files, exact source/expected-SHA agreement, a passing secret scan, and a passing technical-fixture-token scan. The older `2f56ea8...` set remains only in Git history as evidence of the accidentally merged PR #64 and is no longer the current browsable snapshot.
 - [x] Inspect the generated screenshot set and its automated viewport/touch/overflow assertions for clipping, overlap, unintended horizontal overflow, role/navigation errors and private-data leakage. Metadata secret scan passed; no credentials, connection strings, session secrets or CSRF tokens are recorded in the evidence metadata.
-- [ ] Confirm the full `npm run verify` job passes on that same latest PR-head CI run; record the exact SHA/run in the PR conversation rather than hard-coding a moving PR SHA into this file.
-- [ ] `git diff --check` passes and tracked evidence contains no `.env`, credential, session, or password material.
+- [ ] Confirm the full `npm run verify` job passes on that same latest PR-head CI run; record the exact SHA/run in the PR conversation rather than hard-coding a moving PR SHA into this file. Local corrective pre-PR verification is already green: server **285/285**, client **136/136**, TRACE **50 Test IDs / 32 ACs**, Chromium **37/37**, responsive **10/10**.
+- [x] `git diff --check` passes locally and the regenerated repository evidence passed scans for `.env`/database/session/CSRF/password-hash material and technical fixture identifiers.
 - [ ] GitHub Actions `Lab 3 CI` passes on the Issue #52 PR head and publishes the SHA-labelled UI evidence artifact.
-- [ ] Open `feature/52-lab3-release-evidence -> lab3-staging` PR linked to Issue #52 and request real peer review.
-- [ ] Resolve any Changes Requested with reproduced evidence and obtain a real approval.
-- [ ] Merge the approved Issue #52 feature PR to `lab3-staging` and rerun the staging release-candidate gate.
+- [x] PR #64 (`feature/52-lab3-release-evidence -> lab3-staging`) had successful CI evidence and a real **Approved** review from `@L0u1sss` at 2026-09-18 19:20:47 UTC, then merged as `51f2b4bc710025c92eb17173c9d17efca8aef50d` at 19:20:58 UTC. The later user-requested professional evidence-data cleanup was still unfinished at that point, which is why this corrective follow-up exists.
+- [x] Confirmed that the accidental GitHub Revert click created only a remote revert branch; no Revert PR/merge occurred. The unused revert branch was deleted because reverting the whole PR would remove valid CI/evidence infrastructure.
+- [x] Opened corrective PR #65 (`fix/52-professional-evidence-data -> lab3-staging`) with the approved PR #64 history and later unfinished presentation-cleanup scope explained explicitly; requested fresh review from `@L0u1sss`.
+- [ ] Obtain a real peer approval on the corrective follow-up before merging it.
+- [ ] After that approved corrective merge, rerun the staging release-candidate gate before any `lab3-staging -> main` release PR.
 
 ## C. Release to main
 
