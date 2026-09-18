@@ -152,6 +152,13 @@ describe("API-10 Requester Ticket Detail", () => {
       createdAt: "2026-01-01T09:00:00.000Z",
       updatedAt: "2026-01-02T09:00:00.000Z",
       description: "A detailed description for the owned Ticket fixture.",
+      resolutionSummary: null,
+      resolvedAt: null,
+      closedAt: null,
+      cancelReason: null,
+      cancelledAt: null,
+      requesterResolutionIndicatedAt: null,
+      version: 1,
       attachments: [
         expect.objectContaining({ originalName: "early.png", state: "ACTIVE", mimeType: "image/png", sizeBytes: 1024, removedAt: null, removalReason: null, downloadUrl: expect.stringContaining("/download") }),
         expect.objectContaining({ originalName: "removed.jpg", state: "REMOVED", mimeType: "image/jpeg", sizeBytes: 512, removedAt: "2026-01-04T09:00:00.000Z", removalReason: "Outdated supporting image", downloadUrl: null }),
@@ -160,8 +167,8 @@ describe("API-10 Requester Ticket Detail", () => {
     }) });
     expect(Object.keys(response.body)).toEqual(["ticket"]);
     expect(Object.keys(response.body.ticket).sort()).toEqual([
-      "attachments", "category", "createdAt", "currentStatus", "description", "id",
-      "relatedSystem", "requestedPriority", "requester", "summary", "ticketNumber", "updatedAt",
+      "attachments", "cancelReason", "cancelledAt", "category", "closedAt", "createdAt", "currentStatus", "description", "id",
+      "relatedSystem", "requestedPriority", "requester", "requesterResolutionIndicatedAt", "resolutionSummary", "resolvedAt", "summary", "ticketNumber", "updatedAt", "version",
     ]);
     for (const attachment of response.body.ticket.attachments) {
       expect(Object.keys(attachment).sort()).toEqual([

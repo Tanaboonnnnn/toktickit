@@ -23,6 +23,13 @@ const baseTicket: Ticket = {
   updatedAt: "2026-08-29T00:00:00.000Z",
   description: "A sufficiently detailed description for state-indicator checks.",
   attachments: [],
+  resolutionSummary: null,
+  resolvedAt: null,
+  closedAt: null,
+  cancelReason: null,
+  cancelledAt: null,
+  requesterResolutionIndicatedAt: null,
+  version: 1,
 };
 
 function json(body: unknown, ok = true, status = 200) {

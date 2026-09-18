@@ -173,5 +173,12 @@ export function serializeTicket(ticket: TicketWithRelations) {
     updatedAt: ticket.updatedAt.toISOString(),
     description: ticket.description,
     attachments: ticket.attachments.map((attachment) => serializeAttachment(attachment)),
+    resolutionSummary: ticket.resolutionSummary,
+    resolvedAt: ticket.resolvedAt?.toISOString() ?? null,
+    closedAt: ticket.closedAt?.toISOString() ?? null,
+    cancelReason: ticket.cancelReason,
+    cancelledAt: ticket.cancelledAt?.toISOString() ?? null,
+    requesterResolutionIndicatedAt: ticket.requesterResolutionIndicatedAt?.toISOString() ?? null,
+    version: ticket.version,
   };
 }

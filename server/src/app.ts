@@ -16,6 +16,8 @@ import { requireActor } from "./auth/actor.js";
 import { requireCsrf } from "./auth/csrf.js";
 import { requireCapability } from "./authorization.js";
 import { createStaffRouter } from "./staff/staff-routes.js";
+import { createPublicComment, indicateResolution, listPublicComments } from "./communication/communication-service.js";
+import { parseCommunicationBody, parseResolutionIndicationBody } from "./communication/communication-contract.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -87,6 +89,38 @@ app.get("/api/tickets/:ticketId", requireActor(), requireCapability("REQUESTER_T
     res.status(200).json({ ticket });
   } catch (error) {
     const safe = safeErrorBody(error, "Unable to load ticket");
+    res.status(safe.status).json(safe.body);
+  }
+});
+
+app.get("/api/tickets/:ticketId/comments", requireActor(), requireCapability("PUBLIC_COMMENT"), async (req: Request, res: Response) => {
+  try {
+    const ticketId = parsePositiveId(req.params.ticketId, "ticketId");
+    res.status(200).json({ items: await listPublicComments(getPrisma(), req.actor!, ticketId) });
+  } catch (error) {
+    const safe = safeErrorBody(error, "Unable to load Public Comments");
+    res.status(safe.status).json(safe.body);
+  }
+});
+
+app.post("/api/tickets/:ticketId/comments", requireActor(), requireCapability("PUBLIC_COMMENT"), requireCsrf, async (req: Request, res: Response) => {
+  try {
+    const ticketId = parsePositiveId(req.params.ticketId, "ticketId");
+    const input = parseCommunicationBody(req.body);
+    res.status(201).json({ comment: await createPublicComment(getPrisma(), req.actor!, ticketId, input.body) });
+  } catch (error) {
+    const safe = safeErrorBody(error, "Unable to add Public Comment");
+    res.status(safe.status).json(safe.body);
+  }
+});
+
+app.post("/api/tickets/:ticketId/resolution-indication", requireActor(), requireCapability("REQUESTER_TICKET_READ_OWN"), requireCsrf, async (req: Request, res: Response) => {
+  try {
+    const ticketId = parsePositiveId(req.params.ticketId, "ticketId");
+    const input = parseResolutionIndicationBody(req.body);
+    res.status(200).json({ ticket: await indicateResolution(getPrisma(), req.actor!, ticketId, input.expectedVersion) });
+  } catch (error) {
+    const safe = safeErrorBody(error, "Unable to indicate resolution");
     res.status(safe.status).json(safe.body);
   }
 });

@@ -667,6 +667,41 @@ select:focus-visible {
 .lab2-attachment-upload-results { margin: 16px 0; }
 .lab2-attachment-upload-results h2 { font-size: 1.1rem; }
 
+.lab3-communication-section,
+.lab3-resolution-indication {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: var(--surface-shadow);
+}
+
+.lab3-communication-section h2 { margin: 0 0 8px; font-size: 1.35rem; }
+.lab3-message-list { display: grid; gap: 12px; margin: 16px 0; }
+.lab3-message-card { padding: 14px; background: var(--color-readonly-bg); border: 1px solid var(--color-readonly-border); border-radius: 6px; }
+.lab3-message-card p { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.lab3-message-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; color: var(--color-muted); font-size: .875rem; }
+.lab3-message-meta strong { color: var(--color-text); }
+.lab3-message-composer { display: grid; gap: 8px; margin-top: 16px; }
+.lab3-message-composer label { font-weight: 600; }
+.lab3-message-composer textarea { box-sizing: border-box; width: 100%; min-height: 108px; padding: 10px 12px; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 6px; resize: vertical; }
+.lab3-message-composer textarea:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.lab3-message-composer .lab2-button { justify-self: start; }
+.lab3-internal-notes { border: 2px solid #8a5500; background: #fffaf0; }
+.lab3-private-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; }
+.lab3-private-heading strong { padding: 4px 10px; color: #6b4100; background: #fff0c2; border: 1px solid #8a5500; border-radius: 999px; }
+.lab3-private-warning { color: #6b4100; font-weight: 600; }
+.lab3-private-message { background: #fff7e5; border-color: #c98a26; }
+.lab3-resolution-indication { background: var(--color-pale-green); }
+.lab3-resolution-indication .lab2-success { margin: 0; padding: 16px; }
+
+@media (max-width: 767.98px) {
+  .lab3-communication-section,
+  .lab3-resolution-indication { padding: 16px; }
+  .lab3-message-meta { display: grid; gap: 2px; }
+}
+
 .lab2-ticket-cards {
   display: none;
 }

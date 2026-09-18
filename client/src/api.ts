@@ -63,6 +63,13 @@ export interface Ticket {
   updatedAt: string;
   description: string;
   attachments: TicketAttachmentMetadata[];
+  resolutionSummary: string | null;
+  resolvedAt: string | null;
+  closedAt: string | null;
+  cancelReason: string | null;
+  cancelledAt: string | null;
+  requesterResolutionIndicatedAt: string | null;
+  version: number;
 }
 
 export interface TicketListItem {
@@ -303,7 +310,14 @@ function isTicket(value: unknown): value is Ticket {
     && typeof ((item.requester as unknown) as Record<string, unknown>).email === "string"
     && typeof item.description === "string"
     && Array.isArray(item.attachments)
-    && item.attachments.every(isTicketAttachment);
+    && item.attachments.every(isTicketAttachment)
+    && (item.resolutionSummary === null || typeof item.resolutionSummary === "string")
+    && (item.resolvedAt === null || typeof item.resolvedAt === "string")
+    && (item.closedAt === null || typeof item.closedAt === "string")
+    && (item.cancelReason === null || typeof item.cancelReason === "string")
+    && (item.cancelledAt === null || typeof item.cancelledAt === "string")
+    && (item.requesterResolutionIndicatedAt === null || typeof item.requesterResolutionIndicatedAt === "string")
+    && Number.isSafeInteger(item.version);
 }
 
 function appendListQuery(params: URLSearchParams, query: TicketListQuery): void {

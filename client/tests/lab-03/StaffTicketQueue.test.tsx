@@ -122,7 +122,7 @@ describe("UI-03 Staff Ticket Queue", () => {
 });
 
 describe("Issue #47 Staff Ticket Detail continuity", () => {
-  it("preserves the staff projection and Queue back-context as Issue #48 adds operations", async () => {
+  it("preserves the staff projection and Queue back-context as Issue #49 adds communication", async () => {
     const detail = { ...item, relatedSystem: { id: 5, name: "VPN" }, description: "Long diagnostic description", attachments: [], resolutionSummary: null, resolvedAt: null, closedAt: null, cancelReason: null, cancelledAt: null, requesterResolutionIndicatedAt: null };
     vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("/api/staff/tickets/91") ? json({ ticket: detail }) : json({})));
     const onBack = vi.fn();
@@ -130,7 +130,8 @@ describe("Issue #47 Staff Ticket Detail continuity", () => {
     expect(await screen.findByText("Long diagnostic description")).toBeInTheDocument();
     expect(screen.getByText("Niran Staff")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Ticket operations" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: /public comments|internal notes/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Public Comments" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Internal Notes" })).toBeInTheDocument();
     await userEvent.setup().click(screen.getByRole("button", { name: "Back to Ticket Queue" }));
     expect(onBack).toHaveBeenCalledWith("search=vpn&page=2&pageSize=20");
   });

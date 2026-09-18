@@ -250,3 +250,15 @@ No Lab 3 peer-review-given evidence has been added yet. Lab 2 reviews are not co
 ## Evidence integrity note
 
 This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. PR #53 approval/merge, PR #54 Changes Requested followed by Approval/merge, PR #55's two Changes Requested rounds followed by final Approval/merge, PR #56 Changes Requested followed by final Approval/merge, PR #57 Approval/merge, and PR #58 Approval/merge are recorded from actual GitHub events. No hosted CI result or future Issue #47 peer approval is inferred. Automated checks and AI analysis are supporting engineering evidence, not substitutes for the peer-review evidence required by the course.
+
+### Issue #49 review request — 2026-09-18 07:45 UTC
+
+- Result: **Awaiting peer review**
+- PR: [#61](https://github.com/Tanaboonnnnn/toktickit/pull/61)
+- Issue: [#49](https://github.com/Tanaboonnnnn/toktickit/issues/49)
+- Base: `lab3-staging` at `095ce67f160a58742b4928b50c1cf27e5ab33bbf`.
+- Product/evidence head submitted for review: `edcd81accb40e77eb200185291291ecf69d2a63c`.
+- Requested reviewer: `@thananun-7203` through GitHub's review-request mechanism.
+- Scope submitted: Public Comments, private Internal Notes, and Requester `Problem Appears Resolved` indication only; no Actions Taken, edit/delete, email notification, or Issue #50 Administrator User Management.
+- Fresh pre-review verification on the submitted product/evidence head: server build + **46 files / 261 tests**, client production build + **22 files / 126 tests**, Chromium **31/31**, retained responsive **10/10**, focused COM **8/8**, UI-05 **4/4**, E2E-04 **2/2**, and `git diff --check origin/lab3-staging...HEAD` passed.
+- No peer verdict, approval, merge, or Issue closure is claimed here. Any Changes Requested must be reproduced and resolved before merge.

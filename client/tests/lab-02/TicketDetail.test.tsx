@@ -18,6 +18,13 @@ const ticket = {
   createdAt: "2026-08-27T08:00:00.000Z",
   updatedAt: "2026-08-27T09:00:00.000Z",
   description: "The connection fails after waking the laptop.\nPlease investigate the access point.",
+  resolutionSummary: null,
+  resolvedAt: null,
+  closedAt: null,
+  cancelReason: null,
+  cancelledAt: null,
+  requesterResolutionIndicatedAt: null,
+  version: 1,
   attachments: [
     {
       id: 11, ticketId: 7, originalName: "error screenshot.png", mimeType: "image/png", sizeBytes: 2048,

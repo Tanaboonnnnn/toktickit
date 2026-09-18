@@ -68,10 +68,17 @@ describe("STATUS-01 client runtime status compatibility", () => {
       currentStatus: "RESOLVED",
       description: "A sufficiently detailed status compatibility description.",
       attachments: [],
+      resolutionSummary: "The service has been restored and verified.",
+      resolvedAt: "2026-09-15T03:00:00.000Z",
+      closedAt: null,
+      cancelReason: null,
+      cancelledAt: null,
+      requesterResolutionIndicatedAt: null,
+      version: 2,
     } as unknown as Ticket;
     vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(response({ ticket }))));
     render(<AuthProvider initialUser={authenticatedRequester}><TicketDetail ticketId={ticket.id} onBack={vi.fn()} /></AuthProvider>);
-    expect(await screen.findByText("Resolved")).toBeInTheDocument();
+    expect((await screen.findAllByText("Resolved")).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("New")).not.toBeInTheDocument();
   });
 });

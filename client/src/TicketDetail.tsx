@@ -3,6 +3,8 @@ import { fetchTicketDetail, SafeApiError, type Ticket } from "./api.js";
 import AttachmentPanel from "./AttachmentPanel.js";
 import { formatDisplayDate } from "./date-format.js";
 import { ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
+import PublicComments from "./communication/PublicComments.js";
+import ResolutionIndication from "./communication/ResolutionIndication.js";
 
 type DetailState =
   | { kind: "loading" }
@@ -98,10 +100,16 @@ function TicketContents({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () =
           <dt>Ticket Summary</dt><dd>{ticket.summary}</dd>
           <dt>Requested Priority</dt><dd><span className={`lab2-badge lab2-priority-${ticket.requestedPriority.toLowerCase()}`}>{priorityLabel(ticket.requestedPriority)}</span></dd>
           <dt>Description</dt><dd className="lab2-detail-description">{ticket.description}</dd>
+          {ticket.resolutionSummary && <><dt>Resolution Summary</dt><dd className="lab2-detail-description">{ticket.resolutionSummary}</dd></>}
+          {ticket.resolvedAt && <><dt>Resolved</dt><dd>{formatDate(ticket.resolvedAt)}</dd></>}
+          {ticket.closedAt && <><dt>Closed</dt><dd>{formatDate(ticket.closedAt)}</dd></>}
+          {ticket.cancelReason && <><dt>Cancellation Reason</dt><dd>{ticket.cancelReason}</dd></>}
         </dl>
       </section>
 
       <AttachmentPanel ticket={ticket} onRefresh={onRefresh} />
+      <PublicComments ticketId={ticket.id} />
+      <ResolutionIndication ticket={ticket} onIndicated={onRefresh} />
     </>
   );
 }

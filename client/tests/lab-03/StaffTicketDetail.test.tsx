@@ -163,7 +163,7 @@ describe("UI-04 Staff Ticket Detail operations", () => {
     const user = userEvent.setup();
     await user.selectOptions(await screen.findByRole("combobox", { name: "IT Priority" }), "LOW");
     await user.click(screen.getByRole("button", { name: "Save IT Priority" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent(/ticket changed.*reloaded/i);
+    expect(await screen.findByText(/ticket changed.*reloaded/i)).toBeInTheDocument();
     expect(detailReads).toBe(2);
     expect(mutations).toBe(1);
     expect(screen.getByRole("combobox", { name: "IT Priority" })).toHaveValue("HIGH");

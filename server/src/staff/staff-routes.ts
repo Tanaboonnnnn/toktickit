@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireActor } from "../auth/actor.js";
 import { requireCsrf } from "../auth/csrf.js";
 import { requireCapability } from "../authorization.js";
@@ -7,6 +7,8 @@ import { getPrisma } from "../prisma.js";
 import { parseStaffTicketQuery } from "./staff-query.js";
 import { getStaffTicketDetail, listEligibleAssignees, listStaffTickets } from "./staff-service.js";
 import { claimTicket, parseClaimBody, parseOwnerBody, parsePriorityBody, parseStatusBody, updateTicketOwner, updateTicketPriority, updateTicketStatus } from "./ticket-operations.js";
+import { createInternalNote, listInternalNotes } from "../communication/communication-service.js";
+import { parseCommunicationBody } from "../communication/communication-contract.js";
 
 function positiveId(raw: string): number {
   if (!/^[1-9]\d*$/.test(raw)) throw validationError({ ticketId: "Ticket ID must be a positive integer" });
@@ -29,6 +31,18 @@ export function createStaffRouter(): Router {
   router.get("/assignees", async (_req, res) => {
     try { res.status(200).json({ items: await listEligibleAssignees(getPrisma()) }); }
     catch (error) { const safe = safeErrorBody(error, "Unable to load assignees"); res.status(safe.status).json(safe.body); }
+  });
+
+  router.get("/tickets/:ticketId/internal-notes", requireCapability("INTERNAL_NOTE"), async (req, res) => {
+    try { res.status(200).json({ items: await listInternalNotes(getPrisma(), positiveId(req.params.ticketId)) }); }
+    catch (error) { const safe = safeErrorBody(error, "Unable to load Internal Notes"); res.status(safe.status).json(safe.body); }
+  });
+  router.post("/tickets/:ticketId/internal-notes", requireCapability("INTERNAL_NOTE"), requireCsrf, async (req, res) => {
+    try {
+      const id = positiveId(req.params.ticketId);
+      const input = parseCommunicationBody(req.body);
+      res.status(201).json({ note: await createInternalNote(getPrisma(), req.actor!, id, input.body) });
+    } catch (error) { const safe = safeErrorBody(error, "Unable to add Internal Note"); res.status(safe.status).json(safe.body); }
   });
 
   router.post("/tickets/:ticketId/claim", requireCapability("STAFF_TICKET_OPERATE"), requireCsrf, async (req, res) => {
