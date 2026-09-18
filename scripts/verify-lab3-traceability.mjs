@@ -25,6 +25,9 @@ for (const line of testRows) {
   for (const path of paths) {
     if (!existsSync(resolve(root, path))) fail(`${id} references missing path ${path}`);
   }
+  if (!/^\*\*Pass\b/i.test(final)) {
+    fail(`${id} does not record executed passing evidence in the Final column`);
+  }
   testIds.set(id, { final, paths });
 }
 
