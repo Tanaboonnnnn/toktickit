@@ -250,6 +250,6 @@ artifacts/lab-03/screenshots/
         └── mobile-390x844/     # 9 major screens
 ```
 
-Run `npm.cmd run capture:evidence:lab3 -- <label>` from the repository root. The command builds the server, runs the integrated Lab 3 Playwright evidence journeys, requires exactly **40 screenshots** (**27 major responsive screenshots + 13 meaningful UI-state screenshots**), and writes the exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping to `manifest.json`. Use a release-candidate label before review and `final-main` only after the release PR has actually merged to `main` and the checkout is at that exact delivered SHA.
+Run `npm.cmd run capture:evidence:lab3 -- <label>` from the repository root. The command builds the server, runs the integrated Lab 3 Playwright evidence journeys, requires exactly **41 screenshots** (**27 major responsive screenshots + 14 meaningful UI-state screenshots**), and writes the exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping to `manifest.json`. Use a release-candidate label before review and `final-main` only after the release PR has actually merged to `main` and the checkout is at that exact delivered SHA.
 
 Final visual inspection must cover all major screens at Desktop/Tablet/Mobile, plus representative validation/empty/no-results/forbidden/conflict/failure states supplied by the broader E2E/UI suites. Screenshot evidence must not contain credentials or session secrets.

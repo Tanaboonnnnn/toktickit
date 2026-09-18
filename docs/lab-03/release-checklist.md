@@ -14,7 +14,7 @@ This is the Issue #52 execution checklist. A checked item must be backed by a re
 
 - [ ] Reconcile all six required Lab 3 docs with actual Issues #41-#51 review/merge/test evidence.
 - [ ] Reconcile README Lab 3 setup/review/release instructions.
-- [ ] Capture SHA-labelled Playwright release-candidate screenshots: **40 PNGs = 27 major responsive + 13 required UI states**, with per-image provenance metadata.
+- [ ] Capture SHA-labelled Playwright release-candidate screenshots: **41 PNGs = 27 major responsive + 14 required UI states**, with per-image provenance metadata.
 - [ ] Inspect the generated screenshots for clipping, overlap, unintended horizontal overflow, role/navigation errors, private-data leakage, and credential/secret exposure.
 - [ ] Run full `npm.cmd run verify` on the final Issue #52 feature head and record the exact SHA/results.
 - [ ] `git diff --check` passes and tracked evidence contains no `.env`, credential, session, or password material.
@@ -30,7 +30,7 @@ This is the Issue #52 execution checklist. A checked item must be backed by a re
 - [ ] Merge only the reviewed release PR to `main`.
 - [ ] Record the exact delivered `main` SHA.
 - [ ] Freshly run full `npm.cmd run verify` on that exact `main` SHA.
-- [ ] Run `npm.cmd run capture:evidence:lab3 -- final-main` on that exact `main` SHA and verify 40 screenshots + manifest.
+- [ ] Run `npm.cmd run capture:evidence:lab3 -- final-main` on that exact `main` SHA and verify 41 screenshots + manifest.
 - [ ] Record final-main results in Issue #52/release evidence without pretending a later evidence commit was the tested product SHA.
 - [ ] Confirm AC-32 only after the exact-main gate above passes.
 

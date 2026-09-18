@@ -59,8 +59,8 @@ const screenshots = listPngs(absoluteRoot)
   .map((file) => relative(root, file).replaceAll("\\", "/"))
   .sort();
 
-if (screenshots.length !== 40) {
-  throw new Error(`Expected 40 release screenshots (27 major responsive + 13 required state evidence) but found ${screenshots.length}`);
+if (screenshots.length !== 41) {
+  throw new Error(`Expected 41 release screenshots (27 major responsive + 14 required state evidence) but found ${screenshots.length}`);
 }
 
 const entries = screenshots.map((screenshot) => {
@@ -71,8 +71,8 @@ const entries = screenshots.map((screenshot) => {
 
 const majorCount = entries.filter((entry) => entry.screenshot.includes("/major/")).length;
 const stateCount = entries.filter((entry) => entry.screenshot.includes("/states/")).length;
-if (majorCount !== 27 || stateCount !== 13) {
-  throw new Error(`Expected 27 major and 13 state screenshots but found ${majorCount} major and ${stateCount} state`);
+if (majorCount !== 27 || stateCount !== 14) {
+  throw new Error(`Expected 27 major and 14 state screenshots but found ${majorCount} major and ${stateCount} state`);
 }
 
 const manifest = {

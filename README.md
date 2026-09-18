@@ -293,9 +293,9 @@ For deterministic release screenshots from the integrated Lab 3 Playwright journ
 npm.cmd run capture:evidence:lab3 -- release-candidate
 ```
 
-The capture command records the current Git SHA in a manifest and requires **40 PNGs**:
+The capture command records the current Git SHA in a manifest and requires **41 PNGs**:
 nine major screens each at Desktop `1440x900`, Tablet `834x1112`, and Mobile
-`390x844` (**27 major responsive screenshots**) plus **13 targeted state screenshots**
+`390x844` (**27 major responsive screenshots**) plus **14 targeted state screenshots**
 covering mandatory password change, Attachment success/detail, Public versus Internal
 communication, Requester resolution indication, filtered Staff Queue, Staff ownership/
 workflow confirmation, Administrator create/edit/reset/safety feedback, and inactive-login
@@ -311,7 +311,7 @@ claimed before that merge actually occurs.
 `main`, and on pushes to those two integration branches. The Linux job provisions
 PostgreSQL with separate development/test database identities, installs all three
 lockfile scopes, generates Prisma Client, deploys migrations and local-only seed data
-to the dedicated test database, installs Chromium, captures the 40-image SHA-labelled
+to the dedicated test database, installs Chromium, captures the 41-image SHA-labelled
 UI evidence set, and runs the complete `npm run verify` gate. The UI evidence folder is
 uploaded as a GitHub Actions artifact named with the workflow commit SHA; Playwright
 diagnostics are uploaded on failure. CI credentials are ephemeral test values, not
