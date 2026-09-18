@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { PrismaClient } from "../../server/node_modules/@prisma/client/index.js";
 import { hashPassword } from "../../server/dist/src/password.js";
 import { assertNoHorizontalOverflow } from "../lab-02/support/ui.js";
+import { captureReleaseEvidence } from "./support/release-evidence.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -76,6 +77,7 @@ test.afterAll(async () => {
 });
 
 test("E2E-05 Administrator creates, edits, resets and safely deactivates a User", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await login(page, administrator.email, adminPassword, "User Management");
 
   const search = page.getByRole("searchbox", { name: /search users by name or email/i });
@@ -86,6 +88,13 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   await page.getByLabel("Active account").uncheck();
   await page.getByRole("button", { name: "Save user" }).click();
   await expect(page.getByRole("alert")).toContainText("You cannot deactivate your own account");
+  await captureReleaseEvidence(page, {
+    file: "states/admin/self-deactivation-safety.png",
+    role: "Administrator",
+    route: "/#/admin/users",
+    scenario: "Administrator self-deactivation is rejected with clear safety feedback",
+    mapping: ["E2E-05", "USER-03", "AC-25", "Answer Part 8"],
+  });
   await page.getByRole("button", { name: "Close edit" }).click();
   await page.getByRole("button", { name: "Clear search/filters" }).click();
 
@@ -94,6 +103,13 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   const targetEmail = `${tag}-managed@example.test`;
   const targetUpdatedEmail = `${tag}-managed-updated@example.test`;
   await page.getByRole("button", { name: "Create User" }).click();
+  await captureReleaseEvidence(page, {
+    file: "states/admin/create-user-form.png",
+    role: "Administrator",
+    route: "/#/admin/users",
+    scenario: "Minimal Create User form with one role, activation state and initial password",
+    mapping: ["E2E-05", "UI-06", "AC-22", "Answer Part 8"],
+  });
   await page.getByLabel("Name", { exact: true }).fill(targetName);
   await page.getByLabel("Email", { exact: true }).fill(targetEmail);
   await page.getByLabel("User role").selectOption("IT_STAFF");
@@ -118,6 +134,13 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   await page.getByLabel("New initial password", { exact: true }).fill(resetPassword);
   await page.getByLabel("Confirm new initial password", { exact: true }).fill(resetPassword);
   await page.getByRole("checkbox", { name: /confirm setting a new initial password/i }).check();
+  await captureReleaseEvidence(page, {
+    file: "states/admin/edit-and-initial-password-reset.png",
+    role: "Administrator",
+    route: "/#/admin/users",
+    scenario: "Edit User and separate confirmed Set New Initial Password action",
+    mapping: ["E2E-05", "UI-06", "AC-23", "AC-24", "Answer Part 8"],
+  });
   await page.getByRole("button", { name: "Set new initial password" }).click();
   await expect(page.getByText("Initial password reset successfully")).toBeVisible();
 
@@ -150,6 +173,13 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   await page.getByLabel("Active account").uncheck();
   await page.getByRole("button", { name: "Save user" }).click();
   await expect(page.getByRole("alert")).toContainText("Reassign owned Tickets before deactivating or demoting this user");
+  await captureReleaseEvidence(page, {
+    file: "states/admin/assigned-owner-safety.png",
+    role: "Administrator",
+    route: "/#/admin/users",
+    scenario: "Assigned primary Ticket Owner cannot be deactivated/demoted until Tickets are reassigned",
+    mapping: ["E2E-05", "USER-03", "AC-25", "Answer Part 8"],
+  });
 
   await prisma.ticket.update({ where: { id: safetyTicketId }, data: { ownerId: null } });
   await page.getByRole("button", { name: "Save user" }).click();
@@ -162,6 +192,13 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   await page.getByLabel("Password", { exact: true }).fill(resetPassword);
   await page.getByRole("button", { name: "Login" }).click();
   await expect(page.getByRole("alert")).toContainText("Your account cannot sign in");
+  await captureReleaseEvidence(page, {
+    file: "states/auth/inactive-account-safe-failure.png",
+    role: "Unauthenticated",
+    route: "/#/login",
+    scenario: "Inactive account receives safe sign-in failure feedback without protected account detail",
+    mapping: ["E2E-05", "AUTH-01", "AC-01", "Answer Part 5"],
+  });
 });
 
 test("Issue #50 User Management stays usable without page overflow at required viewports", async ({ page }) => {

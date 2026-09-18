@@ -7,9 +7,9 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Author name: `แทนบุญ เตียวสวัสดิ์`
 - Student ID: `67070507211`
 - GitHub username: `@Tanaboonnnnn`
-- Current accepted Lab 3 evidence: Issues #41–#46 / PRs #53–#58 through the merged authenticated Requester regression increment.
-- Current accepted staging merge: `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc` (PR #58 merged to `lab3-staging` on 2026-09-17 07:37 UTC / 14:37 Thailand time).
-- Current active implementation branch after that accepted baseline: `feature/47-lab3-staff-queue`, created from the exact merged staging SHA above. PR #59 is open against `lab3-staging` at head `013939a6d65fbd073e78f289dc5c406bfa98617f`; peer review has been requested and no Issue #47 approval or merge is claimed yet.
+- Current accepted Lab 3 evidence: Issues #41-#51 / PRs #53-#63 through the merged integrated-verification increment.
+- Current accepted staging merge: `890e136e30cb56d87290ff3b70390e0ae26c3ce4` (PR #63 merged to `lab3-staging` after a real Approved review on 2026-09-18).
+- Current Issue #52 work branch: `feature/52-lab3-release-evidence`, created from the exact accepted staging SHA above. Issue #52 owns release reconciliation, fresh staging/final-main verification, Playwright screenshot provenance, and release evidence. No Issue #52 approval, staging merge, release-PR approval, main merge, or final-main pass is inferred before it actually occurs.
 
 ## Reviewers
 
@@ -24,10 +24,14 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Lab 3 review coverage verified on GitHub: PR #56 final **Approved** review submitted 2026-09-15 19:53 UTC against latest reviewed head `0c216ed`; PR #56 then merged to `lab3-staging` at 19:53 UTC as `7304b5e`.
 - Lab 3 review coverage verified on GitHub: PR #57 Issue #45 activation received **Approved** from `@thananun-7203` on 2026-09-16 16:13 UTC against reviewed head `2e7c16a`; no unresolved inline review thread was present, and PR #57 merged to `lab3-staging` as `d443741`.
 - Lab 3 review coverage verified on GitHub: PR #58 Issue #46 authenticated Requester regression received **Approved** from `@thananun-7203` on 2026-09-17 07:37 UTC against reviewed head `7252dd7`; PR #58 merged to `lab3-staging` as `eaa483b`.
-- PR #59 Issue #47 shared Staff Ticket Queue is open for peer review at head `013939a`; review requests were sent to `@thananun-7203` and `@Chxtamos`. This is request evidence only, not a submitted review or approval.
+- Lab 3 review coverage verified on GitHub: PR #59 Issue #47 Staff Ticket Queue received **Approved** from `@thananun-7203` on 2026-09-17 14:26 UTC against head `c3091c1` and merged to `lab3-staging` as `dfcb728`.
+- Lab 3 review coverage verified on GitHub: PR #60 Issue #48 Staff Ticket Operations received Changes Requested followed by **Approved** from `@thananun-7203` on 2026-09-17 19:38 UTC against head `6f0ee1c` and merged as `095ce67`.
+- Lab 3 review coverage verified on GitHub: PR #61 Issue #49 communication/privacy received **Approved** from `@thananun-7203` on 2026-09-18 08:43 UTC against head `268fe19` and merged as `8216683`.
+- Lab 3 review coverage verified on GitHub: PR #62 Issue #50 Administrator User Management received **Approved** from `@thananun-7203` on 2026-09-18 12:15 UTC against head `e09e2cd` and merged as `b568ff8`.
 
 - GitHub username: `@L0u1sss`
 - Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
+- Lab 3 review coverage verified on GitHub: PR #63 Issue #51 integrated-verification review submitted **Approved** on 2026-09-18 14:40 UTC against reviewed head `84f2f321d9a84061dc9776d815de1a56ffa89f50`.
 
 Other users may be requested for review on GitHub, but this file records a reviewer only after a real review submission is verifiable.
 
@@ -41,6 +45,11 @@ Other users may be requested for review on GitHub, but this file records a revie
 | [#56](https://github.com/Tanaboonnnnn/toktickit/pull/56) | Issue #44 backend authentication/session/authorization foundation | `@thananun-7203` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/56#pullrequestreview-5214771144) 2026-09-15 19:19 against head `17e507a`; review-fix candidate `ba3e2b6` added the requested session-expiry/store evidence and dummy-hash timing hardening; final **Approved** 19:53 against latest reviewed head `0c216ed`; merged 19:53 UTC as `7304b5e` |
 | [#57](https://github.com/Tanaboonnnnn/toktickit/pull/57) | Issue #45 cross-layer authentication activation | `@thananun-7203` | **Approved** 2026-09-16 16:13 UTC against reviewed head `2e7c16a`; reviewer confirmed server-derived Requester identity, CSRF/multipart ordering, selector/header retirement, Login/mandatory password change/authenticated shell, E2E-01, and truthful deferral of exhaustive Ticket/Attachment regression to #46; merged to `lab3-staging` as `d443741` |
 | [#58](https://github.com/Tanaboonnnnn/toktickit/pull/58) | Issue #46 authenticated Requester + Attachment continuity | `@thananun-7203` | **Approved** 2026-09-17 07:37 UTC against reviewed head `7252dd79f0277132ca7e4c8647994e9d5e560dc7`; reviewer confirmed session-derived Requester identity, retained Ticket/Attachment regression, non-disclosing ownership, idempotency, all-status UI compatibility, and Staff/Admin read-only Attachment access; merged to `lab3-staging` as `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc` |
+| [#59](https://github.com/Tanaboonnnnn/toktickit/pull/59) | Issue #47 shared IT Staff Ticket Queue | `@thananun-7203` | **Approved** 2026-09-17 14:26 UTC against `c3091c1ff5057d886d0ca1dfbaccd6ad519e6049`; reviewer confirmed authorization, safe query behavior, responsive table/cards and Queue context preservation; merged as `dfcb7288d5aef7b777c53821fcda237b06cc2a30` |
+| [#60](https://github.com/Tanaboonnnnn/toktickit/pull/60) | Issue #48 Staff ownership / IT Priority / status workflow | `@thananun-7203` | **Changes requested** for owner-aware UI actions and diff cleanliness, then **Approved** 2026-09-17 19:38 UTC against `6f0ee1c44271d119ccd76c0217a86ec1a827c7aa`; merged as `095ce67f160a58742b4928b50c1cf27e5ab33bbf` |
+| [#61](https://github.com/Tanaboonnnnn/toktickit/pull/61) | Issue #49 Public Comments / Internal Notes / Requester indication | `@thananun-7203` | **Approved** 2026-09-18 08:43 UTC against `268fe19463bd4a8f7114a95b09a34b7c7a79f516`; reviewer confirmed public/private separation and Requester indication boundary; merged as `8216683ecc8f4d3322dbbca95ec21dfc03428f34` |
+| [#62](https://github.com/Tanaboonnnnn/toktickit/pull/62) | Issue #50 Administrator User Management | `@thananun-7203` | **Approved** 2026-09-18 12:15 UTC against `e09e2cdda491c891b58df5017f9ec0bc679fdf7e`; reviewer confirmed minimalist Admin scope, session/account safety and concurrency evidence; merged as `b568ff87dabb7716355eea622c5980dba5268db7` |
+| [#63](https://github.com/Tanaboonnnnn/toktickit/pull/63) | Issue #51 integrated security/migration/regression/responsive verification | `@L0u1sss` | **Approved** 2026-09-18 14:40 UTC against `84f2f321d9a84061dc9776d815de1a56ffa89f50`; reviewer confirmed SAFE/SEC/STYLE/A11Y/RESP/TRACE evidence and no blocker; merged as `890e136e30cb56d87290ff3b70390e0ae26c3ce4` |
 | [#53](https://github.com/Tanaboonnnnn/toktickit/pull/53) | Sprint 3 Engineering Contract / Test DD / planning reconciliation | `@Chxtamos` | [Changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5200694235) 2026-09-14 17:15 → revised contract pushed; re-review pending |
 
 ## Detailed review evidence
@@ -230,6 +239,11 @@ No PR #55 approval or merge is claimed after Review 6; another human re-review i
 - PR #56 received a real **Approved** review from `@thananun-7203` on 2026-09-15 19:53 UTC against latest reviewed head `0c216edab18edb428e61943191054a69da0e6801` after the earlier Changes Requested round and was merged into `lab3-staging` at 19:53 UTC as `7304b5e746cc3449b3074537038515d61fba9384`.
 - PR #57 received a real **Approved** review from `@thananun-7203` on 2026-09-16 16:13 UTC against reviewed head `2e7c16acf410ba76d0f1127ef5884cb13b393041` and was merged into `lab3-staging` as `d443741ef2c61c21653885208e1fcb1f719e8ca1`.
 - PR #58 received a real **Approved** review from `@thananun-7203` on 2026-09-17 07:37 UTC against reviewed head `7252dd79f0277132ca7e4c8647994e9d5e560dc7` and was merged into `lab3-staging` as `eaa483bae0d2f2d9256871d8ca0abf58ecb5dddc`.
+- PR #59 received a real **Approved** review from `@thananun-7203` on 2026-09-17 14:26 UTC against reviewed head `c3091c1ff5057d886d0ca1dfbaccd6ad519e6049` and was merged into `lab3-staging` as `dfcb7288d5aef7b777c53821fcda237b06cc2a30`.
+- PR #60 received **Changes requested** followed by a real **Approved** review from `@thananun-7203` on 2026-09-17 19:38 UTC against reviewed head `6f0ee1c44271d119ccd76c0217a86ec1a827c7aa`; it merged into `lab3-staging` as `095ce67f160a58742b4928b50c1cf27e5ab33bbf`.
+- PR #61 received a real **Approved** review from `@thananun-7203` on 2026-09-18 08:43 UTC against reviewed head `268fe19463bd4a8f7114a95b09a34b7c7a79f516` and was merged into `lab3-staging` as `8216683ecc8f4d3322dbbca95ec21dfc03428f34`.
+- PR #62 received a real **Approved** review from `@thananun-7203` on 2026-09-18 12:15 UTC against reviewed head `e09e2cdda491c891b58df5017f9ec0bc679fdf7e` and was merged into `lab3-staging` as `b568ff87dabb7716355eea622c5980dba5268db7`.
+- PR #63 received a real **Approved** review from `@L0u1sss` on 2026-09-18 14:40 UTC against reviewed head `84f2f321d9a84061dc9776d815de1a56ffa89f50` and was merged into `lab3-staging` as `890e136e30cb56d87290ff3b70390e0ae26c3ce4`.
 - Review links: [PR #53 approval](https://github.com/Tanaboonnnnn/toktickit/pull/53#pullrequestreview-5201767376), [PR #54 changes requested](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206221801), [PR #54 approval](https://github.com/Tanaboonnnnn/toktickit/pull/54#pullrequestreview-5206674595).
 - PR #54 final approval: **Approved** by `@thananun-7203` on reviewed head `f9274942dab73e8e802d8dbff66a319b4b0e4654`.
 - PR #55 final verdict: **Approved** by `@thananun-7203` after the two earlier Changes Requested submissions from `@L0u1sss`.
@@ -296,3 +310,23 @@ This file follows the Lab 2 peer-review evidence layout while recording Lab 3 ev
 - Scope submitted: integrated Lab 3 verification only - SAFE-01, STYLE-01, A11Y-01, SEC-01, RESP-01..03, TRACE-01, living evidence reconciliation, and the reproduced touch-target verification-helper correction. No new broad product feature was added.
 - Fresh verification on the submitted product/evidence head: server build + **51 files / 285 tests**, client production build + **25 files / 136 tests**, full Chromium **37/37**, retained responsive **10/10**, focused migration/seed/security/safe-error **16/16**, STYLE/A11Y **5/5**, Issue #51 integrated Chromium **4/4**, TRACE-01 **50 Test IDs / 32 ACs**, and `git diff --check` passed.
 - No peer verdict, approval, merge, Issue closure, or final-main release result is claimed here. Final-main proof remains Issue #52.
+
+### Issue #51 approval and merge - 2026-09-18 14:40 UTC
+
+- Result: **Approved and merged**
+- PR: [#63](https://github.com/Tanaboonnnnn/toktickit/pull/63)
+- Reviewer: `@L0u1sss`
+- Reviewed head: `84f2f321d9a84061dc9776d815de1a56ffa89f50`.
+- The reviewer confirmed the intended integrated-verification scope: SAFE-01, SEC-01, STYLE-01, A11Y-01, RESP-01..03 and TRACE-01, including direct backend security/privacy/CSRF/session checks, safe-error coverage, responsive screenshots and traceability.
+- The reviewer reported no blocker and explicitly approved merge. A non-blocking provenance follow-up asked that the exact Issue #51 head be synchronized into this living evidence file; this Issue #52 update resolves that documentation item.
+- PR #63 merged to `lab3-staging` as `890e136e30cb56d87290ff3b70390e0ae26c3ce4`; Issue #51 is completed.
+
+### Issue #52 release-evidence start - 2026-09-18
+
+- Branch: `feature/52-lab3-release-evidence` from accepted staging merge `890e136e30cb56d87290ff3b70390e0ae26c3ce4`.
+- Fresh pre-edit staging baseline verification passed after generating the worktree-local Prisma Client: server build + **51 files / 285 tests**, client production build + **25 files / 136 tests**, TRACE-01 **50 Test IDs / 32 ACs**, Chromium **37/37**, and retained responsive **10/10**.
+- The first baseline attempt failed during TypeScript build because the fresh worktree's Prisma Client had not yet been generated after `npm ci`. Running `prisma generate` fixed the setup prerequisite; no product source change was needed for that failure.
+- Exact Issue #52 peer approval, merge to `lab3-staging`, release-PR approval, merge to `main`, and final-main verification remain future evidence until those GitHub events actually occur.
+- Per the student's explicit instruction for this work session, the final submission PDF is deferred. Issue #52 still prepares repository evidence/checklists and Playwright screenshots, but no PDF-generation result is fabricated or claimed here.
+- The first Issue #52 committed candidate was generated before later feature commits, so it is **not** retained as proof of the current PR head. On PR #64, @L0u1sss requested changes because that candidate manifest named an older SHA than the PR HEAD. The remediation moves exact-head proof to CI: Pull Request jobs check out `pull_request.head.sha`, the capture command asserts the expected SHA, and the 41-image artifact is named with that exact PR-head SHA. Re-review/approval remains pending until the corrected newest-head CI run passes.
+- Course-browsing visibility is handled separately: a clean repository-visible snapshot was rendered from application source `2f56ea8b4c36a8d642c7358c06715e70b5dbeed9` and committed only as an evidence follow-up. This lets an instructor inspect all 41 PNGs directly in GitHub without weakening the exact-current-HEAD CI provenance rule.

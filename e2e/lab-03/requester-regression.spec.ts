@@ -11,6 +11,7 @@ import {
   openRequesterShell,
   unsafeApiHeaders,
 } from "../lab-02/support/ui.js";
+import { captureReleaseEvidence } from "./support/release-evidence.js";
 
 const API_URL = "http://127.0.0.1:4311";
 
@@ -25,6 +26,7 @@ test.afterAll(async () => {
 });
 
 test("E2E-02 preserves authenticated Requester create/upload/list/detail/remove/isolation", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   const summary = `${fixture.tag} authenticated continuity`;
   const description = `${fixture.tag} authenticated Requester regression description.`;
   const observedUnsafeRequests: Array<{ url: string; headers: Record<string, string>; body: string | null }> = [];
@@ -53,6 +55,13 @@ test("E2E-02 preserves authenticated Requester create/upload/list/detail/remove/
   const ticketNumber = (await page.getByTestId("ticket-number").textContent())?.trim() ?? "";
   expect(ticketNumber).toMatch(/^TKT-\d{8}-[A-Z0-9]{6}$/);
   await expect(page.getByText("Uploaded")).toHaveCount(2);
+  await captureReleaseEvidence(page, {
+    file: "states/requester/create-ticket-attachment-success.png",
+    role: "Requester",
+    route: "/#/tickets/new",
+    scenario: "Create Ticket success with retained Attachment upload feedback",
+    mapping: ["E2E-02", "ATT-01", "Answer Part 9"],
+  });
 
   const persistedTicket = await fixture.prisma.ticket.findFirstOrThrow({
     where: { ticketNumber, requesterId: fixture.requesterA.id },
@@ -80,6 +89,13 @@ test("E2E-02 preserves authenticated Requester create/upload/list/detail/remove/
   await expect(page.locator(".lab2-status-reopened")).toHaveText("Reopened");
   await expect(page.getByRole("heading", { name: "remove-after-create.png", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "owner-only.pdf", exact: true })).toBeVisible();
+  await captureReleaseEvidence(page, {
+    file: "states/requester/ticket-detail-attachments.png",
+    role: "Requester",
+    route: "/#/tickets/:id",
+    scenario: "Requester Ticket Detail displays owned Attachments and evolved non-New status",
+    mapping: ["E2E-02", "ATT-01", "UI-02", "Answer Part 7", "Answer Part 9"],
+  });
 
   const removableCard = page.getByRole("heading", { name: "remove-after-create.png", exact: true }).locator("..");
   await removableCard.getByRole("button", { name: "Remove attachment" }).click();

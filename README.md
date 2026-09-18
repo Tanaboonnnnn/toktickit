@@ -262,3 +262,73 @@ through a reviewed Pull Request into `lab2-staging`, freshly verify the integrat
 staging head, then open one release Pull Request from `lab2-staging` to `main`.
 Merge that release Pull Request only after review approval and rerun the final
 verification on `main` after merge.
+
+## Lab 3 branch, verification, and release workflow
+
+```text
+feature branch -> lab3-staging -> integrated release-candidate verification
+-> reviewed lab3-staging-to-main release Pull Request -> main
+-> fresh exact-main verification + Playwright evidence capture
+```
+
+Lab 3 continues the same TokTickIT product. Do not create a second application,
+rewrite historical Lab 2 migrations/evidence, or commit directly to `main` or
+`lab3-staging`. Feature PRs target `lab3-staging`; the final release uses one
+reviewed PR from `lab3-staging` to `main`.
+
+From the repository root, use the aggregate gate:
+
+```powershell
+npm.cmd run verify
+```
+
+The fresh worktree setup must run `npx.cmd prisma generate --schema prisma/schema.prisma`
+inside `server` after dependency installation. Database-backed checks require the
+same distinct `DATABASE_URL` / `TEST_DATABASE_URL` safety configuration described
+above; do not point tests at development data.
+
+For deterministic release screenshots from the integrated Lab 3 Playwright journey:
+
+```powershell
+npm.cmd run capture:evidence:lab3 -- release-candidate
+```
+
+The capture command records the current Git SHA in a manifest and requires **41 PNGs**:
+nine major screens each at Desktop `1440x900`, Tablet `834x1112`, and Mobile
+`390x844` (**27 major responsive screenshots**) plus **14 targeted state screenshots**
+covering mandatory password change, Attachment success/detail, Public versus Internal
+communication, Requester resolution indication, filtered Staff Queue, Staff ownership/
+workflow confirmation, Administrator create/edit/reset/safety feedback, and inactive-login
+safe failure. Each manifest entry records role, route, scenario, viewport, and Test-ID/
+rubric mapping. After the reviewed release PR merges, check out the exact delivered
+`main` SHA and rerun the same command with the `final-main` label. Final-main
+verification and screenshots are evidence of the delivered commit; they are never
+claimed before that merge actually occurs.
+
+For Pull Requests, exact-head evidence is produced by CI rather than committed back
+into the same branch. Committing a generated screenshot set would itself create a new
+HEAD and immediately make the embedded source SHA stale. The workflow therefore checks
+out `pull_request.head.sha`, passes that SHA to the capture command, and fails if
+`git rev-parse HEAD` does not match it. Reviewers should use the newest successful
+`lab3-ui-evidence-<PR-head-SHA>` artifact for exact-head visual proof.
+
+For course/instructor browsing, Issue #52 also keeps one **repository-visible evidence
+snapshot** under `artifacts/lab-03/screenshots/issue-52/repository-evidence-<source-sha>/`.
+That directory is intentionally committed so opening the GitHub repository is enough to
+see all 41 screenshots and their metadata. Its manifest records the application-source
+SHA that produced the images; the following evidence-only commit may have a different
+HEAD because it adds the PNG/metadata files themselves. No application code is allowed
+to change between that source SHA and the repository-evidence container commit. CI still
+provides the separate exact-current-PR-head artifact described above.
+
+### GitHub Actions CI for Lab 3
+
+`.github/workflows/lab3-ci.yml` runs on pull requests targeting `lab3-staging` or
+`main`, and on pushes to those two integration branches. The Linux job provisions
+PostgreSQL with separate development/test database identities, installs all three
+lockfile scopes, generates Prisma Client, deploys migrations and local-only seed data
+to the dedicated test database, installs Chromium, captures the 41-image SHA-labelled
+UI evidence set, and runs the complete `npm run verify` gate. The UI evidence folder is
+uploaded as a GitHub Actions artifact named with the exact evidence-source SHA; Playwright
+diagnostics are uploaded on failure. CI credentials are ephemeral test values, not
+repository or personal secrets.

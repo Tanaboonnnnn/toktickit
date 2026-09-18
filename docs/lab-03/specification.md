@@ -1,6 +1,6 @@
 # Lab 3 Sprint Engineering Specification
 
-Status: **Revised after peer Changes Requested; awaiting re-review.** This is the Issue #41 engineering contract. Product implementation, migration execution, and Lab 3 product-test results are not claimed here.
+Status: **Reviewed Sprint 3 engineering contract, implemented through the accepted Issue #51 integration candidate.** Issues #41-#51 have progressed through real feature review/merge evidence on `lab3-staging`; Issue #52 owns release reconciliation, final-main verification, and delivery evidence. Exact final-main completion is never inferred before the release merge and fresh verification actually occur.
 
 Primary source: `Lab_3_sheet.pdf`. This contract extends the delivered Lab 2 product and preserves still-valid Lab 2 behavior unless a Lab 3 requirement explicitly changes it.
 

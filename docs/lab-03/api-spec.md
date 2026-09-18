@@ -1,6 +1,6 @@
 # Lab 3 REST API Specification
 
-Status: Issue #41 engineering-contract draft for peer review. No Lab 3 endpoint below is claimed implemented until its implementation issue supplies fresh evidence.
+Status: **Reviewed API contract implemented through the accepted Issue #51 staging integration.** Endpoint completion is supported by the Test DD/review evidence in `tests.md` and `reviewer.md`; Issue #52 owns fresh release-candidate and final-main verification rather than inventing new API scope.
 
 Primary authority: `Lab_3_sheet.pdf` §6. This file makes endpoint paths, request/response shapes, session behavior, validation, safe errors, and HTTP status codes explicit before implementation.
 

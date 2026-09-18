@@ -1,6 +1,6 @@
 # Lab 3 Zen Green UI Specification
 
-Status: Issue #41 contract draft for peer review. Screens and screenshots described below are planned evidence, not completed implementation.
+Status: **Reviewed UI contract implemented through the accepted Issue #51 staging integration.** Issue #51 captured the integrated role/responsive evidence; Issue #52 refreshes the same Playwright evidence against the release candidate and, after release merge, the exact delivered `main` SHA.
 
 ## 1. Design Intent
 
@@ -232,17 +232,28 @@ At all supported widths:
 
 The accepted #45 integrated state must provide Login, mandatory password change, authenticated shell/transport, and usable retained Requester screens at the same time that protected Requester backend identity is switched away from the Development Requester header. A half-cutover that leaves the browser with no usable identity path is not an accepted merged increment.
 
-## 13. Planned Evidence Paths
+## 13. Evidence Paths and Release Refresh
 
-Do not mark these complete until generated and inspected from the actual application.
+Issue #51 produced the first integrated screenshot set under `artifacts/lab-03/screenshots/issue-51/`: nine major screens at each required viewport. Issue #52 refreshes that same Playwright journey with SHA-labelled provenance so release evidence cannot be confused with an older branch run.
 
 ```text
 artifacts/lab-03/screenshots/
-├── authentication/
-├── requester/
-├── staff-queue/
-├── staff-ticket-detail/
-└── user-management/
+├── issue-51/
+│   ├── desktop-1440x900/
+│   ├── tablet-834x1112/
+│   └── mobile-390x844/
+└── issue-52/
+    └── <label>-<source-sha>/
+        ├── manifest.json
+        ├── desktop-1440x900/   # 9 major screens
+        ├── tablet-834x1112/    # 9 major screens
+        └── mobile-390x844/     # 9 major screens
 ```
 
-Final visual inspection must cover all major screens at Desktop/Tablet/Mobile, plus representative validation/empty/no-results/forbidden/conflict/failure states.
+Run `npm.cmd run capture:evidence:lab3 -- <label>` from the repository root. The command builds the server, runs the integrated Lab 3 Playwright evidence journeys, requires exactly **41 screenshots** (**27 major responsive screenshots + 14 meaningful UI-state screenshots**), and writes the exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping to `manifest.json`. Use a release-candidate label before review and `final-main` only after the release PR has actually merged to `main` and the checkout is at that exact delivered SHA.
+
+For a moving Pull Request, the authoritative exact-head set is the newest successful CI artifact, not a screenshot directory committed into that same branch. CI checks out `pull_request.head.sha`, supplies it as `EXPECTED_EVIDENCE_SHA`, and the capture command rejects a mismatch before producing evidence. This prevents a generated-evidence commit from invalidating its own SHA provenance.
+
+The course-facing repository also retains one browsable `repository-evidence-<source-sha>/` snapshot. It contains the same 41-image coverage plus per-image metadata and is committed in an evidence-only follow-up commit so instructors can inspect screenshots directly from GitHub. The snapshot manifest names the source commit that rendered the application; exact latest-head proof remains the CI artifact.
+
+Final visual inspection must cover all major screens at Desktop/Tablet/Mobile, plus representative validation/empty/no-results/forbidden/conflict/failure states supplied by the broader E2E/UI suites. Screenshot evidence must not contain credentials or session secrets.

@@ -1,0 +1,14 @@
+{
+  "role": "Requester",
+  "route": "/#/tickets/new",
+  "scenario": "Create Ticket form with retained Lab 2 fields and Attachment preselection",
+  "mapping": [
+    "UI-02",
+    "RESP-01",
+    "RESP-02",
+    "RESP-03",
+    "Answer Part 9"
+  ],
+  "file": "major/desktop-1440x900/03-requester-create.png",
+  "viewport": "1440x900"
+}

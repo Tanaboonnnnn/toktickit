@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { PrismaClient } from "../../server/node_modules/@prisma/client/index.js";
 import { hashPassword } from "../../server/dist/src/password.js";
 import { assertNoHorizontalOverflow } from "../lab-02/support/ui.js";
+import { captureReleaseEvidence } from "./support/release-evidence.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -77,6 +78,7 @@ test.afterAll(async () => {
 });
 
 test("E2E-04 Staff public/private communication stays separated and Requester indication never resolves formally", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await login(page, staff.email, "Ticket Queue");
   await page.goto(`/#/staff/tickets/${ticketId}`);
   await expect(page.getByRole("heading", { name: "Public Comments" })).toBeVisible();
@@ -87,6 +89,13 @@ test("E2E-04 Staff public/private communication stays separated and Requester in
   await page.getByRole("button", { name: "Add Internal Note" }).click();
   await expect(page.getByText(`${tag} private diagnostic`)).toBeVisible();
   await expect(page.getByText("Internal / Staff only")).toBeVisible();
+  await captureReleaseEvidence(page, {
+    file: "states/staff/public-vs-internal-communication.png",
+    role: "IT Staff",
+    route: "/#/staff/tickets/:id",
+    scenario: "Staff Ticket Detail visibly separates Public Comments from Internal Notes",
+    mapping: ["E2E-04", "UI-05", "AC-20", "Answer Part 7"],
+  });
 
   await page.getByRole("button", { name: "Logout" }).click();
   await login(page, requester.email, "My Tickets");
@@ -95,9 +104,23 @@ test("E2E-04 Staff public/private communication stays separated and Requester in
   await expect(page.getByText(`${tag} public reply`)).toBeVisible();
   await expect(page.getByText(`${tag} private diagnostic`)).toHaveCount(0);
   await expect(page.getByText(/Internal \/ Staff only/i)).toHaveCount(0);
+  await captureReleaseEvidence(page, {
+    file: "states/requester/public-comment-private-note-hidden.png",
+    role: "Requester",
+    route: "/#/tickets/:id",
+    scenario: "Requester sees Public Comment while Internal Note content/label is absent",
+    mapping: ["E2E-04", "SEC-01", "AC-04", "Answer Part 7"],
+  });
 
   await page.getByRole("button", { name: "Problem Appears Resolved" }).click();
   await expect(page.getByText(/does not formally resolve or close/i)).toBeVisible();
+  await captureReleaseEvidence(page, {
+    file: "states/requester/problem-appears-resolved-confirmation.png",
+    role: "Requester",
+    route: "/#/tickets/:id",
+    scenario: "Problem Appears Resolved requires explicit confirmation and states that it does not formally resolve/close",
+    mapping: ["E2E-04", "COM-03", "AC-21", "Answer Part 7"],
+  });
   await page.getByRole("button", { name: "Confirm Problem Appears Resolved" }).click();
   await expect(page.getByText(/Resolution indication sent/i)).toBeVisible();
   const stored = await prisma.ticket.findUniqueOrThrow({ where: { id: ticketId } });
