@@ -1,0 +1,15 @@
+{
+  "role": "Administrator",
+  "route": "/#/admin/users",
+  "scenario": "Administrator User Management list/search/filter/create entry point",
+  "mapping": [
+    "UI-06",
+    "RESP-01",
+    "RESP-02",
+    "RESP-03",
+    "Answer Part 8",
+    "Answer Part 9"
+  ],
+  "file": "major/mobile-390x844/09-admin-users.png",
+  "viewport": "390x844"
+}

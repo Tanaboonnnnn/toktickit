@@ -1,0 +1,16 @@
+{
+  "role": "Requester",
+  "route": "/#/tickets/:id",
+  "scenario": "Requester Ticket Detail with Public Comments and no Internal Notes leakage",
+  "mapping": [
+    "UI-05",
+    "SEC-01",
+    "RESP-01",
+    "RESP-02",
+    "RESP-03",
+    "Answer Part 7",
+    "Answer Part 9"
+  ],
+  "file": "major/tablet-834x1112/04-requester-detail.png",
+  "viewport": "834x1112"
+}
