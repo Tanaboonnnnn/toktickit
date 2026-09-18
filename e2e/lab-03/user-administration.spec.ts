@@ -28,8 +28,11 @@ function testDatabaseUrl(): string {
 const adminPassword = "Administrator-E2E-Password-50!";
 const initialPassword = "User-E2E-Initial-Password-50!";
 const resetPassword = "User-E2E-Replacement-Password-50!";
+const ADMIN_NAME = "Arisa Wattanakul";
+const REQUESTER_NAME = "Ploy Srisuk";
+const MANAGED_STAFF_NAME = "Kanya Prasert";
+const MANAGED_STAFF_UPDATED_NAME = "Kanya Prasertchai";
 let prisma: PrismaClient;
-let tag = "";
 let administrator: { id: number; email: string; name: string };
 let requesterId = 0;
 let categoryId = 0;
@@ -49,18 +52,17 @@ async function login(page: Page, email: string, password: string, expectedHeadin
 test.beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
   await prisma.$connect();
-  tag = `e2e-user-admin-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
   const passwordHash = await hashPassword(adminPassword);
   administrator = await prisma.user.create({
-    data: { name: `${tag} Administrator`, email: `${tag}-admin@example.test`, active: true, role: "ADMINISTRATOR", passwordHash, mustChangePassword: false },
+    data: { name: ADMIN_NAME, email: "arisa.admin@example.test", active: true, role: "ADMINISTRATOR", passwordHash, mustChangePassword: false },
     select: { id: true, email: true, name: true },
   });
   requesterId = (await prisma.user.create({
-    data: { name: `${tag} Requester`, email: `${tag}-requester@example.test`, active: true, role: "REQUESTER", passwordHash, mustChangePassword: false },
+    data: { name: REQUESTER_NAME, email: "ploy.srisuk@example.test", active: true, role: "REQUESTER", passwordHash, mustChangePassword: false },
     select: { id: true },
   })).id;
-  categoryId = (await prisma.category.create({ data: { name: `${tag} Category`, active: true }, select: { id: true } })).id;
-  relatedSystemId = (await prisma.relatedSystem.create({ data: { name: `${tag} System`, active: true }, select: { id: true } })).id;
+  categoryId = (await prisma.category.upsert({ where: { name: "Account and Access" }, update: { active: true }, create: { name: "Account and Access", active: true }, select: { id: true } })).id;
+  relatedSystemId = (await prisma.relatedSystem.upsert({ where: { name: "Student Portal" }, update: { active: true }, create: { name: "Student Portal", active: true }, select: { id: true } })).id;
 });
 
 test.afterAll(async () => {
@@ -70,8 +72,6 @@ test.afterAll(async () => {
   const sessions = await prisma.session.findMany({ select: { sid: true, sess: true } });
   const sessionIds = sessions.filter((row) => userIds.includes(Number((row.sess as Record<string, unknown>).userId))).map((row) => row.sid);
   if (sessionIds.length) await prisma.session.deleteMany({ where: { sid: { in: sessionIds } } });
-  if (categoryId) await prisma.category.deleteMany({ where: { id: categoryId } });
-  if (relatedSystemId) await prisma.relatedSystem.deleteMany({ where: { id: relatedSystemId } });
   if (userIds.length) await prisma.user.deleteMany({ where: { id: { in: userIds } } });
   await prisma.$disconnect();
 });
@@ -98,10 +98,10 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   await page.getByRole("button", { name: "Close edit" }).click();
   await page.getByRole("button", { name: "Clear search/filters" }).click();
 
-  const targetName = `${tag} Managed Staff`;
-  const targetUpdatedName = `${tag} Managed Staff Updated`;
-  const targetEmail = `${tag}-managed@example.test`;
-  const targetUpdatedEmail = `${tag}-managed-updated@example.test`;
+  const targetName = MANAGED_STAFF_NAME;
+  const targetUpdatedName = MANAGED_STAFF_UPDATED_NAME;
+  const targetEmail = "kanya.prasert@example.test";
+  const targetUpdatedEmail = "kanya.prasertchai@example.test";
   await page.getByRole("button", { name: "Create User" }).click();
   await captureReleaseEvidence(page, {
     file: "states/admin/create-user-form.png",
@@ -161,7 +161,7 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
     data: {
       ticketNumber: `TKT-20991252-${randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase()}`,
       clientRequestId: randomUUID(), requesterId, ownerId: targetUserId, categoryId, relatedSystemId,
-      summary: `${tag} owner safety`, description: `${tag} owner safety E2E fixture`,
+      summary: "Assigned ticket blocks unsafe account deactivation", description: "This open ticket remains assigned so the Administrator must reassign it before deactivating the IT Staff account.",
       requestedPriority: "MEDIUM", itPriority: "MEDIUM", currentStatus: "NEW",
     },
     select: { id: true },

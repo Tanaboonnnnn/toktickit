@@ -28,12 +28,15 @@ function testDatabaseUrl(): string {
 }
 
 const password = "Staff-Queue-E2E-Password-47!";
+const QUEUE_SEARCH = "North Library Wi-Fi";
+const STAFF_NAME = "Dao Rattanakorn";
+const REQUESTER_NAME = "Niran Prasert";
 let prisma: PrismaClient;
-let tag = "";
 let staff: { id: number; email: string };
 let requester: { id: number };
 let categoryId = 0;
 let relatedSystemId = 0;
+let ticketIds: number[] = [];
 
 async function loginStaff(page: Page): Promise<void> {
   await page.goto("/#/staff/tickets");
@@ -46,31 +49,30 @@ async function loginStaff(page: Page): Promise<void> {
 
 async function applyFixtureSearch(page: Page): Promise<void> {
   const search = page.getByRole("searchbox", { name: /search ticket number, summary, or requester/i });
-  await search.fill(tag);
+  await search.fill(QUEUE_SEARCH);
   await search.press("Enter");
-  await expect(page.getByText(`${tag} ticket 12`).first()).toBeVisible();
+  await expect(page.getByText("North Library Wi-Fi connection issue 12").first()).toBeVisible();
 }
 
 test.beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
   await prisma.$connect();
-  tag = `e2e-staff-queue-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
   const passwordHash = await hashPassword(password);
   staff = await prisma.user.create({
-    data: { name: `${tag} Staff`, email: `${tag}-staff@example.test`, active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false },
+    data: { name: STAFF_NAME, email: "dao.rattanakorn@example.test", active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false },
     select: { id: true, email: true },
   });
   requester = await prisma.user.create({
-    data: { name: `${tag} Requester`, email: `${tag}-requester@example.test`, active: true, role: "REQUESTER", passwordHash, mustChangePassword: false },
+    data: { name: REQUESTER_NAME, email: "niran.prasert.e2e@example.test", active: true, role: "REQUESTER", passwordHash, mustChangePassword: false },
     select: { id: true },
   });
-  const category = await prisma.category.create({ data: { name: `${tag} Category`, active: true }, select: { id: true } });
-  const relatedSystem = await prisma.relatedSystem.create({ data: { name: `${tag} System`, active: true }, select: { id: true } });
+  const category = await prisma.category.upsert({ where: { name: "Network" }, update: { active: true }, create: { name: "Network", active: true }, select: { id: true } });
+  const relatedSystem = await prisma.relatedSystem.upsert({ where: { name: "Campus Wi-Fi" }, update: { active: true }, create: { name: "Campus Wi-Fi", active: true }, select: { id: true } });
   categoryId = category.id;
   relatedSystemId = relatedSystem.id;
 
   for (let index = 1; index <= 12; index += 1) {
-    await prisma.ticket.create({
+    const ticket = await prisma.ticket.create({
       data: {
         ticketNumber: `TKT-20990917-${randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase()}`,
         clientRequestId: randomUUID(),
@@ -78,28 +80,27 @@ test.beforeAll(async () => {
         ownerId: index % 2 === 0 ? staff.id : null,
         categoryId,
         relatedSystemId,
-        summary: `${tag} ticket ${String(index).padStart(2, "0")}`,
-        description: `${tag} read-only Staff Queue detail ${index}.`,
+        summary: `North Library Wi-Fi connection issue ${String(index).padStart(2, "0")}`,
+        description: `Requester reports an intermittent North Library Wi-Fi connection problem from study area ${index}.`,
         requestedPriority: index % 3 === 0 ? "HIGH" : index % 3 === 1 ? "LOW" : "MEDIUM",
         itPriority: index % 3 === 0 ? "MEDIUM" : index % 3 === 1 ? "HIGH" : "LOW",
         currentStatus: index % 2 === 0 ? "OPEN" : "NEW",
         createdAt: new Date(Date.UTC(2026, 8, 16, 9, index, 0)),
         updatedAt: new Date(Date.UTC(2026, 8, 17, 9, index, 0)),
       },
+      select: { id: true },
     });
+    ticketIds.push(ticket.id);
   }
 });
 
 test.afterAll(async () => {
   if (!prisma) return;
-  const ticketIds = (await prisma.ticket.findMany({ where: { summary: { startsWith: tag } }, select: { id: true } })).map(({ id }) => id);
   if (ticketIds.length > 0) await prisma.ticket.deleteMany({ where: { id: { in: ticketIds } } });
   const sessions = await prisma.session.findMany({ select: { sid: true, sess: true } });
   const ownedUserIds = new Set([staff?.id, requester?.id].filter((id): id is number => Number.isSafeInteger(id)));
   const sessionIds = sessions.filter((row) => ownedUserIds.has(Number((row.sess as Record<string, unknown>).userId))).map((row) => row.sid);
   if (sessionIds.length > 0) await prisma.session.deleteMany({ where: { sid: { in: sessionIds } } });
-  await prisma.category.deleteMany({ where: { id: categoryId } });
-  await prisma.relatedSystem.deleteMany({ where: { id: relatedSystemId } });
   await prisma.user.deleteMany({ where: { id: { in: [...ownedUserIds] } } });
   await prisma.$disconnect();
 });
@@ -117,7 +118,7 @@ test("Issue #47 Staff can search/page the shared queue and return from evolved D
 
   await page.getByLabel("Owner").selectOption("me");
   await expect(page.getByText(/\(6 total\)/)).toBeVisible();
-  await expect(page.locator(".lab3-staff-table tbody").getByText(`${tag} Staff`).first()).toBeVisible();
+  await expect(page.locator(".lab3-staff-table tbody").getByText(STAFF_NAME).first()).toBeVisible();
   await captureReleaseEvidence(page, {
     file: "states/staff/queue-search-pagination-owner-filter.png",
     role: "IT Staff",
@@ -128,16 +129,19 @@ test("Issue #47 Staff can search/page the shared queue and return from evolved D
 
   await page.locator(".lab3-staff-table").getByRole("button", { name: "View ticket" }).first().click();
   await expect(page.getByRole("heading", { name: "Staff Ticket Detail" })).toBeVisible();
-  await expect(page.getByText(`${tag} Requester`, { exact: false })).toBeVisible();
-  await expect(page.getByText(/read-only Staff Queue detail/)).toBeVisible();
+  await expect(page.getByText(REQUESTER_NAME, { exact: false })).toBeVisible();
+  await expect(page.getByText(/intermittent North Library Wi-Fi connection problem/)).toBeVisible();
   await expect(page.getByRole("heading", { name: "Ticket operations" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Public Comments" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Internal Notes" })).toBeVisible();
-  await expect(page).toHaveURL(new RegExp(`#\\/staff\\/tickets\\/\\d+\\?.*search=${encodeURIComponent(tag)}.*owner=me`));
+  await expect(page).toHaveURL(/#\/staff\/tickets\/\d+\?/);
+  const detailQuery = new URLSearchParams(new URL(page.url()).hash.split("?")[1] ?? "");
+  expect(detailQuery.get("search")).toBe(QUEUE_SEARCH);
+  expect(detailQuery.get("owner")).toBe("me");
 
   await page.getByRole("button", { name: "Back to Ticket Queue" }).click();
   await expect(page.getByRole("heading", { name: "Ticket Queue" })).toBeVisible();
-  await expect(page.getByRole("searchbox", { name: /search ticket number, summary, or requester/i })).toHaveValue(tag);
+  await expect(page.getByRole("searchbox", { name: /search ticket number, summary, or requester/i })).toHaveValue(QUEUE_SEARCH);
   await expect(page.getByLabel("Owner")).toHaveValue("me");
   await expect(page.getByText(/\(6 total\)/)).toBeVisible();
 });

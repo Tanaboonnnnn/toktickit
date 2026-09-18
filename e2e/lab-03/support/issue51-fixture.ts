@@ -9,6 +9,11 @@ import { assertNoHorizontalOverflow, assertTouchTargets, screenshot } from "../.
 import { captureReleaseEvidence, type ReleaseEvidenceMeta } from "./release-evidence.js";
 
 export const ISSUE51_PASSWORD = "Integrated-Verification-51!";
+const ISSUE51_REQUESTER_NAME = "Mali Srisuk";
+const ISSUE51_STAFF_NAME = "Nida Kittipong";
+const ISSUE51_ADMIN_NAME = "Arisa Wattanakul";
+const ISSUE51_PUBLIC_COMMENT = "We reset the portal session. Please sign in again using a fresh browser window.";
+const ISSUE51_PRIVATE_NOTE = "Identity logs show a stale session token; monitor the next authentication attempt before escalating.";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -42,23 +47,24 @@ export interface Issue51Fixture {
 export async function createIssue51Fixture(label: string): Promise<Issue51Fixture> {
   const prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
   await prisma.$connect();
-  const tag = `issue51-${label}-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
+  const runCode = randomUUID().slice(0, 6);
+  const tag = `issue51-${label}-${process.pid}-${Date.now()}-${runCode}`;
   const passwordHash = await hashPassword(ISSUE51_PASSWORD);
-  const requester = await prisma.user.create({ data: { name: `${tag} Requester`, email: `${tag}-requester@example.test`, role: "REQUESTER", active: true, passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  const staff = await prisma.user.create({ data: { name: `${tag} Staff`, email: `${tag}-staff@example.test`, role: "IT_STAFF", active: true, passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  const administrator = await prisma.user.create({ data: { name: `${tag} Admin`, email: `${tag}-admin@example.test`, role: "ADMINISTRATOR", active: true, passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  const category = await prisma.category.create({ data: { name: `${tag} Category`, active: true } });
-  const system = await prisma.relatedSystem.create({ data: { name: `${tag} System`, active: true } });
+  const requester = await prisma.user.create({ data: { name: ISSUE51_REQUESTER_NAME, email: "mali.srisuk@example.test", role: "REQUESTER", active: true, passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  const staff = await prisma.user.create({ data: { name: ISSUE51_STAFF_NAME, email: "nida.kittipong@example.test", role: "IT_STAFF", active: true, passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  const administrator = await prisma.user.create({ data: { name: ISSUE51_ADMIN_NAME, email: "arisa.wattanakul@example.test", role: "ADMINISTRATOR", active: true, passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  const category = await prisma.category.upsert({ where: { name: "Account and Access" }, update: { active: true }, create: { name: "Account and Access", active: true } });
+  const system = await prisma.relatedSystem.upsert({ where: { name: "Student Portal" }, update: { active: true }, create: { name: "Student Portal", active: true } });
   const ticket = await prisma.ticket.create({ data: {
     ticketNumber: `TKT-20995103-${randomUUID().replaceAll("-", "").slice(0, 6).toUpperCase()}`,
     clientRequestId: randomUUID(), requesterId: requester.id, ownerId: staff.id,
     categoryId: category.id, relatedSystemId: system.id,
-    summary: `${tag} long integrated verification summary that must wrap without clipping`,
-    description: `${tag} integrated responsive and accessibility evidence with sufficiently long content to exercise wrapping.`,
+    summary: "Student Portal sign-in loops after a password reset",
+    description: "The requester can complete the password reset, but the Student Portal returns to the sign-in screen instead of opening the dashboard.",
     requestedPriority: "HIGH", itPriority: "MEDIUM", currentStatus: "IN_PROGRESS",
   }, select: { id: true } });
-  await prisma.publicComment.create({ data: { ticketId: ticket.id, authorId: staff.id, body: `${tag} public comment with readable long content for responsive verification.` } });
-  await prisma.internalNote.create({ data: { ticketId: ticket.id, authorId: staff.id, body: `${tag} private note visible only on the Staff detail.` } });
+  await prisma.publicComment.create({ data: { ticketId: ticket.id, authorId: staff.id, body: ISSUE51_PUBLIC_COMMENT } });
+  await prisma.internalNote.create({ data: { ticketId: ticket.id, authorId: staff.id, body: ISSUE51_PRIVATE_NOTE } });
   return { prisma, tag, requester, staff, administrator, ticketId: ticket.id, categoryId: category.id, relatedSystemId: system.id };
 }
 
@@ -71,8 +77,6 @@ export async function destroyIssue51Fixture(fixture: Issue51Fixture): Promise<vo
   const sessions = await fixture.prisma.session.findMany({ select: { sid: true, sess: true } });
   const sessionIds = sessions.filter((row) => ids.includes(Number((row.sess as Record<string, unknown>).userId))).map((row) => row.sid);
   if (sessionIds.length) await fixture.prisma.session.deleteMany({ where: { sid: { in: sessionIds } } });
-  await fixture.prisma.category.deleteMany({ where: { id: fixture.categoryId } });
-  await fixture.prisma.relatedSystem.deleteMany({ where: { id: fixture.relatedSystemId } });
   await fixture.prisma.user.deleteMany({ where: { id: { in: ids } } });
   await fixture.prisma.$disconnect();
 }
@@ -122,8 +126,8 @@ export async function exerciseMajorScreens(page: Page, fixture: Issue51Fixture, 
   await expect(page.getByRole("heading", { name: "Create Ticket" })).toBeVisible();
   await capture(page, viewportName, "03-requester-create");
   await page.goto(`/#/tickets/${fixture.ticketId}`);
-  await expect(page.getByText(fixture.tag + " public comment with readable long content for responsive verification.")).toBeVisible();
-  await expect(page.getByText(/private note visible only/i)).toHaveCount(0);
+  await expect(page.getByText(ISSUE51_PUBLIC_COMMENT)).toBeVisible();
+  await expect(page.getByText(ISSUE51_PRIVATE_NOTE)).toHaveCount(0);
   await capture(page, viewportName, "04-requester-detail");
   await page.goto("/#/change-password");
   await expect(page.getByRole("heading", { name: "Change Password" })).toBeVisible();
