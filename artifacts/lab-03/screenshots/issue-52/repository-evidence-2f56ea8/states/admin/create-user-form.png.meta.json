@@ -1,0 +1,13 @@
+{
+  "file": "states/admin/create-user-form.png",
+  "role": "Administrator",
+  "route": "/#/admin/users",
+  "scenario": "Minimal Create User form with one role, activation state and initial password",
+  "mapping": [
+    "E2E-05",
+    "UI-06",
+    "AC-22",
+    "Answer Part 8"
+  ],
+  "viewport": "1440x900"
+}

@@ -1,0 +1,690 @@
+{
+  "label": "repository-evidence",
+  "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9",
+  "expectedSourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9",
+  "generatedAtUtc": "2026-09-18T18:44:34.375Z",
+  "command": "npm run capture:evidence:lab3 -- repository-evidence",
+  "viewports": {
+    "desktop": "1440x900",
+    "tablet": "834x1112",
+    "mobile": "390x844"
+  },
+  "expectedMajorScreensPerViewport": 9,
+  "screenshotCount": 41,
+  "majorScreenshotCount": 27,
+  "stateScreenshotCount": 14,
+  "entries": [
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/01-login.png",
+      "role": "Unauthenticated",
+      "route": "/#/login",
+      "scenario": "Login screen with email/password entry and Zen Green authentication shell",
+      "mapping": [
+        "UI-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/01-login.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/02-requester-my-tickets.png",
+      "role": "Requester",
+      "route": "/#/tickets",
+      "scenario": "Authenticated Requester My Tickets with role shell and query controls",
+      "mapping": [
+        "UI-02",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/02-requester-my-tickets.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/03-requester-create.png",
+      "role": "Requester",
+      "route": "/#/tickets/new",
+      "scenario": "Create Ticket form with retained Lab 2 fields and Attachment preselection",
+      "mapping": [
+        "UI-02",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/03-requester-create.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/04-requester-detail.png",
+      "role": "Requester",
+      "route": "/#/tickets/:id",
+      "scenario": "Requester Ticket Detail with Public Comments and no Internal Notes leakage",
+      "mapping": [
+        "UI-05",
+        "SEC-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 7",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/04-requester-detail.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/05-change-password.png",
+      "role": "Requester",
+      "route": "/#/change-password",
+      "scenario": "Change Password screen available from the authenticated shell",
+      "mapping": [
+        "UI-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/05-change-password.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/06-requester-forbidden.png",
+      "role": "Requester",
+      "route": "/#/staff/tickets",
+      "scenario": "Role-specific forbidden feedback for a Requester attempting a Staff destination",
+      "mapping": [
+        "A11Y-01",
+        "SEC-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/06-requester-forbidden.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/07-staff-queue.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets",
+      "scenario": "Shared IT Staff Ticket Queue with search/filter/sort/pagination controls",
+      "mapping": [
+        "UI-03",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 6",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/07-staff-queue.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/08-staff-detail.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets/:id",
+      "scenario": "Staff Ticket Detail with ownership, Requested/IT Priority, workflow, Public Comments and Internal Notes",
+      "mapping": [
+        "UI-04",
+        "UI-05",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 7",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/08-staff-detail.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/desktop-1440x900/09-admin-users.png",
+      "role": "Administrator",
+      "route": "/#/admin/users",
+      "scenario": "Administrator User Management list/search/filter/create entry point",
+      "mapping": [
+        "UI-06",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 8",
+        "Answer Part 9"
+      ],
+      "file": "major/desktop-1440x900/09-admin-users.png",
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/01-login.png",
+      "role": "Unauthenticated",
+      "route": "/#/login",
+      "scenario": "Login screen with email/password entry and Zen Green authentication shell",
+      "mapping": [
+        "UI-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/01-login.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/02-requester-my-tickets.png",
+      "role": "Requester",
+      "route": "/#/tickets",
+      "scenario": "Authenticated Requester My Tickets with role shell and query controls",
+      "mapping": [
+        "UI-02",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/02-requester-my-tickets.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/03-requester-create.png",
+      "role": "Requester",
+      "route": "/#/tickets/new",
+      "scenario": "Create Ticket form with retained Lab 2 fields and Attachment preselection",
+      "mapping": [
+        "UI-02",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/03-requester-create.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/04-requester-detail.png",
+      "role": "Requester",
+      "route": "/#/tickets/:id",
+      "scenario": "Requester Ticket Detail with Public Comments and no Internal Notes leakage",
+      "mapping": [
+        "UI-05",
+        "SEC-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 7",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/04-requester-detail.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/05-change-password.png",
+      "role": "Requester",
+      "route": "/#/change-password",
+      "scenario": "Change Password screen available from the authenticated shell",
+      "mapping": [
+        "UI-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/05-change-password.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/06-requester-forbidden.png",
+      "role": "Requester",
+      "route": "/#/staff/tickets",
+      "scenario": "Role-specific forbidden feedback for a Requester attempting a Staff destination",
+      "mapping": [
+        "A11Y-01",
+        "SEC-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/06-requester-forbidden.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/07-staff-queue.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets",
+      "scenario": "Shared IT Staff Ticket Queue with search/filter/sort/pagination controls",
+      "mapping": [
+        "UI-03",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 6",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/07-staff-queue.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/08-staff-detail.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets/:id",
+      "scenario": "Staff Ticket Detail with ownership, Requested/IT Priority, workflow, Public Comments and Internal Notes",
+      "mapping": [
+        "UI-04",
+        "UI-05",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 7",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/08-staff-detail.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/mobile-390x844/09-admin-users.png",
+      "role": "Administrator",
+      "route": "/#/admin/users",
+      "scenario": "Administrator User Management list/search/filter/create entry point",
+      "mapping": [
+        "UI-06",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 8",
+        "Answer Part 9"
+      ],
+      "file": "major/mobile-390x844/09-admin-users.png",
+      "viewport": "390x844",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/01-login.png",
+      "role": "Unauthenticated",
+      "route": "/#/login",
+      "scenario": "Login screen with email/password entry and Zen Green authentication shell",
+      "mapping": [
+        "UI-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/01-login.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/02-requester-my-tickets.png",
+      "role": "Requester",
+      "route": "/#/tickets",
+      "scenario": "Authenticated Requester My Tickets with role shell and query controls",
+      "mapping": [
+        "UI-02",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/02-requester-my-tickets.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/03-requester-create.png",
+      "role": "Requester",
+      "route": "/#/tickets/new",
+      "scenario": "Create Ticket form with retained Lab 2 fields and Attachment preselection",
+      "mapping": [
+        "UI-02",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/03-requester-create.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/04-requester-detail.png",
+      "role": "Requester",
+      "route": "/#/tickets/:id",
+      "scenario": "Requester Ticket Detail with Public Comments and no Internal Notes leakage",
+      "mapping": [
+        "UI-05",
+        "SEC-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 7",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/04-requester-detail.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/05-change-password.png",
+      "role": "Requester",
+      "route": "/#/change-password",
+      "scenario": "Change Password screen available from the authenticated shell",
+      "mapping": [
+        "UI-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/05-change-password.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/06-requester-forbidden.png",
+      "role": "Requester",
+      "route": "/#/staff/tickets",
+      "scenario": "Role-specific forbidden feedback for a Requester attempting a Staff destination",
+      "mapping": [
+        "A11Y-01",
+        "SEC-01",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 5",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/06-requester-forbidden.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/07-staff-queue.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets",
+      "scenario": "Shared IT Staff Ticket Queue with search/filter/sort/pagination controls",
+      "mapping": [
+        "UI-03",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 6",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/07-staff-queue.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/08-staff-detail.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets/:id",
+      "scenario": "Staff Ticket Detail with ownership, Requested/IT Priority, workflow, Public Comments and Internal Notes",
+      "mapping": [
+        "UI-04",
+        "UI-05",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 7",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/08-staff-detail.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/major/tablet-834x1112/09-admin-users.png",
+      "role": "Administrator",
+      "route": "/#/admin/users",
+      "scenario": "Administrator User Management list/search/filter/create entry point",
+      "mapping": [
+        "UI-06",
+        "RESP-01",
+        "RESP-02",
+        "RESP-03",
+        "Answer Part 8",
+        "Answer Part 9"
+      ],
+      "file": "major/tablet-834x1112/09-admin-users.png",
+      "viewport": "834x1112",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/admin/assigned-owner-safety.png",
+      "file": "states/admin/assigned-owner-safety.png",
+      "role": "Administrator",
+      "route": "/#/admin/users",
+      "scenario": "Assigned primary Ticket Owner cannot be deactivated/demoted until Tickets are reassigned",
+      "mapping": [
+        "E2E-05",
+        "USER-03",
+        "AC-25",
+        "Answer Part 8"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/admin/create-user-form.png",
+      "file": "states/admin/create-user-form.png",
+      "role": "Administrator",
+      "route": "/#/admin/users",
+      "scenario": "Minimal Create User form with one role, activation state and initial password",
+      "mapping": [
+        "E2E-05",
+        "UI-06",
+        "AC-22",
+        "Answer Part 8"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/admin/edit-and-initial-password-reset.png",
+      "file": "states/admin/edit-and-initial-password-reset.png",
+      "role": "Administrator",
+      "route": "/#/admin/users",
+      "scenario": "Edit User and separate confirmed Set New Initial Password action",
+      "mapping": [
+        "E2E-05",
+        "UI-06",
+        "AC-23",
+        "AC-24",
+        "Answer Part 8"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/admin/self-deactivation-safety.png",
+      "file": "states/admin/self-deactivation-safety.png",
+      "role": "Administrator",
+      "route": "/#/admin/users",
+      "scenario": "Administrator self-deactivation is rejected with clear safety feedback",
+      "mapping": [
+        "E2E-05",
+        "USER-03",
+        "AC-25",
+        "Answer Part 8"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/auth/inactive-account-safe-failure.png",
+      "file": "states/auth/inactive-account-safe-failure.png",
+      "role": "Unauthenticated",
+      "route": "/#/login",
+      "scenario": "Inactive account receives safe sign-in failure feedback without protected account detail",
+      "mapping": [
+        "E2E-05",
+        "AUTH-01",
+        "AC-01",
+        "Answer Part 5"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/auth/mandatory-change-password.png",
+      "file": "states/auth/mandatory-change-password.png",
+      "role": "Requester",
+      "route": "/#/change-password",
+      "scenario": "Initial-password login is gated on mandatory Change Password before normal application access",
+      "mapping": [
+        "E2E-01",
+        "UI-01",
+        "AC-02",
+        "Answer Part 5"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/requester/create-ticket-attachment-success.png",
+      "file": "states/requester/create-ticket-attachment-success.png",
+      "role": "Requester",
+      "route": "/#/tickets/new",
+      "scenario": "Create Ticket success with retained Attachment upload feedback",
+      "mapping": [
+        "E2E-02",
+        "ATT-01",
+        "Answer Part 9"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/requester/problem-appears-resolved-confirmation.png",
+      "file": "states/requester/problem-appears-resolved-confirmation.png",
+      "role": "Requester",
+      "route": "/#/tickets/:id",
+      "scenario": "Problem Appears Resolved requires explicit confirmation and states that it does not formally resolve/close",
+      "mapping": [
+        "E2E-04",
+        "COM-03",
+        "AC-21",
+        "Answer Part 7"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/requester/public-comment-private-note-hidden.png",
+      "file": "states/requester/public-comment-private-note-hidden.png",
+      "role": "Requester",
+      "route": "/#/tickets/:id",
+      "scenario": "Requester sees Public Comment while Internal Note content/label is absent",
+      "mapping": [
+        "E2E-04",
+        "SEC-01",
+        "AC-04",
+        "Answer Part 7"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/requester/ticket-detail-attachments.png",
+      "file": "states/requester/ticket-detail-attachments.png",
+      "role": "Requester",
+      "route": "/#/tickets/:id",
+      "scenario": "Requester Ticket Detail displays owned Attachments and evolved non-New status",
+      "mapping": [
+        "E2E-02",
+        "ATT-01",
+        "UI-02",
+        "Answer Part 7",
+        "Answer Part 9"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/staff/public-vs-internal-communication.png",
+      "file": "states/staff/public-vs-internal-communication.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets/:id",
+      "scenario": "Staff Ticket Detail visibly separates Public Comments from Internal Notes",
+      "mapping": [
+        "E2E-04",
+        "UI-05",
+        "AC-20",
+        "Answer Part 7"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/staff/queue-search-pagination-owner-filter.png",
+      "file": "states/staff/queue-search-pagination-owner-filter.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets",
+      "scenario": "Ticket Queue with applied search, pagination history and Owner=Me filter",
+      "mapping": [
+        "QUEUE-02",
+        "UI-03",
+        "Answer Part 6"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/staff/resolve-confirmation.png",
+      "file": "states/staff/resolve-confirmation.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets/:id",
+      "scenario": "Formal Resolve transition shows required Resolution Summary and explicit confirmation",
+      "mapping": [
+        "E2E-03",
+        "FLOW-01",
+        "FLOW-02",
+        "Answer Part 7"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    },
+    {
+      "screenshot": "artifacts/lab-03/screenshots/issue-52/repository-evidence-2f56ea8/states/staff/unassigned-claim-action.png",
+      "file": "states/staff/unassigned-claim-action.png",
+      "role": "IT Staff",
+      "route": "/#/staff/tickets/:id",
+      "scenario": "Unassigned Staff Ticket Detail exposes Claim while preserving Requested Priority and workflow context",
+      "mapping": [
+        "E2E-03",
+        "UI-04",
+        "FLOW-02",
+        "Answer Part 7"
+      ],
+      "viewport": "1440x900",
+      "sourceSha": "2f56ea8b4c36a8d642c7358c06715e70b5dbeed9"
+    }
+  ]
+}
