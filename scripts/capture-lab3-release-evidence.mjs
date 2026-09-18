@@ -14,6 +14,10 @@ if (dirty) {
 }
 
 const sourceSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+const expectedSourceSha = process.env.EXPECTED_EVIDENCE_SHA?.trim();
+if (expectedSourceSha && sourceSha !== expectedSourceSha) {
+  throw new Error(`Evidence checkout SHA mismatch: expected ${expectedSourceSha} but HEAD is ${sourceSha}`);
+}
 const shortSha = sourceSha.slice(0, 7);
 const relativeRoot = `artifacts/lab-03/screenshots/issue-52/${label}-${shortSha}`;
 const absoluteRoot = resolve(root, relativeRoot);
@@ -78,6 +82,7 @@ if (majorCount !== 27 || stateCount !== 14) {
 const manifest = {
   label,
   sourceSha,
+  expectedSourceSha: expectedSourceSha || null,
   generatedAtUtc: new Date().toISOString(),
   command: `npm run capture:evidence:lab3 -- ${label}`,
   viewports: {

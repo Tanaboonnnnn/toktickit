@@ -47,6 +47,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # pull_request events normally check out GitHub's synthetic merge commit.
+          # Release evidence must identify the real PR head; push events use github.sha.
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -90,6 +94,8 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Capture SHA-labelled Lab 3 UI evidence
+        env:
+          EXPECTED_EVIDENCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: npm run capture:evidence:lab3 -- ci
 
       - name: Run full Lab 3 verification
@@ -99,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lab3-ui-evidence-${{ github.sha }}
+          name: lab3-ui-evidence-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           path: artifacts/lab-03/screenshots/issue-52/
           if-no-files-found: error
           retention-days: 14
@@ -108,7 +114,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: lab3-playwright-diagnostics-${{ github.sha }}
+          name: lab3-playwright-diagnostics-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           path: |
             playwright-report/
             test-results/

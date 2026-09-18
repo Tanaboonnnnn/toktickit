@@ -305,6 +305,13 @@ rubric mapping. After the reviewed release PR merges, check out the exact delive
 verification and screenshots are evidence of the delivered commit; they are never
 claimed before that merge actually occurs.
 
+For Pull Requests, exact-head evidence is produced by CI rather than committed back
+into the same branch. Committing a generated screenshot set would itself create a new
+HEAD and immediately make the embedded source SHA stale. The workflow therefore checks
+out `pull_request.head.sha`, passes that SHA to the capture command, and fails if
+`git rev-parse HEAD` does not match it. Reviewers should use the newest successful
+`lab3-ui-evidence-<PR-head-SHA>` artifact for exact-head visual proof.
+
 ### GitHub Actions CI for Lab 3
 
 `.github/workflows/lab3-ci.yml` runs on pull requests targeting `lab3-staging` or
@@ -313,6 +320,6 @@ PostgreSQL with separate development/test database identities, installs all thre
 lockfile scopes, generates Prisma Client, deploys migrations and local-only seed data
 to the dedicated test database, installs Chromium, captures the 41-image SHA-labelled
 UI evidence set, and runs the complete `npm run verify` gate. The UI evidence folder is
-uploaded as a GitHub Actions artifact named with the workflow commit SHA; Playwright
+uploaded as a GitHub Actions artifact named with the exact evidence-source SHA; Playwright
 diagnostics are uploaded on failure. CI credentials are ephemeral test values, not
 repository or personal secrets.

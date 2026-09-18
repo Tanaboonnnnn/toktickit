@@ -252,4 +252,6 @@ artifacts/lab-03/screenshots/
 
 Run `npm.cmd run capture:evidence:lab3 -- <label>` from the repository root. The command builds the server, runs the integrated Lab 3 Playwright evidence journeys, requires exactly **41 screenshots** (**27 major responsive screenshots + 14 meaningful UI-state screenshots**), and writes the exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping to `manifest.json`. Use a release-candidate label before review and `final-main` only after the release PR has actually merged to `main` and the checkout is at that exact delivered SHA.
 
+For a moving Pull Request, the authoritative exact-head set is the newest successful CI artifact, not a screenshot directory committed into that same branch. CI checks out `pull_request.head.sha`, supplies it as `EXPECTED_EVIDENCE_SHA`, and the capture command rejects a mismatch before producing evidence. This prevents a generated-evidence commit from invalidating its own SHA provenance.
+
 Final visual inspection must cover all major screens at Desktop/Tablet/Mobile, plus representative validation/empty/no-results/forbidden/conflict/failure states supplied by the broader E2E/UI suites. Screenshot evidence must not contain credentials or session secrets.

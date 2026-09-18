@@ -14,9 +14,9 @@ This is the Issue #52 execution checklist. A checked item must be backed by a re
 
 - [x] Reconcile all six required Lab 3 docs with actual Issues #41-#51 review/merge/test evidence.
 - [x] Reconcile README Lab 3 setup/review/release instructions.
-- [x] Capture SHA-labelled Playwright release-candidate screenshots: **41 PNGs = 27 major responsive + 14 required UI states**, with per-image provenance metadata. Local candidate source SHA: `f867f1c1c977912086ac68295099512baee8b976`.
+- [ ] Confirm the **latest PR head** has a successful exact-head CI evidence artifact: **41 PNGs = 27 major responsive + 14 required UI states**, with per-image provenance metadata and `manifest.sourceSha == pull_request.head.sha`. Do not treat a committed older candidate as proof of a newer HEAD.
 - [x] Inspect the generated screenshot set and its automated viewport/touch/overflow assertions for clipping, overlap, unintended horizontal overflow, role/navigation errors and private-data leakage. Metadata secret scan passed; no credentials, connection strings, session secrets or CSRF tokens are recorded in the evidence metadata.
-- [ ] Run full `npm.cmd run verify` on the final Issue #52 feature head and record the exact SHA/results.
+- [ ] Confirm the full `npm run verify` job passes on that same latest PR-head CI run; record the exact SHA/run in the PR conversation rather than hard-coding a moving PR SHA into this file.
 - [ ] `git diff --check` passes and tracked evidence contains no `.env`, credential, session, or password material.
 - [ ] GitHub Actions `Lab 3 CI` passes on the Issue #52 PR head and publishes the SHA-labelled UI evidence artifact.
 - [ ] Open `feature/52-lab3-release-evidence -> lab3-staging` PR linked to Issue #52 and request real peer review.
