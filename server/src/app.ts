@@ -18,6 +18,7 @@ import { requireCapability } from "./authorization.js";
 import { createStaffRouter } from "./staff/staff-routes.js";
 import { createPublicComment, indicateResolution, listPublicComments } from "./communication/communication-service.js";
 import { parseCommunicationBody, parseResolutionIndicationBody } from "./communication/communication-contract.js";
+import { createAdminRouter } from "./admin/user-routes.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -40,6 +41,7 @@ app.use("/api/auth", (_req: Request, res: Response, next: NextFunction) => {
 app.use(express.json());
 app.use("/api/auth", createAuthRouter({ infrastructureMounted: true }));
 app.use("/api/staff", createStaffRouter());
+app.use("/api/admin", createAdminRouter());
 
 app.post(
   "/api/tickets",
