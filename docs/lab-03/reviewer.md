@@ -274,3 +274,25 @@ This file follows the Lab 2 peer-review evidence layout while recording Lab 3 ev
 - Scope submitted: minimalist Administrator User Management only - safe list/search/single-role filter, create/edit/activation, separate confirmed initial-password reset, backend authorization, canonical-email concurrency, self/last-Administrator safety, and assigned-primary-owner/account race safety. No deletion, bulk/import/export, multi-role, email reset delivery, or advanced identity-management scope is included.
 - Fresh verification on the submitted product/evidence head: server build + **49 files / 275 tests**, client production build + **23 files / 131 tests**, Chromium **33/33**, retained responsive **10/10**, focused USER server **14/14**, UI-06 **5/5**, E2E-05 **2/2**, and `git diff origin/lab3-staging...HEAD --check` passed.
 - No peer verdict, approval, merge, or Issue closure is claimed here. Any Changes Requested must be reproduced and resolved before merge.
+
+### Issue #50 approval and merge - 2026-09-18 12:15 UTC
+
+- Result: **Approved and merged**
+- PR: [#62](https://github.com/Tanaboonnnnn/toktickit/pull/62)
+- Reviewer: `@thananun-7203`
+- Reviewed head: `e09e2cdda491c891b58df5017f9ec0bc679fdf7e`.
+- The reviewer found no blocking Issue #50 defect. The review confirmed Administrator-only User Management, safe User projections, create/edit/reset separation, session revocation, self/last-Administrator/assigned-owner safety, concurrency behavior, and the scoped UI/E2E evidence.
+- Two follow-ups were explicitly non-blocking: a focused Admin missing-CSRF/no-mutation API test and an optional clearer stale-version “reload latest User” affordance. Issue #51 incorporates the first into its integrated security matrix; the second is not treated as new product scope without a reproduced usability defect.
+- PR #62 merged to `lab3-staging` as `b568ff87dabb7716355eea622c5980dba5268db7`; Issue #50 is closed/completed.
+
+### Issue #51 review request - 2026-09-18 14:01 UTC
+
+- Result: **Awaiting peer review**
+- PR: [#63](https://github.com/Tanaboonnnnn/toktickit/pull/63)
+- Issue: [#51](https://github.com/Tanaboonnnnn/toktickit/issues/51)
+- Base: `lab3-staging` at `b568ff87dabb7716355eea622c5980dba5268db7`.
+- Product/evidence head submitted for review: `1f451076d481438af634b8aa50fa01554cef1ef3`.
+- Requested reviewer: `@thananun-7203` through GitHub's review-request mechanism.
+- Scope submitted: integrated Lab 3 verification only - SAFE-01, STYLE-01, A11Y-01, SEC-01, RESP-01..03, TRACE-01, living evidence reconciliation, and the reproduced touch-target verification-helper correction. No new broad product feature was added.
+- Fresh verification on the submitted product/evidence head: server build + **51 files / 285 tests**, client production build + **25 files / 136 tests**, full Chromium **37/37**, retained responsive **10/10**, focused migration/seed/security/safe-error **16/16**, STYLE/A11Y **5/5**, Issue #51 integrated Chromium **4/4**, TRACE-01 **50 Test IDs / 32 ACs**, and `git diff --check` passed.
+- No peer verdict, approval, merge, Issue closure, or final-main release result is claimed here. Final-main proof remains Issue #52.
