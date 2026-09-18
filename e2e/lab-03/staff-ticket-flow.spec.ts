@@ -96,7 +96,9 @@ test("E2E-03 Queue -> claim -> priority -> resolve -> close -> reopen follows th
   await search.fill(tag);
   await search.press("Enter");
   await expect(page.getByText(`${tag} operational journey`).first()).toBeVisible();
-  await page.locator(".lab3-staff-table").getByRole("button", { name: "View ticket" }).click();
+  const targetRowHeader = page.getByRole("rowheader", { name: ticketNumber, exact: true });
+  await expect(targetRowHeader).toHaveCount(1);
+  await targetRowHeader.locator("xpath=ancestor::tr").getByRole("button", { name: "View ticket" }).click();
   await expect(page.getByRole("heading", { name: "Staff Ticket Detail" })).toBeVisible();
   await expect(page.getByText("Unassigned").first()).toBeVisible();
   await captureReleaseEvidence(page, {
