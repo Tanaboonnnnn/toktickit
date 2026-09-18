@@ -19,7 +19,14 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (!fixture) return;
-  if (createdUserIds.length > 0) await fixture.prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
+  if (createdUserIds.length > 0) {
+    const sessions = await fixture.prisma.session.findMany({ select: { sid: true, sess: true } });
+    const sessionIds = sessions
+      .filter((row) => createdUserIds.includes(Number((row.sess as Record<string, unknown>).userId)))
+      .map((row) => row.sid);
+    if (sessionIds.length > 0) await fixture.prisma.session.deleteMany({ where: { sid: { in: sessionIds } } });
+    await fixture.prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
+  }
   await destroyAuthFixture(fixture);
 });
 

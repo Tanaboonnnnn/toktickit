@@ -162,7 +162,3 @@ export function parseResetInitialPasswordBody(value: unknown): ResetInitialPassw
     confirmed: true,
   };
 }
-
-export function canonicalAdminEmail(value: string): string {
-  return canonicalEmail(value);
-}

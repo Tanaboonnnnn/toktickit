@@ -139,6 +139,10 @@ export default function UserManagement() {
     event.preventDefault();
     if (!editing) return;
     clearFeedback();
+    if (!resetConfirmed) {
+      setFieldErrors({ confirmed: "Confirmation is required" });
+      return;
+    }
     setBusy(true);
     try {
       const updated = await resetAdminInitialPassword(editing.id, {
