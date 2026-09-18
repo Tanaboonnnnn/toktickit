@@ -37,3 +37,13 @@ The reviewed `docs/lab-03` contract is intended to become the Lab 3 source of tr
 - Only tests, migrations, reviews, approvals, and merges that actually occur may be promoted from planned/pending language to completed evidence.
 
 AI assistance does not own these engineering decisions, and this record does not claim that a human manually authored text or code generated with AI assistance.
+
+## Issue #49 AI-assisted implementation record
+
+- **User request:** continue the handoff through the next Lab 3 work item, compare it with the Lab 3 handout/approved plan, finish the implementation, open a PR, and leave it awaiting peer review.
+- **Source-of-truth reconciliation:** live GitHub showed Issue #48 already completed and PR #60 merged; the handoff and repository contract identified Issue #49 as the next open task, so accepted #48 work was not rewritten.
+- **Implementation assistance:** AI helped inspect the reviewed FR/BR/AC/API/UI/Test DD, write RED tests first, implement the communication service/routes/client components, evolve the Requester Ticket DTO, and add the Chromium privacy journey.
+- **Debugging assistance:** failures were investigated before fixes. Stale Lab 2/Issue #47 mocks and assertions were updated to the current Lab 3 contract; runtime Ticket validation was not weakened. A focused Requester UI timing failure was stabilized by waiting for loaded options rather than adding arbitrary sleeps.
+- **Scope decisions preserved:** Public Comments and Internal Notes remain append-only plain text; Internal Notes are Staff/Admin-only; Requester indication records only a timestamp and never formally resolves/closes; Reopen clears the current-cycle indication; no Actions Taken, edit/delete, email notification, or Admin User Management work is pulled into Issue #49.
+- **Verification evidence:** focused server 8/8, UI-05 4/4, E2E-04 2/2; full server 261/261, full client 126/126, Chromium 31/31, and retained responsive 10/10 all passed before PR submission. Known retained jsdom/Playwright diagnostics are recorded in tests.md and are not represented as failures.
+- **Human ownership:** peer approval is not claimed here. Issue #49 remains subject to real PR review; any reviewer findings must be reproduced and addressed before merge.
