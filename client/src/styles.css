@@ -859,3 +859,52 @@ select:focus-visible {
 .lab3-confirm input { margin-top: 4px; }
 @media (max-width: 991.98px) { .lab3-operation-grid { grid-template-columns: 1fr 1fr; } .lab3-status-operation { grid-column: 1 / -1; } }
 @media (max-width: 767.98px) { .lab3-operation-grid { grid-template-columns: 1fr; } .lab3-status-operation { grid-column: auto; } .lab3-operation-grid .lab2-button { width: 100%; } }
+
+/* Lab 3 Administrator User Management */
+.lab3-user-management { width: 100%; }
+.lab3-user-controls { grid-template-columns: minmax(240px, 2fr) minmax(170px, 1fr) auto auto; }
+.lab3-user-form,
+.lab3-user-edit { margin-bottom: 24px; }
+.lab3-user-form-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.lab3-user-form-heading h2 { margin: 0; }
+.lab3-user-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.lab3-user-form-grid .lab2-field { min-width: 0; }
+.lab3-user-form-grid input:not([type="checkbox"]),
+.lab3-user-form-grid select,
+.lab3-user-controls input,
+.lab3-user-controls select { box-sizing: border-box; width: 100%; min-height: 44px; }
+.lab3-user-form > .lab2-button { margin-top: 16px; }
+.lab3-password-reset { display: grid; gap: 14px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--color-border); }
+.lab3-password-reset h3,
+.lab3-password-reset p { margin: 0; }
+.lab3-password-reset > .lab2-button { justify-self: start; }
+.lab3-user-table { width: 100%; }
+.lab3-user-table td { overflow-wrap: anywhere; }
+.lab3-user-table th:last-child,
+.lab3-user-table td:last-child { width: 1%; white-space: nowrap; }
+.lab3-account-badge { display: inline-block; padding: 4px 10px; border: 1px solid var(--color-border); border-radius: 999px; font-weight: 700; }
+.lab3-account-badge.is-active { background: var(--color-pale-green); }
+.lab3-account-badge.is-inactive { background: var(--color-readonly-bg); color: var(--color-muted); }
+
+@media (max-width: 991.98px) {
+  .lab3-user-controls { grid-template-columns: minmax(0, 2fr) minmax(160px, 1fr); }
+  .lab3-user-controls .lab2-button { width: 100%; }
+}
+
+@media (max-width: 767.98px) {
+  .lab3-user-controls,
+  .lab3-user-form-grid { grid-template-columns: 1fr; }
+  .lab3-user-form .lab2-button,
+  .lab3-user-edit .lab2-button { width: 100%; }
+  .lab3-password-reset > .lab2-button { justify-self: stretch; }
+  .lab3-user-table-wrap { display: block; overflow: visible; }
+  .lab3-user-table,
+  .lab3-user-table tbody,
+  .lab3-user-table tr,
+  .lab3-user-table td { display: block; width: 100%; box-sizing: border-box; }
+  .lab3-user-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .lab3-user-table tr { margin-bottom: 14px; padding: 12px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; box-shadow: var(--surface-shadow); }
+  .lab3-user-table td { display: grid; grid-template-columns: minmax(82px, .35fr) minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px 0; border: 0; white-space: normal; }
+  .lab3-user-table td::before { content: attr(data-label); color: var(--color-muted); font-weight: 700; }
+  .lab3-user-table td:last-child { width: 100%; }
+}

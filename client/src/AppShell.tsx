@@ -5,6 +5,7 @@ import MyTickets from "./MyTickets.js";
 import TicketDetail from "./TicketDetail.js";
 import StaffTicketQueue from "./staff/StaffTicketQueue.js";
 import StaffTicketDetail from "./staff/StaffTicketDetail.js";
+import UserManagement from "./admin/UserManagement.js";
 
 function navigate(hash: string): void {
   window.location.hash = hash;
@@ -16,15 +17,6 @@ function AccessDenied() {
 
 function NotFound() {
   return <section className="lab2-card lab3-route-state"><h1>Not Found</h1><p>The requested TokTickIT page does not exist.</p></section>;
-}
-
-function DeferredRoleHome({ title }: { title: string }) {
-  return (
-    <section className="lab2-card lab3-route-state">
-      <h1>{title}</h1>
-      <p>This authenticated role area is delivered by a later Lab 3 issue.</p>
-    </section>
-  );
 }
 
 function requesterRoute(route: string) {
@@ -82,7 +74,7 @@ export default function AppShell({ route }: { route: string }) {
       : <AccessDenied />;
   } else if (route === "#/admin/users") {
     content = user.role === "ADMINISTRATOR"
-      ? <DeferredRoleHome title="User Management" />
+      ? <UserManagement />
       : <AccessDenied />;
   } else if (/^#\/(staff\/tickets|admin\/users)\//.test(route)) {
     content = <NotFound />;

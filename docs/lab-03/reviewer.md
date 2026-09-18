@@ -262,3 +262,15 @@ This file follows the Lab 2 peer-review evidence layout while recording Lab 3 ev
 - Scope submitted: Public Comments, private Internal Notes, and Requester `Problem Appears Resolved` indication only; no Actions Taken, edit/delete, email notification, or Issue #50 Administrator User Management.
 - Fresh pre-review verification on the submitted product/evidence head: server build + **46 files / 261 tests**, client production build + **22 files / 126 tests**, Chromium **31/31**, retained responsive **10/10**, focused COM **8/8**, UI-05 **4/4**, E2E-04 **2/2**, and `git diff --check origin/lab3-staging...HEAD` passed.
 - No peer verdict, approval, merge, or Issue closure is claimed here. Any Changes Requested must be reproduced and resolved before merge.
+
+### Issue #50 review request - 2026-09-18 11:18 UTC
+
+- Result: **Awaiting peer review**
+- PR: [#62](https://github.com/Tanaboonnnnn/toktickit/pull/62)
+- Issue: [#50](https://github.com/Tanaboonnnnn/toktickit/issues/50)
+- Base: `lab3-staging` at `8216683ecc8f4d3322dbbca95ec21dfc03428f34`.
+- Product/evidence head submitted for review: `1127f0338820475501ca9a249474da789482566b`.
+- Requested reviewer: `@thananun-7203` through GitHub's review-request mechanism.
+- Scope submitted: minimalist Administrator User Management only - safe list/search/single-role filter, create/edit/activation, separate confirmed initial-password reset, backend authorization, canonical-email concurrency, self/last-Administrator safety, and assigned-primary-owner/account race safety. No deletion, bulk/import/export, multi-role, email reset delivery, or advanced identity-management scope is included.
+- Fresh verification on the submitted product/evidence head: server build + **49 files / 275 tests**, client production build + **23 files / 131 tests**, Chromium **33/33**, retained responsive **10/10**, focused USER server **14/14**, UI-06 **5/5**, E2E-05 **2/2**, and `git diff origin/lab3-staging...HEAD --check` passed.
+- No peer verdict, approval, merge, or Issue closure is claimed here. Any Changes Requested must be reproduced and resolved before merge.
