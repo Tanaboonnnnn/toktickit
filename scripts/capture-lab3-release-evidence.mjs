@@ -20,12 +20,12 @@ const absoluteRoot = resolve(root, relativeRoot);
 rmSync(absoluteRoot, { recursive: true, force: true });
 mkdirSync(absoluteRoot, { recursive: true });
 
-const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-const build = spawnSync(npm, ["--prefix", "server", "run", "build"], {
-  cwd: root,
+const build = spawnSync(process.execPath, [resolve(root, "server/node_modules/typescript/bin/tsc")], {
+  cwd: resolve(root, "server"),
   stdio: "inherit",
   shell: false,
 });
+if (build.error) throw build.error;
 if (build.status !== 0) process.exit(build.status ?? 1);
 
 const runner = spawnSync(process.execPath, [
@@ -45,6 +45,7 @@ const runner = spawnSync(process.execPath, [
   env: { ...process.env, LAB3_EVIDENCE_ROOT: relativeRoot },
   stdio: "inherit",
 });
+if (runner.error) throw runner.error;
 if (runner.status !== 0) process.exit(runner.status ?? 1);
 
 function listPngs(directory) {
