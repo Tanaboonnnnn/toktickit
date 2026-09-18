@@ -29,11 +29,11 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: tocktickit
+          POSTGRES_DB: toktickit
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d tocktickit"
+          --health-cmd "pg_isready -U postgres -d toktickit"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -80,7 +80,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/toktickit_test?schema=public
         run: npx prisma migrate deploy --schema prisma/schema.prisma
 
-      - name: Seed local-only reference fixtures in test database
+      - name: Seed E2E reference data in dedicated test database
         working-directory: server
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/toktickit_test?schema=public
