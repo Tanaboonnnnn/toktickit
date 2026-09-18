@@ -83,7 +83,9 @@ export async function assertTouchTargets(page: Page, selectors: string[], minimu
   const failures = await page.evaluate(({ selectors: requested, minimum: size }) => requested.flatMap((selector) => Array.from(document.querySelectorAll<HTMLElement>(selector)).filter((element) => {
     const style = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
-    return style.display !== "none" && style.visibility !== "hidden" && (rect.width < size || rect.height < size);
+    const actuallyRendered = element.getClientRects().length > 0 && rect.width > 0 && rect.height > 0;
+    return style.display !== "none" && style.visibility !== "hidden" && actuallyRendered
+      && (rect.width < size || rect.height < size);
   }).map((element) => `${selector}: ${element.tagName} ${element.textContent?.trim().slice(0, 60) ?? ""}`)), { selectors, minimum });
   if (failures.length > 0) throw new Error(`Touch target failures: ${failures.join("; ")}`);
 }

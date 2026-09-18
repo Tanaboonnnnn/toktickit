@@ -7,7 +7,8 @@
     "test:e2e:auth": "npm.cmd --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-03/authentication.spec.ts --project=chromium",
     "test:responsive": "npm.cmd --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-02/responsive-desktop.spec.ts e2e/lab-02/responsive-tablet.spec.ts e2e/lab-02/responsive-mobile.spec.ts --project=chromium",
     "test:lab3-auth-activation-review": "npm.cmd --prefix server run build && npm.cmd --prefix server run test:lab3-auth-activation-review && npm.cmd --prefix client run build && npm.cmd --prefix client test -- tests/lab-03/Login.test.tsx tests/lab-03/ChangePassword.test.tsx tests/lab-03/AuthShell.test.tsx tests/lab-03/status-compatibility.test.tsx && npm.cmd run test:e2e:auth",
-    "verify": "npm.cmd --prefix server run build && npm.cmd --prefix server test && npm.cmd --prefix client run build && npm.cmd --prefix client test && npm.cmd run test:e2e && npm.cmd run test:responsive",
+    "test:trace:lab3": "node scripts/verify-lab3-traceability.mjs",
+    "verify": "npm.cmd --prefix server run build && npm.cmd --prefix server test && npm.cmd --prefix client run build && npm.cmd --prefix client test && npm.cmd run test:trace:lab3 && npm.cmd run test:e2e && npm.cmd run test:responsive",
     "test:quality": "npm.cmd run test:e2e && npm.cmd run test:responsive"
   },
   "devDependencies": {
