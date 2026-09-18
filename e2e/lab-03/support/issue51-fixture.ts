@@ -6,6 +6,7 @@ import { expect } from "@playwright/test";
 import { PrismaClient } from "../../../server/node_modules/@prisma/client/index.js";
 import { hashPassword } from "../../../server/dist/src/password.js";
 import { assertNoHorizontalOverflow, assertTouchTargets, screenshot } from "../../lab-02/support/ui.js";
+import { captureReleaseEvidence, type ReleaseEvidenceMeta } from "./release-evidence.js";
 
 export const ISSUE51_PASSWORD = "Integrated-Verification-51!";
 
@@ -90,7 +91,24 @@ async function capture(page: Page, viewportName: string, name: string): Promise<
   if (page.viewportSize()?.width === 390) {
     await assertTouchTargets(page, ["button", "select", "input[type=text]", "input[type=email]", "input[type=password]", "input[type=search]"]);
   }
-  await screenshot(page, `artifacts/lab-03/screenshots/issue-51/${viewportName}/${name}.png`);
+  const majorScreens: Record<string, Omit<ReleaseEvidenceMeta, "file" | "viewport">> = {
+    "01-login": { role: "Unauthenticated", route: "/#/login", scenario: "Login screen with email/password entry and Zen Green authentication shell", mapping: ["UI-01", "RESP-01", "RESP-02", "RESP-03", "Answer Part 5", "Answer Part 9"] },
+    "02-requester-my-tickets": { role: "Requester", route: "/#/tickets", scenario: "Authenticated Requester My Tickets with role shell and query controls", mapping: ["UI-02", "RESP-01", "RESP-02", "RESP-03", "Answer Part 9"] },
+    "03-requester-create": { role: "Requester", route: "/#/tickets/new", scenario: "Create Ticket form with retained Lab 2 fields and Attachment preselection", mapping: ["UI-02", "RESP-01", "RESP-02", "RESP-03", "Answer Part 9"] },
+    "04-requester-detail": { role: "Requester", route: "/#/tickets/:id", scenario: "Requester Ticket Detail with Public Comments and no Internal Notes leakage", mapping: ["UI-05", "SEC-01", "RESP-01", "RESP-02", "RESP-03", "Answer Part 7", "Answer Part 9"] },
+    "05-change-password": { role: "Requester", route: "/#/change-password", scenario: "Change Password screen available from the authenticated shell", mapping: ["UI-01", "RESP-01", "RESP-02", "RESP-03", "Answer Part 5", "Answer Part 9"] },
+    "06-requester-forbidden": { role: "Requester", route: "/#/staff/tickets", scenario: "Role-specific forbidden feedback for a Requester attempting a Staff destination", mapping: ["A11Y-01", "SEC-01", "RESP-01", "RESP-02", "RESP-03", "Answer Part 5", "Answer Part 9"] },
+    "07-staff-queue": { role: "IT Staff", route: "/#/staff/tickets", scenario: "Shared IT Staff Ticket Queue with search/filter/sort/pagination controls", mapping: ["UI-03", "RESP-01", "RESP-02", "RESP-03", "Answer Part 6", "Answer Part 9"] },
+    "08-staff-detail": { role: "IT Staff", route: "/#/staff/tickets/:id", scenario: "Staff Ticket Detail with ownership, Requested/IT Priority, workflow, Public Comments and Internal Notes", mapping: ["UI-04", "UI-05", "RESP-01", "RESP-02", "RESP-03", "Answer Part 7", "Answer Part 9"] },
+    "09-admin-users": { role: "Administrator", route: "/#/admin/users", scenario: "Administrator User Management list/search/filter/create entry point", mapping: ["UI-06", "RESP-01", "RESP-02", "RESP-03", "Answer Part 8", "Answer Part 9"] },
+  };
+  const meta = majorScreens[name];
+  if (!meta) throw new Error(`Missing release-evidence metadata for major screen ${name}`);
+  if (process.env.LAB3_EVIDENCE_ROOT?.trim()) {
+    await captureReleaseEvidence(page, { ...meta, file: `major/${viewportName}/${name}.png`, viewport: viewportName.replace(/^.*?(\d+x\d+)$/, "$1") });
+  } else {
+    await screenshot(page, `artifacts/lab-03/screenshots/issue-51/${viewportName}/${name}.png`);
+  }
 }
 
 export async function exerciseMajorScreens(page: Page, fixture: Issue51Fixture, viewportName: string): Promise<void> {

@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { PrismaClient } from "../../server/node_modules/@prisma/client/index.js";
 import { hashPassword } from "../../server/dist/src/password.js";
+import { captureReleaseEvidence } from "./support/release-evidence.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -26,6 +27,7 @@ function testDatabaseUrl(): string {
 }
 
 test("E2E-01 login -> forced password change -> Requester app -> logout -> protected access denied", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   const prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
   const tag = `e2e-auth-${process.pid}-${Date.now()}-${randomUUID().slice(0, 6)}`;
   const email = `${tag}@example.test`;
@@ -55,6 +57,13 @@ test("E2E-01 login -> forced password change -> Requester app -> logout -> prote
 
     await expect(page.getByRole("heading", { name: "Change Password" })).toBeVisible();
     await expect(page).toHaveURL(/#\/change-password$/);
+    await captureReleaseEvidence(page, {
+      file: "states/auth/mandatory-change-password.png",
+      role: "Requester",
+      route: "/#/change-password",
+      scenario: "Initial-password login is gated on mandatory Change Password before normal application access",
+      mapping: ["E2E-01", "UI-01", "AC-02", "Answer Part 5"],
+    });
     await page.goto("/#/tickets/new");
     await expect(page.getByRole("heading", { name: "Change Password" })).toBeVisible();
 

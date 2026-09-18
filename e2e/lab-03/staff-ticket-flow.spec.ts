@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { PrismaClient } from "../../server/node_modules/@prisma/client/index.js";
 import { hashPassword } from "../../server/dist/src/password.js";
 import { assertNoHorizontalOverflow } from "../lab-02/support/ui.js";
+import { captureReleaseEvidence } from "./support/release-evidence.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -88,6 +89,7 @@ test.afterAll(async () => {
 });
 
 test("E2E-03 Queue -> claim -> priority -> resolve -> close -> reopen follows the formal workflow", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await login(page, staff.email, "Ticket Queue");
   await expect(page.getByRole("heading", { name: "Ticket Queue" })).toBeVisible();
   const search = page.getByRole("searchbox", { name: /search ticket number, summary, or requester/i });
@@ -97,6 +99,13 @@ test("E2E-03 Queue -> claim -> priority -> resolve -> close -> reopen follows th
   await page.locator(".lab3-staff-table").getByRole("button", { name: "View ticket" }).click();
   await expect(page.getByRole("heading", { name: "Staff Ticket Detail" })).toBeVisible();
   await expect(page.getByText("Unassigned").first()).toBeVisible();
+  await captureReleaseEvidence(page, {
+    file: "states/staff/unassigned-claim-action.png",
+    role: "IT Staff",
+    route: "/#/staff/tickets/:id",
+    scenario: "Unassigned Staff Ticket Detail exposes Claim while preserving Requested Priority and workflow context",
+    mapping: ["E2E-03", "UI-04", "FLOW-02", "Answer Part 7"],
+  });
 
   await page.getByRole("button", { name: "Claim ticket" }).click();
   await expect(page.getByText("Ticket claimed successfully")).toBeVisible();
@@ -113,6 +122,13 @@ test("E2E-03 Queue -> claim -> priority -> resolve -> close -> reopen follows th
   await page.getByLabel("Next status").selectOption("RESOLVED");
   await page.getByLabel("Resolution Summary").fill("Requester access restored and verified.");
   await page.getByRole("checkbox", { name: /confirm transition/i }).check();
+  await captureReleaseEvidence(page, {
+    file: "states/staff/resolve-confirmation.png",
+    role: "IT Staff",
+    route: "/#/staff/tickets/:id",
+    scenario: "Formal Resolve transition shows required Resolution Summary and explicit confirmation",
+    mapping: ["E2E-03", "FLOW-01", "FLOW-02", "Answer Part 7"],
+  });
   await page.getByRole("button", { name: "Confirm status change" }).click();
   await expect(page.getByText("Resolved", { exact: true }).first()).toBeVisible();
   await chooseStatus(page, "CLOSED");

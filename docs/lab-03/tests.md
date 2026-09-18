@@ -1,6 +1,6 @@
 # Lab 3 Test DD Plan
 
-Status: **Living Test DD / execution ledger.** The plan was created before product implementation. Test IDs remain `Planned / Not run` until their executable checks run on a relevant source SHA; rows for Issues #42 and #43 contain the verified execution evidence already produced by those accepted increments.
+Status: **Living Test DD / execution ledger.** All 50 planned Test IDs have executed passing evidence through the accepted Issue #51 integration. Issue #52 refreshes the full release-candidate gate and keeps AC-32 explicitly dependent on a fresh verification of the exact merged `main` SHA; no final-main pass is claimed early.
 
 Current contract count: **50 unique planned Test IDs**. Test-ID count is not the same as the eventual runner assertion/test-case count.
 
@@ -289,3 +289,23 @@ Baseline: `feature/51-lab3-integration-verification` was created from accepted `
 | `git diff --check` | Pass after implementation/evidence updates. |
 
 The new SEC-01 matrix explicitly includes the non-blocking PR #62 follow-up for an Administrator unsafe mutation without CSRF and proves no User row is created. Existing AUTH/AZ/REQ/ATT/RACE/USER suites remain the deeper evidence for password/session expiry and revocation, Requester ownership, Attachment isolation, concurrent Ticket claims/stale versions, assignment-versus-account changes, last-active-Administrator serialization, and canonical duplicate-email races; Issue #51 does not duplicate those accepted focused suites merely to inflate counts.
+
+## 15. Issue #52 Release Evidence
+
+Accepted release-preparation baseline: `feature/52-lab3-release-evidence` starts from `lab3-staging` merge `890e136e30cb56d87290ff3b70390e0ae26c3ce4`, the reviewed/merged PR #63 Issue #51 result.
+
+| Check | Actual result |
+|---|---|
+| Fresh worktree setup | First aggregate attempt stopped during TypeScript build because the new worktree had installed packages but no generated Prisma Client. `npx prisma generate --schema prisma/schema.prisma` completed successfully; no product source change was needed. |
+| Full server gate | Pass - server build + **51 test files / 285 tests** on the accepted Issue #51 staging baseline. Populated migration, repeat-safe seed/provisioning, auth/authz, Requester/Attachment regression, Staff operations/concurrency, communication/privacy, Admin safety and SAFE/SEC integrated checks all passed. |
+| Full client gate | Pass - production build + **25 test files / 136 tests**. The retained jsdom navigation diagnostic during the Attachment download test remains non-fatal and does not represent a failed browser download assertion. |
+| TRACE-01 | Pass - **50 unique Test IDs / 32 ACs** with all mapped evidence paths present. AC-32 intentionally remains the exact-final-main release gate until a reviewed release PR actually merges and that delivered SHA is freshly verified. |
+| Full Chromium | Pass - **37/37** across retained/evolved Lab 2 plus Lab 3 authentication, Requester, Staff, communication, security, Administrator and integrated responsive journeys. |
+| Retained responsive | Pass - **10/10** at the established Desktop/Tablet/Mobile viewports. |
+| Release screenshot refresh | `npm.cmd run capture:evidence:lab3 -- <label>` reruns the integrated Lab 3 evidence journeys and requires **40 PNGs**: **27 major responsive screenshots** (9 screens x 3 viewports) plus **13 targeted state screenshots** for authentication, Requester Attachments/communication/resolution indication, Staff Queue/workflow/private-note distinction, and Administrator create/edit/reset/safety. `manifest.json` records exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping for each image. Release-candidate and final-main captures must be generated from the respective real SHAs. |
+
+### AC-32 final-main rule
+
+AC-32 is **not yet promoted to final-main completion in this branch document**. The shipped repository contains the executable verification/capture commands and the truthful pre-release evidence. After the reviewed `lab3-staging -> main` release PR merges, run the full aggregate gate and SHA-labelled `final-main` Playwright capture on the exact delivered `main` commit and record that external post-merge evidence in Issue #52/release records. This avoids the circular error of committing a new evidence-only change and then falsely calling the previous SHA the final delivered commit.
+
+Per the student's explicit instruction for this work session, final PDF creation is deferred. No PDF pass/result belongs in this Test DD execution ledger yet.

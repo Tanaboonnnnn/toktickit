@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { PrismaClient } from "../../server/node_modules/@prisma/client/index.js";
 import { hashPassword } from "../../server/dist/src/password.js";
 import { assertNoHorizontalOverflow } from "../lab-02/support/ui.js";
+import { captureReleaseEvidence } from "./support/release-evidence.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -104,6 +105,7 @@ test.afterAll(async () => {
 });
 
 test("Issue #47 Staff can search/page the shared queue and return from evolved Detail with context", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await loginStaff(page);
   await applyFixtureSearch(page);
 
@@ -116,6 +118,13 @@ test("Issue #47 Staff can search/page the shared queue and return from evolved D
   await page.getByLabel("Owner").selectOption("me");
   await expect(page.getByText(/\(6 total\)/)).toBeVisible();
   await expect(page.locator(".lab3-staff-table tbody").getByText(`${tag} Staff`).first()).toBeVisible();
+  await captureReleaseEvidence(page, {
+    file: "states/staff/queue-search-pagination-owner-filter.png",
+    role: "IT Staff",
+    route: "/#/staff/tickets",
+    scenario: "Ticket Queue with applied search, pagination history and Owner=Me filter",
+    mapping: ["QUEUE-02", "UI-03", "Answer Part 6"],
+  });
 
   await page.locator(".lab3-staff-table").getByRole("button", { name: "View ticket" }).first().click();
   await expect(page.getByRole("heading", { name: "Staff Ticket Detail" })).toBeVisible();
