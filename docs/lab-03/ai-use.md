@@ -2,7 +2,7 @@
 
 ## Assistant used
 
-ChatGPT, GPT-5.6 Sol, GPT-6 Astra
+ChatGPT, GPT-5.6 Sol, GPT-6 Astra Pro
 
 ## Selected key prompts
 
