@@ -2,7 +2,7 @@
 
 ## Assistant used
 
-ChatGPT, GPT-5.6 Sol, with repository, GitHub, and course-file tools available in the project environment.
+ChatGPT, GPT-5.6 Sol, GPT-6 Astra
 
 ## Selected key prompts
 

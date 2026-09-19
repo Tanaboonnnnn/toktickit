@@ -14,9 +14,12 @@ This file records only peer-review evidence that actually occurred. Approval is 
 ## Reviewers
 
 - Name: ฌาธนัชย์ อุทัยพิบูลย์
+- Student ID: `67070507210`
 - GitHub username: `@Chxtamos`
 - Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 17:15 UTC.
 
+- Name: ธนนันท์ ครังตุ้ย
+- Student ID: `67070507203`
 - GitHub username: `@thananun-7203`
 - Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 18:33 UTC against head `4ff85cb`.
 - Lab 3 review coverage verified on GitHub: PR #55 final approval submitted 2026-09-15 16:38 UTC against approved head `b194087`.
@@ -30,6 +33,8 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Lab 3 review coverage verified on GitHub: PR #62 Issue #50 Administrator User Management received **Approved** from `@thananun-7203` on 2026-09-18 12:15 UTC against head `e09e2cd` and merged as `b568ff8`.
 - Lab 3 review coverage verified on GitHub: corrective PR #65 received a real **COMMENTED** review from `@thananun-7203` on 2026-09-18 21:00:17 UTC against reviewed head `aecda76`, then merged to `lab3-staging` at 21:00:34 UTC as `eb89ac1`. This is real peer-review and merge evidence, but the review is not recorded as Approval.
 
+- Name: พลัฏฐ์ อมาตย์ชยาภา
+- Student ID: `67070507212`
 - GitHub username: `@L0u1sss`
 - Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
 - Lab 3 review coverage verified on GitHub: PR #63 Issue #51 integrated-verification review submitted **Approved** on 2026-09-18 14:40 UTC against reviewed head `84f2f321d9a84061dc9776d815de1a56ffa89f50`.
