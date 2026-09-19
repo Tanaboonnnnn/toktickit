@@ -7,18 +7,17 @@ test.beforeAll(async () => { fixture = await createE2eFixture("a11y-e2e", 1); })
 test.afterAll(async () => { await destroyE2eFixture(fixture); });
 
 test("E2E-07 supports keyboard focus, validation, and non-color cues", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   const createRegion = page.getByRole("region", { name: /create ticket/i });
-  await createRegion.getByRole("button", { name: "Create Ticket", exact: true }).focus();
+  const category = page.getByLabel("Category *");
+  const relatedSystem = page.getByLabel("Related System *");
+  await expect(category).toBeEnabled();
+  await expect(relatedSystem).toBeEnabled();
+  await category.focus();
   await page.keyboard.press("Tab");
-  const focusRing = await page.evaluate(() => getComputedStyle(document.activeElement as Element).boxShadow);
+  await expect(relatedSystem).toBeFocused();
+  const focusRing = await relatedSystem.evaluate((element) => getComputedStyle(element).boxShadow);
   expect(focusRing).not.toBe("none");
-
-  await expect(page.getByLabel("Category *")).toBeEnabled();
-  await expect(page.getByLabel("Related System *")).toBeEnabled();
-  await page.getByLabel("Category *").focus();
-  await page.keyboard.press("Tab");
-  await expect(page.getByLabel("Related System *")).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByLabel("Ticket Summary *")).toBeFocused();
   await page.keyboard.press("Tab");
@@ -44,7 +43,7 @@ test("E2E-07 supports keyboard focus, validation, and non-color cues", async ({ 
 });
 
 test("E2E-07 presents a safe 500 failure without server internals", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   await page.route("**/api/tickets**", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: { code: "INTERNAL_ERROR", message: "Unable to load tickets" } }) });

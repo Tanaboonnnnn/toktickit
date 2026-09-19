@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import TicketDetail from "../../src/TicketDetail.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = [{ id: 1, name: "Anan Student", email: "anan.student@example.test" }];
 const ticket = {
@@ -9,6 +9,8 @@ const ticket = {
   category: { id: 2, name: "Hardware" }, relatedSystem: { id: 3, name: "Campus Wi-Fi" },
   summary: "Cannot connect to Wi-Fi", requestedPriority: "HIGH" as const, currentStatus: "NEW" as const,
   createdAt: "2026-08-27T08:00:00.000Z", updatedAt: "2026-08-27T09:00:00.000Z", description: "A detailed description.", attachments: [],
+  resolutionSummary: null, resolvedAt: null, closedAt: null, cancelReason: null, cancelledAt: null,
+  requesterResolutionIndicatedAt: null, version: 1,
 };
 
 describe("STYLE-04 Ticket Detail scope guard", () => {
@@ -20,12 +22,15 @@ describe("STYLE-04 Ticket Detail scope guard", () => {
   });
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); sessionStorage.clear(); });
 
-  it("renders no collaboration, IT Staff, ownership mutation, or lifecycle controls", async () => {
+  it("renders Requester collaboration without private staff, ownership, or formal lifecycle controls", async () => {
     render(<RequesterContextProvider><TicketDetail ticketId={7} onBack={vi.fn()} /></RequesterContextProvider>);
     await screen.findByText(ticket.ticketNumber);
-    for (const text of ["Public Comments", "Internal Notes", "Actions Taken", "Assign", "Reassign", "Ticket Owner", "IT Priority", "Change status", "Resolve", "Close", "Reopen", "Administrator"]) {
+    expect(screen.getByRole("heading", { name: "Public Comments" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Problem Appears Resolved" })).toBeInTheDocument();
+    for (const text of ["Internal Notes", "Actions Taken", "Assign", "Reassign", "Ticket Owner", "IT Priority", "Change status", "Administrator"]) {
       expect(screen.queryByText(new RegExp(text, "i"))).not.toBeInTheDocument();
     }
+    expect(screen.queryByRole("button", { name: /confirm status change|resolve ticket|close ticket|reopen ticket/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /upload|download|remove|preview|status|priority/i })).not.toBeInTheDocument();
   });
 });

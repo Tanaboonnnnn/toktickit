@@ -1,0 +1,13 @@
+{
+  "file": "states/requester/problem-appears-resolved-confirmation.png",
+  "role": "Requester",
+  "route": "/#/tickets/:id",
+  "scenario": "Problem Appears Resolved requires explicit confirmation and states that it does not formally resolve/close",
+  "mapping": [
+    "E2E-04",
+    "COM-03",
+    "AC-21",
+    "Answer Part 7"
+  ],
+  "viewport": "1440x900"
+}

@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { createE2eFixture, destroyE2eFixture, type E2eFixture } from "./support/fixtures.js";
-import { openRequesterShell } from "./support/ui.js";
+import { loginRequester, logoutRequester, openRequesterShell } from "./support/ui.js";
 
 let fixture: E2eFixture;
 test.beforeAll(async () => { fixture = await createE2eFixture("list", 12); });
 test.afterAll(async () => { await destroyE2eFixture(fixture); });
 
 test("E2E-04 exercises My Tickets search, filters, sorting, pagination, and states", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
   const table = page.locator(".lab2-table-wrap");
   await expect(table).toBeVisible();
@@ -88,10 +88,8 @@ test("E2E-04 exercises My Tickets search, filters, sorting, pagination, and stat
   await expect(page.getByText(/Page 1 of 2/)).toBeVisible();
   await expect(table.getByText(fixture.tickets[11].summary)).toBeVisible();
 
-  await page.getByRole("button", { name: "Change Requester" }).click();
-  await page.getByRole("combobox", { name: "Development Requester" }).selectOption(String(fixture.requesterB.id));
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
+  await logoutRequester(page);
+  await loginRequester(page, fixture.requesterB);
   await expect(page.getByRole("heading", { name: "No tickets yet" })).toBeVisible();
   await expect(page.getByText(fixture.tickets[0].summary)).toHaveCount(0);
 });

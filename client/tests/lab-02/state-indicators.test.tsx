@@ -3,8 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
 import TicketDetail from "../../src/TicketDetail.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 import type { Ticket } from "../../src/api.js";
+import { authenticatedAppResponse, openAuthenticatedRequesterRoute } from "./support/authenticated-app.js";
 
 const requester = { id: 1, name: "Indicator Requester", email: "indicator@example.test" };
 const category = { id: 1, name: "Hardware" };
@@ -22,6 +23,13 @@ const baseTicket: Ticket = {
   updatedAt: "2026-08-29T00:00:00.000Z",
   description: "A sufficiently detailed description for state-indicator checks.",
   attachments: [],
+  resolutionSummary: null,
+  resolvedAt: null,
+  closedAt: null,
+  cancelReason: null,
+  cancelledAt: null,
+  requesterResolutionIndicatedAt: null,
+  version: 1,
 };
 
 function json(body: unknown, ok = true, status = 200) {
@@ -31,7 +39,8 @@ function json(body: unknown, ok = true, status = 200) {
 function appFetch(postResponse: ReturnType<typeof json> = json({ ticket: baseTicket, replayed: false }, true, 201)) {
   const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
-    if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+    const auth = authenticatedAppResponse(input);
+    if (auth) return Promise.resolve(auth);
     if (url.includes("categories")) return Promise.resolve(json([category]));
     if (url.includes("related-systems")) return Promise.resolve(json([relatedSystem]));
     if (init?.method === "POST" && url.endsWith("/api/tickets")) return Promise.resolve(postResponse);
@@ -50,7 +59,6 @@ function detailFetch(ticket: typeof baseTicket) {
 }
 
 async function fillForm() {
-  sessionStorage.setItem("toktickit.developmentRequesterId", "1");
   render(<App />);
   const user = userEvent.setup();
   await screen.findByRole("heading", { name: "Create Ticket" });
@@ -70,7 +78,11 @@ async function fillAndSubmit() {
 }
 
 describe("STYLE-02 readable state indicators", () => {
-  beforeEach(() => sessionStorage.clear());
+  beforeEach(() => {
+    sessionStorage.clear();
+    localStorage.clear();
+    openAuthenticatedRequesterRoute();
+  });
   afterEach(() => { cleanup(); sessionStorage.clear(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
   it("renders textual success, priority, and status cues", async () => {
@@ -124,6 +136,8 @@ describe("STYLE-02 readable state indicators", () => {
     let uploads = 0;
     fetchMock.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (init?.body && typeof (init.body as FormData).get === "function") {
         uploads += 1;
         return uploads === 1

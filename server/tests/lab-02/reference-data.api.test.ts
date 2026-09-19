@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Express } from "express";
 import { PrismaClient } from "@prisma/client";
-import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -67,6 +67,9 @@ const originalRequesters = new Map<string, { id: number; name: string; email: st
 const createdCategoryIds = new Map<string, number>();
 const createdRelatedSystemIds = new Map<string, number>();
 const createdRequesterIds = new Map<string, number>();
+const authRequesterEmail = `api-01-auth-${process.pid}-${Date.now()}@example.test`;
+let authRequesterId = 0;
+let authSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!testDatabaseUrl) {
@@ -87,6 +90,7 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
@@ -104,7 +108,7 @@ beforeAll(async () => {
     }));
   }
   for (const requesterFixture of Object.values(requesterFixtures)) {
-    originalRequesters.set(requesterFixture.email, await prisma.requesterUser.findUnique({
+    originalRequesters.set(requesterFixture.email, await prisma.user.findUnique({
       where: { email: requesterFixture.email },
       select: { id: true, name: true, email: true, active: true },
     }));
@@ -140,12 +144,12 @@ beforeAll(async () => {
     }
   }
   for (const requesterFixture of Object.values(requesterFixtures)) {
-    await prisma.requesterUser.upsert({
+    await prisma.user.upsert({
       where: { email: requesterFixture.email },
       update: requesterFixture,
       create: requesterFixture,
     });
-    const requester = await prisma.requesterUser.findUnique({
+    const requester = await prisma.user.findUnique({
       where: { email: requesterFixture.email },
     });
     if (!originalRequesters.get(requesterFixture.email) && requester) {
@@ -153,22 +157,30 @@ beforeAll(async () => {
     }
   }
 
+  const authRequester = await prisma.user.create({
+    data: { name: "API-01 Authenticated Requester", email: authRequesterEmail, active: true },
+  });
+  authRequesterId = authRequester.id;
+
   ({ app } = await import("../../src/app.js"));
   const { getPrisma } = await import("../../src/prisma.js");
   routePrisma = getPrisma();
+  authSession = await authenticatedRequester(app, prisma, authRequesterId);
 });
 
 afterAll(async () => {
   if (prisma) {
+    if (authRequesterId) await deleteSessionsForUsers(prisma, [authRequesterId]);
+    if (authRequesterId) await prisma.user.deleteMany({ where: { id: authRequesterId } });
     for (const [email, original] of originalRequesters) {
       if (original) {
-        await prisma.requesterUser.update({
+        await prisma.user.update({
           where: { id: original.id },
           data: { name: original.name, email: original.email, active: original.active },
         });
       } else {
         const createdId = createdRequesterIds.get(email);
-        if (createdId) await prisma.requesterUser.deleteMany({ where: { id: createdId } });
+        if (createdId) await prisma.user.deleteMany({ where: { id: createdId } });
       }
     }
     for (const [name, original] of originalRelatedSystems) {
@@ -199,7 +211,7 @@ afterAll(async () => {
 
 describe("API-01 reference data", () => {
   it("returns active Categories only as id/name pairs ordered by ascending id", async () => {
-    const response = await request(app).get("/api/categories");
+    const response = await authSession.agent.get("/api/categories");
 
     expect(response.status).toBe(200);
     expect(response.body.some(({ name }: { name: string }) => name === categoryNames.active)).toBe(true);
@@ -213,7 +225,7 @@ describe("API-01 reference data", () => {
   });
 
   it("returns active Related Systems only as id/name pairs ordered by name then id", async () => {
-    const response = await request(app).get("/api/related-systems");
+    const response = await authSession.agent.get("/api/related-systems");
 
     expect(response.status).toBe(200);
     expect(response.body.some(({ name }: { name: string }) => name === relatedSystemNames.inactive)).toBe(false);
@@ -226,24 +238,10 @@ describe("API-01 reference data", () => {
     ))).toBe(true);
   });
 
-  it("returns active Development Requesters only as id/name/email records ordered by name then id", async () => {
-    const response = await request(app).get("/api/development-requesters");
-
-    expect(response.status).toBe(200);
-    expect(response.body.some(({ email }: { email: string }) => email === requesterFixtures.inactive.email)).toBe(false);
-    const sorted = [...response.body].sort((left, right) => (
-      left.name.localeCompare(right.name) || left.id - right.id
-    ));
-    expect(response.body).toEqual(sorted);
-    const activeFixtureIds = response.body
-      .filter(({ email }: { email: string }) => (
-        email === requesterFixtures.first.email || email === requesterFixtures.second.email
-      ))
-      .map(({ id }: { id: number }) => id);
-    expect(activeFixtureIds).toEqual([...activeFixtureIds].sort((left, right) => left - right));
-    expect(response.body.every((item: Record<string, unknown>) => (
-      Object.keys(item).sort().join(",") === "email,id,name"
-    ))).toBe(true);
+  it("keeps the Development Requester lookup retired after authenticated activation", async () => {
+    const response = await authSession.agent.get("/api/development-requesters");
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: { code: "RESOURCE_NOT_FOUND", message: "Resource not found" } });
   });
 
   it("returns the exact safe Category failure envelope without leaking internal details", async () => {
@@ -251,7 +249,7 @@ describe("API-01 reference data", () => {
       new Error("Prisma secret at C:\\private\\database with password=hunter2"),
     );
 
-    const response = await request(app).get("/api/categories");
+    const response = await authSession.agent.get("/api/categories");
 
     expect(response.status).toBe(500);
     expect(response.body).toEqual({
@@ -263,15 +261,13 @@ describe("API-01 reference data", () => {
   it("returns valid empty arrays when reference queries find no active rows", async () => {
     vi.spyOn(routePrisma.category, "findMany").mockResolvedValueOnce([]);
     vi.spyOn(routePrisma.relatedSystem, "findMany").mockResolvedValueOnce([]);
-    vi.spyOn(routePrisma.requesterUser, "findMany").mockResolvedValueOnce([]);
 
-    const [categories, relatedSystems, requesters] = await Promise.all([
-      request(app).get("/api/categories"),
-      request(app).get("/api/related-systems"),
-      request(app).get("/api/development-requesters"),
+    const [categories, relatedSystems] = await Promise.all([
+      authSession.agent.get("/api/categories"),
+      authSession.agent.get("/api/related-systems"),
     ]);
 
-    for (const response of [categories, relatedSystems, requesters]) {
+    for (const response of [categories, relatedSystems]) {
       expect(response.status).toBe(200);
       expect(response.body).toEqual([]);
     }
@@ -282,7 +278,7 @@ describe("API-01 reference data", () => {
       new Error("SQL connection details must not escape"),
     );
 
-    const response = await request(app).get("/api/related-systems");
+    const response = await authSession.agent.get("/api/related-systems");
 
     expect(response.status).toBe(500);
     expect(response.body).toEqual({
@@ -291,20 +287,11 @@ describe("API-01 reference data", () => {
     expect(JSON.stringify(response.body)).not.toMatch(/SQL|connection details/i);
   });
 
-  it("returns the exact safe Development Requester failure envelope", async () => {
-    vi.spyOn(routePrisma.requesterUser, "findMany").mockRejectedValueOnce(
-      new Error("Prisma database credentials must not escape"),
-    );
-
-    const response = await request(app).get("/api/development-requesters");
-
-    expect(response.status).toBe(500);
-    expect(response.body).toEqual({
-      error: {
-        code: "INTERNAL_ERROR",
-        message: "Unable to load Development Requesters",
-      },
-    });
-    expect(JSON.stringify(response.body)).not.toMatch(/Prisma|database credentials/i);
+  it("does not consult a retired Development Requester query path", async () => {
+    const spy = vi.spyOn(routePrisma.user, "findMany");
+    const response = await authSession.agent.get("/api/development-requesters");
+    expect(response.status).toBe(404);
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
   });
 });

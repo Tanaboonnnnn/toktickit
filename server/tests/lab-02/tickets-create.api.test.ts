@@ -4,6 +4,7 @@ import type { Express } from "express";
 import { PrismaClient } from "@prisma/client";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers, testOrigin } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -36,6 +37,7 @@ let prisma: PrismaClient;
 let requesterId: number;
 let categoryId: number;
 let relatedSystemId: number;
+let requesterSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!developmentDatabaseUrl || !testDatabaseUrl) {
@@ -45,11 +47,12 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
   await prisma.ticket.deleteMany({ where: { clientRequestId } });
-  const requester = await prisma.requesterUser.upsert({
+  const requester = await prisma.user.upsert({
     where: { email: requesterEmail },
     update: { name: "API-03 Create Requester", active: true },
     create: { name: "API-03 Create Requester", email: requesterEmail, active: true },
@@ -68,22 +71,25 @@ beforeAll(async () => {
   categoryId = category.id;
   relatedSystemId = relatedSystem.id;
   ({ app } = await import("../../src/app.js"));
+  requesterSession = await authenticatedRequester(app, prisma, requesterId);
 });
 
 afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId } });
+  if (prisma && requesterId) await deleteSessionsForUsers(prisma, [requesterId]);
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: relatedSystemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: requesterId } });
+  await prisma?.user.deleteMany({ where: { id: requesterId } });
   await prisma?.$disconnect();
 });
 
 describe("API-03 Ticket creation", () => {
   it("creates exactly one Ticket with backend-controlled values and the documented shape", async () => {
     const beforeCount = await prisma.ticket.count({ where: { requesterId } });
-    const response = await request(app)
+    const response = await requesterSession.agent
       .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .send({
         clientRequestId,
         categoryId,
@@ -91,11 +97,6 @@ describe("API-03 Ticket creation", () => {
         summary: "  Cannot access university email  ",
         requestedPriority: "HIGH",
         description: "  Sign-in repeatedly returns an access denied message.  ",
-        requesterId: 999999,
-        ticketNumber: "TKT-20000101-CLIENT1",
-        currentStatus: "CLOSED",
-        createdAt: "2000-01-01T00:00:00.000Z",
-        updatedAt: "2000-01-01T00:00:00.000Z",
       });
 
     expect(response.status).toBe(201);
@@ -115,12 +116,22 @@ describe("API-03 Ticket creation", () => {
       currentStatus: "NEW",
       description: "Sign-in repeatedly returns an access denied message.",
       attachments: [],
+      resolutionSummary: null,
+      resolvedAt: null,
+      closedAt: null,
+      cancelReason: null,
+      cancelledAt: null,
+      requesterResolutionIndicatedAt: null,
+      version: 1,
     });
     expect(response.body.ticket.createdAt).toEqual(expect.any(String));
     expect(response.body.ticket.updatedAt).toEqual(expect.any(String));
     expect(Object.keys(response.body.ticket).sort()).toEqual([
       "attachments",
+      "cancelReason",
+      "cancelledAt",
       "category",
+      "closedAt",
       "createdAt",
       "currentStatus",
       "description",
@@ -128,9 +139,13 @@ describe("API-03 Ticket creation", () => {
       "relatedSystem",
       "requestedPriority",
       "requester",
+      "requesterResolutionIndicatedAt",
+      "resolutionSummary",
+      "resolvedAt",
       "summary",
       "ticketNumber",
       "updatedAt",
+      "version",
     ]);
     expect(JSON.stringify(response.body)).not.toMatch(/clientRequestId|requesterId|storedName|password|Prisma/i);
 
@@ -142,6 +157,7 @@ describe("API-03 Ticket creation", () => {
       summary: "Cannot access university email",
       description: "Sign-in repeatedly returns an access denied message.",
       requestedPriority: "HIGH",
+      itPriority: "HIGH",
       currentStatus: "NEW",
     });
     expect(await prisma.ticket.count({ where: { requesterId } })).toBe(beforeCount + 1);

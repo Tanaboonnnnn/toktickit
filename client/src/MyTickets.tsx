@@ -11,9 +11,11 @@ import {
   type TicketSortDirection,
   type TicketSortField,
   type RequestedPriority,
+  type TicketStatus,
 } from "./api.js";
-import { useRequesterContext } from "./requester-context.js";
+import { useAuth } from "./auth-context.js";
 import { formatDisplayDate } from "./date-format.js";
+import { TICKET_STATUSES, ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
 
 type AppliedQuery = Required<Pick<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">>
   & Omit<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">;
@@ -63,8 +65,7 @@ interface MyTicketsProps {
 }
 
 export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsProps) {
-  const { currentRequester } = useRequesterContext();
-  const requesterId = currentRequester?.id;
+  const { user } = useAuth();
   const [draftSearch, setDraftSearch] = useState("");
   const [query, setQuery] = useState<AppliedQuery>(DEFAULT_QUERY);
   const [result, setResult] = useState<ListState>({ kind: "loading" });
@@ -73,7 +74,6 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
   const [categoryState, setCategoryState] = useState<"loading" | "ready" | "error">("loading");
   const [categoryError, setCategoryError] = useState("");
   const suppressNextQueryFetch = useRef(false);
-  const requesterRef = useRef<number | undefined>(requesterId);
 
   const loadCategories = useCallback(async () => {
     setCategoryState("loading");
@@ -90,46 +90,21 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
 
   useEffect(() => {
     void loadCategories();
-  }, [loadCategories, requesterId]);
+  }, [loadCategories]);
 
   useEffect(() => {
-    if (!requesterId) {
-      requesterRef.current = undefined;
-      return;
-    }
-
-    // AppShell remounts requester-scoped pages, but this guard also makes the
-    // component safe when it is embedded without that boundary. The first
-    // fetch after a change uses clean defaults rather than the old Requester
-    // query, and the state reset's follow-up effect is suppressed once.
-    const requesterChanged = requesterRef.current !== undefined && requesterRef.current !== requesterId;
-    requesterRef.current = requesterId;
-    if (requesterChanged) {
-      const alreadyAtDefaults = !query.search
-        && query.categoryId === undefined
-        && query.requestedPriority === undefined
-        && query.currentStatus === undefined
-        && query.sortBy === DEFAULT_QUERY.sortBy
-        && query.sortDirection === DEFAULT_QUERY.sortDirection
-        && query.page === DEFAULT_QUERY.page
-        && query.pageSize === DEFAULT_QUERY.pageSize;
-      setDraftSearch("");
-      setQuery(DEFAULT_QUERY);
-      setResult({ kind: "loading" });
-      suppressNextQueryFetch.current = !alreadyAtDefaults;
-    }
-    if (suppressNextQueryFetch.current && !requesterChanged) {
+    if (suppressNextQueryFetch.current) {
       suppressNextQueryFetch.current = false;
       return;
     }
 
     let active = true;
-    const requestedQuery = requesterChanged ? { ...DEFAULT_QUERY } : { ...query };
+    const requestedQuery = { ...query };
     setResult({ kind: "loading" });
 
     const run = async () => {
       try {
-        let response = await fetchMyTickets(requesterId, requestedQuery);
+        let response = await fetchMyTickets(requestedQuery);
         if (
           response.totalItems > 0
           && response.items.length === 0
@@ -139,7 +114,7 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
           // The API deliberately treats a positive out-of-range page as a
           // valid empty result. Recover once, then display the final page.
           const finalPage = response.totalPages;
-          response = await fetchMyTickets(requesterId, { ...requestedQuery, page: finalPage });
+          response = await fetchMyTickets({ ...requestedQuery, page: finalPage });
           if (active && response.page !== query.page) {
             suppressNextQueryFetch.current = true;
             setQuery((current) => current.page === requestedQuery.page
@@ -153,7 +128,7 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
         if (response.items.length === 0 && response.totalItems === 0 && restricted(requestedQuery)) {
           // This is the one allowed ownership probe. It intentionally sends
           // only page=1 and pageSize=10, with no search/filter restrictions.
-          const probe = await fetchMyTickets(requesterId, { page: 1, pageSize: 10 });
+          const probe = await fetchMyTickets({ page: 1, pageSize: 10 });
           if (!active) return;
           zeroKind = probe.totalItems > 0 ? "no-results" : "empty";
         } else if (response.items.length === 0 && response.totalItems === 0) {
@@ -167,7 +142,7 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
     void run();
     return () => { active = false; };
     // Explicit scalar dependencies avoid refetching for unrelated state.
-  }, [requesterId, query.search, query.categoryId, query.requestedPriority, query.currentStatus,
+  }, [query.search, query.categoryId, query.requestedPriority, query.currentStatus,
     query.sortBy, query.sortDirection, query.page, query.pageSize, reloadToken]);
 
   const applySearch = () => {
@@ -193,7 +168,7 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
       <div className="lab2-list-heading">
         <div>
           <h1 id="my-tickets-heading">My Tickets</h1>
-          <p className="lab2-muted">Tickets owned by {currentRequester?.name ?? "the selected Requester"}</p>
+          <p className="lab2-muted">Tickets owned by {user?.name ?? "the authenticated Requester"}</p>
         </div>
         <button type="button" className="lab2-button lab2-button-primary" onClick={() => onCreateTicket?.()}>Create Ticket</button>
       </div>
@@ -237,9 +212,9 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
         <div className="lab2-field-group">
           <label htmlFor="my-tickets-status">Current Status</label>
           <select id="my-tickets-status" value={query.currentStatus ?? ""}
-            onChange={(event) => changeQuery("currentStatus", event.target.value ? "NEW" : undefined)}>
+            onChange={(event) => changeQuery("currentStatus", event.target.value ? event.target.value as TicketStatus : undefined)}>
             <option value="">All Statuses</option>
-            <option value="NEW">New</option>
+            {TICKET_STATUSES.map((status) => <option key={status} value={status}>{ticketStatusLabel(status)}</option>)}
           </select>
         </div>
 
@@ -331,7 +306,7 @@ function TicketTableRow({ ticket, onViewTicket }: { ticket: TicketListItem; onVi
     <td className="lab2-summary-cell">{ticket.summary}</td>
     <td>{ticket.category.name}</td>
     <td><span className={`lab2-badge lab2-priority-${ticket.requestedPriority.toLowerCase()}`}>{priorityLabel(ticket.requestedPriority)}</span></td>
-    <td><span className="lab2-badge lab2-status-new">New</span></td>
+    <td><span className={`lab2-badge ${ticketStatusClassName(ticket.currentStatus)}`}>{ticketStatusLabel(ticket.currentStatus)}</span></td>
     <td>{formatDate(ticket.updatedAt)}</td>
     <td><button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" onClick={() => onViewTicket?.(ticket.id)}>View ticket</button></td>
   </tr>;
@@ -345,7 +320,7 @@ function TicketCard({ ticket, onViewTicket }: { ticket: TicketListItem; onViewTi
       <dt>Created</dt><dd>{formatDate(ticket.createdAt)}</dd>
       <dt>Category</dt><dd>{ticket.category.name}</dd>
       <dt>Requested Priority</dt><dd><span className={`lab2-badge lab2-priority-${ticket.requestedPriority.toLowerCase()}`}>{priorityLabel(ticket.requestedPriority)}</span></dd>
-      <dt>Current Status</dt><dd><span className="lab2-badge lab2-status-new">New</span></dd>
+      <dt>Current Status</dt><dd><span className={`lab2-badge ${ticketStatusClassName(ticket.currentStatus)}`}>{ticketStatusLabel(ticket.currentStatus)}</span></dd>
       <dt>Last Updated</dt><dd>{formatDate(ticket.updatedAt)}</dd>
     </dl>
     <button type="button" className="lab2-button lab2-button-secondary lab2-view-ticket" onClick={() => onViewTicket?.(ticket.id)}>View ticket</button>

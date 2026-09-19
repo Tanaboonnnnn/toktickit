@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MyTickets from "../../src/MyTickets.js";
-import { RequesterContextProvider, useRequesterContext } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = [{ id: 1, name: "Anan Student", email: "anan.student@example.test" }];
 const category = [{ id: 1, name: "Hardware" }];
@@ -24,7 +24,7 @@ function response(body: unknown, ok = true, status = 200) {
 
 function renderPage(ticketResponses: Array<ReturnType<typeof response> | Promise<ReturnType<typeof response>>>) {
   let ticketIndex = 0;
-  const fetchMock = vi.fn((input: RequestInfo | URL) => {
+  const fetchMock = vi.fn((input: RequestInfo | URL, _init?: RequestInit) => {
     const url = String(input);
     if (url.includes("/api/development-requesters")) return Promise.resolve(response(requester));
     if (url.includes("/api/categories")) return Promise.resolve(response(category));
@@ -38,11 +38,6 @@ function renderPage(ticketResponses: Array<ReturnType<typeof response> | Promise
   sessionStorage.setItem("toktickit.developmentRequesterId", "1");
   render(<RequesterContextProvider><MyTickets /></RequesterContextProvider>);
   return fetchMock;
-}
-
-function RequesterChanger() {
-  const { selectRequester } = useRequesterContext();
-  return <button type="button" onClick={() => selectRequester(2)}>Switch requester</button>;
 }
 
 describe("UI-06 My Tickets states", () => {
@@ -108,42 +103,12 @@ describe("UI-06 My Tickets states", () => {
     expect(ticketCalls).toHaveLength(2);
   });
 
-  it("clears the old Requester rows before loading the new Requester list", async () => {
-    const requesters = [
-      ...requester,
-      { id: 2, name: "Mali Student", email: "mali.student@example.test" },
-    ];
-    const otherTicket = { ...ticket, id: 8, ticketNumber: "TKT-20260827-BBBBBB", summary: "Cannot access VPN" };
-    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(response(requesters));
-      if (url.includes("/api/categories")) return Promise.resolve(response(category));
-      if (url.includes("/api/tickets")) {
-        const headers = (init?.headers ?? {}) as Record<string, string>;
-        return Promise.resolve(response({
-          items: [headers["X-Development-Requester-Id"] === "2" ? otherTicket : ticket],
-          page: 1,
-          pageSize: 10,
-          totalItems: 1,
-          totalPages: 1,
-        }));
-      }
-      return Promise.resolve(response({}));
-    });
-    vi.stubGlobal("fetch", fetchMock);
-    sessionStorage.setItem("toktickit.developmentRequesterId", "1");
-    render(<RequesterContextProvider><RequesterChanger /><MyTickets /></RequesterContextProvider>);
-
+  it("shows the authenticated Requester and never sends the retired identity header", async () => {
+    const fetchMock = renderPage([response({ items: [ticket], page: 1, pageSize: 10, totalItems: 1, totalPages: 1 })]);
     expect((await screen.findAllByText("Cannot connect to Wi-Fi")).length).toBeGreaterThan(0);
-    const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: "Switch requester" }));
-    expect(screen.queryByText("Cannot connect to Wi-Fi")).not.toBeInTheDocument();
-    expect((await screen.findAllByText("Cannot access VPN")).length).toBeGreaterThan(0);
-    const ticketCalls = fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/tickets"));
-    expect(ticketCalls.at(-1)?.[1]).toEqual(expect.objectContaining({
-      headers: { "X-Development-Requester-Id": "2" },
-    }));
-    await user.selectOptions(screen.getByRole("combobox", { name: "Requested Priority" }), "HIGH");
-    await waitFor(() => expect(fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/tickets")).length).toBe(3));
+    expect(screen.getByText(/Tickets owned by Anan Student/)).toBeInTheDocument();
+    const ticketCall = fetchMock.mock.calls.find(([input]) => String(input).includes("/api/tickets"));
+    expect(ticketCall?.[1]).toEqual(expect.objectContaining({ credentials: "include" }));
+    expect(JSON.stringify(ticketCall?.[1] ?? {})).not.toMatch(/X-Development-Requester-Id/i);
   });
 });

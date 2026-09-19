@@ -1,7 +1,8 @@
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { rm } from "node:fs/promises";
 import { ApiError } from "./errors.js";
-import type { RequesterContext } from "./requester-context.js";
+import type { Actor } from "./auth/actor.js";
+import type { RequesterIdentity } from "./requester-identity.js";
 import { attachmentStorage, generatedStoredName, type AttachmentStorage } from "./attachment-storage.js";
 import { assertAttachmentCapacity, validateAttachment, validateRemovalReason } from "./attachment-contract.js";
 
@@ -32,8 +33,15 @@ async function ownedTicket(prisma: PrismaClient, requesterId: number, ticketId: 
   return ticket;
 }
 
+async function readableTicket(prisma: PrismaClient, actor: Actor, ticketId: number) {
+  const where = actor.role === "REQUESTER" ? { id: ticketId, requesterId: actor.id } : { id: ticketId };
+  const ticket = await prisma.ticket.findFirst({ where, select: { id: true } });
+  if (!ticket) notFound("Ticket not found");
+  return ticket;
+}
+
 export async function uploadAttachment(
-  prisma: PrismaClient, requester: RequesterContext, ticketId: number,
+  prisma: PrismaClient, requester: RequesterIdentity, ticketId: number,
   file: { originalname: string; mimetype: string; size: number; buffer: Buffer },
   storage: AttachmentStorage = attachmentStorage,
 ) {
@@ -70,19 +78,21 @@ async function rmStaging(tempPath: string) {
 }
 function pathDir(value: string): string { const index = Math.max(value.lastIndexOf("/"), value.lastIndexOf("\\")); return index > 0 ? value.slice(0, index) : value; }
 
-export async function listAttachments(prisma: PrismaClient, requester: RequesterContext, ticketId: number) {
-  await ownedTicket(prisma, requester.id, ticketId);
-  const rows = await prisma.attachment.findMany({ where: { ticketId, ticket: { requesterId: requester.id } }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] });
+export async function listAttachments(prisma: PrismaClient, actor: Actor, ticketId: number) {
+  await readableTicket(prisma, actor, ticketId);
+  const requesterScope = actor.role === "REQUESTER" ? { ticket: { requesterId: actor.id } } : {};
+  const rows = await prisma.attachment.findMany({ where: { ticketId, ...requesterScope }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] });
   return rows.map((row) => serializeAttachment(row as AttachmentRow));
 }
 
-export async function getDownloadAttachment(prisma: PrismaClient, requester: RequesterContext, ticketId: number, attachmentId: number) {
-  const row = await prisma.attachment.findFirst({ where: { id: attachmentId, ticketId, removedAt: null, ticket: { requesterId: requester.id } } });
+export async function getDownloadAttachment(prisma: PrismaClient, actor: Actor, ticketId: number, attachmentId: number) {
+  const requesterScope = actor.role === "REQUESTER" ? { ticket: { requesterId: actor.id } } : {};
+  const row = await prisma.attachment.findFirst({ where: { id: attachmentId, ticketId, removedAt: null, ...requesterScope } });
   if (!row) notFound("Attachment not found");
   return row as AttachmentRow;
 }
 
-export async function removeAttachment(prisma: PrismaClient, requester: RequesterContext, ticketId: number, attachmentId: number, reasonInput: unknown, storage: AttachmentStorage = attachmentStorage) {
+export async function removeAttachment(prisma: PrismaClient, requester: RequesterIdentity, ticketId: number, attachmentId: number, reasonInput: unknown, storage: AttachmentStorage = attachmentStorage) {
   const reason = validateRemovalReason(reasonInput);
   let removed: AttachmentRow;
   try {

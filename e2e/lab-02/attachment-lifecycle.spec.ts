@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import http from "node:http";
 import { createE2eFixture, createOwnedTicket, destroyE2eFixture, type E2eFixture, validBytes } from "./support/fixtures.js";
-import { createTicketFromUi, fillCreateTicket, openRequesterShell } from "./support/ui.js";
+import { createTicketFromUi, fillCreateTicket, loginRequester, logoutRequester, openRequesterShell, unsafeApiHeaders } from "./support/ui.js";
 
 const API_URL = "http://127.0.0.1:4311";
 let fixture: E2eFixture;
@@ -16,12 +16,16 @@ async function createLostResponseProxy() {
     request.on("end", async () => {
       try {
         const contentType = request.headers["content-type"];
-        const requesterId = request.headers["x-development-requester-id"];
+        const cookie = request.headers.cookie;
+        const origin = request.headers.origin;
+        const csrf = request.headers["x-csrf-token"];
         const forwarded = await fetch(`${API_URL}${request.url ?? ""}`, {
           method: request.method,
           headers: {
             "content-type": Array.isArray(contentType) ? contentType[0] : String(contentType ?? ""),
-            "x-development-requester-id": Array.isArray(requesterId) ? requesterId[0] : String(requesterId ?? ""),
+            cookie: Array.isArray(cookie) ? cookie[0] : String(cookie ?? ""),
+            origin: Array.isArray(origin) ? origin[0] : String(origin ?? ""),
+            "x-csrf-token": Array.isArray(csrf) ? csrf[0] : String(csrf ?? ""),
           },
           body: Buffer.concat(chunks),
         });
@@ -54,7 +58,7 @@ test.beforeAll(async () => { fixture = await createE2eFixture("attachments", 1);
 test.afterAll(async () => { await destroyE2eFixture(fixture); });
 
 async function openDetailForSummary(page: import("@playwright/test").Page, summary: string): Promise<void> {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
   const search = page.getByLabel("Search Ticket Number or Summary");
   await search.fill(summary);
@@ -63,9 +67,9 @@ async function openDetailForSummary(page: import("@playwright/test").Page, summa
   await expect(page.getByRole("heading", { name: "Ticket Detail" })).toBeVisible();
 }
 
-async function uploadViaApi(page: import("@playwright/test").Page, ticketId: number, requesterId: number, name: string, mimeType: string, buffer: Buffer) {
+async function uploadViaApi(page: import("@playwright/test").Page, ticketId: number, name: string, mimeType: string, buffer: Buffer) {
   return page.request.post(`${API_URL}/api/tickets/${ticketId}/attachments`, {
-    headers: { "X-Development-Requester-Id": String(requesterId) },
+    headers: await unsafeApiHeaders(page.request),
     multipart: { file: { name, mimeType, buffer } },
   });
 }
@@ -83,7 +87,7 @@ test("E2E-06 covers valid upload, download, removal, and replacement", async ({ 
   await expect(page.locator(".lab2-detail-grid dd").nth(3)).not.toHaveText(beforeUpdated ?? "");
 
   const attachment = await fixture.prisma.attachment.findFirstOrThrow({ where: { ticketId: fixture.tickets[0].id, originalName: "evidence.png" } });
-  const downloaded = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments/${attachment.id}/download`, { headers: { "X-Development-Requester-Id": String(fixture.requesterA.id) } });
+  const downloaded = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments/${attachment.id}/download`);
   expect(downloaded.status()).toBe(200);
   expect(await downloaded.body()).toEqual(validBytes.png);
   await page.getByRole("button", { name: "Download evidence.png" }).click();
@@ -99,12 +103,12 @@ test("E2E-06 covers valid upload, download, removal, and replacement", async ({ 
   // this direct API assertion with the authoritative metadata endpoint so the
   // check cannot race the refresh/transaction boundary on slower Windows runs.
   await expect.poll(async () => {
-    const metadata = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments`, { headers: { "X-Development-Requester-Id": String(fixture.requesterA.id) } });
+    const metadata = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments`);
     if (metadata.status() !== 200) return "UNAVAILABLE";
     const body = await metadata.json() as { items?: Array<{ id: number; state: string }> };
     return body.items?.find((item) => item.id === attachment.id)?.state ?? "MISSING";
   }).toBe("REMOVED");
-  const removedDownload = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments/${attachment.id}/download`, { headers: { "X-Development-Requester-Id": String(fixture.requesterA.id) } });
+  const removedDownload = await page.request.get(`${API_URL}/api/tickets/${fixture.tickets[0].id}/attachments/${attachment.id}/download`);
   expect(removedDownload.status()).toBe(404);
 
   await page.getByLabel("Add an Attachment").setInputFiles({ name: "replacement.pdf", mimeType: "application/pdf", buffer: validBytes.pdf });
@@ -126,8 +130,9 @@ test("E2E-06 rejects invalid type and oversized files before upload", async ({ p
 
 test("E2E-06 enforces five active files and re-enables selection after removal", async ({ page }) => {
   const ticket = await createOwnedTicket(fixture, fixture.requesterA.id, `${fixture.tag} active limit`);
+  await loginRequester(page, fixture.requesterA);
   for (let i = 0; i < 5; i += 1) {
-    const response = await uploadViaApi(page, ticket.id, fixture.requesterA.id, `limit-${i}.png`, "image/png", validBytes.png);
+    const response = await uploadViaApi(page, ticket.id, `limit-${i}.png`, "image/png", validBytes.png);
     expect(response.status()).toBe(201);
   }
   await openDetailForSummary(page, ticket.summary);
@@ -142,7 +147,7 @@ test("E2E-06 enforces five active files and re-enables selection after removal",
 });
 
 test("E2E-06 preserves a created Ticket during deterministic partial success", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   const summary = `${fixture.tag} partial success`;
   await fillCreateTicket(page, fixture.category.id, fixture.relatedSystem.id, summary, `${fixture.tag} partial attachment description.`);
   await page.getByLabel("Select files").setInputFiles([
@@ -209,7 +214,7 @@ test("E2E-06 reconciles an ambiguous upload before offering manual retry", async
 
     const persisted = await fixture.prisma.attachment.findMany({ where: { ticketId: ticket.id, originalName: "ambiguous-faithful.png" } });
     expect(persisted).toHaveLength(1);
-    const downloaded = await page.request.get(`${API_URL}/api/tickets/${ticket.id}/attachments/${persisted[0].id}/download`, { headers: { "X-Development-Requester-Id": String(fixture.requesterA.id) } });
+    const downloaded = await page.request.get(`${API_URL}/api/tickets/${ticket.id}/attachments/${persisted[0].id}/download`);
     expect(downloaded.status()).toBe(200);
     expect(await downloaded.body()).toEqual(validBytes.png);
 
@@ -226,18 +231,20 @@ test("E2E-06 reconciles an ambiguous upload before offering manual retry", async
 
 test("E2E-06 denies cross-owner Attachment operations without leaking metadata", async ({ page }) => {
   const ticket = fixture.tickets[0];
-  const created = await uploadViaApi(page, ticket.id, fixture.requesterA.id, "owner-only.png", "image/png", validBytes.png);
+  await loginRequester(page, fixture.requesterA);
+  const created = await uploadViaApi(page, ticket.id, "owner-only.png", "image/png", validBytes.png);
   expect(created.status()).toBe(201);
   const body = await created.json() as { attachment: { id: number } };
   const attachmentId = body.attachment.id;
-  const headers = { "X-Development-Requester-Id": String(fixture.requesterB.id) };
-  const list = await page.request.get(`${API_URL}/api/tickets/${ticket.id}/attachments`, { headers });
+  await logoutRequester(page);
+  await loginRequester(page, fixture.requesterB);
+  const list = await page.request.get(`${API_URL}/api/tickets/${ticket.id}/attachments`);
   expect(list.status()).toBe(404);
-  const upload = await page.request.post(`${API_URL}/api/tickets/${ticket.id}/attachments`, { headers, multipart: { file: { name: "foreign.png", mimeType: "image/png", buffer: validBytes.png } } });
+  const upload = await page.request.post(`${API_URL}/api/tickets/${ticket.id}/attachments`, { headers: await unsafeApiHeaders(page.request), multipart: { file: { name: "foreign.png", mimeType: "image/png", buffer: validBytes.png } } });
   expect(upload.status()).toBe(404);
-  const download = await page.request.get(`${API_URL}/api/tickets/${ticket.id}/attachments/${attachmentId}/download`, { headers });
+  const download = await page.request.get(`${API_URL}/api/tickets/${ticket.id}/attachments/${attachmentId}/download`);
   expect(download.status()).toBe(404);
-  const remove = await page.request.delete(`${API_URL}/api/tickets/${ticket.id}/attachments/${attachmentId}`, { headers, data: { removalReason: "foreign attempt" } });
+  const remove = await page.request.delete(`${API_URL}/api/tickets/${ticket.id}/attachments/${attachmentId}`, { headers: await unsafeApiHeaders(page.request), data: { removalReason: "foreign attempt" } });
   expect(remove.status()).toBe(404);
   expect(JSON.stringify(await list.json())).not.toMatch(/owner-only|storedName|uploads/i);
   expect((await fixture.prisma.attachment.findUniqueOrThrow({ where: { id: attachmentId } })).removedAt).toBeNull();

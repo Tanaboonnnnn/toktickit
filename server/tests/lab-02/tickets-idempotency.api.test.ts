@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Express } from "express";
 import { PrismaClient } from "@prisma/client";
-import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers, testOrigin } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -42,6 +42,8 @@ let requesterAId: number;
 let requesterBId: number;
 let categoryId: number;
 let systemId: number;
+let requesterASession: Awaited<ReturnType<typeof authenticatedRequester>>;
+let requesterBSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!developmentDatabaseUrl || !testDatabaseUrl) {
@@ -51,16 +53,17 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
   await prisma.ticket.deleteMany({ where: { clientRequestId: { in: clientIds } } });
-  const requesterA = await prisma.requesterUser.upsert({
+  const requesterA = await prisma.user.upsert({
     where: { email: requesterAEmail },
     update: { name: "API-05 Requester A", active: true },
     create: { name: "API-05 Requester A", email: requesterAEmail, active: true },
   });
-  const requesterB = await prisma.requesterUser.upsert({
+  const requesterB = await prisma.user.upsert({
     where: { email: requesterBEmail },
     update: { name: "API-05 Requester B", active: true },
     create: { name: "API-05 Requester B", email: requesterBEmail, active: true },
@@ -80,13 +83,16 @@ beforeAll(async () => {
   categoryId = category.id;
   systemId = system.id;
   ({ app } = await import("../../src/app.js"));
+  requesterASession = await authenticatedRequester(app, prisma, requesterAId);
+  requesterBSession = await authenticatedRequester(app, prisma, requesterBId);
 });
 
 afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { clientRequestId: { in: clientIds } } });
+  if (prisma) await deleteSessionsForUsers(prisma, [requesterAId, requesterBId].filter(Boolean));
   await prisma?.category.deleteMany({ where: { id: categoryId } });
   await prisma?.relatedSystem.deleteMany({ where: { id: systemId } });
-  await prisma?.requesterUser.deleteMany({ where: { id: { in: [requesterAId, requesterBId] } } });
+  await prisma?.user.deleteMany({ where: { id: { in: [requesterAId, requesterBId] } } });
   await prisma?.$disconnect();
 });
 
@@ -103,9 +109,11 @@ function body(clientRequestId: string, overrides: Record<string, unknown> = {}) 
 }
 
 async function create(requesterId: number, payload: Record<string, unknown>) {
-  return request(app)
+  const session = requesterId === requesterAId ? requesterASession : requesterBSession;
+  return session.agent
     .post("/api/tickets")
-    .set("X-Development-Requester-Id", String(requesterId))
+    .set("Origin", testOrigin)
+    .set("X-CSRF-Token", session.csrfToken)
     .send(payload);
 }
 

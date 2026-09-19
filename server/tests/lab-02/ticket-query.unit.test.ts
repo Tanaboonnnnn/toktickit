@@ -59,7 +59,7 @@ describe("UT-04 My Tickets query parsing", () => {
     expect(invalid({ categoryId: "0" })).toHaveProperty("categoryId");
     expect(invalid({ categoryId: "1.5" })).toHaveProperty("categoryId");
     expect(invalid({ requestedPriority: "URGENT" })).toHaveProperty("requestedPriority");
-    expect(invalid({ currentStatus: "CLOSED" })).toHaveProperty("currentStatus");
+    expect(invalid({ currentStatus: "PENDING" })).toHaveProperty("currentStatus");
     expect(invalid({ sortBy: "id" })).toHaveProperty("sortBy");
     expect(invalid({ sortDirection: "up" })).toHaveProperty("sortDirection");
   });

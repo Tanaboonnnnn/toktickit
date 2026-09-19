@@ -3,7 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
 import TicketDetail from "../../src/TicketDetail.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
+import { authenticatedAppResponse, openAuthenticatedRequesterRoute } from "./support/authenticated-app.js";
 
 const requester = { id: 1, name: "A11y Requester", email: "a11y@example.test" };
 const category = { id: 1, name: "Hardware" };
@@ -23,6 +24,13 @@ const detailTicket = {
   ...listTicket,
   requester,
   description: "A sufficiently detailed description for accessibility checks.",
+  resolutionSummary: null,
+  resolvedAt: null,
+  closedAt: null,
+  cancelReason: null,
+  cancelledAt: null,
+  requesterResolutionIndicatedAt: null,
+  version: 1,
   attachments: [
     {
       id: 1,
@@ -58,7 +66,8 @@ function json(body: unknown, ok = true, status = 200) {
 function appFetch() {
   const fetchMock = vi.fn((input: RequestInfo | URL) => {
     const url = String(input);
-    if (url.includes("development-requesters")) return Promise.resolve(json([requester]));
+    const auth = authenticatedAppResponse(input);
+    if (auth) return Promise.resolve(auth);
     if (url.includes("categories")) return Promise.resolve(json([category]));
     if (url.includes("related-systems")) return Promise.resolve(json([relatedSystem]));
     if (url.endsWith("/api/tickets/42")) return Promise.resolve(json({ ticket: detailTicket }));
@@ -71,6 +80,8 @@ function appFetch() {
 describe("UI-10 accessibility contract", () => {
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
+    openAuthenticatedRequesterRoute();
   });
 
   afterEach(() => {
@@ -82,7 +93,6 @@ describe("UI-10 accessibility contract", () => {
 
   it("gives core Create Ticket controls visible names, required semantics, and associated validation", async () => {
     appFetch();
-    sessionStorage.setItem("toktickit.developmentRequesterId", "1");
     render(<App />);
     const categorySelect = await screen.findByRole("combobox", { name: "Category *" });
     const relatedSelect = screen.getByRole("combobox", { name: "Related System *" });
@@ -104,23 +114,21 @@ describe("UI-10 accessibility contract", () => {
     expect(screen.getByText("Category is required.")).toHaveAttribute("role", "alert");
   });
 
-  it("supports keyboard activation while retaining native disabled semantics", async () => {
+  it("supports keyboard navigation while retaining native disabled semantics", async () => {
     appFetch();
     render(<App />);
     const user = userEvent.setup();
-    const requesterSelect = await screen.findByRole("combobox", { name: "Development Requester" });
-    const continueButton = screen.getByRole("button", { name: "Continue" });
-    expect(continueButton).toBeDisabled();
-    await user.selectOptions(requesterSelect, "1");
-    expect(continueButton).toBeEnabled();
-    continueButton.focus();
+    await screen.findByRole("heading", { name: "Create Ticket" });
+    const myTicketsButton = screen.getByRole("button", { name: "My Tickets" });
+    myTicketsButton.focus();
     await user.keyboard("[Enter]");
-    expect(await screen.findByRole("heading", { name: "Create Ticket" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "My Tickets" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Previous" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
   });
 
   it("names list actions and communicates loading/busy/pagination state", async () => {
     appFetch();
-    sessionStorage.setItem("toktickit.developmentRequesterId", "1");
     render(<App />);
     await userEvent.setup().click(await screen.findByRole("button", { name: "My Tickets" }));
     expect(await screen.findByRole("heading", { name: "My Tickets" })).toBeInTheDocument();
@@ -133,7 +141,6 @@ describe("UI-10 accessibility contract", () => {
 
   it("identifies Attachment actions and keeps removed state understandable without color", async () => {
     appFetch();
-    sessionStorage.setItem("toktickit.developmentRequesterId", "1");
     render(<RequesterContextProvider><TicketDetail ticketId={42} onBack={vi.fn()} /></RequesterContextProvider>);
     await screen.findByText("active-evidence.png");
     expect(screen.getByRole("button", { name: "Download active-evidence.png" })).toBeEnabled();

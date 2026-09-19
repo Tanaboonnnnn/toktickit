@@ -1,0 +1,16 @@
+{
+  "role": "Requester",
+  "route": "/#/staff/tickets",
+  "scenario": "Role-specific forbidden feedback for a Requester attempting a Staff destination",
+  "mapping": [
+    "A11Y-01",
+    "SEC-01",
+    "RESP-01",
+    "RESP-02",
+    "RESP-03",
+    "Answer Part 5",
+    "Answer Part 9"
+  ],
+  "file": "major/tablet-834x1112/06-requester-forbidden.png",
+  "viewport": "834x1112"
+}

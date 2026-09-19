@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
+import { assertDistinctTestDatabase, assertSeparateUploadRoots } from "../../../server/dist/tests/lab-03/support/database.js";
 
 function readEnvFile() {
   const envPath = path.resolve(process.cwd(), "server/.env");
@@ -24,12 +25,20 @@ function databaseName(connectionString) {
 const fileEnv = readEnvFile();
 const developmentUrl = process.env.E2E_DEVELOPMENT_DATABASE_URL ?? process.env.DATABASE_URL ?? fileEnv.DATABASE_URL;
 const testUrl = process.env.E2E_TEST_DATABASE_URL ?? process.env.TEST_DATABASE_URL ?? fileEnv.TEST_DATABASE_URL;
-if (!developmentUrl || !testUrl) throw new Error("E2E requires DATABASE_URL and TEST_DATABASE_URL in server/.env or the environment");
-if (databaseName(developmentUrl) === databaseName(testUrl)) throw new Error("E2E TEST_DATABASE_URL must not resolve to the development database");
+assertDistinctTestDatabase({ developmentUrl, testUrl });
 
-const uploadRoot = mkdtempSync(path.join(os.tmpdir(), `toktickit-e2e-${process.pid}-${randomUUID().slice(0, 8)}-`));
+const uploadPrefix = path.join(os.tmpdir(), `toktickit-e2e-${process.pid}-${randomUUID().slice(0, 8)}-`);
+const configuredLiveUploadRoot = process.env.UPLOAD_DIR ?? fileEnv.UPLOAD_DIR ?? path.resolve(process.cwd(), "server/uploads");
+assertSeparateUploadRoots(configuredLiveUploadRoot, uploadPrefix);
+const uploadRoot = mkdtempSync(uploadPrefix);
 process.env.DATABASE_URL = testUrl;
 process.env.UPLOAD_DIR = uploadRoot;
+// Issue #44 adds a real server-side session foundation. The retained Lab 2
+// browser harness still exercises the pre-activation Requester flow, but the
+// server must start with a non-production, run-owned session secret so the auth
+// router can initialize without weakening the production configuration gate.
+process.env.SESSION_SECRET ??= randomBytes(32).toString("hex");
+process.env.FRONTEND_ORIGIN ??= "http://127.0.0.1:4312";
 const port = Number(process.env.E2E_PORT || 4311);
 const { app } = await import("../../../server/dist/src/app.js");
 const server = app.listen(port, "127.0.0.1", () => console.log(`TokTickIT E2E API listening on http://127.0.0.1:${port}`));

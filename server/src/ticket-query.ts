@@ -1,7 +1,8 @@
 import { validationError } from "./errors.js";
 import type { RequestedPriority } from "./ticket-contract.js";
+import { isTicketStatus, TICKET_STATUSES, type TicketStatusValue } from "./ticket-status.js";
 
-export type TicketStatus = "NEW";
+export type TicketStatus = TicketStatusValue;
 export type TicketSortField = "createdAt" | "updatedAt" | "ticketNumber" | "summary";
 export type TicketSortDirection = "asc" | "desc";
 export type TicketPageSize = 10 | 20 | 50;
@@ -35,7 +36,6 @@ const allowedParameters = new Set([
   "pageSize",
 ]);
 const priorities = new Set<RequestedPriority>(["LOW", "MEDIUM", "HIGH"]);
-const statuses = new Set<TicketStatus>(["NEW"]);
 const sortFields = new Set<TicketSortField>([
   "createdAt",
   "updatedAt",
@@ -139,8 +139,9 @@ export function parseTicketListQuery(input: QueryInput): TicketListQuery {
 
   let currentStatus: TicketStatus | undefined;
   if (statusValue !== undefined) {
-    if (!statuses.has(statusValue as TicketStatus)) fieldErrors.currentStatus = "Current Status must be NEW";
-    else currentStatus = statusValue as TicketStatus;
+    if (!isTicketStatus(statusValue)) {
+      fieldErrors.currentStatus = `Current Status must be one of: ${TICKET_STATUSES.join(", ")}`;
+    } else currentStatus = statusValue;
   }
 
   let sortBy: TicketSortField = "updatedAt";

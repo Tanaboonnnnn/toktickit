@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Express } from "express";
 import { PrismaClient } from "@prisma/client";
-import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { authenticatedRequester, configureAuthenticatedTestRuntime, deleteSessionsForUsers, testOrigin } from "./support/authenticated-requester.js";
 
 function readLocalEnv(name: string): string | undefined {
   if (process.env[name]) return process.env[name];
@@ -47,6 +47,7 @@ let activeCategoryId: number;
 let inactiveCategoryId: number;
 let activeSystemId: number;
 let inactiveSystemId: number;
+let requesterSession: Awaited<ReturnType<typeof authenticatedRequester>>;
 
 beforeAll(async () => {
   if (!developmentDatabaseUrl || !testDatabaseUrl) {
@@ -56,10 +57,11 @@ beforeAll(async () => {
     throw new Error("TEST_DATABASE_URL must not resolve to the development database");
   }
 
+  configureAuthenticatedTestRuntime();
   process.env.DATABASE_URL = testDatabaseUrl;
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl } } });
   await prisma.$connect();
-  const requester = await prisma.requesterUser.upsert({
+  const requester = await prisma.user.upsert({
     where: { email: requesterEmail },
     update: { name: "API-04 Validation Requester", active: true },
     create: { name: "API-04 Validation Requester", email: requesterEmail, active: true },
@@ -90,21 +92,24 @@ beforeAll(async () => {
   activeSystemId = activeSystem.id;
   inactiveSystemId = inactiveSystem.id;
   ({ app } = await import("../../src/app.js"));
+  requesterSession = await authenticatedRequester(app, prisma, requesterId);
 });
 
 afterAll(async () => {
   await prisma?.ticket.deleteMany({ where: { requesterId } });
+  if (prisma && requesterId) await deleteSessionsForUsers(prisma, [requesterId]);
   await prisma?.category.deleteMany({ where: { id: { in: [activeCategoryId, inactiveCategoryId] } } });
   await prisma?.relatedSystem.deleteMany({ where: { id: { in: [activeSystemId, inactiveSystemId] } } });
-  await prisma?.requesterUser.deleteMany({ where: { id: requesterId } });
+  await prisma?.user.deleteMany({ where: { id: requesterId } });
   await prisma?.$disconnect();
 });
 
 describe("API-04 Ticket creation validation", () => {
   it("rejects malformed JSON with the safe validation envelope", async () => {
-    const response = await request(app)
+    const response = await requesterSession.agent
       .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .set("Content-Type", "application/json")
       .send("{ malformed");
 
@@ -130,9 +135,10 @@ describe("API-04 Ticket creation validation", () => {
     const beforeCount = await prisma.ticket.count({ where: { requesterId } });
 
     for (const [index, [field, change]] of cases.entries()) {
-      const response = await request(app)
+      const response = await requesterSession.agent
         .post("/api/tickets")
-        .set("X-Development-Requester-Id", String(requesterId))
+        .set("Origin", testOrigin)
+        .set("X-CSRF-Token", requesterSession.csrfToken)
         .send({
           ...baseBody,
           categoryId: activeCategoryId,
@@ -171,9 +177,10 @@ describe("API-04 Ticket creation validation", () => {
       body.relatedSystemId = kind === "inactive" ? inactiveSystemId : 2147483647;
     }
 
-    const response = await request(app)
+    const response = await requesterSession.agent
       .post("/api/tickets")
-      .set("X-Development-Requester-Id", String(requesterId))
+      .set("Origin", testOrigin)
+      .set("X-CSRF-Token", requesterSession.csrfToken)
       .send(body);
 
     expect(response.status).toBe(400);

@@ -1,3 +1,7 @@
+import { isTicketStatus, type TicketStatus } from "./ticket-status.js";
+
+export type { TicketStatus } from "./ticket-status.js";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
 export interface Category {
@@ -5,10 +9,14 @@ export interface Category {
   name: string;
 }
 
-export interface DevelopmentRequester {
+export type UserRole = "REQUESTER" | "IT_STAFF" | "ADMINISTRATOR";
+
+export interface CurrentUser {
   id: number;
   name: string;
   email: string;
+  role: UserRole;
+  mustChangePassword: boolean;
 }
 
 export interface RelatedSystem {
@@ -17,7 +25,6 @@ export interface RelatedSystem {
 }
 
 export type RequestedPriority = "LOW" | "MEDIUM" | "HIGH";
-export type TicketStatus = "NEW";
 
 export type TicketSortField = "createdAt" | "updatedAt" | "ticketNumber" | "summary";
 export type TicketSortDirection = "asc" | "desc";
@@ -56,6 +63,13 @@ export interface Ticket {
   updatedAt: string;
   description: string;
   attachments: TicketAttachmentMetadata[];
+  resolutionSummary: string | null;
+  resolvedAt: string | null;
+  closedAt: string | null;
+  cancelReason: string | null;
+  cancelledAt: string | null;
+  requesterResolutionIndicatedAt: string | null;
+  version: number;
 }
 
 export interface TicketListItem {
@@ -117,9 +131,28 @@ export class SafeApiError extends Error {
   }
 }
 
+let authenticationFailureHandler: ((error: SafeApiError) => void) | null = null;
+
+export function setAuthenticationFailureHandler(handler: ((error: SafeApiError) => void) | null): () => void {
+  authenticationFailureHandler = handler;
+  return () => {
+    if (authenticationFailureHandler === handler) authenticationFailureHandler = null;
+  };
+}
+
+export function notifyAuthenticationFailure(error: SafeApiError): void {
+  if (error.status === 401 || error.code === "PASSWORD_CHANGE_REQUIRED") {
+    authenticationFailureHandler?.(error);
+  }
+}
+
 async function fetchReferenceList(path: string): Promise<{ id: number; name: string }[]> {
-  const response = await fetch(`${API_URL}${path}`);
-  if (!response.ok) throw new Error(`Unable to load ${path}`);
+  const response = await fetch(`${API_URL}${path}`, { credentials: "include" });
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   return response.json();
 }
 
@@ -139,7 +172,7 @@ function safeErrorMessage(response: { status: number; json?: () => Promise<unkno
   );
 }
 
-async function parseSafeError(response: Response): Promise<SafeApiError> {
+export async function parseSafeError(response: Response): Promise<SafeApiError> {
   let code = "INTERNAL_ERROR";
   let message = "Unable to complete the request";
   let fieldErrors: Record<string, string> | undefined;
@@ -158,6 +191,66 @@ async function parseSafeError(response: Response): Promise<SafeApiError> {
   return new SafeApiError(response.status, code, message, fieldErrors);
 }
 
+export async function fetchCsrfToken(): Promise<string> {
+  const response = await fetch(`${API_URL}/api/auth/csrf`, { credentials: "include" });
+  if (!response.ok) throw await parseSafeError(response);
+  const body = await response.json() as { csrfToken?: unknown };
+  if (typeof body.csrfToken !== "string" || body.csrfToken.length === 0) {
+    throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  }
+  return body.csrfToken;
+}
+
+async function authMutation(path: string, body?: unknown): Promise<Response> {
+  const csrfToken = await fetchCsrfToken();
+  return fetch(`${API_URL}${path}`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRF-Token": csrfToken,
+    },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+}
+
+function isCurrentUser(value: unknown): value is CurrentUser {
+  if (!value || typeof value !== "object") return false;
+  const user = value as Record<string, unknown>;
+  return Number.isSafeInteger(user.id)
+    && typeof user.name === "string"
+    && typeof user.email === "string"
+    && (user.role === "REQUESTER" || user.role === "IT_STAFF" || user.role === "ADMINISTRATOR")
+    && typeof user.mustChangePassword === "boolean";
+}
+
+async function parseCurrentUser(response: Response): Promise<CurrentUser> {
+  if (!response.ok) throw await parseSafeError(response);
+  const body = await response.json() as { user?: unknown };
+  if (!isCurrentUser(body.user)) {
+    throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
+  }
+  return body.user;
+}
+
+export async function fetchCurrentUser(): Promise<CurrentUser> {
+  const response = await fetch(`${API_URL}/api/auth/me`, { credentials: "include" });
+  return parseCurrentUser(response);
+}
+
+export async function loginUser(email: string, password: string): Promise<CurrentUser> {
+  return parseCurrentUser(await authMutation("/api/auth/login", { email, password }));
+}
+
+export async function changeOwnPassword(currentPassword: string, newPassword: string, confirmPassword: string): Promise<CurrentUser> {
+  return parseCurrentUser(await authMutation("/api/auth/change-password", { currentPassword, newPassword, confirmPassword }));
+}
+
+export async function logoutUser(): Promise<void> {
+  const response = await authMutation("/api/auth/logout");
+  if (!response.ok) throw await parseSafeError(response);
+}
+
 function isReferenceItem(value: unknown): value is Category {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
@@ -173,7 +266,7 @@ function isTicketListItem(value: unknown): value is TicketListItem {
     && isReferenceItem(item.relatedSystem)
     && typeof item.summary === "string"
     && (item.requestedPriority === "LOW" || item.requestedPriority === "MEDIUM" || item.requestedPriority === "HIGH")
-    && item.currentStatus === "NEW"
+    && isTicketStatus(item.currentStatus)
     && typeof item.createdAt === "string"
     && typeof item.updatedAt === "string";
 }
@@ -217,7 +310,14 @@ function isTicket(value: unknown): value is Ticket {
     && typeof ((item.requester as unknown) as Record<string, unknown>).email === "string"
     && typeof item.description === "string"
     && Array.isArray(item.attachments)
-    && item.attachments.every(isTicketAttachment);
+    && item.attachments.every(isTicketAttachment)
+    && (item.resolutionSummary === null || typeof item.resolutionSummary === "string")
+    && (item.resolvedAt === null || typeof item.resolvedAt === "string")
+    && (item.closedAt === null || typeof item.closedAt === "string")
+    && (item.cancelReason === null || typeof item.cancelReason === "string")
+    && (item.cancelledAt === null || typeof item.cancelledAt === "string")
+    && (item.requesterResolutionIndicatedAt === null || typeof item.requesterResolutionIndicatedAt === "string")
+    && Number.isSafeInteger(item.version);
 }
 
 function appendListQuery(params: URLSearchParams, query: TicketListQuery): void {
@@ -229,7 +329,7 @@ function appendListQuery(params: URLSearchParams, query: TicketListQuery): void 
   if (query.requestedPriority && ["LOW", "MEDIUM", "HIGH"].includes(query.requestedPriority)) {
     params.set("requestedPriority", query.requestedPriority);
   }
-  if (query.currentStatus === "NEW") params.set("currentStatus", query.currentStatus);
+  if (query.currentStatus && isTicketStatus(query.currentStatus)) params.set("currentStatus", query.currentStatus);
   if (query.sortBy && ["createdAt", "updatedAt", "ticketNumber", "summary"].includes(query.sortBy)) {
     params.set("sortBy", query.sortBy);
   }
@@ -241,16 +341,19 @@ function appendListQuery(params: URLSearchParams, query: TicketListQuery): void 
 }
 
 export async function fetchMyTickets(
-  requesterId: number,
   query: TicketListQuery = {},
 ): Promise<TicketListResponse> {
   const params = new URLSearchParams();
   appendListQuery(params, query);
   const suffix = params.toString() ? `?${params.toString()}` : "";
   const response = await fetch(`${API_URL}/api/tickets${suffix}`, {
-    headers: { "X-Development-Requester-Id": String(requesterId) },
+    credentials: "include",
   });
-  if (!response.ok) throw await parseSafeError(response);
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   let body: unknown;
   try {
     body = await response.json();
@@ -263,11 +366,15 @@ export async function fetchMyTickets(
   return body;
 }
 
-export async function fetchTicketDetail(requesterId: number, ticketId: number): Promise<Ticket> {
+export async function fetchTicketDetail(ticketId: number): Promise<Ticket> {
   const response = await fetch(`${API_URL}/api/tickets/${ticketId}`, {
-    headers: { "X-Development-Requester-Id": String(requesterId) },
+    credentials: "include",
   });
-  if (!response.ok) throw await parseSafeError(response);
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   let body: unknown;
   try {
     body = await response.json();
@@ -281,19 +388,24 @@ export async function fetchTicketDetail(requesterId: number, ticketId: number): 
 }
 
 export async function createTicket(
-  requesterId: number,
   input: TicketCreateInput,
 ): Promise<TicketCreateResponse> {
+  const csrfToken = await fetchCsrfToken();
   const response = await fetch(`${API_URL}/api/tickets`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      "X-Development-Requester-Id": String(requesterId),
+      "X-CSRF-Token": csrfToken,
     },
     body: JSON.stringify(input),
   });
 
-  if (!response.ok) throw await parseSafeError(response);
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   const result = await response.json() as TicketCreateResponse;
   if (!result.ticket || typeof result.replayed !== "boolean") {
     throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
@@ -301,24 +413,34 @@ export async function createTicket(
   return result;
 }
 
-export async function fetchTicketAttachments(requesterId: number, ticketId: number): Promise<TicketAttachmentMetadata[]> {
-  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, { headers: { "X-Development-Requester-Id": String(requesterId) } });
-  if (!response.ok) throw await parseSafeError(response);
+export async function fetchTicketAttachments(ticketId: number): Promise<TicketAttachmentMetadata[]> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, { credentials: "include" });
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   let body: unknown;
   try { body = await response.json(); } catch { throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); }
   if (!isAttachmentList(body)) throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
   return body.items;
 }
 
-export async function uploadAttachment(requesterId: number, ticketId: number, file: File): Promise<TicketAttachmentMetadata> {
+export async function uploadAttachment(ticketId: number, file: File): Promise<TicketAttachmentMetadata> {
   const form = new FormData();
   form.append("file", file);
+  const csrfToken = await fetchCsrfToken();
   const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments`, {
     method: "POST",
-    headers: { "X-Development-Requester-Id": String(requesterId) },
+    credentials: "include",
+    headers: { "X-CSRF-Token": csrfToken },
     body: form,
   });
-  if (!response.ok) throw await parseSafeError(response);
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   let body: unknown;
   try { body = await response.json(); } catch { throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); }
   const attachment = body && typeof body === "object" ? (body as { attachment?: unknown }).attachment : undefined;
@@ -326,9 +448,13 @@ export async function uploadAttachment(requesterId: number, ticketId: number, fi
   return attachment;
 }
 
-export async function downloadAttachment(requesterId: number, ticketId: number, attachmentId: number, filename = "attachment"): Promise<Blob> {
-  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments/${attachmentId}/download`, { headers: { "X-Development-Requester-Id": String(requesterId) } });
-  if (!response.ok) throw await parseSafeError(response);
+export async function downloadAttachment(ticketId: number, attachmentId: number, filename = "attachment"): Promise<Blob> {
+  const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments/${attachmentId}/download`, { credentials: "include" });
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
   try {
@@ -341,13 +467,19 @@ export async function downloadAttachment(requesterId: number, ticketId: number, 
   return blob;
 }
 
-export async function removeAttachment(requesterId: number, ticketId: number, attachmentId: number, removalReason: string): Promise<TicketAttachmentMetadata> {
+export async function removeAttachment(ticketId: number, attachmentId: number, removalReason: string): Promise<TicketAttachmentMetadata> {
+  const csrfToken = await fetchCsrfToken();
   const response = await fetch(`${API_URL}/api/tickets/${ticketId}/attachments/${attachmentId}`, {
     method: "DELETE",
-    headers: { "X-Development-Requester-Id": String(requesterId), "Content-Type": "application/json" },
+    credentials: "include",
+    headers: { "X-CSRF-Token": csrfToken, "Content-Type": "application/json" },
     body: JSON.stringify({ removalReason }),
   });
-  if (!response.ok) throw await parseSafeError(response);
+  if (!response.ok) {
+    const error = await parseSafeError(response);
+    notifyAuthenticationFailure(error);
+    throw error;
+  }
   let body: unknown;
   try { body = await response.json(); } catch { throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API"); }
   const attachment = body && typeof body === "object" ? (body as { attachment?: unknown }).attachment : undefined;
@@ -371,12 +503,6 @@ export async function checkHealth(): Promise<HealthStatus> {
   return response.json();
 }
 
-export async function fetchDevelopmentRequesters(): Promise<DevelopmentRequester[]> {
-  const response = await fetch(`${API_URL}/api/development-requesters`);
-  if (!response.ok) throw new Error("Unable to load Development Requesters");
-  return response.json();
-}
-
 // Issue 2 + Issue 4 — call the backend.
 // Steps: fetch `${API_URL}/api/health`; if not ok, throw.
 //        then fetch `${API_URL}/api/categories`; if not ok, throw.
@@ -385,7 +511,7 @@ export async function fetchDevelopmentRequesters(): Promise<DevelopmentRequester
 export async function checkSystem(): Promise<SystemStatus> {
   await checkHealth();
 
-  const response = await fetch(`${API_URL}/api/categories`);
+  const response = await fetch(`${API_URL}/api/categories`, { credentials: "include" });
   if (!response.ok) throw new Error("Unable to load categories from TokTickIT API");
 
   return { online: true, categories: await response.json() };

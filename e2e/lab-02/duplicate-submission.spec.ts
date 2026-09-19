@@ -18,12 +18,16 @@ async function createLostResponseProxy() {
     request.on("end", async () => {
       try {
         const contentType = request.headers["content-type"];
-        const requesterId = request.headers["x-development-requester-id"];
+        const cookie = request.headers.cookie;
+        const origin = request.headers.origin;
+        const csrf = request.headers["x-csrf-token"];
         const forwarded = await fetch(`${API_URL}${request.url ?? ""}`, {
           method: request.method,
           headers: {
             "content-type": Array.isArray(contentType) ? contentType[0] : String(contentType ?? ""),
-            "x-development-requester-id": Array.isArray(requesterId) ? requesterId[0] : String(requesterId ?? ""),
+            cookie: Array.isArray(cookie) ? cookie[0] : String(cookie ?? ""),
+            origin: Array.isArray(origin) ? origin[0] : String(origin ?? ""),
+            "x-csrf-token": Array.isArray(csrf) ? csrf[0] : String(csrf ?? ""),
           },
           body: Buffer.concat(chunks),
         });
@@ -51,7 +55,7 @@ async function createLostResponseProxy() {
 }
 
 test("E2E-03 reconciles a lost Ticket-create response with the same request key", async ({ page }) => {
-  await openRequesterShell(page, fixture.requesterA.id);
+  await openRequesterShell(page, fixture.requesterA);
   const summary = `${fixture.tag} ambiguous create`;
   await fillCreateTicket(page, fixture.category.id, fixture.relatedSystem.id, summary, `${fixture.tag} ambiguous response description.`);
   const proxy = await createLostResponseProxy();

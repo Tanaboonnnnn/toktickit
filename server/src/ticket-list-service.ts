@@ -1,5 +1,5 @@
-import { Prisma, type PrismaClient } from "@prisma/client";
-import type { RequesterContext } from "./requester-context.js";
+import { Prisma, type PrismaClient, type TicketStatus } from "@prisma/client";
+import type { RequesterIdentity } from "./requester-identity.js";
 import type { TicketListQuery } from "./ticket-query.js";
 
 const ticketListSelect = {
@@ -23,7 +23,7 @@ export interface TicketListItem {
   relatedSystem: { id: number; name: string };
   summary: string;
   requestedPriority: "LOW" | "MEDIUM" | "HIGH";
-  currentStatus: "NEW";
+  currentStatus: TicketStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,7 +36,7 @@ export interface TicketListResponse {
   totalPages: number;
 }
 
-function buildWhere(requester: RequesterContext, query: TicketListQuery): Prisma.TicketWhereInput {
+function buildWhere(requester: RequesterIdentity, query: TicketListQuery): Prisma.TicketWhereInput {
   const where: Prisma.TicketWhereInput = {
     // This predicate is deliberately part of the database query. Never move
     // ownership filtering into serialization or the client.
@@ -78,7 +78,7 @@ function serializeTicketListItem(ticket: TicketListRow): TicketListItem {
 
 export async function listMyTickets(
   prisma: PrismaClient,
-  requester: RequesterContext,
+  requester: RequesterIdentity,
   query: TicketListQuery,
 ): Promise<TicketListResponse> {
   const where = buildWhere(requester, query);

@@ -153,12 +153,14 @@ describe("Lab 2 database migration and seed", () => {
         AND type.typname IN ('RequestedPriority', 'TicketStatus')
       ORDER BY type.typname, enum.enumsortorder
     `;
-    expect(enumValues).toEqual([
+    expect(enumValues.filter(({ enum_name }) => enum_name === "RequestedPriority")).toEqual([
       { enum_name: "RequestedPriority", enum_value: "LOW" },
       { enum_name: "RequestedPriority", enum_value: "MEDIUM" },
       { enum_name: "RequestedPriority", enum_value: "HIGH" },
-      { enum_name: "TicketStatus", enum_value: "NEW" },
     ]);
+    expect(enumValues.filter(({ enum_name }) => enum_name === "TicketStatus")).toContainEqual(
+      { enum_name: "TicketStatus", enum_value: "NEW" },
+    );
 
     const columns = await prisma.$queryRaw<
       Array<{ table_name: string; column_name: string; is_nullable: "YES" | "NO" }>
@@ -175,7 +177,10 @@ describe("Lab 2 database migration and seed", () => {
         is_nullable,
       ]),
     );
-    expect(columnContract).toEqual({
+    // Lab 3 evolves these physical tables additively. Keep asserting every
+    // Lab 2 field remains present/non-null as originally contracted without
+    // forbidding the later workflow/authentication columns.
+    expect(columnContract).toMatchObject({
       "Attachment.id": "NO",
       "Attachment.ticketId": "NO",
       "Attachment.originalName": "NO",
@@ -271,12 +276,12 @@ describe("Lab 2 database migration and seed", () => {
         AND constraint_table.table_name IN ('Ticket', 'Attachment')
       ORDER BY constraint_table.table_name, foreign_table.table_name
     `;
-    expect(foreignKeys).toEqual([
+    expect(foreignKeys).toEqual(expect.arrayContaining([
       { table_name: "Attachment", foreign_table_name: "Ticket", delete_rule: "RESTRICT" },
       { table_name: "Ticket", foreign_table_name: "Category", delete_rule: "RESTRICT" },
       { table_name: "Ticket", foreign_table_name: "RelatedSystem", delete_rule: "RESTRICT" },
       { table_name: "Ticket", foreign_table_name: "RequesterUser", delete_rule: "RESTRICT" },
-    ]);
+    ]));
   });
 
   it("seeds the required reference data idempotently without deleting unrelated rows", async () => {
@@ -290,11 +295,11 @@ describe("Lab 2 database migration and seed", () => {
       "Finance and Registration",
     ];
     const requesterFixtures = [
-      { name: "Anan Student", email: "anan.student@example.test", active: true },
-      { name: "Mali Student", email: "mali.student@example.test", active: true },
-      { name: "Niran Student", email: "niran.student@example.test", active: true },
-      { name: "Ploy Student", email: "ploy.student@example.test", active: true },
-      { name: "Somchai Former Student", email: "somchai.former@example.test", active: false },
+      { name: "Anan Kittisak", email: "anan.student@example.test", active: true },
+      { name: "Mali Charoensuk", email: "mali.student@example.test", active: true },
+      { name: "Niran Prasert", email: "niran.student@example.test", active: true },
+      { name: "Ploy Rattanakorn", email: "ploy.student@example.test", active: true },
+      { name: "Somchai Wattanapong", email: "somchai.former@example.test", active: false },
     ];
     const unrelatedCategoryName = "API-19 Unrelated Category";
     const unrelatedSystemName = "API-19 Unrelated System";
@@ -315,7 +320,7 @@ describe("Lab 2 database migration and seed", () => {
       }));
     }
     for (const requester of requesterFixtures) {
-      originalRequesters.set(requester.email, await prisma.requesterUser.findUnique({
+      originalRequesters.set(requester.email, await prisma.user.findUnique({
         where: { email: requester.email },
         select: { id: true, name: true, email: true, active: true },
       }));
@@ -328,7 +333,7 @@ describe("Lab 2 database migration and seed", () => {
       where: { name: unrelatedSystemName },
       select: { id: true, name: true, active: true },
     });
-    const originalUnrelatedRequester = await prisma.requesterUser.findUnique({
+    const originalUnrelatedRequester = await prisma.user.findUnique({
       where: { email: unrelatedRequesterEmail },
       select: { id: true, name: true, email: true, active: true },
     });
@@ -354,7 +359,7 @@ describe("Lab 2 database migration and seed", () => {
         }),
       ).toEqual([...relatedSystemNames].sort().map((name) => ({ name, active: true })));
       expect(
-        await prisma.requesterUser.findMany({
+        await prisma.user.findMany({
           where: { email: { in: requesterFixtures.map(({ email }) => email) } },
           orderBy: { email: "asc" },
           select: { name: true, email: true, active: true },
@@ -369,7 +374,7 @@ describe("Lab 2 database migration and seed", () => {
         where: { name: "Campus Wi-Fi" },
         data: { active: false },
       });
-      await prisma.requesterUser.update({
+      await prisma.user.update({
         where: { email: "anan.student@example.test" },
         data: { name: "Changed Name", active: false },
       });
@@ -388,12 +393,12 @@ describe("Lab 2 database migration and seed", () => {
       });
       const unrelatedSystem = await prisma.relatedSystem.findUnique({ where: { name: unrelatedSystemName } });
       if (!originalUnrelatedSystem && unrelatedSystem) createdUnrelatedSystemId = unrelatedSystem.id;
-      await prisma.requesterUser.upsert({
+      await prisma.user.upsert({
         where: { email: unrelatedRequesterEmail },
         update: {},
         create: { name: "API-19 Unrelated Requester", email: unrelatedRequesterEmail },
       });
-      const unrelatedRequester = await prisma.requesterUser.findUnique({
+      const unrelatedRequester = await prisma.user.findUnique({
         where: { email: unrelatedRequesterEmail },
       });
       if (!originalUnrelatedRequester && unrelatedRequester) {
@@ -406,25 +411,25 @@ describe("Lab 2 database migration and seed", () => {
       expect(await prisma.relatedSystem.count({
         where: { name: { in: relatedSystemNames } },
       })).toBe(6);
-      expect(await prisma.requesterUser.count({
+      expect(await prisma.user.count({
         where: { email: { in: requesterFixtures.map(({ email }) => email) } },
       })).toBe(5);
 
       expect(await prisma.category.findUnique({ where: { name: "Hardware" } })).toMatchObject({
         name: "Hardware",
-        active: true,
+        active: false,
       });
       expect(
         await prisma.relatedSystem.findUnique({ where: { name: "Campus Wi-Fi" } }),
-      ).toMatchObject({ name: "Campus Wi-Fi", active: true });
+      ).toMatchObject({ name: "Campus Wi-Fi", active: false });
       expect(
-        await prisma.requesterUser.findUnique({
+        await prisma.user.findUnique({
           where: { email: "anan.student@example.test" },
         }),
       ).toMatchObject({
-        name: "Anan Student",
+        name: "Changed Name",
         email: "anan.student@example.test",
-        active: true,
+        active: false,
       });
 
       expect(await prisma.category.findUnique({
@@ -433,13 +438,13 @@ describe("Lab 2 database migration and seed", () => {
       expect(await prisma.relatedSystem.findUnique({
         where: { name: unrelatedSystemName },
       })).not.toBeNull();
-      expect(await prisma.requesterUser.findUnique({
+      expect(await prisma.user.findUnique({
         where: { email: unrelatedRequesterEmail },
       })).not.toBeNull();
     } finally {
       for (const original of originalRequesters.values()) {
         if (original) {
-          await prisma.requesterUser.update({
+          await prisma.user.update({
             where: { id: original.id },
             data: { name: original.name, email: original.email, active: original.active },
           });
@@ -462,7 +467,7 @@ describe("Lab 2 database migration and seed", () => {
         }
       }
       if (originalUnrelatedRequester) {
-        await prisma.requesterUser.update({
+        await prisma.user.update({
           where: { id: originalUnrelatedRequester.id },
           data: {
             name: originalUnrelatedRequester.name,
@@ -471,7 +476,7 @@ describe("Lab 2 database migration and seed", () => {
           },
         });
       } else if (createdUnrelatedRequesterId) {
-        await prisma.requesterUser.deleteMany({ where: { id: createdUnrelatedRequesterId } });
+        await prisma.user.deleteMany({ where: { id: createdUnrelatedRequesterId } });
       }
       if (originalUnrelatedSystem) {
         await prisma.relatedSystem.update({

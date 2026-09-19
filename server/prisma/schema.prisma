@@ -16,8 +16,21 @@ enum RequestedPriority {
   HIGH
 }
 
+enum UserRole {
+  REQUESTER
+  IT_STAFF
+  ADMINISTRATOR
+}
+
 enum TicketStatus {
   NEW
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_REQUESTER
+  RESOLVED
+  CLOSED
+  REOPENED
+  CANCELLED
 }
 
 model Category {
@@ -31,16 +44,26 @@ model Category {
   @@index([active, name])
 }
 
-model RequesterUser {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tickets   Ticket[]
+model User {
+  id                 Int            @id @default(autoincrement())
+  name               String
+  email              String         @unique
+  active             Boolean        @default(true)
+  role               UserRole       @default(REQUESTER)
+  passwordHash       String?
+  mustChangePassword Boolean        @default(true)
+  authVersion        Int            @default(1)
+  version            Int            @default(1)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  submittedTickets   Ticket[]       @relation("TicketRequester")
+  ownedTickets       Ticket[]       @relation("TicketOwner")
+  publicComments     PublicComment[]
+  internalNotes      InternalNote[]
 
   @@index([active, name])
+  @@index([active, role, name, id])
+  @@map("RequesterUser")
 }
 
 model RelatedSystem {
@@ -59,24 +82,38 @@ model Ticket {
   ticketNumber      String            @unique
   clientRequestId   String            @unique
   requesterId       Int
+  ownerId           Int?
   categoryId        Int
   relatedSystemId   Int
   summary           String
   description       String
   requestedPriority RequestedPriority
+  itPriority        RequestedPriority
   currentStatus     TicketStatus      @default(NEW)
+  version           Int               @default(1)
+  resolutionSummary String?
+  resolvedAt        DateTime?
+  closedAt          DateTime?
+  cancelReason      String?
+  cancelledAt       DateTime?
+  requesterResolutionIndicatedAt DateTime?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
-  requester         RequesterUser     @relation(fields: [requesterId], references: [id], onDelete: Restrict)
+  requester         User              @relation("TicketRequester", fields: [requesterId], references: [id], onDelete: Restrict)
+  owner             User?             @relation("TicketOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   category          Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   relatedSystem     RelatedSystem     @relation(fields: [relatedSystemId], references: [id], onDelete: Restrict)
   attachments       Attachment[]
+  publicComments    PublicComment[]
+  internalNotes     InternalNote[]
 
   @@index([requesterId, updatedAt, id])
   @@index([requesterId, createdAt, id])
   @@index([requesterId, categoryId])
   @@index([requesterId, requestedPriority])
   @@index([requesterId, currentStatus])
+  @@index([ownerId, currentStatus, updatedAt, id])
+  @@index([currentStatus, itPriority, updatedAt, id])
 }
 
 model Attachment {
@@ -93,4 +130,39 @@ model Attachment {
 
   @@index([ticketId, removedAt, createdAt])
   @@index([ticketId, id])
+}
+
+model PublicComment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  authorId  Int
+  body      String
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([ticketId, createdAt, id])
+  @@index([authorId, createdAt, id])
+}
+
+model InternalNote {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  authorId  Int
+  body      String
+  createdAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Restrict)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([ticketId, createdAt, id])
+  @@index([authorId, createdAt, id])
+}
+
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime @db.Timestamptz(6)
+
+  @@index([expire])
+  @@map("session")
 }

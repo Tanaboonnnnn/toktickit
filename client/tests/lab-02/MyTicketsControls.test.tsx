@@ -2,7 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MyTickets from "../../src/MyTickets.js";
-import { RequesterContextProvider } from "../../src/requester-context.js";
+import { RequesterContextProvider } from "./support/requester-context.js";
 
 const requester = [{ id: 1, name: "Anan Student", email: "anan.student@example.test" }];
 const category = [{ id: 12, name: "Hardware" }];
@@ -119,7 +119,7 @@ describe("UI-07 My Tickets controls", () => {
     expect(screen.getByText(/Page 2 of 2/)).toBeInTheDocument();
   });
 
-  it("sends the selected Requester context and preserves the applied query on Retry", async () => {
+  it("uses authenticated cookie transport and preserves the applied query on Retry", async () => {
     const fetchMock = renderPage([
       pageOne,
       response({ error: { code: "INTERNAL_ERROR", message: "Unable to load tickets" } }, false, 500),
@@ -135,8 +135,7 @@ describe("UI-07 My Tickets controls", () => {
     await waitFor(() => expect(ticketUrls(fetchMock)).toHaveLength(3));
     const retryCall = fetchMock.mock.calls.filter(([input]) => String(input).includes("/api/tickets")).at(-1);
     expect(new URL(String(retryCall?.[0])).searchParams.get("search")).toBe("wifi");
-    expect(retryCall?.[1]).toEqual(expect.objectContaining({
-      headers: { "X-Development-Requester-Id": "1" },
-    }));
+    expect(retryCall?.[1]).toEqual(expect.objectContaining({ credentials: "include" }));
+    expect(JSON.stringify(retryCall?.[1] ?? {})).not.toMatch(/X-Development-Requester-Id/i);
   });
 });

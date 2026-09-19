@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../../src/App.js";
+import { authenticatedAppResponse, openAuthenticatedRequesterRoute, TEST_CSRF_TOKEN } from "./support/authenticated-app.js";
 
 const activeRequesters = [
   { id: 1, name: "Anan Student", email: "anan.student@example.test" },
@@ -48,6 +49,13 @@ function ticketResponse(ticketNumber = "TKT-20260823-ABCDEF", replayed = false) 
         updatedAt: "2026-08-23T09:30:00.000Z",
         description: "Sign-in repeatedly returns an access denied message.",
         attachments: [],
+        resolutionSummary: null,
+        resolvedAt: null,
+        closedAt: null,
+        cancelReason: null,
+        cancelledAt: null,
+        requesterResolutionIndicatedAt: null,
+        version: 1,
       },
       replayed,
     }),
@@ -70,7 +78,8 @@ function submitButton() {
 async function enterShellAndFillValidForm() {
   const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
-    if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+    const auth = authenticatedAppResponse(input);
+    if (auth) return Promise.resolve(auth);
     if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
     if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
     if (url.includes("/api/tickets")) return Promise.resolve(ticketResponse());
@@ -80,9 +89,7 @@ async function enterShellAndFillValidForm() {
 
   render(<App />);
   const user = userEvent.setup();
-  const select = await screen.findByRole("combobox", { name: /development requester/i });
-  await user.selectOptions(select, "1");
-  await user.click(screen.getByRole("button", { name: /continue/i }));
+  await screen.findByRole("heading", { name: /create ticket/i });
   await screen.findByRole("option", { name: "Hardware" });
   await screen.findByRole("option", { name: "Library Portal" });
   await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -98,6 +105,8 @@ describe("UI-05 Create Ticket Submission", () => {
 
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
+    openAuthenticatedRequesterRoute();
     restoreUuid = mockCryptoRandomUUID();
   });
 
@@ -131,9 +140,10 @@ describe("UI-05 Create Ticket Submission", () => {
     const [url, init] = createCalls[0] as [string, RequestInit];
     expect(url).toContain("/api/tickets");
     expect(init.method).toBe("POST");
+    expect(init.credentials).toBe("include");
     expect(init.headers).toEqual({
       "Content-Type": "application/json",
-      "X-Development-Requester-Id": "1",
+      "X-CSRF-Token": TEST_CSRF_TOKEN,
     });
     const body = JSON.parse(init.body as string);
     expect(body).toMatchObject({
@@ -177,7 +187,8 @@ describe("UI-05 Create Ticket Submission", () => {
     const pendingCreate = new Promise((resolve) => { resolveCreate = resolve; });
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       if (url.includes("/api/tickets")) return pendingCreate;
@@ -187,9 +198,7 @@ describe("UI-05 Create Ticket Submission", () => {
 
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
     await screen.findByRole("option", { name: "Library Portal" });
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -212,7 +221,8 @@ describe("UI-05 Create Ticket Submission", () => {
     let callCount = 0;
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       if (url.includes("/api/tickets")) {
@@ -227,9 +237,7 @@ describe("UI-05 Create Ticket Submission", () => {
 
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
     await screen.findByRole("option", { name: "Library Portal" });
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -249,7 +257,7 @@ describe("UI-05 Create Ticket Submission", () => {
     expect(screen.getByTestId("ticket-number")).toHaveTextContent("TKT-20260823-XYZW12");
 
     // Verify both calls used the same clientRequestId and payload
-    const createCalls = fetchMock.mock.calls.filter(([url]) => String(url).includes("/api/tickets") && !String(url).includes("categories") && !String(url).includes("related-systems") && !String(url).includes("development-requesters"));
+    const createCalls = fetchMock.mock.calls.filter(([url, init]) => String(url).endsWith("/api/tickets") && init?.method === "POST");
     expect(createCalls.length).toBe(2);
     const [firstUrl, firstInit] = createCalls[0] as [string, RequestInit];
     const [secondUrl, secondInit] = createCalls[1] as [string, RequestInit];
@@ -261,7 +269,8 @@ describe("UI-05 Create Ticket Submission", () => {
     let failCreate = true;
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       if (url.includes("/api/tickets")) {
@@ -275,9 +284,7 @@ describe("UI-05 Create Ticket Submission", () => {
 
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
     await screen.findByRole("option", { name: "Library Portal" });
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -300,7 +307,8 @@ describe("UI-05 Create Ticket Submission", () => {
     const bodies: string[] = [];
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       if (url.includes("/api/tickets")) {
@@ -315,9 +323,7 @@ describe("UI-05 Create Ticket Submission", () => {
 
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
     await screen.findByRole("option", { name: "Library Portal" });
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -355,7 +361,8 @@ describe("UI-05 Create Ticket Submission", () => {
     let ambiguousCount = 0;
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       if (url.includes("/api/tickets")) {
@@ -369,9 +376,7 @@ describe("UI-05 Create Ticket Submission", () => {
 
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
     await screen.findByRole("option", { name: "Library Portal" });
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -400,7 +405,8 @@ describe("UI-05 Create Ticket Submission", () => {
   it("freezes Ticket fields while the ambiguous outcome remains unresolved", async () => {
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
-      if (url.includes("/api/development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (url.includes("/api/categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (url.includes("/api/related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       if (url.includes("/api/tickets")) return Promise.reject(new TypeError("Failed to fetch"));
@@ -410,9 +416,7 @@ describe("UI-05 Create Ticket Submission", () => {
 
     render(<App />);
     const user = userEvent.setup();
-    const select = await screen.findByRole("combobox", { name: /development requester/i });
-    await user.selectOptions(select, "1");
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await screen.findByRole("heading", { name: /create ticket/i });
     await screen.findByRole("option", { name: "Hardware" });
     await screen.findByRole("option", { name: "Library Portal" });
     await user.selectOptions(screen.getByRole("combobox", { name: /category \*/i }), "2");
@@ -440,6 +444,8 @@ describe("UI-05 Create Ticket Submission", () => {
     let createAttempt = 0;
     fetchMock.mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
+      const auth = authenticatedAppResponse(input);
+      if (auth) return Promise.resolve(auth);
       if (!url.endsWith("/api/tickets")) return Promise.reject(new Error("unexpected fetch"));
       createAttempt += 1;
       return createAttempt === 1
@@ -482,7 +488,8 @@ describe("UI-05 Create Ticket Submission", () => {
     const second = new File([new Uint8Array([2])], "b.pdf", { type: "application/pdf" });
     fireEvent.change(input, { target: { files: [first, second] } });
     fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
-      if (String(url).includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
+      const auth = authenticatedAppResponse(url);
+      if (auth) return Promise.resolve(auth);
       if (String(url).includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (String(url).includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       if (init?.body && typeof (init.body as FormData).get === "function") return Promise.resolve(attachmentResponse(String((init.body as FormData).get("file") instanceof File ? ((init.body as FormData).get("file") as File).name : "file"), 100));
@@ -500,8 +507,9 @@ describe("UI-05 Create Ticket Submission", () => {
     fireEvent.change(screen.getByLabelText("Select files"), { target: { files: [new File([new Uint8Array([1])], "good.png", { type: "image/png" }), new File([new Uint8Array([2])], "bad.pdf", { type: "application/pdf" })] } });
     let uploadCount = 0;
     fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+      const auth = authenticatedAppResponse(url);
+      if (auth) return Promise.resolve(auth);
       if (init?.body && typeof (init.body as FormData).get === "function") { uploadCount += 1; return uploadCount === 1 ? Promise.resolve(attachmentResponse("good.png", 101)) : Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to upload attachment" } }) }); }
-      if (String(url).includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
       if (String(url).includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (String(url).includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       return Promise.resolve(ticketResponse());
@@ -518,9 +526,10 @@ describe("UI-05 Create Ticket Submission", () => {
     fireEvent.change(screen.getByLabelText("Select files"), { target: { files: [new File([new Uint8Array([1])], "uncertain.png", { type: "image/png" })] } });
     let uploadCalls = 0;
     fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+      const auth = authenticatedAppResponse(url);
+      if (auth) return Promise.resolve(auth);
       if (String(url).includes("/attachments") && init?.method === "POST") { uploadCalls += 1; return Promise.reject(new TypeError("network lost")); }
       if (String(url).includes("/attachments")) return Promise.resolve(jsonResponse({ items: [] }));
-      if (String(url).includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
       if (String(url).includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (String(url).includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       return Promise.resolve(ticketResponse());
@@ -539,9 +548,10 @@ describe("UI-05 Create Ticket Submission", () => {
     let uploads = 0;
     fetchMock.mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
       const text = String(url);
+      const auth = authenticatedAppResponse(url);
+      if (auth) return Promise.resolve(auth);
       if (text.includes("/attachments") && init?.method === "POST") { uploads += 1; return uploads === 1 ? Promise.reject(new TypeError("network lost")) : Promise.resolve(attachmentResponse("uncertain.pdf", 102)); }
       if (text.includes("/attachments")) { statusChecks += 1; return statusChecks === 1 ? Promise.resolve({ ok: false, status: 500, json: async () => ({ error: { code: "INTERNAL_ERROR", message: "Unable to load attachments" } }) }) : Promise.resolve(jsonResponse({ items: [] })); }
-      if (text.includes("development-requesters")) return Promise.resolve(jsonResponse(activeRequesters));
       if (text.includes("categories")) return Promise.resolve(jsonResponse(activeCategories));
       if (text.includes("related-systems")) return Promise.resolve(jsonResponse(activeSystems));
       return Promise.resolve(ticketResponse());

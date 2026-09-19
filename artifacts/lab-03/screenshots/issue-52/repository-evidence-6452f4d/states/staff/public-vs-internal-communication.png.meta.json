@@ -1,0 +1,13 @@
+{
+  "file": "states/staff/public-vs-internal-communication.png",
+  "role": "IT Staff",
+  "route": "/#/staff/tickets/:id",
+  "scenario": "Staff Ticket Detail visibly separates Public Comments from Internal Notes",
+  "mapping": [
+    "E2E-04",
+    "UI-05",
+    "AC-20",
+    "Answer Part 7"
+  ],
+  "viewport": "1440x900"
+}

@@ -1,0 +1,14 @@
+{
+  "file": "states/requester/ticket-detail-attachments.png",
+  "role": "Requester",
+  "route": "/#/tickets/:id",
+  "scenario": "Requester Ticket Detail displays owned Attachments and evolved non-New status",
+  "mapping": [
+    "E2E-02",
+    "ATT-01",
+    "UI-02",
+    "Answer Part 7",
+    "Answer Part 9"
+  ],
+  "viewport": "1440x900"
+}

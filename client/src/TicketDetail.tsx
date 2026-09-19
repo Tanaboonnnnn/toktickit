@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { fetchTicketDetail, SafeApiError, type Ticket } from "./api.js";
-import { useRequesterContext } from "./requester-context.js";
 import AttachmentPanel from "./AttachmentPanel.js";
 import { formatDisplayDate } from "./date-format.js";
+import { ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
+import PublicComments from "./communication/PublicComments.js";
+import ResolutionIndication from "./communication/ResolutionIndication.js";
 
 type DetailState =
   | { kind: "loading" }
@@ -30,17 +32,14 @@ function priorityLabel(priority: Ticket["requestedPriority"]): string {
 }
 
 export default function TicketDetail({ ticketId, onBack }: TicketDetailProps) {
-  const { currentRequester } = useRequesterContext();
-  const requesterId = currentRequester?.id;
   const [state, setState] = useState<DetailState>({ kind: "loading" });
   const [retryToken, setRetryToken] = useState(0);
-  const requestKey = `${requesterId ?? "none"}:${ticketId}`;
+  const requestKey = String(ticketId);
 
   useEffect(() => {
-    if (!requesterId) return;
     let active = true;
     setState({ kind: "loading" });
-    void fetchTicketDetail(requesterId, ticketId)
+    void fetchTicketDetail(ticketId)
       .then((ticket) => { if (active) setState({ kind: "success", ticket, key: requestKey }); })
       .catch((error: unknown) => {
         if (!active) return;
@@ -53,7 +52,7 @@ export default function TicketDetail({ ticketId, onBack }: TicketDetailProps) {
         setState({ kind: "failure", message: "Unable to load ticket", key: requestKey });
       });
     return () => { active = false; };
-  }, [requesterId, ticketId, retryToken]);
+  }, [ticketId, retryToken]);
 
   const visibleState: DetailState = state.kind !== "loading" && state.key !== requestKey
     ? { kind: "loading" }
@@ -92,7 +91,7 @@ function TicketContents({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () =
         <h2 id="ticket-information-heading">Ticket information</h2>
         <dl className="lab2-detail-grid">
           <dt>Ticket Number</dt><dd>{ticket.ticketNumber}</dd>
-          <dt>Current Status</dt><dd><span className="lab2-badge lab2-status-new">New</span></dd>
+          <dt>Current Status</dt><dd><span className={`lab2-badge ${ticketStatusClassName(ticket.currentStatus)}`}>{ticketStatusLabel(ticket.currentStatus)}</span></dd>
           <dt>Ticket Date</dt><dd>{formatDate(ticket.createdAt)}</dd>
           <dt>Last Updated</dt><dd>{formatDate(ticket.updatedAt)}</dd>
           <dt>Requester</dt><dd>{ticket.requester.name} ({ticket.requester.email})</dd>
@@ -101,10 +100,16 @@ function TicketContents({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () =
           <dt>Ticket Summary</dt><dd>{ticket.summary}</dd>
           <dt>Requested Priority</dt><dd><span className={`lab2-badge lab2-priority-${ticket.requestedPriority.toLowerCase()}`}>{priorityLabel(ticket.requestedPriority)}</span></dd>
           <dt>Description</dt><dd className="lab2-detail-description">{ticket.description}</dd>
+          {ticket.resolutionSummary && <><dt>Resolution Summary</dt><dd className="lab2-detail-description">{ticket.resolutionSummary}</dd></>}
+          {ticket.resolvedAt && <><dt>Resolved</dt><dd>{formatDate(ticket.resolvedAt)}</dd></>}
+          {ticket.closedAt && <><dt>Closed</dt><dd>{formatDate(ticket.closedAt)}</dd></>}
+          {ticket.cancelReason && <><dt>Cancellation Reason</dt><dd>{ticket.cancelReason}</dd></>}
         </dl>
       </section>
 
       <AttachmentPanel ticket={ticket} onRefresh={onRefresh} />
+      <PublicComments ticketId={ticket.id} />
+      <ResolutionIndication ticket={ticket} onIndicated={onRefresh} />
     </>
   );
 }
