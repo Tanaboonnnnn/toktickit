@@ -1,6 +1,6 @@
 # Lab 3 Zen Green UI Specification
 
-Status: **Reviewed UI contract implemented through the accepted Issue #51 staging integration.** Issue #51 captured the integrated role/responsive evidence; Issue #52 refreshes the same Playwright evidence against the release candidate and, after release merge, the exact delivered `main` SHA.
+Status: **Reviewed UI contract implemented and release-verified.** Issue #51 captured the integrated role/responsive evidence. Issue #52 then refreshed the Playwright evidence for release, and GitHub Actions Lab 3 CI run #15 verified the merged `main` product release `dad3746328f71b2873e0d90495c49aa483855d5b` with the full 41-image evidence set.
 
 ## 1. Design Intent
 
@@ -250,10 +250,12 @@ artifacts/lab-03/screenshots/
         └── mobile-390x844/     # 9 major screens
 ```
 
-Run `npm.cmd run capture:evidence:lab3 -- <label>` from the repository root. The command builds the server, runs the integrated Lab 3 Playwright evidence journeys, requires exactly **41 screenshots** (**27 major responsive screenshots + 14 meaningful UI-state screenshots**), and writes the exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping to `manifest.json`. Use a release-candidate label before review and `final-main` only after the release PR has actually merged to `main` and the checkout is at that exact delivered SHA.
+Run `npm.cmd run capture:evidence:lab3 -- <label>` from the repository root. The command builds the server, runs the integrated Lab 3 Playwright evidence journeys, requires exactly **41 screenshots** (**27 major responsive screenshots + 14 meaningful UI-state screenshots**), and writes the exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping to `manifest.json`. Use a release-candidate label before review. After the reviewed release PR merges, the same capture must run on the exact delivered `main` SHA.
 
 For a moving Pull Request, the authoritative exact-head set is the newest successful CI artifact, not a screenshot directory committed into that same branch. CI checks out `pull_request.head.sha`, supplies it as `EXPECTED_EVIDENCE_SHA`, and the capture command rejects a mismatch before producing evidence. This prevents a generated-evidence commit from invalidating its own SHA provenance.
 
 The course-facing repository also retains one browsable `repository-evidence-<source-sha>/` snapshot. It contains the same 41-image coverage plus per-image metadata and is committed in an evidence-only follow-up commit so instructors can inspect screenshots directly from GitHub. The snapshot manifest names the source commit that rendered the application; exact latest-head proof remains the CI artifact.
+
+For the released product, PR #67 merged to `main` as `dad3746328f71b2873e0d90495c49aa483855d5b`. Push-triggered Lab 3 CI run #15 completed successfully on that exact SHA and produced artifact `lab3-ui-evidence-dad3746328f71b2873e0d90495c49aa483855d5b`. The capture reported **41/41 screenshots = 27 major responsive + 14 state captures**. This hosted artifact is the exact-main visual provenance for the released product tree; the repository-visible professional snapshot remains the instructor-browsable copy.
 
 Final visual inspection must cover all major screens at Desktop/Tablet/Mobile, plus representative validation/empty/no-results/forbidden/conflict/failure states supplied by the broader E2E/UI suites. Screenshot evidence must not contain credentials or session secrets.
