@@ -7,9 +7,9 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Author name: `แทนบุญ เตียวสวัสดิ์`
 - Student ID: `67070507211`
 - GitHub username: `@Tanaboonnnnn`
-- Current accepted Lab 3 staging evidence: Issues #41-#52 through the merged Issue #52 corrective follow-up PR #65.
-- Current accepted staging head: `eb89ac153912ae102264786857d4da2d67a39b54` (merge commit for PR #65). PR #64 remains the last Issue #52 PR with a formal **Approved** review; PR #65 received a real `COMMENTED` review before it was merged.
-- Corrective follow-up record: PR [#65](https://github.com/Tanaboonnnnn/toktickit/pull/65), `fix/52-professional-evidence-data -> lab3-staging`, received a real `COMMENTED` review from `@thananun-7203` on reviewed head `aecda76` at 2026-09-18 21:00:17 UTC and then merged at 21:00:34 UTC as `eb89ac153912ae102264786857d4da2d67a39b54`. The review verdict is not promoted to Approval.
+- Current delivered Lab 3 release: PR [#67](https://github.com/Tanaboonnnnn/toktickit/pull/67), `lab3-staging -> main`, merged as `dad3746328f71b2873e0d90495c49aa483855d5b` after a blocking Multer review was resolved through PR #68 and the updated release head received a real Approval.
+- Current verified product-release head before this documentation-only sync: `dad3746328f71b2873e0d90495c49aa483855d5b`. GitHub Actions Lab 3 CI run #15 passed on that exact `main` SHA and published the SHA-labelled 41-image evidence artifact.
+- PR #65 remains recorded exactly as historical evidence: it received a real `COMMENTED` review from `@thananun-7203` and then merged to `lab3-staging`; that review is not promoted to Approval.
 
 ## Reviewers
 
@@ -17,6 +17,9 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Student ID: `67070507210`
 - GitHub username: `@Chxtamos`
 - Lab 3 review coverage verified on GitHub: PR #53 Engineering Contract review submitted 2026-09-14 17:15 UTC.
+- Lab 3 review coverage verified on GitHub: PR #66 documentation/evidence sync received **Changes requested** followed by **Approved** on 2026-09-19; PR #66 then merged to `lab3-staging` as `06596dccc6d4064219f42f8759ad40dd80cf1770`.
+- Lab 3 review coverage verified on GitHub: PR #68 Multer release correction received **Approved** on 2026-09-19 17:03 UTC against exact head `e5a13217c2df3744507a5c31755f6517e262e949`, then merged to `lab3-staging` as `8bbc9710b934efd5a6c642a6155d79f7c01a5f1a`.
+- Lab 3 review coverage verified on GitHub: PR #67 final release received **Approved** on 2026-09-19 17:11 UTC against updated release head `8bbc9710b934efd5a6c642a6155d79f7c01a5f1a`, then merged to `main` as `dad3746328f71b2873e0d90495c49aa483855d5b`.
 
 - Name: ธนนันท์ ครังตุ้ย
 - Student ID: `67070507203`
@@ -39,6 +42,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Lab 3 review coverage verified on GitHub: PR #55 Issue #43 migration review submitted 2026-09-15 13:40 UTC against head `5589ee9`.
 - Lab 3 review coverage verified on GitHub: PR #63 Issue #51 integrated-verification review submitted **Approved** on 2026-09-18 14:40 UTC against reviewed head `84f2f321d9a84061dc9776d815de1a56ffa89f50`.
 - Lab 3 review coverage verified on GitHub: PR #64 Issue #52 release-evidence review submitted **Changes requested** on 2026-09-18 17:37 UTC, followed by **Approved** on 2026-09-18 19:20 UTC before merge.
+- Lab 3 review coverage verified on GitHub: PR #67 final release review submitted **Changes requested** on 2026-09-19 16:22 UTC for the Multer high-severity advisory before the release correction was prepared.
 
 Other users may be requested for review on GitHub, but this file records a reviewer only after a real review submission is verifiable.
 
@@ -59,6 +63,9 @@ Other users may be requested for review on GitHub, but this file records a revie
 | [#63](https://github.com/Tanaboonnnnn/toktickit/pull/63) | Issue #51 integrated security/migration/regression/responsive verification | `@L0u1sss` | **Approved** 2026-09-18 14:40 UTC against `84f2f321d9a84061dc9776d815de1a56ffa89f50`; reviewer confirmed SAFE/SEC/STYLE/A11Y/RESP/TRACE evidence and no blocker; merged as `890e136e30cb56d87290ff3b70390e0ae26c3ce4` |
 | [#64](https://github.com/Tanaboonnnnn/toktickit/pull/64) | Issue #52 release evidence, CI, and complete UI screenshots | `@L0u1sss` | **Changes requested** 2026-09-18 17:37 UTC for screenshot/source-SHA provenance → **Approved** 19:20 UTC after exact-head CI/evidence correction; merged to `lab3-staging` at 19:20 UTC as `51f2b4bc710025c92eb17173c9d17efca8aef50d` |
 | [#65](https://github.com/Tanaboonnnnn/toktickit/pull/65) | Issue #52 corrective professional-evidence-data follow-up | `@thananun-7203` | **COMMENTED** 2026-09-18 21:00:17 UTC against reviewed head `aecda76`; reviewer checked that PR #64 history remained truthful and the corrective scope stayed narrow. PR then merged to `lab3-staging` at 21:00:34 UTC as `eb89ac153912ae102264786857d4da2d67a39b54`. No formal Approval is claimed. |
+| [#66](https://github.com/Tanaboonnnnn/toktickit/pull/66) | Finalize Lab 3 reviewer and AI-use evidence | `@Chxtamos` | **Changes requested** 2026-09-19 15:32 UTC for unsupported model attribution → **Approved** 15:50 UTC against exact head `6026b1f02a56fb7f9e58f489aa5f7c45fb184792` after direct author attestation; merged to `lab3-staging` at 15:50 UTC as `06596dccc6d4064219f42f8759ad40dd80cf1770` |
+| [#68](https://github.com/Tanaboonnnnn/toktickit/pull/68) | Release correction: Multer security upgrade | `@Chxtamos` | **Approved** 2026-09-19 17:03 UTC against exact head `e5a13217c2df3744507a5c31755f6517e262e949`; reviewer confirmed Multer 2.2.0 → 2.4.0, exact-head Lab 3 CI run #12, and no broader product/schema/client scope; merged to `lab3-staging` at 17:05 UTC as `8bbc9710b934efd5a6c642a6155d79f7c01a5f1a` |
+| [#67](https://github.com/Tanaboonnnnn/toktickit/pull/67) | Final Lab 3 release: `lab3-staging -> main` | `@L0u1sss`, `@Chxtamos` | `@L0u1sss` **Changes requested** 2026-09-19 16:22 UTC for the Multer DoS advisory → correction PR #68 merged → `@Chxtamos` **Approved** 17:11 UTC against updated release head `8bbc9710b934efd5a6c642a6155d79f7c01a5f1a`; PR #67 merged to `main` at 17:11 UTC as `dad3746328f71b2873e0d90495c49aa483855d5b` |
 
 ## Detailed review evidence
 
@@ -331,7 +338,7 @@ The tables below record **Lab 3 only** review submissions by `@Tanaboonnnnn`, ve
 
 ## Evidence integrity note
 
-This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. Received-review evidence is based on actual submitted GitHub reviews on this repository; review requests alone are not counted. Reviews-given evidence was checked against the live PR histories for the six classmates listed above: **28 Lab 3 PRs total** (9 + 4 + 7 + 2 + 3 + 3), intentionally excluding their Lab 1/Lab 2 PRs from these tables. Rows that end at Changes Requested say so explicitly instead of inventing a later Approval. PR #65's `COMMENTED` submission and subsequent merge are recorded exactly; the review is not promoted to Approval. Automated checks and AI analysis remain supporting engineering evidence, not substitutes for the human peer-review evidence required by the course.
+This file follows the Lab 2 peer-review evidence layout while recording Lab 3 evidence only. Received-review evidence is based on actual submitted GitHub reviews on this repository; review requests alone are not counted. Reviews-given evidence was checked against the live PR histories for the six classmates listed above: **28 Lab 3 PRs total** (9 + 4 + 7 + 2 + 3 + 3), intentionally excluding their Lab 1/Lab 2 PRs from these tables. Rows that end at Changes Requested say so explicitly instead of inventing a later Approval. PR #65's `COMMENTED` submission and subsequent merge are recorded exactly; the review is not promoted to Approval. The later PR #66, #68 and #67 review records are also captured from their submitted GitHub review verdicts and exact reviewed heads. Automated checks and AI analysis remain supporting engineering evidence, not substitutes for the human peer-review evidence required by the course.
 
 ### Issue #49 review request — 2026-09-18 07:45 UTC
 
@@ -394,9 +401,9 @@ This file follows the Lab 2 peer-review evidence layout while recording Lab 3 ev
 - Branch: `feature/52-lab3-release-evidence` from accepted staging merge `890e136e30cb56d87290ff3b70390e0ae26c3ce4`.
 - Fresh pre-edit staging baseline verification passed after generating the worktree-local Prisma Client: server build + **51 files / 285 tests**, client production build + **25 files / 136 tests**, TRACE-01 **50 Test IDs / 32 ACs**, Chromium **37/37**, and retained responsive **10/10**.
 - The first baseline attempt failed during TypeScript build because the fresh worktree's Prisma Client had not yet been generated after `npm ci`. Running `prisma generate` fixed the setup prerequisite; no product source change was needed for that failure.
-- Exact Issue #52 peer approval, merge to `lab3-staging`, release-PR approval, merge to `main`, and final-main verification remain future evidence until those GitHub events actually occur.
+- At this point in the chronology, Issue #52 peer approval, merge to `lab3-staging`, release-PR approval, merge to `main`, and final-main verification were still future evidence. The later release section below records the events that subsequently occurred.
 - Per the student's explicit instruction for this work session, the final submission PDF is deferred. Issue #52 still prepares repository evidence/checklists and Playwright screenshots, but no PDF-generation result is fabricated or claimed here.
-- The first Issue #52 committed candidate was generated before later feature commits, so it is **not** retained as proof of the current PR head. On PR #64, @L0u1sss requested changes because that candidate manifest named an older SHA than the PR HEAD. The remediation moves exact-head proof to CI: Pull Request jobs check out `pull_request.head.sha`, the capture command asserts the expected SHA, and the 41-image artifact is named with that exact PR-head SHA. Re-review/approval remains pending until the corrected newest-head CI run passes.
+- The first Issue #52 committed candidate was generated before later feature commits, so it is **not** retained as proof of the current PR head. On PR #64, @L0u1sss requested changes because that candidate manifest named an older SHA than the PR HEAD. The remediation moved exact-head proof to CI: Pull Request jobs check out `pull_request.head.sha`, the capture command asserts the expected SHA, and the 41-image artifact is named with that exact PR-head SHA. PR #64 later received Approval after the corrected exact-head run passed.
 - Course-browsing visibility is handled separately: a clean repository-visible snapshot was rendered from application source `2f56ea8b4c36a8d642c7358c06715e70b5dbeed9` and committed only as an evidence follow-up. This lets an instructor inspect all 41 PNGs directly in GitHub without weakening the exact-current-HEAD CI provenance rule.
 
 ### Issue #52 accidental early staging merge and corrective follow-up
@@ -410,3 +417,12 @@ This file follows the Lab 2 peer-review evidence layout while recording Lab 3 ev
 - The replacement repository-visible evidence was generated from that exact clean source SHA: **41 PNGs = 27 major responsive + 14 state captures**. The manifest source/expected SHA matches `6452f4d...`; 41 sibling metadata files are present; secret and technical-fixture-token scans passed.
 - Visible fixture data now uses realistic names/content (for example `Mali Srisuk`, `Nida Kittipong`, `Arisa Wattanakul`, `Student Portal`, and realistic Ticket/comment text). Technical run identifiers remain internal and the evidence capture fails if known `issue...` / `e2e-...` fixture patterns leak into visible text or entered form values.
 - Corrective follow-up PR: [#65](https://github.com/Tanaboonnnnn/toktickit/pull/65), `fix/52-professional-evidence-data -> lab3-staging`. A fresh review had originally been requested from `@L0u1sss`; `@thananun-7203` subsequently submitted a real **COMMENTED** review on 2026-09-18 21:00:17 UTC against head `aecda76`. The review confirmed that PR #64's Approved/merged history remained intact and that the follow-up kept the presentation-data cleanup separate and narrowly scoped. GitHub records PR #65 as **merged** at 21:00:34 UTC with merge commit `eb89ac153912ae102264786857d4da2d67a39b54`. Because the submitted review verdict is `COMMENTED`, not `APPROVED`, this file records the merge but does not claim formal Approval for PR #65.
+
+### Final evidence sync, release correction and main promotion - 2026-09-19
+
+- PR [#66](https://github.com/Tanaboonnnnn/toktickit/pull/66) synchronized `reviewer.md` and `ai-use.md`. `@Chxtamos` first requested a correction to unsupported model attribution, then **Approved** exact head `6026b1f02a56fb7f9e58f489aa5f7c45fb184792` after the author attestation was made explicit. PR #66 merged to `lab3-staging` as `06596dccc6d4064219f42f8759ad40dd80cf1770`.
+- PR [#67](https://github.com/Tanaboonnnnn/toktickit/pull/67) was the final `lab3-staging -> main` release PR. `@L0u1sss` submitted **Changes requested** for a high-severity Multer DoS advisory on the then-current release candidate; the finding was treated as a release blocker rather than bypassed.
+- PR [#68](https://github.com/Tanaboonnnnn/toktickit/pull/68) isolated that correction on `fix/67-multer-security -> lab3-staging`. It upgraded Multer from 2.2.0 to 2.4.0, changed only `server/package.json` and `server/package-lock.json`, passed exact-head Lab 3 CI run #12, received a real **Approved** review from `@Chxtamos`, and merged as `8bbc9710b934efd5a6c642a6155d79f7c01a5f1a`.
+- After PR #68 merged, PR #67 automatically advanced to release head `8bbc9710b934efd5a6c642a6155d79f7c01a5f1a`. `@Chxtamos` re-reviewed that exact head, confirmed hosted Lab 3 CI run #14 and the Multer correction, and submitted **Approved** at 2026-09-19 17:11:01 UTC.
+- PR #67 then merged to `main` as `dad3746328f71b2873e0d90495c49aa483855d5b` at 2026-09-19 17:11:46 UTC. A push-triggered Lab 3 CI run #15 on that exact `main` SHA completed successfully and published artifact `lab3-ui-evidence-dad3746328f71b2873e0d90495c49aa483855d5b`.
+- The later documentation-only final evidence sync may produce a newer delivery SHA when promoted. It must not rewrite the historical product-release proof above; any post-sync `main` SHA and CI result belong in the final submission provenance rather than being backfilled recursively as if they existed earlier.
