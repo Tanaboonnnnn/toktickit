@@ -1,6 +1,6 @@
 # Lab 3 Test DD Plan
 
-Status: **Living Test DD / execution ledger.** All 50 planned Test IDs have executed passing evidence through the accepted Issue #51 integration. Issue #52 refreshes the full release-candidate gate and keeps AC-32 explicitly dependent on a fresh verification of the exact merged `main` SHA; no final-main pass is claimed early.
+Status: **Living Test DD / execution ledger.** All 50 planned Test IDs have executed passing evidence. The Lab 3 product release was merged to `main` as `dad3746328f71b2873e0d90495c49aa483855d5b`, and GitHub Actions Lab 3 CI run #15 freshly verified that exact SHA after merge. AC-32 is therefore satisfied for the released product tree; any later documentation-only promotion is recorded separately so evidence does not become self-referential.
 
 Current contract count: **50 unique planned Test IDs**. Test-ID count is not the same as the eventual runner assertion/test-case count.
 
@@ -67,7 +67,7 @@ Current contract count: **50 unique planned Test IDs**. Test-ID count is not the
 | RESP-01 | Responsive | AC-30 | Desktop major screens | No clipping/overlap/overflow; usable controls | `e2e/lab-03/responsive-desktop.spec.ts` | **Pass - Issue #51: 1/1 Chromium 1440x900 integrated journey covers Login, Requester My Tickets/Create/Detail/communication, Change Password, forbidden access, Staff Queue/Detail/communication/operations, and Admin User Management with page-overflow assertions and captured Lab 3 evidence.** |
 | RESP-02 | Responsive | AC-30 | Tablet major screens | Correct reflow/readability | `e2e/lab-03/responsive-tablet.spec.ts` | **Pass - Issue #51: 1/1 Chromium 834x1112 integrated journey exercises the same major role screens with long fixture content, correct reflow, page-overflow assertions, and captured Lab 3 evidence.** |
 | RESP-03 | Responsive | AC-30 | Mobile major screens | Single-column/cards/touch/readability/no overflow | `e2e/lab-03/responsive-mobile.spec.ts` | **Pass - Issue #51: 1/1 Chromium 390x844 integrated journey verifies major role screens, card/single-column reflow, page-level overflow and rendered touch targets. The initial touch-target check exposed a false positive from hidden desktop-table descendants; the shared helper was corrected to measure only actually rendered elements, then the unchanged UI passed.** |
-| TRACE-01 | Documentation | AC-31, AC-32 | AC/Test/path/status uniqueness and final-main provenance | Every AC has evidence; no false Pass | `docs/lab-03/tests.md`; `scripts/verify-lab3-traceability.mjs` | **Pass - Issue #51 structural trace audit verifies unique Test IDs, every specification AC has a Test DD mapping, every mapped Test ID exists, every named evidence path exists, and all Issue #51-owned rows are executed. AC-32 remains explicitly a final-main release gate for Issue #52 rather than a false final-main claim on staging.** |
+| TRACE-01 | Documentation | AC-31, AC-32 | AC/Test/path/status uniqueness and final-main provenance | Every AC has evidence; no false Pass | `docs/lab-03/tests.md`; `scripts/verify-lab3-traceability.mjs` | **Pass - the structural trace audit verifies 50 unique Test IDs, 32 ACs, mapped Test-ID existence and evidence-path existence. AC-32's separate release gate was later satisfied by the reviewed PR #67 merge and exact-main Lab 3 CI run #15 on `dad3746328f71b2873e0d90495c49aa483855d5b`.** |
 
 ## 3. Acceptance-Criterion Traceability
 
@@ -284,7 +284,7 @@ Baseline: `feature/51-lab3-integration-verification` was created from accepted `
 | STYLE-01 + A11Y-01 | Pass - **2 files / 5 tests**. Zen Green token/hierarchy continuity, labelled controls, required/password semantics, keyboard submit, named navigation, textual role/denial meaning, and Staff Queue empty-state semantics are covered. |
 | Issue #51 Chromium integrated gate | Pass - **4/4** for `security-boundaries.spec.ts` plus desktop 1440x900, tablet 834x1112, and mobile 390x844 integrated journeys. The three responsive journeys cover Login, Requester My Tickets/Create/Detail/communication, Change Password, forbidden state, Staff Queue/Detail/operations/communication, and Administrator User Management. |
 | Responsive evidence artifacts | Pass - **27 Lab 3 screenshots** under `artifacts/lab-03/screenshots/issue-51/`, nine major-screen captures at each required viewport. No secret/password value is captured. |
-| TRACE-01 | Pass - **50 unique Test IDs / 32 ACs**. `scripts/verify-lab3-traceability.mjs` verifies Test-ID uniqueness, AC mapping coverage, mapped Test-ID existence, evidence-path existence, completion of Issue #51-owned rows, and preserves AC-32 as the separate final-main release gate owned by Issue #52. |
+| TRACE-01 | Pass - **50 unique Test IDs / 32 ACs**. `scripts/verify-lab3-traceability.mjs` verifies Test-ID uniqueness, AC mapping coverage, mapped Test-ID existence, evidence-path existence and completion of Issue #51-owned rows. The script keeps AC-32 identifiable as a release gate; the later exact-main execution evidence below records that gate as completed. |
 | Full `npm.cmd run verify` | Pass on the Issue #51 working tree: server build + **51 files / 285 tests**; client production build + **25 files / 136 tests**; TRACE-01 pass; Chromium **37/37**; retained responsive **10/10**. |
 | `git diff --check` | Pass after implementation/evidence updates. |
 
@@ -299,21 +299,35 @@ Accepted release-preparation baseline: `feature/52-lab3-release-evidence` starts
 | Fresh worktree setup | First aggregate attempt stopped during TypeScript build because the new worktree had installed packages but no generated Prisma Client. `npx prisma generate --schema prisma/schema.prisma` completed successfully; no product source change was needed. |
 | Full server gate | Pass - server build + **51 test files / 285 tests** on the accepted Issue #51 staging baseline. Populated migration, repeat-safe seed/provisioning, auth/authz, Requester/Attachment regression, Staff operations/concurrency, communication/privacy, Admin safety and SAFE/SEC integrated checks all passed. |
 | Full client gate | Pass - production build + **25 test files / 136 tests**. The retained jsdom navigation diagnostic during the Attachment download test remains non-fatal and does not represent a failed browser download assertion. |
-| TRACE-01 | Pass - **50 unique Test IDs / 32 ACs** with all mapped evidence paths present. AC-32 intentionally remains the exact-final-main release gate until a reviewed release PR actually merges and that delivered SHA is freshly verified. |
+| TRACE-01 | Pass - **50 unique Test IDs / 32 ACs** with all mapped evidence paths present. At this pre-release checkpoint AC-32 intentionally remained pending; the later final-main section records its completion. |
 | Full Chromium | Pass - **37/37** across retained/evolved Lab 2 plus Lab 3 authentication, Requester, Staff, communication, security, Administrator and integrated responsive journeys. |
 | Retained responsive | Pass - **10/10** at the established Desktop/Tablet/Mobile viewports. |
 | Release screenshot refresh | `npm.cmd run capture:evidence:lab3 -- <label>` reruns the integrated Lab 3 evidence journeys and requires **41 PNGs**: **27 major responsive screenshots** (9 screens x 3 viewports) plus **14 targeted state screenshots** for authentication, Requester Attachments/communication/resolution indication, Staff Queue/workflow/private-note distinction, and Administrator create/edit/reset/safety. `manifest.json` records exact source SHA plus role/route/scenario/viewport/Test-ID-or-rubric mapping for each image. Release-candidate and final-main captures must be generated from the respective real SHAs. |
 
 Exact PR-head visual evidence is intentionally kept as a GitHub Actions artifact instead of being committed back into the same feature branch. A committed generated set would advance HEAD and make its embedded source SHA stale by construction. The PR workflow checks out `pull_request.head.sha`, sets `EXPECTED_EVIDENCE_SHA` to that value, and the capture script fails unless `git rev-parse HEAD` is identical. A valid review run must therefore show **41/41 PNGs**, **27 major + 14 state screenshots**, complete per-image role/route/scenario/viewport/mapping metadata, and an artifact named `lab3-ui-evidence-<PR-head-SHA>` from the newest successful PR-head run.
 
-### AC-32 final-main rule
+### AC-32 final-main verification
 
-AC-32 is **not yet promoted to final-main completion in this branch document**. The shipped repository contains the executable verification/capture commands and the truthful pre-release evidence. After the reviewed `lab3-staging -> main` release PR merges, run the full aggregate gate and SHA-labelled `final-main` Playwright capture on the exact delivered `main` commit and record that external post-merge evidence in Issue #52/release records. This avoids the circular error of committing a new evidence-only change and then falsely calling the previous SHA the final delivered commit.
+The reviewed release path completed on 2026-09-19. PR #67 advanced from the earlier release candidate only after PR #68 resolved the Multer security blocker and the updated release head `8bbc9710b934efd5a6c642a6155d79f7c01a5f1a` received a real Approval. PR #67 then merged to `main` as `dad3746328f71b2873e0d90495c49aa483855d5b`.
 
-Per the student's explicit instruction for this work session, final PDF creation is deferred. No PDF pass/result belongs in this Test DD execution ledger yet.
+GitHub Actions Lab 3 CI run #15 ran on that exact merged `main` SHA and completed successfully. The aggregate `npm run verify` evidence from that run is:
+
+| Gate | Exact-main result on `dad3746` |
+|---|---|
+| Server build/tests | Pass - **51 test files / 285 tests** |
+| Client production build/tests | Pass - **25 test files / 136 tests** |
+| TRACE-01 | Pass - **50 unique Test IDs / 32 ACs**, all mapped paths exist |
+| Chromium E2E | Pass - **37/37** |
+| Responsive Chromium | Pass - **10/10** |
+| Release evidence capture | Pass - **41 screenshots = 27 major responsive + 14 state captures** |
+| Hosted evidence artifact | `lab3-ui-evidence-dad3746328f71b2873e0d90495c49aa483855d5b` |
+
+This satisfies AC-32 for the released product tree. A later documentation-only sync may create another `main` merge SHA without changing application code, tests, dependencies, schema or migrations. To avoid an infinite evidence-update loop, the tested product-release SHA above remains immutable historical proof; the final PDF may additionally cite the later documentation-only delivery SHA and its own CI result once that promotion occurs.
+
+Final PDF creation is now a separate course-submission step. This Test DD ledger records executable verification evidence, not a fabricated PDF result.
 
 ### Corrective evidence follow-up after accidental PR #64 staging merge
 
 PR #64 received a real Approved review and then merged into `lab3-staging` 11 seconds later. The merge was valid for the reviewed #64 head, but it occurred before the later user-requested presentation-data cleanup in this work session was finished. The follow-up does not revert valid CI/evidence infrastructure or rewrite that approved history. It replaces technical fixture labels visible in screenshots with realistic human/product content, adds a release-evidence guard against leaked fixture tokens, and refreshes the repository-visible screenshot set.
 
-Corrective source `6452f4df2fdbe091ff378a0e35d60f6e4a180dd0` passed a fresh local full gate: server **51 files / 285 tests**, client **25 files / 136 tests**, TRACE-01 **50 Test IDs / 32 ACs**, Chromium **37/37**, retained responsive **10/10**. The screenshot capture then passed **13/13 selected evidence tests** and produced **41/41 PNGs** (**27 major responsive + 14 state**) with **41/41 sibling metadata files**. Manifest source/expected SHA both equal `6452f4d...`; evidence scans found no database/session/CSRF/password-hash material and no known technical fixture identifiers. Exact corrective-PR-head CI evidence remains pending until the new follow-up PR is opened and GitHub Actions runs.
+Corrective source `6452f4df2fdbe091ff378a0e35d60f6e4a180dd0` passed a fresh local full gate: server **51 files / 285 tests**, client **25 files / 136 tests**, TRACE-01 **50 Test IDs / 32 ACs**, Chromium **37/37**, retained responsive **10/10**. The screenshot capture then passed **13/13 selected evidence tests** and produced **41/41 PNGs** (**27 major responsive + 14 state**) with **41/41 sibling metadata files**. Manifest source/expected SHA both equal `6452f4d...`; evidence scans found no database/session/CSRF/password-hash material and no known technical fixture identifiers. The later PR #65 exact head `aecda76d5a15fc8e1c1dfbc30f8f1f00507b6d17` also received a successful hosted Lab 3 CI run #6 before merge.
