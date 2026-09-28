@@ -35,7 +35,7 @@ No Lab 4 peer review has been received yet.
 - Initial PR head: `90b8a0501e8b59a62b4ed9e8dc18c57d5c43aee8`
 - Branch: `feature/71-lab4-contract`
 - Base: `lab4-staging`
-- Contract scope: `specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md`, `ai-use.md`, `reviewer.md`, `regression-map.md`, `release-checklist.md`.
+- Contract scope: the six required Lab 4 deliverables: `specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md`, `ai-use.md`, and `reviewer.md`.
 - Product implementation: intentionally absent from Issue #71.
 - Review focus: source reconciliation, FR/BR/AC/test consistency, actor/assignee semantics, Action lifecycle, final resolution predicate, append-only history, migration/legacy policy, Dashboard calculations, authorization, concurrency, and Product Definition of Done.
 

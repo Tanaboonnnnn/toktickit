@@ -504,4 +504,4 @@ All approved Labs 2-3 interfaces remain valid unless this contract explicitly ex
 - Requester `Problem Appears Resolved`;
 - Administrator user list/create/edit/password reset.
 
-Lab 4 does not re-document every retained request/response field; `regression-map.md` identifies the required retained verification surface.
+Lab 4 does not re-document every retained request/response field; the retained verification surface is defined in `tests.md`.

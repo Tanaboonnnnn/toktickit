@@ -317,7 +317,7 @@ Lab 4 Product Completion requires all of the following; a feature PR merge alone
 - Requester and Staff/Admin dashboards use backend-authoritative calculations and complete drill-down behavior.
 - Additive migration/recovery and repeat-safe seed are verified on isolated data with preserved earlier records/Attachment bytes.
 - All relevant unit, API/integration, UI, style/accessibility, authorization, workflow, migration/regression, performance-smoke, responsive, and E2E tests exist, run, and pass on the appropriate candidate.
-- Labs 1-3 retained behavior passes representative/full regression as defined in `regression-map.md`.
+- Labs 1-3 retained behavior passes the representative/full regression surface defined in `tests.md`.
 - Major UI/state evidence is captured from the tested application at all required viewports and manually inspected for clipping/overlap/overflow/focus/accessibility defects.
 - No `.env`, credentials, session secrets, passwords, live uploads, private backups, transient reports, or unrelated historical artifacts are committed.
 - Every feature PR is linked to its Issue, receives real peer review, and merges only through the approved staging flow.
