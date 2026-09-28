@@ -11,7 +11,7 @@ Status: **Planning checklist. Unchecked items are future obligations, not failed
 - [x] Work happens in a separate ignored worktree; preserved Lab 3 root/worktrees/artifacts are untouched.
 - [x] Issue #71 is documentation-only; no application/schema/migration/seed/test implementation is included.
 - [x] The six required Lab 4 documents and two supporting current-sprint documents are defined.
-- [ ] Cross-document consistency/traceability audit passes.
+- [x] Issue #71 cross-document/static traceability audit passes: 8 required docs present, 11 required specification sections, AC-01..AC-28 present, 57 unique planned Test IDs, every AC/Test ID mutually mapped, all Lab 4 results remain Planned / Not run, and staged diff whitespace check is clean.
 - [x] Issue #71 docs-only PR #81 targets `lab4-staging`.
 - [ ] GitHub Development relationship for PR #81 -> Issue #71 is verified. The PR body references `Closes #71`, but `gh pr view --json closingIssuesReferences` is currently empty because the PR targets non-default `lab4-staging`; do not claim the manual Development link until it is actually established.
 - [ ] A real human peer reviews the actual PR head.
