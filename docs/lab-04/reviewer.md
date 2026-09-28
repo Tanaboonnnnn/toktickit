@@ -9,7 +9,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - GitHub username: `@Tanaboonnnnn`
 - Feature branch: `feature/71-lab4-contract`
 - Issue: [#71 - Approve the Sprint 4 contract, source reconciliation and execution gates](https://github.com/Tanaboonnnnn/toktickit/issues/71)
-- Pull request: **Pending - not opened at the time this initial contract record was written.**
+- Pull request: [#81 - Define Sprint 4 engineering contract](https://github.com/Tanaboonnnnn/toktickit/pull/81)
 - Target branch: `lab4-staging`
 
 ## Reviewers
@@ -24,13 +24,15 @@ No Lab 4 peer review has been received yet.
 
 | PR | Scope | Reviewer(s) | Review trail (UTC) |
 |---|---|---|---|
-| Pending | Sprint 4 Engineering Contract / Test DD / UI / REST contract | Pending | Pending - no human review event yet |
+| [#81](https://github.com/Tanaboonnnnn/toktickit/pull/81) | Sprint 4 Engineering Contract / Test DD / UI / REST contract | Pending | PR opened; no human review event yet |
 
 ## Detailed review evidence
 
 ### Issue #71 initial contract state
 
 - Result: **Awaiting human peer review**
+- Pull request: [#81](https://github.com/Tanaboonnnnn/toktickit/pull/81)
+- Initial PR head: `90b8a0501e8b59a62b4ed9e8dc18c57d5c43aee8`
 - Branch: `feature/71-lab4-contract`
 - Base: `lab4-staging`
 - Contract scope: `specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md`, `ai-use.md`, `reviewer.md`, `regression-map.md`, `release-checklist.md`.
@@ -43,11 +45,11 @@ No Changes Requested, Approved, review comment, reviewer identity, review date, 
 
 | Review | Finding | Student response | File/change | Status |
 |---|---|---|---|---|
-| Pending | No human review finding yet | None | None | Awaiting review |
+| PR #81 | No human review finding yet | None | None | Awaiting review |
 
 ## Approval evidence
 
-- Final reviewer verdict for Issue #71 PR: **Pending**
+- Final reviewer verdict for PR #81: **Pending**
 - Approval link: **Pending**
 - Passing checks link: **Pending; Issue #71 local documentation/baseline checks are not peer approval**
 - Merge status: **Not merged**

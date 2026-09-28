@@ -12,7 +12,8 @@ Status: **Planning checklist. Unchecked items are future obligations, not failed
 - [x] Issue #71 is documentation-only; no application/schema/migration/seed/test implementation is included.
 - [x] The six required Lab 4 documents and two supporting current-sprint documents are defined.
 - [ ] Cross-document consistency/traceability audit passes.
-- [ ] Issue #71 docs-only PR targets `lab4-staging` and is Development-linked to Issue #71.
+- [x] Issue #71 docs-only PR #81 targets `lab4-staging`.
+- [ ] GitHub Development relationship for PR #81 -> Issue #71 is verified. The PR body references `Closes #71`, but `gh pr view --json closingIssuesReferences` is currently empty because the PR targets non-default `lab4-staging`; do not claim the manual Development link until it is actually established.
 - [ ] A real human peer reviews the actual PR head.
 - [ ] Review findings are verified, answered, and fixed/re-reviewed where required.
 - [ ] Issue #71 is accepted before dependent product implementation begins.
