@@ -77,7 +77,9 @@ Historical Lab 2/3 reviewer identities are not copied here as if they had review
 - Base branch: `lab4-staging`
 - Starting integration SHA: `6969b70a11010008db63f685a745710df68d089f`
 - Scope: verification/traceability/evidence-path/CI infrastructure only; no Lab 4 schema, Action, workflow, or Dashboard product implementation.
-- Pull request / peer-review status: **to be recorded from the real GitHub event after the Issue #72 PR is opened; no approval is pre-claimed here.**
+- Pull request: [#82 - Add isolated verification and Lab 4 CI](https://github.com/Tanaboonnnnn/toktickit/pull/82), opened `2026-09-29T10:23:44Z` from this feature branch into `lab4-staging`.
+- Requested reviewer: `@L0u1sss`, requested on the live PR after creation.
+- Peer-review status: **Pending human review.** No Issue #72 approval or merge is pre-claimed.
 
 ## Evidence integrity rules for later updates
 
