@@ -13,6 +13,11 @@ const relatedSystems = [
   "Finance and Registration",
 ] as const;
 
+function logLocalOnlySeedCredential(email: string, password: string): void {
+  if (process.env.CI || process.env.GITHUB_ACTIONS) return;
+  console.log(`[local-only seed credential] ${email} ${password}`);
+}
+
 const users = [
   { name: "Anan Kittisak", email: "anan.student@example.test", active: true, role: "REQUESTER" },
   { name: "Mali Charoensuk", email: "mali.student@example.test", active: true, role: "REQUESTER" },
@@ -56,7 +61,7 @@ async function ensureUser(
       },
       select: { id: true, email: true },
     });
-    console.log(`[local-only seed credential] ${created.email} ${password}`);
+    logLocalOnlySeedCredential(created.email, password);
     return created;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -141,7 +146,11 @@ async function ensureLab4Fixtures(prisma: PrismaClient, userIds: Map<string, num
   const emptyRequesterEmail = "empty.dashboard.lab4@example.test";
   if (!await prisma.user.findUnique({ where: { email: emptyRequesterEmail }, select: { id: true } })) {
     const password = generateInitialPassword();
-    await prisma.user.create({ data: { name: "Lab 4 Empty Dashboard", email: emptyRequesterEmail, active: true, role: "REQUESTER", passwordHash: await hashPassword(password), mustChangePassword: true } });
+    const created = await prisma.user.create({
+      data: { name: "Lab 4 Empty Dashboard", email: emptyRequesterEmail, active: true, role: "REQUESTER", passwordHash: await hashPassword(password), mustChangePassword: true },
+      select: { email: true },
+    });
+    logLocalOnlySeedCredential(created.email, password);
   }
   const category = await prisma.category.findUniqueOrThrow({ where: { name: "Network" } });
   const system = await prisma.relatedSystem.findUniqueOrThrow({ where: { name: "Campus Wi-Fi" } });
@@ -200,6 +209,11 @@ async function ensureLab4Fixtures(prisma: PrismaClient, userIds: Map<string, num
     const existing = await prisma.actionTaken.findUnique({ where: { recordedById_clientRequestId: { recordedById, clientRequestId } }, select: { id: true } });
     if (existing) continue;
     const assigneeId = userIds.get(fixture.assignee)!;
+    const eligibleAssignee = await prisma.user.findFirst({
+      where: { id: assigneeId, active: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } },
+      select: { id: true },
+    });
+    if (!eligibleAssignee) continue;
     const performedById = "performer" in fixture ? userIds.get(fixture.performer)! : null;
     const isCompleted = fixture.status === "COMPLETED";
     const isCancelled = fixture.status === "CANCELLED";

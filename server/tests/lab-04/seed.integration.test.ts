@@ -18,9 +18,18 @@ function withSchema(connectionString: string, schema: string): string {
   const url = new URL(connectionString); url.searchParams.set("schema", schema); return url.toString();
 }
 
-function runPrisma(databaseUrl: string, ...args: string[]) {
+function runPrismaWithEnv(databaseUrl: string, envOverrides: Record<string, string>, ...args: string[]) {
   const cli = resolve(process.cwd(), "node_modules/prisma/build/index.js");
-  return execFileSync(process.execPath, [cli, ...args, "--schema", "prisma/schema.prisma"], { cwd: process.cwd(), env: { ...process.env, DATABASE_URL: databaseUrl }, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  return execFileSync(process.execPath, [cli, ...args, "--schema", "prisma/schema.prisma"], {
+    cwd: process.cwd(),
+    env: { ...process.env, ...envOverrides, DATABASE_URL: databaseUrl },
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+}
+
+function runPrisma(databaseUrl: string, ...args: string[]) {
+  return runPrismaWithEnv(databaseUrl, {}, ...args);
 }
 
 const developmentDatabaseUrl = readLocalEnv("DATABASE_URL");
@@ -39,7 +48,8 @@ afterAll(async () => { try { await prisma?.$disconnect(); if (schema) await admi
 
 describe("SEED-01 Lab 4 repeat-safe demo data", () => {
   it("creates the Lab 4 matrix once and preserves deliberate user/ticket/action edits on rerun", async () => {
-    runPrisma(isolatedUrl, "db", "seed");
+    const localSeedOutput = runPrismaWithEnv(isolatedUrl, { CI: "", GITHUB_ACTIONS: "" }, "db", "seed");
+    expect(localSeedOutput).toMatch(/\[local-only seed credential\] empty\.dashboard\.lab4@example\.test \\S+/);
     const tickets = await prisma.ticket.findMany({ where: { ticketNumber: { startsWith: "TKT-20260929-L4" } }, orderBy: { ticketNumber: "asc" } });
     expect(tickets).toHaveLength(8);
     expect(new Set(tickets.map((ticket) => ticket.currentStatus))).toEqual(new Set(["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"]));
@@ -58,6 +68,11 @@ describe("SEED-01 Lab 4 repeat-safe demo data", () => {
     const emptyRequester = await prisma.user.findUniqueOrThrow({ where: { email: "empty.dashboard.lab4@example.test" } });
     expect(emptyRequester).toMatchObject({ active: true, role: "REQUESTER" });
     expect(await prisma.ticket.count({ where: { requesterId: emptyRequester.id } })).toBe(0);
+    await prisma.user.delete({ where: { id: emptyRequester.id } });
+    const hostedSeedOutput = runPrismaWithEnv(isolatedUrl, { CI: "true", GITHUB_ACTIONS: "true" }, "db", "seed");
+    expect(hostedSeedOutput).not.toContain("empty.dashboard.lab4@example.test");
+    const recreatedEmptyRequester = await prisma.user.findUniqueOrThrow({ where: { email: "empty.dashboard.lab4@example.test" } });
+    expect(await prisma.ticket.count({ where: { requesterId: recreatedEmptyRequester.id } })).toBe(0);
 
     const legacyTerminalTicketIds = (await prisma.ticket.findMany({
       where: { ticketNumber: { startsWith: "TKT-20260915-L3" }, currentStatus: { in: ["RESOLVED", "CLOSED"] } },
@@ -86,5 +101,30 @@ describe("SEED-01 Lab 4 repeat-safe demo data", () => {
     expect(await prisma.actionTaken.count({ where: { ticket: { ticketNumber: { startsWith: "TKT-20260929-L4" } } } })).toBe(actions.length);
     expect(await prisma.actionTakenRevision.count({ where: { action: { ticket: { ticketNumber: { startsWith: "TKT-20260929-L4" } } } } })).toBe(actions.length);
     expect(await prisma.actionTaken.count({ where: { assigneeId: editedUser.id } })).toBe(assignedToEditedUserBefore);
+
+    const missingFixtureAction = await prisma.actionTaken.findFirstOrThrow({
+      where: { clientRequestId: "20000000-0000-4000-8000-000000000001" },
+    });
+    const ineligibleAssignee = await prisma.user.findUniqueOrThrow({ where: { email: "korn.it@example.test" } });
+    expect(missingFixtureAction.assigneeId).toBe(ineligibleAssignee.id);
+    await prisma.actionTakenRevision.deleteMany({ where: { actionId: missingFixtureAction.id } });
+    await prisma.actionTaken.delete({ where: { id: missingFixtureAction.id } });
+    await prisma.user.update({
+      where: { id: ineligibleAssignee.id },
+      data: { active: false, role: "REQUESTER", passwordHash: "preserved-ineligible-hash", authVersion: 13, version: 12 },
+    });
+
+    runPrisma(isolatedUrl, "db", "seed");
+
+    expect(await prisma.actionTaken.findFirst({
+      where: { clientRequestId: "20000000-0000-4000-8000-000000000001" },
+    })).toBeNull();
+    expect(await prisma.user.findUniqueOrThrow({ where: { id: ineligibleAssignee.id } })).toMatchObject({
+      active: false,
+      role: "REQUESTER",
+      passwordHash: "preserved-ineligible-hash",
+      authVersion: 13,
+      version: 12,
+    });
   }, 60_000);
 });
