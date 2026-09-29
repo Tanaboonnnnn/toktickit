@@ -107,8 +107,9 @@ Historical Lab 2/3 reviewer identities are not copied here as if they had review
 - Base branch: `lab4-staging`
 - Starting integration SHA: `807512437c42898a37940d20fc6dea12ebb9f7a8`
 - Scope: additive Prisma/data migration, preservation/recovery tests, repeat-safe Lab 4 seed, FK-compatible fixture cleanup, and truthful trace/document evidence only; no public Action API/UI, Ticket final-gate implementation, or Dashboard implementation.
-- Pull request: **not opened yet**.
-- Peer-review status: **not requested yet**. No Issue #73 approval or merge is pre-claimed.
+- Pull request: [#83 - Add Lab 4 data foundation and safe migration](https://github.com/Tanaboonnnnn/toktickit/pull/83), opened `2026-09-29T15:11:09Z` from `feature/73-lab4-data` into `lab4-staging` at initial head `31244df90c3f7dffd4dc0c72aa34cc848b2e54c2`.
+- Requested reviewers: `@L0u1sss` and `@thananun-7203`, requested on the live PR at `2026-09-29T15:11:23Z`.
+- Peer-review status: **pending**. No Issue #73 approval or merge is pre-claimed.
 - Pre-PR local verification: Prisma validate/generate passed; dedicated `toktickit_test` migration deploy/status reported all four migrations applied and schema up to date; `MIG-01`/`MIG-02`/`MIG-03` and `SEED-01` passed; retained Lab 3 migration/seed tests passed; Issue #73 increment trace passed; historical migration directories are byte-for-byte unchanged relative to `origin/lab4-staging`; fresh `npm run verify` completed with server **54 files / 292 tests**, client **25 files / 136 tests**, Lab 4 harness **8 Node + 3 server safety tests**, retained E2E **37**, and retained responsive **13** all passing. The known jsdom navigation warning remained non-failing.
 
 ## Evidence integrity rules for later updates
