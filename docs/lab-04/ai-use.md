@@ -8,12 +8,13 @@ This file follows the Lab 2 `ai-use.md` structure, but the assistant attribution
 
 ## Selected key prompts
 
-The course record ultimately calls for 6-10 selected prompts. Only prompts that actually occurred during Lab 4 work are recorded here. This early Issue #71 contract currently has **2** selected Lab 4 prompts; later entries must be appended from real implementation/review/release work rather than invented in advance. The entries are faithful concise records, not claimed verbatim transcripts.
+The course record ultimately calls for 6-10 selected prompts. Only prompts that actually occurred during Lab 4 work are recorded here. This early Issue #71 contract currently has **3** selected Lab 4 prompts; later entries must be appended from real implementation/review/release work rather than invented in advance. The entries are faithful concise records, not claimed verbatim transcripts.
 
 | # | Prompt name | Actual prompt text or faithful concise copy | Purpose / result | Short reflection |
 |---:|---|---|---|---|
 | 1 | Lab 4 exploration and execution planning | “Read the Lab 4 handoff/material, inspect the real local repository and live GitHub state first, preserve existing Lab 3 work, then create a complete Lab 4 plan with no more than ten Issues and a handoff that another agent can execute. Do not change product code during planning.” | Inspected the handout, shipped Lab 3 baseline, local worktrees and live GitHub; identified architectural/race/migration risks; created Issues #71-#80 and the execution handoff without product implementation. | The remote/local comparison mattered because the local refs were stale and the root worktree contained preserved Lab 3 work; planning from that root would have used the wrong baseline. |
 | 2 | Start Issue #71 from current remote | “Start Lab 4 Issue #71. Keep branch naming consistent with Lab 3, verify the remote because local is not current, use codebase-design, and use the Lab 2 `ai-use.md` / `reviewer.md` document template.” | Fetched the exact remote `main`, created `lab4-staging` and isolated `feature/71-lab4-contract`, established a fresh retained baseline, and authored the Sprint 4 engineering contract documents only. | Contract-first work kept the unresolved Action actor/assignment, resolution-gate, dashboard, history, and concurrency decisions explicit before schema/API/UI implementation could multiply their cost. |
+| 3 | Validate and address PR #81 review | “Check the comments on PR #81, verify whether the reviewer’s points are actually true, and fix the valid ones.” | Compared the human review against Issue #71, the Lab 4 handout, and the current contract; accepted three real gaps, corrected recorder/performer semantics, added the nine-item source reconciliation, and aligned Issue #71 with local-only helper-note handling. | Treating review comments as claims to verify rather than instructions to copy prevented an unnecessary handout change while still correcting real contract and process inconsistencies. |
 
 ## Current reflection
 
@@ -28,7 +29,7 @@ No Lab 4 implementation, migration, browser evidence, peer approval, or final-ma
 The reviewed `docs/lab-04` contract is intended to become the Sprint 4 source of truth after real peer review. Human-owned project decisions currently documented for review include:
 
 - Actions use `PENDING`, `IN_PROGRESS`, `COMPLETED`, and `CANCELLED` with no terminal status reversal.
-- Original performer, Action assignee, Ticket Owner, and later mutation actor are separate concepts.
+- Original recorder, Action assignee, actual completing performer, Ticket Owner, and later mutation actor are separate concepts.
 - Action Date/Time is server creation time; normal backdating is not included.
 - Resolution requires qualifying current-cycle completed work, no outstanding current-cycle work, and no unresolved current-cycle follow-up, in addition to retained Ticket requirements.
 - Reopen starts a new workflow cycle; legacy terminal zero-Action Tickets remain valid.

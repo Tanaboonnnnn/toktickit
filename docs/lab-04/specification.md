@@ -12,14 +12,14 @@ Complete the core TokTickIT service-desk workflow by adding auditable Actions Ta
 
 ## 2. Stakeholder Request
 
-IT Staff need a reliable record of the real work performed on each Ticket. The primary Ticket Owner remains responsible for coordinating the Ticket, but different eligible IT Staff members may be assigned Actions Taken and may record or complete those actions. Requesters must be able to see all Actions Taken on their own Tickets without changing them. Staff must formally control Ticket resolution; a Requester's `Problem Appears Resolved` indication remains advisory. Requesters and Staff also need concise dashboards that summarize authoritative Ticket data and drill down into existing detailed views. The finished product must remain one coherent Zen Green application and all earlier behavior must continue to work.
+IT Staff need a reliable record of the real work performed on each Ticket. The primary Ticket Owner remains responsible for coordinating the Ticket, but different eligible IT Staff members may record an Action, be assigned to it, and ultimately perform/complete it. The system must distinguish those roles rather than labeling the original recorder as the performer. Requesters must be able to see all Actions Taken on their own Tickets without changing them. Staff must formally control Ticket resolution; a Requester's `Problem Appears Resolved` indication remains advisory. Requesters and Staff also need concise dashboards that summarize authoritative Ticket data and drill down into existing detailed views. The finished product must remain one coherent Zen Green application and all earlier behavior must continue to work.
 
 ## 3. Scope
 
 ### Included
 
 - Actions Taken as child records of exactly one Ticket.
-- Action creation time, description, result, auto-recorded original performer, assignee, follow-up flag/note, Attachment Notes, lifecycle status, optimistic version, and immutable audit revisions.
+- Action creation time, description, result, auto-recorded original recorder, assignee, auto-recorded actual performer on completion, follow-up flag/note, Attachment Notes, lifecycle status, optimistic version, and immutable audit revisions.
 - Action create, edit, assign/reassign, start, complete, cancel, stable list ordering, read-only Requester visibility, and inactive-assignee rejection.
 - Eight retained Ticket statuses and a complete permitted transition matrix.
 - Backend-enforced resolution gate spanning Ticket and current-cycle Actions Taken.
@@ -31,7 +31,7 @@ IT Staff need a reliable record of the real work performed on each Ticket. The p
 - Additive Prisma/PostgreSQL migration preserving all earlier Users, Tickets, Attachments, Public Comments, Internal Notes, sessions, and historical migrations.
 - Repeat-safe Lab 4 seed fixtures covering zero/one/many Actions, major Ticket statuses/priorities, assigned/unassigned ownership, and zero/non-zero dashboard states.
 - Concurrency, stale-update, duplicate-submit/retry, authorization, safe-failure, migration/recovery, performance-smoke, accessibility, responsive, E2E, and full Labs 1-3 regression coverage.
-- Required six `docs/lab-04` deliverables plus current-sprint regression/release support documents.
+- Required six tracked `docs/lab-04` deliverables. Regression/release helper notes may be retained locally for execution but are not course deliverables.
 
 ### Explicitly excluded
 
@@ -49,10 +49,10 @@ IT Staff need a reliable record of the real work performed on each Ticket. The p
 ## 4. Functional Requirements
 
 - **FR-01 - List Actions Taken:** An authenticated permitted user shall retrieve all Actions Taken for a permitted Ticket using stable pagination/order.
-- **FR-02 - Create Action Taken:** IT Staff and Administrators shall create an Action Taken under an accessible active-cycle Ticket with server-controlled creation actor/time and an eligible assignee.
+- **FR-02 - Create Action Taken:** IT Staff and Administrators shall create an Action Taken under an accessible active-cycle Ticket with server-controlled recorder/time and an eligible assignee; `performedBy` remains unset until real completion.
 - **FR-03 - Edit Action Taken:** IT Staff and Administrators shall edit permitted Action fields subject to lifecycle, Ticket state, cycle, and optimistic-version rules.
 - **FR-04 - Assign Action Taken:** IT Staff and Administrators shall assign/reassign non-cancelled active-cycle Actions to active eligible IT Staff/Administrator users without changing the primary Ticket Owner.
-- **FR-05 - Transition Action Taken:** IT Staff and Administrators shall start, complete, or cancel an Action only through the documented Action transition matrix and required validation.
+- **FR-05 - Transition Action Taken:** IT Staff and Administrators shall start, complete, or cancel an Action only through the documented Action transition matrix and required validation; successful completion auto-records the authenticated completing actor as the actual performer.
 - **FR-06 - Preserve Action audit history:** Every accepted Action mutation shall append an immutable Action revision; ordinary users shall have no destructive Action/history operation.
 - **FR-07 - Requester Action visibility:** An owning Requester shall see all Actions Taken for their own Ticket, including completed/cancelled and prior-cycle records, in read-only form.
 - **FR-08 - Preserve privacy:** Requester Action/history responses shall not expose Internal Notes, private account/session data, storage internals, or hidden staff-only metadata.
@@ -80,8 +80,8 @@ The handout explicitly supplies the meanings of BR-01 and BR-02; the remaining n
 - **BR-01:** Action Taken belongs to exactly one Ticket.
 - **BR-02:** The Ticket Owner coordinates the Ticket, but an Action Taken may be performed/assigned to a different eligible IT Staff member.
 - **BR-03:** Action Date/Time is the immutable server creation timestamp stored in UTC; the normal UI does not backdate it. Display uses Asia/Bangkok where a local zone is helpful.
-- **BR-04:** `performedBy` is the authenticated User who originally records the Action. It is immutable and backend-controlled. `assignee` is a separate field and defaults to the recorder but may be another active `IT_STAFF` or `ADMINISTRATOR`.
-- **BR-05:** Later edit/completion/cancellation actors are recorded separately in immutable revision/provenance fields. They do not replace the original performer.
+- **BR-04:** `recordedBy` is the authenticated User who originally creates the Action. It is immutable and backend-controlled. `assignee` is a separate field and defaults to the recorder but may be another active `IT_STAFF` or `ADMINISTRATOR`.
+- **BR-05:** `performedBy` means the actual authenticated actor who completes the work. It is `null` before completion, is set automatically on the successful transition to `COMPLETED`, and is immutable afterward. `COMPLETED` requires non-null `performedBy`/`completedAt`; non-completed states have neither. Later correction/cancellation/edit actors remain separately recorded in immutable revision/provenance fields.
 - **BR-06:** Action Description is trimmed and 1-2000 Unicode code points. Result is optional while work is outstanding but is trimmed and 1-2000 code points when the Action is completed.
 - **BR-07:** `followUpRequired=true` requires a trimmed Follow-up Note of 1-2000 Unicode code points. When false, a supplied note is allowed up to 2000 code points and is normalized consistently by the approved request contract.
 - **BR-08:** Attachment Notes is optional plain text up to 2000 Unicode code points and does not create an Attachment relationship or new upload permission.
@@ -120,7 +120,7 @@ The handout explicitly supplies the meanings of BR-01 and BR-02; the remaining n
 - **BR-41:** Dashboard response uses one server `asOf` instant `T`. The selected recent-resolved window is `[T-168h, T)` in UTC. The API returns the exact window so drill-down reuses it rather than recomputing a new one in the browser.
 - **BR-42:** Requester Dashboard predicates are: `My active` = own Ticket and status in `A`; `Waiting for me` = own Ticket and status `WAITING_FOR_REQUESTER`; `Recently resolved` = own Ticket and status in `{RESOLVED,CLOSED}` and `resolvedAt` in the returned recent window.
 - **BR-43:** Staff Dashboard predicates are: `Unassigned active` = owner null and status in `A`; `My active` = owner=actor and status in `A`; `High-priority active` = `itPriority=HIGH` and status in `A`; `Waiting for Requester` = status `WAITING_FOR_REQUESTER`.
-- **BR-44:** Staff current-user Actions preview matches `performedById=actor OR assigneeId=actor`, deduplicated by Action ID, and is labeled `Recorded by or assigned to me`.
+- **BR-44:** Staff current-user Actions preview matches `recordedById=actor OR assigneeId=actor OR performedById=actor`, deduplicated by Action ID, and is labeled `My Actions` with explicit `Recorded` / `Assigned` / `Performed` attribution.
 - **BR-45:** Dashboard previews are bounded to five rows per preview group ordered `updatedAt DESC, id DESC`. Counts cover all rows matching the metric, not only preview/page rows.
 - **BR-46:** Dashboard empty counts are numeric `0` and empty previews are `[]`. Loading/failure states are not displayed as authoritative zero.
 - **BR-47:** Dashboard/list predicates are shared through one deep query/policy module per role so metric and drill-down semantics do not drift across callers. The module interface owns normalization, predicates, deterministic ordering, and safe query errors; route/UI adapters remain shallow.
@@ -184,7 +184,7 @@ The detailed UI contract is in `ui-spec.md`.
 - Add Requester `#/dashboard` and Staff/Admin `#/staff/dashboard` role homes while preserving earlier permitted destinations.
 - Reuse the existing Zen Green tokens, authenticated shell, cards, forms, tables/cards, badges, validation placement, focus treatment, and three evidence viewports.
 - Add Actions Taken to existing Staff/Requester Ticket Detail rather than creating a disconnected standalone work-tracking application.
-- Staff/Admin Action UI clearly distinguishes primary Ticket Owner, Action assignee, original performer, later actor, and automatic creation time.
+- Staff/Admin Action UI clearly distinguishes primary Ticket Owner, original recorder, Action assignee, actual performer, later mutation actor, and automatic creation time.
 - Requester Action UI is read-only and includes all Action statuses/cycles without leaking Internal Notes.
 - Dashboard cards show backend counts plus concise bounded previews and navigate to supported filtered list/detail destinations.
 - Dashboard -> list -> Detail -> Back, browser Back/Forward, and refresh preserve supported query context.
@@ -210,8 +210,9 @@ Exact Prisma syntax and SQL are implemented only after this contract is reviewed
 | `ticketId` | Required FK to Ticket; restrictive delete |
 | `workflowCycle` | Positive immutable cycle copied from parent at create |
 | `createdAt` | Server-controlled UTC create timestamp |
-| `performedById` | Required immutable FK to original recording User |
+| `recordedById` | Required immutable FK to original recording User |
 | `assigneeId` | Required FK to active eligible Staff/Admin at write time |
+| `performedById` | Nullable FK to actual completing User; server-set only on `COMPLETED`, immutable afterward |
 | `description` | Trimmed 1-2000 Unicode code points |
 | `result` | Nullable while outstanding; required 1-2000 when completed |
 | `followUpRequired` | Boolean |
@@ -220,14 +221,14 @@ Exact Prisma syntax and SQL are implemented only after this contract is reviewed
 | `status` | `PENDING|IN_PROGRESS|COMPLETED|CANCELLED` |
 | `version` | Positive optimistic version, starts 1 |
 | `updatedAt`, `updatedById` | Last accepted mutation provenance |
-| `completedAt`, `completedById` | Completion provenance |
+| `completedAt` | Server completion timestamp; paired with immutable `performedById` |
 | `cancelledAt`, `cancelledById`, `cancellationReason` | Cancellation provenance; reason 3-200 |
 | `clientRequestId` | Actor-scoped persistent create key |
 | `createFingerprint` | Server-computed canonical original-payload fingerprint |
 
-Required unique constraint: `(performedById, clientRequestId)`.
+Required unique constraint: `(recordedById, clientRequestId)`.
 
-Required indexes at minimum: `(ticketId, workflowCycle, status)`, `(ticketId, createdAt, id)`, performer/assignee current-work lookup paths, and any measured dashboard lookup not already supported by retained Ticket indexes.
+Required indexes at minimum: `(ticketId, workflowCycle, status)`, `(ticketId, createdAt, id)`, recorder/assignee/performer current-user lookup paths, and any measured dashboard lookup not already supported by retained Ticket indexes.
 
 ### 7.3 ActionTakenRevision
 
@@ -247,7 +248,7 @@ Immutable forward-only Lab 4 Ticket transition record with Ticket FK, resulting 
 
 ### 7.6 Seed
 
-Add a distinct Lab 4 fixture namespace with: all major Ticket statuses/priorities; assigned/unassigned Tickets; zero/one/many Actions; different owner/performer/assignee combinations; completed/cancelled/outstanding/follow-up cases; Requester owned metrics with zero/non-zero examples; and Staff metric/current-user Action examples. Re-running seed must preserve intentional edits to existing fixture state.
+Add a distinct Lab 4 fixture namespace with: all major Ticket statuses/priorities; assigned/unassigned Tickets; zero/one/many Actions; different owner/recorder/assignee/actual-performer combinations; completed/cancelled/outstanding/follow-up cases; Requester owned metrics with zero/non-zero examples; and Staff metric/current-user Action examples. Re-running seed must preserve intentional edits to existing fixture state.
 
 ### Database design justifications
 
@@ -276,11 +277,11 @@ The list/query contract is extended deliberately for dashboard drill-down rather
 
 ## 9. Acceptance Criteria
 
-- **AC-01:** Given a permitted Staff/Admin actor and valid Action input, create saves exactly one Action under the addressed Ticket/current cycle with server-controlled create time/original performer and approved assignee.
-- **AC-02:** Client-supplied performer/time/owner/privileged fields cannot spoof server authority.
+- **AC-01:** Given a permitted Staff/Admin actor and valid Action input, create saves exactly one Action under the addressed Ticket/current cycle with server-controlled create time/recorder and approved assignee, while actual performer remains unset until completion.
+- **AC-02:** Client-supplied recorder/performer/time/owner/privileged fields cannot spoof server authority.
 - **AC-03:** Description, Result, Follow-up, Attachment Notes, cancellation reason, and enum validation match the documented boundaries and safe error shape.
 - **AC-04:** Action assignment accepts only active eligible Staff/Admin users and remains safe when assignment races account deactivation/demotion.
-- **AC-05:** All permitted Action lifecycle transitions/edits succeed; invalid, terminal, old-cycle, terminal-parent, wrong-role, and stale writes fail without partial mutation.
+- **AC-05:** All permitted Action lifecycle transitions/edits succeed; completion records the authenticated completing actor as immutable actual performer; invalid, terminal, old-cycle, terminal-parent, wrong-role, and stale writes fail without partial mutation.
 - **AC-06:** An owning Requester can retrieve every public Action for their Ticket read-only, across statuses/cycles, while foreign Requesters and all Requester writes are denied without private-note leakage.
 - **AC-07:** Replaying the same authorized `clientRequestId` and canonical original payload creates no duplicate, including after the Action is later edited/parent closed; changed original payload conflicts.
 - **AC-08:** Accepted Action changes update Action/parent versions and append exactly one revision atomically; stale/no-op/rejected writes cannot overwrite newer state or append false history.
@@ -291,7 +292,7 @@ The list/query contract is extended deliberately for dashboard drill-down rather
 - **AC-13:** Legacy terminal zero-Action Tickets remain valid; reopening starts a new cycle and old-cycle completed Actions cannot satisfy later resolution.
 - **AC-14:** Action revisions, Ticket workflow events, Public Comments, and Internal Notes preserve stable append-only history and deterministic ordering.
 - **AC-15:** Requester Dashboard returns only authenticated-owner metrics/previews with exact documented predicates and meaningful zero/empty behavior.
-- **AC-16:** Staff/Admin Dashboard returns exact documented operational counts plus deduplicated current-user Actions with bounded previews.
+- **AC-16:** Staff/Admin Dashboard returns exact documented operational counts plus deduplicated current-user Actions attributed by recorder, current assignee, and/or actual performer with bounded previews.
 - **AC-17:** Dashboard metric counts/time-window boundaries match independent database queries and the corresponding filtered-list `totalItems`, including beyond-first-page cases.
 - **AC-18:** Dashboard drill-down, exact date window, list -> Detail -> Back, refresh, browser Back/Forward, and Action target behavior retain supported context without leaking unsupported query keys.
 - **AC-19:** Clean install, populated Lab 3 upgrade, repeat migration/deploy, late-failure recovery, and referential cleanup preserve required earlier data and Attachment bytes.
@@ -328,13 +329,31 @@ Lab 4 Product Completion requires all of the following; a feature PR merge alone
 
 ## 11. Assumptions and Decisions
 
-The following are **project decisions**, not instructor-provided constants:
+### 11.1 Mandatory source reconciliation for Issue #71
+
+The handout leaves several details open. The table below records the source fragment, the selected project decision, and the real PR #81 review state. `Final approval pending` means the decision is documented/corrected but dependent implementation remains blocked until the reviewer re-approves the contract.
+
+| # | Handout source fragment | Selected project decision | Review status |
+|---:|---|---|---|
+| 1 | §8.3: “Requesters will see all Actions Taken items.” | Owning Requesters see all public Actions across statuses/cycles, read-only; Internal Notes remain private. | Reviewer explicitly confirmed this behavior; final approval pending. |
+| 2 | Rubric Part 6: “list, create, assign, edit, status transition, complete, cancel” plus inactive-assignee rejection. | Actions include assignment, editable active states, explicit lifecycle transitions, completion/cancellation, and backend eligibility checks. | No correction requested; final approval pending. |
+| 3 | Rubric Part 5: “current-user Actions Taken”. | Staff `My Actions` is the deduplicated union where the actor is recorder, current assignee, and/or actual performer; attribution states why each row appears. | Reviewer confirmed the dashboard requirement; final approval pending. |
+| 4 | §4.5: “The backend must enforce the resolution rule even when a client bypasses the normal screen.” | BR-24 current-cycle gate: >=1 completed, no pending/in-progress, no unresolved non-cancelled follow-up, plus retained owner/summary/confirmation rules. | Reviewer explicitly confirmed the resolution predicate; final approval pending. |
+| 5 | §6: “create and update Actions Taken as permitted”; Rubric Part 6 requires assign/status/complete/cancel. | Lifecycle is `PENDING -> IN_PROGRESS|COMPLETED|CANCELLED`, `IN_PROGRESS -> COMPLETED|CANCELLED`; no terminal reversal; audited content correction only for eligible completed Actions. | No correction requested; final approval pending. |
+| 6 | Stakeholder request/§8.3: “Performed by (auto)” while Rubric Part 6 separately requires assign and complete. | Ticket Owner, immutable `recordedBy`, mutable eligible `assignee`, and immutable actual `performedBy` are distinct. `performedBy` is server-set to the authenticated completing actor only on `COMPLETED`; mutation actors remain in revisions. | **Corrected from the initial contract in response to PR #81 Changes Requested**; final approval pending. |
+| 7 | §8.3: “Action create date/time” and “Attachment Notes (what file to look for images etc.)”. | Action Date/Time is immutable server creation time in UTC with Bangkok display; no normal backdating. Attachment Notes is bounded plain text, not a new upload relationship. | No correction requested; final approval pending. |
+| 8 | Rubric Part 7: “stable ordering, append-only behavior” while §8.3 requires view/edit mode. | Mutable current Action state is reconciled with append-only evidence using immutable Action revisions and forward-only Ticket workflow events; no destructive history deletion. | Reviewer found no blocker in append-only/history behavior; final approval pending. |
+| 9 | §5.2: students must “define how legacy Tickets without Actions Taken behave”. | Existing terminal zero-Action Tickets remain valid; the new gate applies to future resolution attempts. Reopen starts a new cycle and old-cycle completed work cannot satisfy it. | Reviewer confirmed legacy/reopen decisions were present; final approval pending. |
+
+### 11.2 Additional project decisions
+
+The following are also **project decisions**, not instructor-provided constants:
 
 1. Action lifecycle = `PENDING`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` with no terminal reversal.
-2. Original `performedBy` is immutable recording actor; assignee is separate and may differ from Ticket Owner/performer.
+2. `recordedBy` is immutable original recorder; `assignee` is current planned worker; `performedBy` is the server-recorded actual completing actor and remains `null` until completion.
 3. Action Date/Time is immutable server create time; no normal backdating.
 4. Resolution predicate is the current-cycle completed/no-outstanding/no-unresolved-follow-up rule in BR-24 plus retained owner/summary/confirmation rules.
-5. Completed Action content/follow-up correction is allowed only while the same parent cycle is active and is preserved through immutable revisions.
+5. Completed Action content/follow-up correction is allowed only while the same parent cycle is active and is preserved through immutable revisions without changing `performedBy`.
 6. Legacy terminal zero-Action Tickets remain valid; reopen starts a new work cycle.
 7. Ticket cancellation atomically cancels current-cycle outstanding Actions.
 8. Dashboard active set is the five non-terminal statuses in BR-40; recently resolved is a rolling 168-hour UTC window returned by the backend.
@@ -343,4 +362,4 @@ The following are **project decisions**, not instructor-provided constants:
 11. Persistent create key/fingerprint and User -> Ticket -> Action lock discipline are the selected retry/concurrency strategy.
 12. Requester `#/dashboard` and Staff/Admin `#/staff/dashboard` are selected role homes while all earlier permitted screens remain reachable.
 
-These decisions must be reviewed before dependent schema/product implementation. If peer review identifies a different defensible interpretation of the handout, update this contract and its tests first rather than silently drifting implementation.
+These decisions must receive final peer approval before dependent schema/product implementation. If peer review identifies another defensible correction, update this contract and its tests first rather than silently drifting implementation.

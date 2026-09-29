@@ -45,8 +45,9 @@ interface ActionTakenPublic {
   ticketId: number;
   workflowCycle: number;
   createdAt: string;
-  performedBy: UserSummary;
+  recordedBy: UserSummary;
   assignee: UserSummary;
+  performedBy: UserSummary | null;
   description: string;
   result: string | null;
   followUpRequired: boolean;
@@ -57,7 +58,6 @@ interface ActionTakenPublic {
   updatedAt: string;
   updatedBy: UserSummary;
   completedAt: string | null;
-  completedBy: UserSummary | null;
   cancelledAt: string | null;
   cancelledBy: UserSummary | null;
   cancellationReason: string | null;
@@ -72,6 +72,7 @@ interface ActionRevisionPublic {
   occurredAt: string;
   snapshot: {
     assignee: UserSummary;
+    performedBy: UserSummary | null;
     description: string;
     result: string | null;
     followUpRequired: boolean;
@@ -94,7 +95,7 @@ interface TicketWorkflowEventPublic {
 }
 ```
 
-`performedBy`, creation timestamp, workflow cycle, fingerprints, and historical actors are server-controlled. Public DTOs never include internal fingerprint/session/storage fields.
+`recordedBy`, `performedBy`, creation/completion timestamps, workflow cycle, fingerprints, and historical actors are server-controlled. `recordedBy` is the immutable creator; `performedBy` is `null` until the server records the authenticated completing actor. Public DTOs never include internal fingerprint/session/storage fields.
 
 ## 3. Canonical error envelope
 
@@ -186,7 +187,7 @@ Request:
 Rules:
 
 - Reject unknown fields.
-- `performedById`, `createdAt`, `workflowCycle`, owner, status, version, completion/cancellation provenance are not accepted from the client.
+- `recordedById`, `performedById`, `createdAt`, `completedAt`, `workflowCycle`, owner, status, version, and cancellation provenance are not accepted from the client.
 - `clientRequestId` is required and must satisfy the selected UUID/key format used by implementation.
 - `expectedTicketVersion` must match the locked parent before a new logical create.
 - `assigneeId` is optional on create. When omitted, the backend selects the authenticated recording actor as assignee; when supplied, it must identify another active eligible Staff/Admin. The UI preselects the actor but still renders the selected assignee explicitly before submission.
@@ -209,7 +210,7 @@ Success:
 Replay semantics:
 
 1. Authorization is checked first.
-2. If `(performedById,clientRequestId)` already committed with matching immutable create fingerprint, return current public Action representation and `replayed:true` without new Action/revision/version mutation.
+2. If `(recordedById,clientRequestId)` already committed with matching immutable create fingerprint, return current public Action representation and `replayed:true` without new Action/revision/version mutation.
 3. Same key with changed canonical original business payload -> `409 DUPLICATE_REQUEST_CONFLICT`.
 4. A new key still must satisfy current parent/assignee/state/version rules.
 
@@ -275,7 +276,7 @@ Request shape:
 Rules:
 
 - `PENDING -> IN_PROGRESS` does not require Result/confirmation beyond ordinary request validity.
-- `PENDING|IN_PROGRESS -> COMPLETED` requires valid Result. `confirmation:true` is required for completion to make the terminal Action transition explicit.
+- `PENDING|IN_PROGRESS -> COMPLETED` requires valid Result. `confirmation:true` is required for completion to make the terminal Action transition explicit. On the successful locked transition, the backend sets `performedBy` to the authenticated completing actor and `completedAt` to server time; both remain immutable afterward.
 - `PENDING|IN_PROGRESS -> CANCELLED` requires `confirmation:true` and trimmed `cancellationReason` 3-200 code points.
 - Any undocumented/same-state/terminal reversal -> `409 CONFLICT` or `400 VALIDATION_ERROR` according to whether syntax is valid but current state disallows it. The project selects `409 CONFLICT` for valid-enum current-state/lifecycle rejection.
 
@@ -410,7 +411,7 @@ interface StaffDashboardResponse {
   myActions: Array<{
     action: ActionTakenPublic;
     ticket: { id: number; ticketNumber: string; summary: string };
-    attribution: "RECORDED" | "ASSIGNED" | "RECORDED_AND_ASSIGNED";
+    attribution: Array<"RECORDED" | "ASSIGNED" | "PERFORMED">;
   }>; // max 5
   drillDown: Record<string,string>;
 }
@@ -422,7 +423,7 @@ Predicates:
 - `myActiveTickets`: owner is actor and status in active set.
 - `highPriorityActive`: `itPriority=HIGH` and status in active set.
 - `waitingForRequester`: status=`WAITING_FOR_REQUESTER`.
-- `myActions`: `performedById=actor OR assigneeId=actor`, deduplicated by Action ID, `(updatedAt DESC,id DESC)`, max 5.
+- `myActions`: `recordedById=actor OR assigneeId=actor OR performedById=actor`, deduplicated by Action ID, `(updatedAt DESC,id DESC)`, max 5. `attribution` contains every matching role so one Action is never duplicated just because the actor recorded, was assigned, and/or completed it.
 - `recentTickets`: Ticket `(updatedAt DESC,id DESC)`, max 5. Accepted public Action mutations count as Ticket updates because they atomically bump the parent Ticket version/`updatedAt`; Public Comment/Internal Note creation keeps its retained Lab 3 timestamp semantics.
 
 Administrator uses this same interface; extra Admin account-count cards are not selected scope.

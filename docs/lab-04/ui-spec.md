@@ -120,14 +120,14 @@ Each card provides a keyboard-accessible drill-down to the Staff Queue with the 
 ### 5.2 Preview groups
 
 - **Recently updated Tickets**: max five.
-- **Recorded by or assigned to me**: max five deduplicated Actions Taken where the actor is original performer and/or current assignee.
+- **My Actions**: max five deduplicated Actions Taken where the actor is the recorder, current assignee, and/or actual performer.
 
 Action preview shows:
 
 - Action status;
 - short description/result where useful;
 - Ticket Number/summary context;
-- assignee/original performer attribution when needed to explain why it appears;
+- explicit `Recorded` / `Assigned` / `Performed` attribution when needed to explain why it appears;
 - direct navigation to the Ticket Detail Actions area.
 
 The UI does not create a new standalone full Actions application just to satisfy Dashboard previews.
@@ -184,6 +184,7 @@ Default chronological order follows the backend `(createdAt,id)` contract. Each 
 - Action Status;
 - Action Description;
 - Result;
+- Recorded by;
 - Performed by;
 - Assigned to;
 - Follow-Up Required and Follow-up Note;
@@ -209,7 +210,8 @@ Editable:
 Read-only/automatic context:
 
 - Action Date/Time: generated after successful create.
-- Performed by: current authenticated actor, never editable.
+- Recorded by: current authenticated actor after successful create, never editable.
+- Performed by: `Not completed`/empty until completion; the backend sets it automatically to the authenticated actor who successfully completes the Action, and it is never editable.
 - Ticket/owner context: read-only.
 
 Behavior:
@@ -241,7 +243,7 @@ Revision/history access must not overwhelm the main list. An expandable `History
 ### 7.4 Start / complete / cancel interactions
 
 - Start is a deliberate action with current status context.
-- Complete requires Result and explicit confirmation. If follow-up remains required, completion may succeed but Ticket resolution stays blocked until follow-up is cleared/corrected according to the contract.
+- Complete requires Result and explicit confirmation. On success, the authenticated completing actor becomes `Performed by` automatically. If follow-up remains required, completion may succeed but Ticket resolution stays blocked until follow-up is cleared/corrected according to the contract.
 - Cancel requires explicit confirmation and 3-200 character reason.
 - Confirmation includes Ticket Number, Action identity/description, current -> next Action status, and consequence.
 - On stale `409`, retain draft/entered result/reason and show authoritative current state; do not silently resubmit.
@@ -265,7 +267,8 @@ Requester sees approved public fields:
 - creation date/time;
 - description;
 - result;
-- original performer;
+- recorded by;
+- performed by (`Not completed`/empty for non-completed Actions);
 - assignee;
 - follow-up flag/note;
 - Attachment Notes;
@@ -343,7 +346,7 @@ Add Action status labels:
 
 Follow-up state must have readable text (`Follow-up required` / `No follow-up required`) in addition to any icon/color.
 
-Owner, Action assignee, and original performer labels must be explicitly named so users do not confuse the concepts.
+Owner, Action recorder, Action assignee, and actual performer labels must be explicitly named so users do not confuse the concepts.
 
 ## 14. Responsive and accessibility contract
 
@@ -389,7 +392,7 @@ Screenshots are visual evidence only; database uniqueness, ownership isolation, 
 - [ ] One coherent Zen Green shell across retained/new screens.
 - [ ] Dashboard cards are concise, aligned, readable, and keyboard actionable.
 - [ ] Metric values are not visually confused with loading placeholders.
-- [ ] Owner, Action assignee, original performer, and later actor are distinguishable.
+- [ ] Owner, Action recorder, Action assignee, actual performer, and later mutation actor are distinguishable.
 - [ ] Editable/read-only fields are visually and semantically distinct.
 - [ ] Public Comments, Internal Notes, and Actions Taken are not visually conflated.
 - [ ] Follow-up required/optional state and validation are clear.
