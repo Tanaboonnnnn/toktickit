@@ -74,7 +74,7 @@ test("HAR-03 planning trace accepts honest planned rows while release rejects th
 test("HAR-03 rejects fake Pass, duplicate Test IDs, unknown mapping and missing rubric destinations", () => {
   const specification = read("docs/lab-04/specification.md");
   const tests = read("docs/lab-04/tests.md");
-  const fakePass = tests.replace(/(^\| MIG-01 .*\|) Planned \/ Not run \|$/m, "$1 Pass |");
+  const fakePass = tests.replace(/(^\| UNIT-01 .*\|) Planned \/ Not run \|$/m, "$1 Pass |");
   assert.throws(() => verifyLab4Traceability({ specification, tests: fakePass, root, mode: "planning" }), /references missing path/i);
 
   const duplicate = tests.replace("| HAR-02 | Harness |", `${tests.match(/^\| HAR-01 .*$/m)[0]}\n| HAR-02 | Harness |`);
