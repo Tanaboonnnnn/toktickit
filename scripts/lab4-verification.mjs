@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const ISSUE_TEST_IDS = new Map([
   [72, ["HAR-01", "HAR-02", "HAR-03"]],
+  [73, ["MIG-01", "MIG-02", "MIG-03", "SEED-01"]],
 ]);
 
 function fail(message) {

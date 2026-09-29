@@ -245,6 +245,7 @@ Immutable forward-only Lab 4 Ticket transition record with Ticket FK, resulting 
 - Legacy `RESOLVED`/`CLOSED` Tickets with zero Actions remain valid.
 - Migration/recovery is rehearsed on isolated disposable data before any real development-data migration.
 - Recovery is documented and tested; no automatic destructive down-migration strategy is required.
+- Issue #73 recovery procedure: if the new migration fails, first verify the failed migration left no Lab 4 product objects/data mutation in the isolated target, correct the forward migration, mark that failed migration rolled back with `prisma migrate resolve --rolled-back <migration-name>`, and re-run `prisma migrate deploy`. Never drop retained Lab 3 tables or reset a populated database as the recovery shortcut; any real-data execution requires a separately authorized private backup/restore rehearsal first.
 
 ### 7.6 Seed
 

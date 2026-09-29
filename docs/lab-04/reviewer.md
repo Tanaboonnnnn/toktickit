@@ -18,6 +18,7 @@ This file records only peer-review evidence that actually occurred. Approval is 
 - Human reviewer: `@L0u1sss` - review submitted `2026-09-29T08:36:05Z` - [Changes Requested](https://github.com/Tanaboonnnnn/toktickit/pull/81#pullrequestreview-5349827819)
 - Human reviewer: `@L0u1sss` - final approval submitted `2026-09-29T09:05:39Z` on reviewed head `95b35a5` - [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/81#pullrequestreview-5350168570)
 - Human reviewer: `@thananun-7203` - PR #82 review submitted `2026-09-29T10:53:05Z` on reviewed head `c7c51ba` - [Changes Requested](https://github.com/Tanaboonnnnn/toktickit/pull/82#pullrequestreview-5351404504)
+- Human reviewer: `@thananun-7203` - PR #82 final approval submitted `2026-09-29T11:43:58Z` on reviewed head `2852a72` - [Approved](https://github.com/Tanaboonnnnn/toktickit/pull/82#pullrequestreview-5351975592)
 - Course names / student IDs for these reviewers: **not established by the GitHub review events; not invented here**
 
 Historical Lab 2/3 reviewer identities are not copied here as if they had reviewed Lab 4.
@@ -30,6 +31,7 @@ Historical Lab 2/3 reviewer identities are not copied here as if they had review
 | [#81](https://github.com/Tanaboonnnnn/toktickit/pull/81) | Re-review of corrected contract and traceability | `@L0u1sss` | `2026-09-29T08:36:05Z` - **Changes Requested** at reviewed head `02d43b5dc42b66d6679e74bd5d045648f485854c`; explicitly confirmed the prior three fixes and requested one AC -> rubric/evidence crosswalk |
 | [#81](https://github.com/Tanaboonnnnn/toktickit/pull/81) | Final review of corrected contract | `@L0u1sss` | `2026-09-29T09:05:39Z` - **Approved** at reviewed head `95b35a512c7bf3211271655018a4b52618b0b75f`; no additional blocker reported |
 | [#82](https://github.com/Tanaboonnnnn/toktickit/pull/82) | Issue #72 verification / CI / evidence integrity | `@thananun-7203` | `2026-09-29T10:53:05Z` - **Changes Requested** at reviewed head `c7c51baa77bc7e713adaf8d165b1a7f696ce76c6`; two verification-safety blockers identified |
+| [#82](https://github.com/Tanaboonnnnn/toktickit/pull/82) | Final re-review after verification-safety corrections | `@thananun-7203` | `2026-09-29T11:43:58Z` - **Approved** at reviewed head `2852a720df6ded45e614d6ca9bf391f2b2b85207`; both prior findings confirmed resolved and no additional Issue #72 blocker reported |
 
 ## Detailed review evidence
 
@@ -74,8 +76,9 @@ Historical Lab 2/3 reviewer identities are not copied here as if they had review
 | PR #81 first Changes Requested | Issue #71 said `regression-map.md` / `release-checklist.md` were sprint documents while PR #81 intentionally kept them local-only. | Accepted as a valid process inconsistency. Issue #71 is corrected to make the six handout files the tracked deliverables and the two helpers local execution notes only. | GitHub Issue #71; local `.git/info/exclude` remains unchanged | Addressed; second review explicitly confirmed complete |
 | PR #81 second Changes Requested | AC -> Test ID traceability existed, but every AC lacked an explicit Rubric/Answer Part evidence destination even though Issue #71 Acceptance requires it. | Accepted as a valid traceability gap. Added exact Answer Part P1-P9 key and a destination column for all AC-01..AC-28; kept every planned Test ID status unchanged. | `tests.md` §3 | Addressed; final re-review subsequently approved |
 | PR #81 final review | The corrected head was rechecked after the traceability fix. | No new code/document change was required; the reviewer recorded the final approval event on exact head `95b35a5`. | GitHub review history | **Approved** `2026-09-29T09:05:39Z`; PR merged to `lab4-staging` as `6969b70a11010008db63f685a745710df68d089f` at `2026-09-29T09:05:51Z` |
-| PR #82 first Changes Requested | Ordinary managed verification could inherit Lab 3 evidence routing and therefore still reach historical output. | Verified as real. Managed runs now delete inherited Lab 3 routing and force a Lab 4 disposable root unless the dedicated historical Lab 3 capture command explicitly opts in with `LAB3_EVIDENCE_CAPTURE=1`; that opt-in is restricted to the managed `issue-52/<label>-<sha7>` root. Added focused regression coverage. | `scripts/lab4-evidence-paths.mjs`, `e2e/lab-02/support/run-playwright.mjs`, `e2e/lab-03/support/release-evidence.ts`, `scripts/capture-lab3-release-evidence.mjs`, harness tests | Addressed in correction; re-review pending |
-| PR #82 first Changes Requested | Lab 4 release manifest accepted arbitrary scenario/Test/rubric identities as long as fields were non-empty. | Verified as real. Added stable scenario IDs derived from the Issue #71 approved evidence surfaces, parser validation against the Test DD, exact `P1`-`P9` validation, per-scenario allowed Test/rubric sets, and focused rejection tests. | `docs/lab-04/tests.md` §8.1, `scripts/lab4-verification.mjs`, `scripts/capture-lab4-release-evidence.mjs`, harness tests | Addressed in correction; re-review pending |
+| PR #82 first Changes Requested | Ordinary managed verification could inherit Lab 3 evidence routing and therefore still reach historical output. | Verified as real. Managed runs now delete inherited Lab 3 routing and force a Lab 4 disposable root unless the dedicated historical Lab 3 capture command explicitly opts in with `LAB3_EVIDENCE_CAPTURE=1`; that opt-in is restricted to the managed `issue-52/<label>-<sha7>` root. Added focused regression coverage. | `scripts/lab4-evidence-paths.mjs`, `e2e/lab-02/support/run-playwright.mjs`, `e2e/lab-03/support/release-evidence.ts`, `scripts/capture-lab3-release-evidence.mjs`, harness tests | Addressed; final re-review approved exact head `2852a72` |
+| PR #82 first Changes Requested | Lab 4 release manifest accepted arbitrary scenario/Test/rubric identities as long as fields were non-empty. | Verified as real. Added stable scenario IDs derived from the Issue #71 approved evidence surfaces, parser validation against the Test DD, exact `P1`-`P9` validation, per-scenario allowed Test/rubric sets, and focused rejection tests. | `docs/lab-04/tests.md` §8.1, `scripts/lab4-verification.mjs`, `scripts/capture-lab4-release-evidence.mjs`, harness tests | Addressed; final re-review approved exact head `2852a72` |
+| PR #82 final review | The corrected verification/evidence head was rechecked after both requested fixes. | No further change was required for Issue #72; the reviewer confirmed both findings resolved and recorded approval on exact head `2852a72`. | GitHub review history | **Approved** `2026-09-29T11:43:58Z`; PR merged to `lab4-staging` as `807512437c42898a37940d20fc6dea12ebb9f7a8` at `2026-09-29T11:44:07Z`; post-merge Lab 4 CI run `36563586190` succeeded |
 
 ## Approval evidence
 
@@ -93,7 +96,20 @@ Historical Lab 2/3 reviewer identities are not copied here as if they had review
 - Scope: verification/traceability/evidence-path/CI infrastructure only; no Lab 4 schema, Action, workflow, or Dashboard product implementation.
 - Pull request: [#82 - Add isolated verification and Lab 4 CI](https://github.com/Tanaboonnnnn/toktickit/pull/82), opened `2026-09-29T10:23:44Z` from this feature branch into `lab4-staging`.
 - Requested reviewer: `@L0u1sss`, requested on the live PR after creation.
-- Peer-review status: **Changes Requested** by `@thananun-7203` on reviewed head `c7c51ba`; both findings were independently verified and corrected with regression coverage. **Re-review/approval is still pending.** No Issue #72 approval or merge is pre-claimed.
+- Peer-review status: first **Changes Requested** by `@thananun-7203` on reviewed head `c7c51ba`; both findings were independently verified and corrected with regression coverage. Final re-review **Approved** exact head `2852a720df6ded45e614d6ca9bf391f2b2b85207` at `2026-09-29T11:43:58Z`.
+- Merge status: **Merged** to `lab4-staging` at `2026-09-29T11:44:07Z`, merge commit `807512437c42898a37940d20fc6dea12ebb9f7a8`; Issue #72 subsequently closed completed.
+- Hosted verification: PR-head Lab 4 CI run `36561093872` succeeded; post-merge `lab4-staging` push run `36563586190` succeeded on exact staging SHA `807512437c42898a37940d20fc6dea12ebb9f7a8`.
+
+## Issue #73 review context
+
+- Issue: [#73 - Add data-preserving Actions, audit history and repeat-safe seed](https://github.com/Tanaboonnnnn/toktickit/issues/73)
+- Feature branch: `feature/73-lab4-data`
+- Base branch: `lab4-staging`
+- Starting integration SHA: `807512437c42898a37940d20fc6dea12ebb9f7a8`
+- Scope: additive Prisma/data migration, preservation/recovery tests, repeat-safe Lab 4 seed, FK-compatible fixture cleanup, and truthful trace/document evidence only; no public Action API/UI, Ticket final-gate implementation, or Dashboard implementation.
+- Pull request: **not opened yet**.
+- Peer-review status: **not requested yet**. No Issue #73 approval or merge is pre-claimed.
+- Pre-PR local verification: Prisma validate/generate passed; dedicated `toktickit_test` migration deploy/status reported all four migrations applied and schema up to date; `MIG-01`/`MIG-02`/`MIG-03` and `SEED-01` passed; retained Lab 3 migration/seed tests passed; Issue #73 increment trace passed; historical migration directories are byte-for-byte unchanged relative to `origin/lab4-staging`; fresh `npm run verify` completed with server **54 files / 292 tests**, client **25 files / 136 tests**, Lab 4 harness **8 Node + 3 server safety tests**, retained E2E **37**, and retained responsive **13** all passing. The known jsdom navigation warning remained non-failing.
 
 ## Evidence integrity rules for later updates
 
