@@ -46,7 +46,7 @@ const runner = spawnSync(process.execPath, [
   "--project=chromium",
 ], {
   cwd: root,
-  env: { ...process.env, LAB3_EVIDENCE_ROOT: relativeRoot },
+  env: { ...process.env, LAB3_EVIDENCE_ROOT: relativeRoot, LAB3_EVIDENCE_CAPTURE: "1" },
   stdio: "inherit",
 });
 if (runner.error) throw runner.error;

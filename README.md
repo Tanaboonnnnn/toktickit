@@ -230,14 +230,24 @@ cd ..\server
 npm test
 ```
 
-Run the managed Lab 2 browser verification from the repository root:
+Run the managed current-product browser verification from the repository root:
 
 ```powershell
 npm.cmd run test:e2e
 npm.cmd run test:responsive
 ```
 
-`test:e2e` runs the current Chromium E2E suite, collecting retained/evolved specs under `e2e/lab-02/` and Lab 3 specs under `e2e/lab-03/` as they are added. `test:responsive` runs the current Desktop (`1440×900`), Tablet (`834×1112`), and Mobile (`390×844`) responsive specs. Current screenshots write under `artifacts/lab-03/screenshots/` so submitted Lab 2 evidence is not overwritten. The supported scripts own API/client startup and cleanup; direct `npx playwright test` does not start those services. Run `npm.cmd run verify` for the aggregate current-suite gate.
+`test:e2e` discovers the retained Lab 2/Lab 3 suites and future `e2e/lab-04/**/*.spec.ts`. `test:responsive` dynamically discovers retained and future responsive specs at Desktop (`1440×900`), Tablet (`834×1112`), and Mobile (`390×844`) instead of keeping a fixed Lab 2 list. Ordinary managed browser runs redirect screenshot writes into ignored `artifacts/lab-04/test-output/`; they do not rewrite the frozen Lab 2/3 screenshot trees. The supported scripts own API/client startup and cleanup; direct `npx playwright test` does not start those services.
+
+Issue #72 also provides focused future-Lab-4 commands:
+
+```powershell
+npm.cmd run test:trace:lab4 -- --mode=planning
+npm.cmd run test:e2e:lab4
+npm.cmd run test:responsive:lab4
+```
+
+Until a later feature Issue adds real `e2e/lab-04/` specs, the two focused browser commands intentionally exit non-zero with an explicit “refusing a false green empty-suite run” message. That guard is expected; do not turn an empty Lab 4 suite into a passing result. Increment traceability can be checked with `npm.cmd run test:trace:lab4 -- --mode=increment --issue=<number>` once that Issue's owned Test IDs contain real executed evidence. Release mode remains a final-release gate, not an Issue #72 shortcut.
 
 ## Lab 1 branch and review workflow
 
@@ -321,14 +331,25 @@ HEAD because it adds the PNG/metadata files themselves. No application code is a
 to change between that source SHA and the repository-evidence container commit. CI still
 provides the separate exact-current-PR-head artifact described above.
 
-### GitHub Actions CI for Lab 3
+### Historical Lab 3 CI evidence
 
-`.github/workflows/lab3-ci.yml` runs on pull requests targeting `lab3-staging` or
-`main`, and on pushes to those two integration branches. The Linux job provisions
-PostgreSQL with separate development/test database identities, installs all three
-lockfile scopes, generates Prisma Client, deploys migrations and local-only seed data
-to the dedicated test database, installs Chromium, captures the 41-image SHA-labelled
-UI evidence set, and runs the complete `npm run verify` gate. The UI evidence folder is
-uploaded as a GitHub Actions artifact named with the exact evidence-source SHA; Playwright
-diagnostics are uploaded on failure. CI credentials are ephemeral test values, not
-repository or personal secrets.
+Lab 3 used `.github/workflows/lab3-ci.yml` to verify `lab3-staging`/`main` and capture its fixed 41-image release evidence. That workflow belongs to the delivered Lab 3 history; Issue #72 replaces the active workflow file with the Lab 4 workflow below instead of continuing to run a Lab-3-named job against new integration commits. Historical Lab 3 Actions runs/artifacts remain the evidence for the delivered sprint and are not rewritten by Lab 4 verification.
+
+## Lab 4 branch, verification, and CI workflow
+
+```text
+feature/<issue>-lab4-<short-name> -> lab4-staging
+lab4-staging -> reviewed release PR -> main
+```
+
+Lab 4 continues the same staged-integration rule. Create each feature from the latest fetched `lab4-staging`; do not branch from a stale cached remote ref and do not commit directly to `lab4-staging` or `main`.
+
+`.github/workflows/lab4-ci.yml` is the current workflow for pull requests/pushes involving `lab4-staging` and `main`. It pins Node 22, installs all three lockfile scopes, generates Prisma Client, migrates/seeds the dedicated `toktickit_test` database, installs Chromium, checks Lab 4 planning traceability, and runs the aggregate verification gate. The job checks out the real PR-head SHA and prints source/base/ref provenance. Ordinary browser output is uploaded from `artifacts/lab-04/test-output/`; it never captures into frozen Lab 3 evidence directories.
+
+Future grader-facing Lab 4 evidence uses:
+
+```powershell
+npm.cmd run capture:evidence:lab4 -- candidate
+```
+
+That command requires a clean worktree, records the exact source SHA, refuses an empty Lab 4 browser suite, and builds its manifest from scenario/Test-ID/rubric metadata. It deliberately has no inherited “41 screenshots” completion rule; final screenshot coverage is driven by the reviewed Lab 4 contract and actual scenarios.

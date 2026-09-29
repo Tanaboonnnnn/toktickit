@@ -2,6 +2,7 @@ import type { APIRequestContext, Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { E2E_REQUESTER_PASSWORD } from "./fixtures.js";
+import { resolveLab4EvidenceFile, retainedScreenshotSuffix } from "../../../scripts/lab4-evidence-paths.mjs";
 
 const API_URL = "http://127.0.0.1:4311";
 const FRONTEND_ORIGIN = "http://127.0.0.1:4312";
@@ -118,7 +119,10 @@ export async function assertSelectedOptionTextFits(page: Page, selectors: string
 }
 
 export async function screenshot(page: Page, relativePath: string): Promise<void> {
-  const absolutePath = resolve(process.cwd(), relativePath);
+  const currentRunRoot = process.env.LAB4_EVIDENCE_ROOT?.trim();
+  const absolutePath = currentRunRoot
+    ? resolveLab4EvidenceFile(process.cwd(), currentRunRoot, retainedScreenshotSuffix(relativePath))
+    : resolve(process.cwd(), relativePath);
   mkdirSync(dirname(absolutePath), { recursive: true });
   await page.screenshot({ path: absolutePath, fullPage: true });
 }
