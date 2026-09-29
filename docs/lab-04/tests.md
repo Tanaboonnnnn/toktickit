@@ -1,6 +1,6 @@
 # Lab 4 Test DD Plan
 
-Status: **Issue #71 planning ledger. All Lab 4 Test IDs below are `Planned / Not run`. No future implementation result is claimed by this document.**
+Status: **Issue #72 verification-harness increment. HAR-01, HAR-02, and HAR-03 have executed local evidence recorded below; all later product/release Test IDs remain `Planned / Not run` until their own executable checks run on the relevant source SHA.**
 
 Primary authority: `SE+Lab+4.pdf` section 10 and the Acceptance Criteria in `specification.md`.
 
@@ -24,9 +24,9 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 | Test ID | Type | Requirement / AC | Planned behavior | Expected result | Planned executable/evidence path | Final |
 |---|---|---|---|---|---|---|
 | SPEC-01 | Contract consistency | AC-01, AC-02, AC-10, AC-11, AC-26 | Validate source reconciliation, eleven required specification sections, matrices, DTO/UI/test agreement, and AC -> Test ID -> submission/rubric evidence crosswalk | Contract is internally consistent before product implementation | `docs/lab-04/specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md` | Planned / Not run |
-| HAR-01 | Harness | AC-26 | Discover all Lab 4 plus retained suites; reject missing required suite / false empty success | Required suites selected honestly | `scripts/verify-lab4-harness.test.mjs`, `playwright.config.ts` | Planned / Not run |
-| HAR-02 | Harness | AC-19, AC-26 | Protect test DB/upload roots and frozen Lab 3 artifact paths | Unsafe environment/frozen path fails closed before mutation | `scripts/verify-lab4-harness.test.mjs`, `server/tests/lab-04/harness-safety.unit.test.ts` | Planned / Not run |
-| HAR-03 | CI/traceability | AC-26, AC-27 | Distinguish planning/increment/release modes and exact SHA/output roots | No candidate result is mislabeled final-main evidence | `scripts/verify-lab4-traceability.mjs`, `scripts/capture-lab4-release-evidence.mjs` | Planned / Not run |
+| HAR-01 | Harness | AC-26 | Discover all Lab 4 plus retained suites; reject missing required suite / false empty success | Required suites selected honestly | `scripts/verify-lab4-harness.test.mjs`, `playwright.config.ts` | **Pass - Issue #72 local harness** |
+| HAR-02 | Harness | AC-19, AC-26 | Protect test DB/upload roots and frozen Lab 3 artifact paths | Unsafe environment/frozen path fails closed before mutation | `scripts/verify-lab4-harness.test.mjs`, `server/tests/lab-04/harness-safety.unit.test.ts` | **Pass - Issue #72 local harness** |
+| HAR-03 | CI/traceability | AC-26, AC-27 | Distinguish planning/increment/release modes and exact SHA/output roots | No candidate result is mislabeled final-main evidence | `scripts/verify-lab4-traceability.mjs`, `scripts/capture-lab4-release-evidence.mjs` | **Pass - Issue #72 local harness** |
 | MIG-01 | Integration | AC-01, AC-19 | Clean install and populated Lab 3 -> Lab 4 migration, including Attachment byte checksums | Required old records/IDs/FKs/content/files preserved and new schema valid | `server/tests/lab-04/migration.integration.test.ts` | Planned / Not run |
 | MIG-02 | Integration | AC-13, AC-19 | Repeat deploy, legacy terminal zero-Action Tickets, schema drift | Repeat is safe; legacy terminals remain valid; no destructive rewrite | `server/tests/lab-04/migration.integration.test.ts` | Planned / Not run |
 | MIG-03 | Integration | AC-19 | Inject late migration failure in disposable target and execute documented recovery | No half-applied product mutation; recovery succeeds safely | `server/tests/lab-04/migration.integration.test.ts` | Planned / Not run |
@@ -214,3 +214,28 @@ Source baseline/worktree: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` on `feature
 | `npm.cmd run test:trace:lab3` | Pass - 50 unique Lab 3 Test IDs / 32 ACs / mapped paths exist |
 
 Not run in Issue #71: database/API integration suites, migration/seed mutation, browser/E2E/responsive capture, or Lab 4 executable tests. Issue #71 is documentation-only and must not mutate project data or historical Lab 3 evidence.
+
+## 10. Issue #72 verification-harness execution record
+
+Issue #72 starts from fetched `lab4-staging` merge `6969b70a11010008db63f685a745710df68d089f` in isolated branch `feature/72-lab4-verification-harness`. The preserved dirty Lab 3 root/worktrees were not reset, cleaned, stashed, or reused.
+
+The harness now discovers future `e2e/lab-04/**/*.spec.ts`, routes ordinary browser screenshots to ignored `artifacts/lab-04/test-output/`, rejects frozen Lab 2/3 evidence paths, keeps the managed database/upload/process guards, provides planning/increment/release trace modes, and adds Lab 4 CI for `lab4-staging`/`main` with the canonical `toktickit_test` identity. Release evidence remains scenario/Test-ID/rubric driven; it does not inherit Lab 3's fixed 41-image count.
+
+Fresh local checks executed after the safe-output routing was installed:
+
+| Check | Issue #72 result |
+|---|---|
+| Prisma Client generation from `server/prisma/schema.prisma` | Pass - Prisma Client v5.22.0 generated in the isolated worktree |
+| `npm.cmd --prefix server run build` | Pass |
+| `npm.cmd --prefix server test` | Pass - 52 files / 288 tests |
+| `npm.cmd --prefix client run build` | Pass |
+| `npm.cmd --prefix client test` | Pass - 25 files / 136 tests |
+| `npm.cmd run test:harness:lab4` | Pass - 5 Node harness tests + 3 server safety tests |
+| `npm.cmd run test:trace:lab3` | Pass - retained 50 Test IDs / 32 ACs |
+| `npm.cmd run test:trace:lab4 -- --mode=planning` | Pass - 24 FRs / 54 BRs / 28 ACs / 57 Test IDs |
+| `npm.cmd run test:e2e` | Pass - 37 retained browser tests |
+| `npm.cmd run test:responsive` | Pass - 13 retained responsive browser tests |
+| `npm.cmd run test:e2e:lab4` / `test:responsive:lab4` before later feature specs exist | Expected non-zero guard: explicitly refuses a false green empty Lab 4 suite |
+| `git diff --check` | Pass |
+
+The three Issue #72-owned HAR rows may therefore record local Pass evidence. This does **not** promote TRACE-01, REL-02, migration, Actions, Dashboard, final regression, or final-main rows: those remain future work. Hosted PR-head CI/review evidence is recorded only after GitHub actually produces it.

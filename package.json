@@ -4,12 +4,17 @@
   "private": true,
   "scripts": {
     "test:e2e": "npm --prefix server run build && node e2e/lab-02/support/run-playwright.mjs --project=chromium",
+    "test:e2e:lab4": "npm --prefix server run build && node scripts/run-lab4-browser.mjs e2e",
     "test:e2e:auth": "npm --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-03/authentication.spec.ts --project=chromium",
-    "test:responsive": "npm --prefix server run build && node e2e/lab-02/support/run-playwright.mjs e2e/lab-02/responsive-desktop.spec.ts e2e/lab-02/responsive-tablet.spec.ts e2e/lab-02/responsive-mobile.spec.ts --project=chromium",
+    "test:responsive": "npm --prefix server run build && node scripts/run-lab4-browser.mjs responsive --include-retained",
+    "test:responsive:lab4": "npm --prefix server run build && node scripts/run-lab4-browser.mjs responsive",
     "test:lab3-auth-activation-review": "npm --prefix server run build && npm --prefix server run test:lab3-auth-activation-review && npm --prefix client run build && npm --prefix client test -- tests/lab-03/Login.test.tsx tests/lab-03/ChangePassword.test.tsx tests/lab-03/AuthShell.test.tsx tests/lab-03/status-compatibility.test.tsx && npm run test:e2e:auth",
     "test:trace:lab3": "node scripts/verify-lab3-traceability.mjs",
+    "test:trace:lab4": "node scripts/verify-lab4-traceability.mjs",
+    "test:harness:lab4": "node --test scripts/verify-lab4-harness.test.mjs && npm --prefix server test -- tests/lab-04/harness-safety.unit.test.ts",
     "capture:evidence:lab3": "node scripts/capture-lab3-release-evidence.mjs",
-    "verify": "npm --prefix server run build && npm --prefix server test && npm --prefix client run build && npm --prefix client test && npm run test:trace:lab3 && npm run test:e2e && npm run test:responsive",
+    "capture:evidence:lab4": "node scripts/capture-lab4-release-evidence.mjs",
+    "verify": "npm --prefix server run build && npm --prefix server test && npm --prefix client run build && npm --prefix client test && npm run test:harness:lab4 && npm run test:trace:lab3 && npm run test:trace:lab4 -- --mode=planning && npm run test:e2e && npm run test:responsive",
     "test:quality": "npm run test:e2e && npm run test:responsive"
   },
   "devDependencies": {

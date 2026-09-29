@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { Page } from "@playwright/test";
 import { assertNoHorizontalOverflow } from "../../lab-02/support/ui.js";
+import { resolveLab4EvidenceFile } from "../../../scripts/lab4-evidence-paths.mjs";
 
 export interface ReleaseEvidenceMeta {
   file: string;
@@ -9,12 +10,15 @@ export interface ReleaseEvidenceMeta {
   route: string;
   scenario: string;
   mapping: string[];
+  testId?: string;
+  rubricPart?: string;
   viewport?: string;
 }
 
 export async function captureReleaseEvidence(page: Page, meta: ReleaseEvidenceMeta): Promise<void> {
+  const lab4EvidenceRoot = process.env.LAB4_EVIDENCE_ROOT?.trim();
   const evidenceRoot = process.env.LAB3_EVIDENCE_ROOT?.trim();
-  if (!evidenceRoot) return;
+  if (!lab4EvidenceRoot && !evidenceRoot) return;
 
   await assertNoHorizontalOverflow(page);
   const visibleText = await page.locator("body").innerText();
@@ -27,8 +31,9 @@ export async function captureReleaseEvidence(page: Page, meta: ReleaseEvidenceMe
     throw new Error(`Release evidence contains technical fixture text: ${leakedFixtureToken[0]}`);
   }
   const viewport = page.viewportSize();
-  const relativePng = `${evidenceRoot}/${meta.file}`;
-  const absolutePng = resolve(process.cwd(), relativePng);
+  const absolutePng = lab4EvidenceRoot
+    ? resolveLab4EvidenceFile(process.cwd(), lab4EvidenceRoot, meta.file)
+    : resolve(process.cwd(), `${evidenceRoot}/${meta.file}`);
   mkdirSync(dirname(absolutePng), { recursive: true });
   await page.screenshot({ path: absolutePng, fullPage: true });
 

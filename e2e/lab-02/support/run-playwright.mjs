@@ -8,6 +8,9 @@ const apiPort = 4311;
 const clientPort = 4312;
 const apiUrl = `http://127.0.0.1:${apiPort}`;
 const env = { ...process.env };
+if (!env.LAB3_EVIDENCE_ROOT && !env.LAB4_EVIDENCE_ROOT) {
+  env.LAB4_EVIDENCE_ROOT = `artifacts/lab-04/test-output/playwright-${process.pid}`;
+}
 let managedServer;
 let managedClient;
 let shuttingDown = false;
