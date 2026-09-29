@@ -14,7 +14,8 @@ const relatedSystems = [
 ] as const;
 
 function logLocalOnlySeedCredential(email: string, password: string): void {
-  if (process.env.CI || process.env.GITHUB_ACTIONS) return;
+  const ci = process.env.CI?.toLowerCase();
+  if (process.env.GITHUB_ACTIONS === "true" || ci === "true" || ci === "1") return;
   console.log(`[local-only seed credential] ${email} ${password}`);
 }
 

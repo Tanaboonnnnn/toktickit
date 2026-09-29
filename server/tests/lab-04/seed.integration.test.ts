@@ -49,7 +49,7 @@ afterAll(async () => { try { await prisma?.$disconnect(); if (schema) await admi
 describe("SEED-01 Lab 4 repeat-safe demo data", () => {
   it("creates the Lab 4 matrix once and preserves deliberate user/ticket/action edits on rerun", async () => {
     const localSeedOutput = runPrismaWithEnv(isolatedUrl, { CI: "", GITHUB_ACTIONS: "" }, "db", "seed");
-    expect(localSeedOutput).toMatch(/\[local-only seed credential\] empty\.dashboard\.lab4@example\.test \\S+/);
+    expect(localSeedOutput).toMatch(/\[local-only seed credential\] empty\.dashboard\.lab4@example\.test \S+/);
     const tickets = await prisma.ticket.findMany({ where: { ticketNumber: { startsWith: "TKT-20260929-L4" } }, orderBy: { ticketNumber: "asc" } });
     expect(tickets).toHaveLength(8);
     expect(new Set(tickets.map((ticket) => ticket.currentStatus))).toEqual(new Set(["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "CLOSED", "REOPENED", "CANCELLED"]));
@@ -107,6 +107,7 @@ describe("SEED-01 Lab 4 repeat-safe demo data", () => {
     });
     const ineligibleAssignee = await prisma.user.findUniqueOrThrow({ where: { email: "korn.it@example.test" } });
     expect(missingFixtureAction.assigneeId).toBe(ineligibleAssignee.id);
+    const assignedBeforeRemoval = await prisma.actionTaken.count({ where: { assigneeId: ineligibleAssignee.id } });
     await prisma.actionTakenRevision.deleteMany({ where: { actionId: missingFixtureAction.id } });
     await prisma.actionTaken.delete({ where: { id: missingFixtureAction.id } });
     await prisma.user.update({
@@ -119,6 +120,7 @@ describe("SEED-01 Lab 4 repeat-safe demo data", () => {
     expect(await prisma.actionTaken.findFirst({
       where: { clientRequestId: "20000000-0000-4000-8000-000000000001" },
     })).toBeNull();
+    expect(await prisma.actionTaken.count({ where: { assigneeId: ineligibleAssignee.id } })).toBe(assignedBeforeRemoval - 1);
     expect(await prisma.user.findUniqueOrThrow({ where: { id: ineligibleAssignee.id } })).toMatchObject({
       active: false,
       role: "REQUESTER",
