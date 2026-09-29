@@ -71,7 +71,7 @@ IT Staff need a reliable record of the real work performed on each Ticket. The p
 - **FR-21 - Handle duplicate/retry safely:** Ambiguous Action creation retry shall reconcile one logical request rather than creating duplicate Actions.
 - **FR-22 - Preserve safe drafts:** Recoverable UI failures/conflicts shall preserve safe user-entered data and shall not silently replay a stale mutation.
 - **FR-23 - Preserve Zen Green/accessibility:** New screens shall reuse the existing design language, responsive conventions, keyboard/focus behavior, semantic labels, and non-color state meaning.
-- **FR-24 - Produce traceable evidence:** Every Acceptance Criterion shall map to at least one planned Test ID and final completion shall depend on fresh evidence from the delivered final `main` SHA.
+- **FR-24 - Produce traceable evidence:** Every Acceptance Criterion shall map to at least one planned Test ID and an explicit handout Rubric/Answer Part evidence destination; final completion shall depend on fresh evidence from the delivered final `main` SHA.
 
 ## 5. Business Rules
 
@@ -302,7 +302,7 @@ The list/query contract is extended deliberately for dashboard drill-down rather
 - **AC-23:** Existing Staff Queue/Detail, owner/priority workflow, Public Comments, Internal Notes, Requester advisory resolution, and Administrator User Management remain correct, including new outstanding-Action deactivation safety.
 - **AC-24:** Recoverable validation/conflict/network/API failures preserve safe drafts/retry identity, expose no sensitive internals, and produce no unhandled client failure.
 - **AC-25:** All major Lab 4 screens meet Zen Green, labels/focus/non-color semantics, keyboard operation, long-content handling, and 1440x900 / 834x1112 / 390x844 responsive requirements without page-level horizontal overflow.
-- **AC-26:** Required Lab 4 and retained regression tests are discovered and traced honestly; no planned test is labeled Pass without an executed check and no Lab 3 evidence is rewritten.
+- **AC-26:** Required Lab 4 and retained regression tests are discovered and traced honestly; every AC maps to planned Test IDs and a Rubric/Answer Part evidence destination; no planned test is labeled Pass without an executed check and no Lab 3 evidence is rewritten.
 - **AC-27:** Git history, Issue/PR Development links, real peer review, `feature/* -> lab4-staging -> main`, actual board state, and exact-final-main verification support release completion.
 - **AC-28:** The single final submission PDF contains readable `Answer Part 1` through `Answer Part 9`, working links, actual evidence, and student-confirmed reflection.
 

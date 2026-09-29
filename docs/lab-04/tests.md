@@ -23,7 +23,7 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 
 | Test ID | Type | Requirement / AC | Planned behavior | Expected result | Planned executable/evidence path | Final |
 |---|---|---|---|---|---|---|
-| SPEC-01 | Contract consistency | AC-01, AC-02, AC-10, AC-11, AC-26 | Validate source reconciliation, eleven required specification sections, matrices, DTO/UI/test agreement | Contract is internally consistent before product implementation | `docs/lab-04/specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md` | Planned / Not run |
+| SPEC-01 | Contract consistency | AC-01, AC-02, AC-10, AC-11, AC-26 | Validate source reconciliation, eleven required specification sections, matrices, DTO/UI/test agreement, and AC -> Test ID -> submission/rubric evidence crosswalk | Contract is internally consistent before product implementation | `docs/lab-04/specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md` | Planned / Not run |
 | HAR-01 | Harness | AC-26 | Discover all Lab 4 plus retained suites; reject missing required suite / false empty success | Required suites selected honestly | `scripts/verify-lab4-harness.test.mjs`, `playwright.config.ts` | Planned / Not run |
 | HAR-02 | Harness | AC-19, AC-26 | Protect test DB/upload roots and frozen Lab 3 artifact paths | Unsafe environment/frozen path fails closed before mutation | `scripts/verify-lab4-harness.test.mjs`, `server/tests/lab-04/harness-safety.unit.test.ts` | Planned / Not run |
 | HAR-03 | CI/traceability | AC-26, AC-27 | Distinguish planning/increment/release modes and exact SHA/output roots | No candidate result is mislabeled final-main evidence | `scripts/verify-lab4-traceability.mjs`, `scripts/capture-lab4-release-evidence.mjs` | Planned / Not run |
@@ -76,43 +76,57 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 | REG-02 | Retained suites | AC-22 | Lab 2/3 Ticket create/idempotency/list/detail/Attachment lifecycle | Requester MVP remains correct under authentication | `server/tests/lab-02/`, `client/tests/lab-02/`, `e2e/lab-02/` | Planned / Not run for Lab 4 candidate |
 | REG-03 | Retained suites | AC-23 | Comments/Internal Notes/advisory/Staff operations/Admin safety | Operational/admin behavior retained with Action-assignee safety extension | `server/tests/lab-03/`, `client/tests/lab-03/`, `e2e/lab-03/` | Planned / Not run for Lab 4 candidate |
 | REG-04 | Retained suites | AC-19, AC-20, AC-26 | Earlier health/reference/migration/seed suites remain selected and meaningful | No regression hidden by suite exclusion | `server/tests/`, `client/tests/`, `e2e/`, `docs/lab-04/tests.md` | Planned / Not run for Lab 4 candidate |
-| TRACE-01 | Traceability | AC-26 | Unique IDs, every AC mapped, paths/evidence/results honest | No orphan AC/Test ID/fake Pass/historical artifact rewrite | `scripts/verify-lab4-traceability.mjs`, `docs/lab-04/tests.md` | Planned / Not run |
+| TRACE-01 | Traceability | AC-26 | Unique IDs, every AC mapped to planned tests and an Answer Part/rubric evidence destination, paths/evidence/results honest | No orphan AC/Test ID/evidence destination, fake Pass, or historical artifact rewrite | `scripts/verify-lab4-traceability.mjs`, `docs/lab-04/tests.md` | Planned / Not run |
 | REL-01 | Review/process | AC-27 | Real peer review, Development links, staged history, actual board state | Process evidence matches GitHub reality | `docs/lab-04/reviewer.md`, live GitHub Issue/PR/Project evidence | Planned / Not run |
 | REL-02 | Release verification | AC-26, AC-27 | Fresh complete verification on exact resulting final `main` SHA | Candidate evidence not substituted for final-main evidence | `docs/lab-04/tests.md`, `artifacts/lab-04/`, exact final GitHub SHA/check evidence | Planned / Not run |
 | PDF-01 | Submission/manual | AC-28 | One PDF, Answer Part 1-9, working links, readable render, actual reflection/evidence | Grader-readable complete submission | `docs/lab-04/submission-outline.md` or final generation source; final PDF | Planned / Not run |
 
 ## 3. Acceptance-Criterion Traceability
 
-| AC | Planned Test IDs |
+The final-PDF destinations below use the handout's exact `Answer Part 1` through `Answer Part 9` structure. They identify where the grader-facing evidence for each AC belongs; they do **not** mark that evidence as already produced or passed.
+
+| Key | Handout submission part |
 |---|---|
-| AC-01 | MIG-01, API-01 |
-| AC-02 | UNIT-01, API-01, E2E-01 |
-| AC-03 | UNIT-01, API-01, UI-01 |
-| AC-04 | API-03, RACE-02 |
-| AC-05 | UNIT-01, API-03, UI-01, E2E-01 |
-| AC-06 | API-02, API-06, UI-02, SEC-01, E2E-01 |
-| AC-07 | API-04, RACE-01, UI-04, E2E-01 |
-| AC-08 | API-05, RACE-01, RACE-03, UI-04 |
-| AC-09 | RACE-03, FLOW-05, RACE-04, RACE-05, E2E-02 |
-| AC-10 | SPEC-01, FLOW-01, UI-03, E2E-02 |
-| AC-11 | SPEC-01, FLOW-02, RACE-04, UI-03, E2E-02 |
-| AC-12 | FLOW-03, E2E-02 |
-| AC-13 | MIG-02, FLOW-04, E2E-02 |
-| AC-14 | API-05, API-06, FLOW-05, UI-02, E2E-02 |
-| AC-15 | DASH-01, DASH-05, UI-05, E2E-03 |
-| AC-16 | DASH-02, DASH-05, UI-06, E2E-03 |
-| AC-17 | DASH-01, DASH-02, DASH-03, DASH-04, UI-05, UI-06, PERF-01, E2E-03 |
-| AC-18 | DASH-04, UI-07, E2E-03 |
-| AC-19 | HAR-02, MIG-01, MIG-02, MIG-03, REG-04 |
-| AC-20 | SEED-01, REG-04 |
-| AC-21 | UI-07, SEC-01, REG-01, E2E-04 |
-| AC-22 | REG-02, E2E-04 |
-| AC-23 | SEC-01, REG-03, E2E-04 |
-| AC-24 | UI-03, UI-04, DASH-05, UI-05, UI-06, SAFE-01, E2E-04 |
-| AC-25 | STYLE-01, A11Y-01, RESP-01, RESP-02, RESP-03, E2E-04 |
-| AC-26 | SPEC-01, HAR-01, HAR-02, HAR-03, REG-04, TRACE-01, REL-02 |
-| AC-27 | HAR-03, REL-01, REL-02 |
-| AC-28 | PDF-01 |
+| P1 | Answer Part 1 - Git Use with Engineering Workflow |
+| P2 | Answer Part 2 - Spec DD |
+| P3 | Answer Part 3 - Test DD and Traceability |
+| P4 | Answer Part 4 - AI Use with Reflection |
+| P5 | Answer Part 5 - Working IT Staff Dashboard UI |
+| P6 | Answer Part 6 - Working Actions Taken UI |
+| P7 | Answer Part 7 - Working Ticket Workflow |
+| P8 | Answer Part 8 - Working Requester Dashboard and Final Regression UI |
+| P9 | Answer Part 9 - Zen Green UI, Responsive, Accessibility, and Final Polish |
+
+| AC | Planned Test IDs | Rubric / final-PDF evidence destination |
+|---|---|---|
+| AC-01 | MIG-01, API-01 | P6 create-Action demonstration; P3 API/migration evidence |
+| AC-02 | UNIT-01, API-01, E2E-01 | P6 role/server-controlled-field demonstration; P3 unit/API/E2E evidence |
+| AC-03 | UNIT-01, API-01, UI-01 | P6 validation demonstration; P9 validation-placement polish; P3 test evidence |
+| AC-04 | API-03, RACE-02 | P6 assign/inactive-assignee demonstration; P3 API/concurrency evidence |
+| AC-05 | UNIT-01, API-03, UI-01, E2E-01 | P6 edit/status/complete/cancel demonstration; P3 lifecycle evidence |
+| AC-06 | API-02, API-06, UI-02, SEC-01, E2E-01 | P6 role restrictions/read-only Action visibility; P8 ownership/privacy regression; P3 authorization evidence |
+| AC-07 | API-04, RACE-01, UI-04, E2E-01 | P6 safe duplicate/retry behavior; P3 idempotency/concurrency evidence |
+| AC-08 | API-05, RACE-01, RACE-03, UI-04 | P7 append-only/audit behavior; P3 version/revision/concurrency evidence |
+| AC-09 | RACE-03, FLOW-05, RACE-04, RACE-05, E2E-02 | P7 workflow consistency under competing mutations; P3 concurrency/E2E evidence |
+| AC-10 | SPEC-01, FLOW-01, UI-03, E2E-02 | P7 permitted Ticket-transition demonstration; P2 documented matrix; P3 matrix tests |
+| AC-11 | SPEC-01, FLOW-02, RACE-04, UI-03, E2E-02 | P7 resolution-gate demonstration; P2 gate rule; P3 API/concurrency/E2E evidence |
+| AC-12 | FLOW-03, E2E-02 | P7 formal workflow boundary; P8 Requester advisory regression; P3 flow evidence |
+| AC-13 | MIG-02, FLOW-04, E2E-02 | P7 reopen/legacy workflow demonstration; P2 legacy decision; P3 migration/flow evidence |
+| AC-14 | API-05, API-06, FLOW-05, UI-02, E2E-02 | P7 stable ordering/append-only history; P8 retained Comments/Internal Notes behavior; P3 audit evidence |
+| AC-15 | DASH-01, DASH-05, UI-05, E2E-03 | P8 Requester Dashboard metrics/previews/ownership; P3 dashboard evidence |
+| AC-16 | DASH-02, DASH-05, UI-06, E2E-03 | P5 Staff Dashboard metrics/current-user Actions; P3 dashboard evidence |
+| AC-17 | DASH-01, DASH-02, DASH-03, DASH-04, UI-05, UI-06, PERF-01, E2E-03 | P5/P8 accurate counts, drill-down and database-query match; P3 API/SQL/performance evidence |
+| AC-18 | DASH-04, UI-07, E2E-03 | P5/P8 drill-down/navigation-context demonstration; P3 navigation/API evidence |
+| AC-19 | HAR-02, MIG-01, MIG-02, MIG-03, REG-04 | P2 migration/recovery decisions; P3 clean/populated/repeat/recovery evidence |
+| AC-20 | SEED-01, REG-04 | P3 repeat-safe seed evidence; seeded demo states support P5/P6/P8 demonstrations |
+| AC-21 | UI-07, SEC-01, REG-01, E2E-04 | P8 authentication/security representative regression; P3 security/regression evidence |
+| AC-22 | REG-02, E2E-04 | P8 My Tickets/Ticket Detail/Attachments representative regression; P3 retained-suite evidence |
+| AC-23 | SEC-01, REG-03, E2E-04 | P8 Staff functions/Public Comments/Internal Notes/Admin regression; P3 security/regression evidence |
+| AC-24 | UI-03, UI-04, DASH-05, UI-05, UI-06, SAFE-01, E2E-04 | P5/P6/P8 safe-failure behavior; P9 validation/error placement; P3 safe-error evidence |
+| AC-25 | STYLE-01, A11Y-01, RESP-01, RESP-02, RESP-03, E2E-04 | P9 Zen Green/responsive/accessibility checklist + screenshots; P3 executable accessibility/responsive evidence |
+| AC-26 | SPEC-01, HAR-01, HAR-02, HAR-03, REG-04, TRACE-01, REL-02 | P3 rendered Test DD, AC traceability and complete final-main test output |
+| AC-27 | HAR-03, REL-01, REL-02 | P1 branch/PR/reviewer/Kanban history; P3 exact-final-main release verification |
+| AC-28 | PDF-01 | Final single PDF containing readable Answer Parts P1-P9, working links, real evidence, and student-confirmed reflection including P4 |
 
 ## 4. Required TDD workflow for implementation Issues
 
