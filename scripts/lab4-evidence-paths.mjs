@@ -9,6 +9,25 @@ function isWithin(parent, candidate) {
   return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
 }
 
+export function managedEvidenceEnvironment(baseEnv, pid = process.pid) {
+  const env = { ...baseEnv };
+  const legacyLab3Capture = env.LAB3_EVIDENCE_CAPTURE === "1";
+  if (legacyLab3Capture) {
+    const legacyRoot = env.LAB3_EVIDENCE_ROOT?.trim().replaceAll("\\", "/");
+    if (!legacyRoot || !/^artifacts\/lab-03\/screenshots\/issue-52\/[a-z0-9][a-z0-9._-]*-[0-9a-f]{7}$/i.test(legacyRoot)) {
+      throw new Error("Explicit Lab 3 evidence capture requires the managed issue-52 SHA-labelled root");
+    }
+    env.LAB3_EVIDENCE_ROOT = legacyRoot;
+    delete env.LAB4_EVIDENCE_ROOT;
+    return env;
+  }
+
+  delete env.LAB3_EVIDENCE_ROOT;
+  delete env.LAB3_EVIDENCE_CAPTURE;
+  env.LAB4_EVIDENCE_ROOT = env.LAB4_EVIDENCE_ROOT?.trim() || `artifacts/lab-04/test-output/playwright-${pid}`;
+  return env;
+}
+
 export function assertLab4EvidenceRoot(root, candidate) {
   if (!candidate?.trim()) throw new Error("Lab 4 evidence root is required");
   const repo = resolve(root);

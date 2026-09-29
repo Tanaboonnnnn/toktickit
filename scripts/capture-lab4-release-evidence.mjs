@@ -2,6 +2,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { assertLab4EvidenceRoot } from "./lab4-evidence-paths.mjs";
+import { parseLab4Documents, validateLab4EvidenceIdentity } from "./lab4-verification.mjs";
 
 const root = process.cwd();
 const label = (process.argv[2] || "candidate").trim().toLowerCase();
@@ -27,6 +28,11 @@ function list(directory, extension) {
 const lab4Specs = list(resolve(root, "e2e/lab-04"), ".spec.ts");
 if (lab4Specs.length === 0) throw new Error("No Lab 4 browser specs exist yet; release evidence capture cannot report an empty Pass");
 
+const evidenceContract = parseLab4Documents({
+  specification: readFileSync(resolve(root, "docs/lab-04/specification.md"), "utf8"),
+  tests: readFileSync(resolve(root, "docs/lab-04/tests.md"), "utf8"),
+});
+
 rmSync(absoluteRoot, { recursive: true, force: true });
 mkdirSync(absoluteRoot, { recursive: true });
 const command = `npm run capture:evidence:lab4 -- ${label}`;
@@ -48,9 +54,10 @@ const entries = screenshots.map((file) => {
   const metadataPath = `${file}.meta.json`;
   if (!existsSync(metadataPath)) throw new Error(`Missing evidence metadata for ${relative(root, file)}`);
   const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
-  for (const field of ["role", "route", "scenario", "testId", "rubricPart", "viewport"]) {
+  for (const field of ["role", "route", "scenario", "scenarioId", "testId", "rubricPart", "viewport"]) {
     if (!metadata[field]) throw new Error(`Evidence ${relative(root, file)} is missing ${field}`);
   }
+  validateLab4EvidenceIdentity(metadata, evidenceContract);
   return {
     screenshot: relative(root, file).replaceAll("\\", "/"),
     ...metadata,

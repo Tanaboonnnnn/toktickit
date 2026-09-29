@@ -9,6 +9,7 @@ export interface ReleaseEvidenceMeta {
   role: "Unauthenticated" | "Requester" | "IT Staff" | "Administrator";
   route: string;
   scenario: string;
+  scenarioId?: string;
   mapping: string[];
   testId?: string;
   rubricPart?: string;
@@ -17,7 +18,8 @@ export interface ReleaseEvidenceMeta {
 
 export async function captureReleaseEvidence(page: Page, meta: ReleaseEvidenceMeta): Promise<void> {
   const lab4EvidenceRoot = process.env.LAB4_EVIDENCE_ROOT?.trim();
-  const evidenceRoot = process.env.LAB3_EVIDENCE_ROOT?.trim();
+  const legacyLab3Capture = process.env.LAB3_EVIDENCE_CAPTURE === "1";
+  const evidenceRoot = legacyLab3Capture ? process.env.LAB3_EVIDENCE_ROOT?.trim() : undefined;
   if (!lab4EvidenceRoot && !evidenceRoot) return;
 
   await assertNoHorizontalOverflow(page);

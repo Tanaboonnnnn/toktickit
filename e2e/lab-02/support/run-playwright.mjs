@@ -1,16 +1,14 @@
 import { spawn } from "node:child_process";
 import net from "node:net";
 import path from "node:path";
+import { managedEvidenceEnvironment } from "../../../scripts/lab4-evidence-paths.mjs";
 
 const args = process.argv.slice(2);
 const root = process.cwd();
 const apiPort = 4311;
 const clientPort = 4312;
 const apiUrl = `http://127.0.0.1:${apiPort}`;
-const env = { ...process.env };
-if (!env.LAB3_EVIDENCE_ROOT && !env.LAB4_EVIDENCE_ROOT) {
-  env.LAB4_EVIDENCE_ROOT = `artifacts/lab-04/test-output/playwright-${process.pid}`;
-}
+const env = managedEvidenceEnvironment(process.env, process.pid);
 let managedServer;
 let managedClient;
 let shuttingDown = false;

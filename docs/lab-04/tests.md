@@ -198,6 +198,20 @@ artifacts/lab-04/screenshots/actions-taken/
 
 Additional `ticket-workflow/` and `regression/` folders are acceptable. Every generated manifest entry should record scenario/Test ID, source SHA, actor role, route, viewport, command, and actual file. Screenshot existence is not a Pass by itself; rendered output must be manually inspected for clipping, overlap, overflow, broken focus/readability, and stale placeholder data.
 
+### 8.1 Reviewed evidence scenario registry
+
+These stable IDs freeze the visual/evidence surfaces already approved in Issue #71; they do **not** add product scope. Lab 4 release capture must reject an unknown scenario ID, an unknown Test ID, a Test ID not allowed for that scenario, any rubric value outside `P1`-`P9`, or a rubric part not allowed for that scenario. The human-readable `scenario` text remains descriptive; `Scenario ID` is the stable manifest identity.
+
+| Scenario ID | Reviewed surface / intent | Allowed Test IDs | Allowed rubric parts |
+|---|---|---|---|
+| L4-STF-DASHBOARD | Staff operational Dashboard metrics, previews, drill-down and states | UI-06, E2E-03, RESP-01, RESP-02, RESP-03, A11Y-01, STYLE-01 | P5, P9 |
+| L4-REQ-DASHBOARD | Requester-owned Dashboard metrics, previews, drill-down and states | UI-05, E2E-03, RESP-01, RESP-02, RESP-03, A11Y-01, STYLE-01 | P8, P9 |
+| L4-ADM-DASHBOARD | Administrator reuse of Staff Dashboard without expanding Requester-only product permissions | UI-06, E2E-03, REG-03, RESP-01, RESP-02, RESP-03, A11Y-01, STYLE-01 | P5, P9 |
+| L4-STF-ACTIONS | Staff/Admin Actions Taken list/create/edit/status/complete/cancel and failure states | UI-01, E2E-01, RESP-01, RESP-02, RESP-03, A11Y-01, STYLE-01 | P6, P9 |
+| L4-REQ-ACTIONS | Owning Requester read-only Actions Taken visibility and privacy boundary | UI-02, E2E-01, SEC-01, RESP-01, RESP-02, RESP-03, A11Y-01, STYLE-01 | P6, P8, P9 |
+| L4-TICKET-WORKFLOW | Formal Ticket transition/gate/history UI and conflict/failure states | UI-03, E2E-02, RESP-01, RESP-02, RESP-03, A11Y-01, STYLE-01 | P7, P9 |
+| L4-RETAINED-REGRESSION | Representative retained authentication, Requester, Staff/Admin and responsive regression evidence | E2E-04, REG-01, REG-02, REG-03, RESP-01, RESP-02, RESP-03, A11Y-01, STYLE-01 | P8, P9 |
+
 ## 9. Issue #71 baseline verification record
 
 These checks were executed only to establish the delivered Lab 3 source baseline before writing this contract. They are **not Lab 4 product Test-ID Pass evidence**.
@@ -230,7 +244,7 @@ Fresh local checks executed after the safe-output routing was installed:
 | `npm.cmd --prefix server test` | Pass - 52 files / 288 tests |
 | `npm.cmd --prefix client run build` | Pass |
 | `npm.cmd --prefix client test` | Pass - 25 files / 136 tests |
-| `npm.cmd run test:harness:lab4` | Pass - 5 Node harness tests + 3 server safety tests |
+| `npm.cmd run test:harness:lab4` | Pass - 8 Node harness tests + 3 server safety tests |
 | `npm.cmd run test:trace:lab3` | Pass - retained 50 Test IDs / 32 ACs |
 | `npm.cmd run test:trace:lab4 -- --mode=planning` | Pass - 24 FRs / 54 BRs / 28 ACs / 57 Test IDs |
 | `npm.cmd run test:e2e` | Pass - 37 retained browser tests |

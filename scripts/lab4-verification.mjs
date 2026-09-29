@@ -70,7 +70,44 @@ export function parseLab4Documents({ specification, tests }) {
   const mappedTests = new Set([...mappings.values()].flatMap(({ ids }) => ids));
   for (const id of testIds.keys()) if (!mappedTests.has(id)) fail(`${id} is not mapped from any Acceptance Criterion`);
 
-  return { frIds, brIds, acIds, testIds, mappings };
+  const scenarioSection = tests.split("### 8.1 Reviewed evidence scenario registry")[1]?.split("## 9.")[0];
+  if (!scenarioSection) fail("unable to locate reviewed evidence scenario registry");
+  const evidenceScenarios = new Map();
+  for (const line of scenarioSection.split(/\r?\n/).filter((candidate) => /^\| L4-[A-Z0-9-]+ \|/.test(candidate))) {
+    const columns = splitTableRow(line);
+    if (columns.length !== 4) fail(`malformed evidence scenario row: ${line}`);
+    const [id, description, testCell, rubricCell] = columns;
+    if (evidenceScenarios.has(id)) fail(`duplicate evidence scenario ${id}`);
+    const allowedTestIds = testCell.match(/[A-Z][A-Z0-9]*-\d{2}/g) ?? [];
+    const rubricParts = rubricCell.match(/\bP[1-9]\b/g) ?? [];
+    if (allowedTestIds.length === 0) fail(`${id} has no allowed Test ID`);
+    if (rubricParts.length === 0) fail(`${id} has no allowed rubric part`);
+    for (const testId of allowedTestIds) {
+      if (!testIds.has(testId)) fail(`${id} references unknown Test ID ${testId}`);
+    }
+    evidenceScenarios.set(id, {
+      id,
+      description,
+      testIds: new Set(allowedTestIds),
+      rubricParts: new Set(rubricParts),
+    });
+  }
+  if (evidenceScenarios.size === 0) fail("no reviewed evidence scenarios found");
+
+  return { frIds, brIds, acIds, testIds, mappings, evidenceScenarios };
+}
+
+export function validateLab4EvidenceIdentity(metadata, parsed) {
+  const scenarioId = String(metadata?.scenarioId ?? "").trim();
+  const testId = String(metadata?.testId ?? "").trim();
+  const rubricPart = String(metadata?.rubricPart ?? "").trim();
+  const scenario = parsed.evidenceScenarios.get(scenarioId);
+
+  if (!scenario) fail(`unknown evidence scenario ${scenarioId || "<missing>"}`);
+  if (!parsed.testIds.has(testId)) fail(`unknown Test ID ${testId || "<missing>"}`);
+  if (!scenario.testIds.has(testId)) fail(`${scenarioId} does not allow Test ID ${testId}`);
+  if (!/^P[1-9]$/.test(rubricPart)) fail(`invalid rubric part ${rubricPart || "<missing>"}; expected P1-P9`);
+  if (!scenario.rubricParts.has(rubricPart)) fail(`${scenarioId} does not allow rubric part ${rubricPart}`);
 }
 
 function isPlanned(final) {
