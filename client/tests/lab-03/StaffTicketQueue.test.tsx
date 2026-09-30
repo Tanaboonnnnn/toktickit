@@ -123,7 +123,23 @@ describe("UI-03 Staff Ticket Queue", () => {
 
 describe("Issue #47 Staff Ticket Detail continuity", () => {
   it("preserves the staff projection and Queue back-context as Issue #49 adds communication", async () => {
-    const detail = { ...item, relatedSystem: { id: 5, name: "VPN" }, description: "Long diagnostic description", attachments: [], resolutionSummary: null, resolvedAt: null, closedAt: null, cancelReason: null, cancelledAt: null, requesterResolutionIndicatedAt: null };
+    const detail = {
+      ...item,
+      relatedSystem: { id: 5, name: "VPN" },
+      description: "Long diagnostic description",
+      attachments: [],
+      resolutionSummary: null,
+      resolvedAt: null,
+      closedAt: null,
+      cancelReason: null,
+      cancelledAt: null,
+      requesterResolutionIndicatedAt: null,
+      workflowCycle: 1,
+      workflow: {
+        permittedTransitions: ["IN_PROGRESS", "WAITING_FOR_REQUESTER", "CANCELLED"],
+        resolution: { completedCount: 0, outstandingCount: 0, unresolvedFollowUpCount: 0, blockers: ["COMPLETED_ACTION_REQUIRED"] },
+      },
+    };
     vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("/api/staff/tickets/91") ? json({ ticket: detail }) : json({})));
     const onBack = vi.fn();
     render(<AuthProvider initialUser={staff}><StaffTicketDetail ticketId={91} queueContext="search=vpn&page=2&pageSize=20" onBack={onBack} /></AuthProvider>);

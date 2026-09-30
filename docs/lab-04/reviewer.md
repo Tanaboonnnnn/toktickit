@@ -142,7 +142,23 @@ Historical Lab 2/3 reviewer identities are not copied here as if they had review
 - Verified starting integration SHA: `6ced65026bc91804363108588e708f0445f3eb65`
 - Startup evidence: live Issue #75 remained open with no existing branch/PR; PR #84 approval/merge and post-merge CI were rechecked; `git fetch origin` confirmed exact remote staging; a new clean dedicated worktree was created without modifying the preserved dirty root or reusing Issue #74.
 - Scope: 64-pair Ticket transition enforcement; final current-cycle resolution predicate; legacy/reopen workflow cycles; atomic Ticket cancellation fan-out; immutable Ticket workflow events and read API; real Ticket/Action concurrency; backend-authoritative transition/blocker feedback; minimum Staff workflow UI and draft preservation; focused workflow/regression/E2E evidence. Complete Actions UI (#76), Dashboards, and release PDF remain out of scope.
-- Peer-review status: no Issue #75 PR exists yet and no human approval is claimed. The mandatory local code-review/self-review gate and exact-head hosted CI must occur before peer review.
+- Local candidate verification: focused workflow/API/history **5 files / 34 tests**, real Ticket/Action concurrency **6/6**, focused Staff workflow client/regression **4 files / 21 tests**, Issue #75 increment trace **Pass**, Lab 4 E2E **2/2**, and fresh aggregate `npm.cmd run verify` **Pass** with server **62 files / 349 tests**, client **26 files / 141 tests**, harness **9 Node + 3 server safety tests**, browser E2E **39/39**, and retained responsive **13/13**. These are local results, not hosted CI.
+- Mandatory pre-PR self-review: the `code-review` Skill checklist was applied against fixed base `6ced65026bc91804363108588e708f0445f3eb65` and the complete Issue #75 candidate diff, keeping Standards and Spec as separate axes. The first Spec pass found two concrete gaps: the committed status operation retained its own now-stale resolution draft, and workflow-history paging used `createdAt,id` instead of the reviewed API contract's `ticketVersion,occurredAt` ordering. Both were reproduced with focused failing tests before correction. Status success now clears only the status-owned draft while unrelated refresh/conflict drafts remain preserved; workflow history now orders by resulting Ticket version, then occurrence time, then ID for deterministic ties. A second review pass after these behavior fixes found no remaining blocking Standards or Spec finding. A possible duplicate snapshot-shaping smell between Action mutation and Ticket cancellation code was treated as a non-blocking judgement call: the current focused cancellation projection stays local rather than exporting an internal Action-service implementation detail during Issue #75.
+- Peer-review status: no Issue #75 PR exists yet and no human approval is claimed. Exact-head hosted CI and real human peer review remain later gates after commit/push/PR creation.
+
+### Issue #75 self-review axes
+
+#### Standards
+
+- **Hard documented-standard findings:** none remaining after the second pass.
+- **Judgement-call smell:** duplicated public Action revision snapshot shaping exists in the established Actions service and the new Ticket-cancellation fan-out. It is intentionally not refactored in this Issue because the two mutation modules own different transaction seams, the selected fields are bounded and explicit, and extracting a new shared implementation abstraction would broaden scope without changing the Issue #75 contract.
+- **Guardrails checked:** User -> Ticket -> Action lock order is retained; actor/owner eligibility is re-read under locks; no history deletion/backfill path is added; no dependency/framework/schema migration is introduced; retained evidence files are not rewritten as historical Lab 4 proof.
+
+#### Spec
+
+- **Corrected finding 1:** successful formal status mutation previously preserved the operation's own stale draft. A UI RED proved the Resolution Summary remained mounted after `RESOLVED`; the fix clears only status-owned selection/summary/cancel/confirmation after success, while the existing unrelated-owner-refresh and 409-reload draft tests remain green.
+- **Corrected finding 2:** workflow-event paging previously sorted by event time/ID, while reviewed `api-spec.md` requires resulting `ticketVersion ASC, occurredAt ASC`. A server RED reversed fixture event timestamps and proved the wrong first page; the fix orders by Ticket version, occurrence time, then ID.
+- **Second-pass result:** no remaining blocking Issue #75 requirement gap or out-of-scope product behavior identified.
 
 ## Evidence integrity rules for later updates
 

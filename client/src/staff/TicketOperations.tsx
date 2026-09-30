@@ -11,17 +11,6 @@ import {
 } from "../api/staff.js";
 import { ticketStatusLabel, type TicketStatus } from "../ticket-status.js";
 
-const nextStatuses: Record<TicketStatus, readonly TicketStatus[]> = {
-  NEW: ["OPEN", "CANCELLED"],
-  OPEN: ["IN_PROGRESS", "WAITING_FOR_REQUESTER", "CANCELLED"],
-  IN_PROGRESS: ["WAITING_FOR_REQUESTER", "RESOLVED", "CANCELLED"],
-  WAITING_FOR_REQUESTER: ["IN_PROGRESS", "RESOLVED", "CANCELLED"],
-  RESOLVED: ["CLOSED", "REOPENED"],
-  CLOSED: ["REOPENED"],
-  REOPENED: ["OPEN", "IN_PROGRESS", "CANCELLED"],
-  CANCELLED: [],
-};
-
 export default function TicketOperations({ ticket, onUpdated, onConflict }: {
   ticket: StaffTicketDetail;
   onUpdated: (ticket: StaffTicketDetail) => void;
@@ -42,8 +31,8 @@ export default function TicketOperations({ ticket, onUpdated, onConflict }: {
   useEffect(() => {
     setOwnerId(ticket.owner ? String(ticket.owner.id) : "");
     setItPriority(ticket.itPriority);
-    setNextStatus(""); setResolutionSummary(""); setCancelReason(""); setOwnerConfirmed(false); setStatusConfirmed(false);
-  }, [ticket]);
+    setOwnerConfirmed(false);
+  }, [ticket.id, ticket.owner?.id, ticket.itPriority]);
 
   useEffect(() => {
     let active = true;
@@ -51,11 +40,12 @@ export default function TicketOperations({ ticket, onUpdated, onConflict }: {
     return () => { active = false; };
   }, []);
 
-  async function run(action: () => Promise<StaffTicketDetail>, success: string) {
+  async function run(action: () => Promise<StaffTicketDetail>, success: string, afterSuccess?: () => void) {
     setPending(true); setError(""); setFeedback("");
     try {
       const updated = await action();
       onUpdated(updated);
+      afterSuccess?.();
       setFeedback(success);
     } catch (caught) {
       if (caught instanceof SafeApiError && caught.status === 409) {
@@ -70,7 +60,7 @@ export default function TicketOperations({ ticket, onUpdated, onConflict }: {
     }
   }
 
-  const permittedNextStatuses = ticket.owner ? nextStatuses[ticket.currentStatus] : nextStatuses[ticket.currentStatus].filter((status) => status === "CANCELLED");
+  const permittedNextStatuses = ticket.workflow.permittedTransitions;
   const ownerChanged = ownerId !== (ticket.owner ? String(ticket.owner.id) : "");
   const mayUnassign = ticket.currentStatus === "NEW" || ticket.currentStatus === "CLOSED" || ticket.currentStatus === "CANCELLED";
   const ownerValue = ownerId === "" ? null : Number(ownerId);
@@ -132,7 +122,18 @@ export default function TicketOperations({ ticket, onUpdated, onConflict }: {
           ...(statusNeedsConfirmation ? { confirmed: true } : {}),
           ...(nextStatus === "RESOLVED" ? { resolutionSummary } : {}),
           ...(nextStatus === "CANCELLED" ? { cancelReason } : {}),
-        }), "Ticket status updated successfully")}>Confirm status change</button>}
+        }), "Ticket status updated successfully", () => {
+          setNextStatus("");
+          setResolutionSummary("");
+          setCancelReason("");
+          setStatusConfirmed(false);
+        })}>Confirm status change</button>}
+        <p className="lab2-muted">
+          Work cycle {ticket.workflowCycle}. Resolution work: {ticket.workflow.resolution.completedCount} completed, {ticket.workflow.resolution.outstandingCount} outstanding, {ticket.workflow.resolution.unresolvedFollowUpCount} requiring follow-up.
+        </p>
+        {ticket.workflow.resolution.blockers.includes("COMPLETED_ACTION_REQUIRED") && <p className="lab2-muted">At least one current-cycle Action must be completed before resolution.</p>}
+        {ticket.workflow.resolution.blockers.includes("OUTSTANDING_ACTIONS") && <p className="lab2-muted">Complete or cancel all outstanding current-cycle Actions before resolution.</p>}
+        {ticket.workflow.resolution.blockers.includes("FOLLOW_UP_REQUIRED") && <p className="lab2-muted">Clear required follow-up on current-cycle Actions before resolution.</p>}
       </div>
     </div>
     {pending && <p className="lab2-status" role="status">Saving Ticket operation...</p>}

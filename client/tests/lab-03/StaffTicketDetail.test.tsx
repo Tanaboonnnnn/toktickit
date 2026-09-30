@@ -5,6 +5,12 @@ import { AuthProvider } from "../../src/auth-context.js";
 import StaffTicketDetail from "../../src/staff/StaffTicketDetail.js";
 
 const staff = { id: 21, name: "Niran Staff", email: "niran@example.test", role: "IT_STAFF" as const, mustChangePassword: false };
+function workflow(permittedTransitions: string[]) {
+  return {
+    permittedTransitions,
+    resolution: { completedCount: 1, outstandingCount: 0, unresolvedFollowUpCount: 0, blockers: [] },
+  };
+}
 const base = {
   id: 91, ticketNumber: "TKT-20260917-000091", summary: "VPN access unavailable",
   category: { id: 3, name: "Network" }, relatedSystem: { id: 5, name: "VPN" },
@@ -12,7 +18,8 @@ const base = {
   requestedPriority: "HIGH" as const, itPriority: "MEDIUM" as const, currentStatus: "OPEN" as const,
   owner: null, createdAt: "2026-09-16T02:00:00.000Z", updatedAt: "2026-09-17T03:00:00.000Z", version: 2,
   attachments: [], resolutionSummary: null, resolvedAt: null, closedAt: null, cancelReason: null, cancelledAt: null,
-  requesterResolutionIndicatedAt: null,
+  requesterResolutionIndicatedAt: null, workflowCycle: 1,
+  workflow: workflow(["IN_PROGRESS", "WAITING_FOR_REQUESTER", "CANCELLED"]),
 };
 function json(body: unknown, status = 200) { return Promise.resolve({ ok: status >= 200 && status < 300, status, json: async () => body } as Response); }
 function renderDetail(fetchMock: ReturnType<typeof vi.fn>) {
@@ -89,8 +96,8 @@ describe("UI-04 Staff Ticket Detail operations", () => {
   });
 
   it("hides non-Cancelled status actions while a NEW Ticket is unassigned, then enables them after claim", async () => {
-    const unassigned = { ...base, currentStatus: "NEW" as const, owner: null };
-    const claimed = { ...unassigned, owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const }, version: 3 };
+    const unassigned = { ...base, currentStatus: "NEW" as const, owner: null, workflow: workflow(["CANCELLED"]) };
+    const claimed = { ...unassigned, owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const }, version: 3, workflow: workflow(["OPEN", "CANCELLED"]) };
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url.endsWith("/api/staff/tickets/91") && !init?.method) return json({ ticket: unassigned });
@@ -110,7 +117,7 @@ describe("UI-04 Staff Ticket Detail operations", () => {
   });
 
   it("shows no status action for an unassigned CLOSED Ticket", async () => {
-    const closed = { ...base, currentStatus: "CLOSED" as const, owner: null, closedAt: "2026-09-17T06:00:00.000Z" };
+    const closed = { ...base, currentStatus: "CLOSED" as const, owner: null, closedAt: "2026-09-17T06:00:00.000Z", workflow: workflow([]) };
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
       if (url.endsWith("/api/staff/tickets/91")) return json({ ticket: closed });
@@ -123,8 +130,8 @@ describe("UI-04 Staff Ticket Detail operations", () => {
     expect(Array.from((status as HTMLSelectElement).options).map((o) => o.value)).toEqual([""]);
   });
   it("shows only permitted next statuses and requires contextual confirmation fields", async () => {
-    const owned = { ...base, currentStatus: "IN_PROGRESS" as const, owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const } };
-    const resolved = { ...owned, currentStatus: "RESOLVED" as const, resolutionSummary: "Validated and restored access", resolvedAt: "2026-09-17T05:00:00.000Z", version: 3 };
+    const owned = { ...base, currentStatus: "IN_PROGRESS" as const, owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const }, workflow: workflow(["WAITING_FOR_REQUESTER", "RESOLVED", "CANCELLED"]) };
+    const resolved = { ...owned, currentStatus: "RESOLVED" as const, resolutionSummary: "Validated and restored access", resolvedAt: "2026-09-17T05:00:00.000Z", version: 3, workflow: workflow(["CLOSED", "REOPENED"]) };
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url.endsWith("/api/staff/tickets/91") && !init?.method) return json({ ticket: owned });

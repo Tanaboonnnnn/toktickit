@@ -50,6 +50,13 @@ afterAll(async () => {
   await fixture.prisma.internalNote.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.publicComment.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.attachment.deleteMany({ where: { ticketId: { in: ticketIds } } });
+  const actions = await fixture.prisma.actionTaken.findMany({ where: { ticketId: { in: ticketIds } }, select: { id: true } });
+  const actionIds = actions.map((action) => action.id);
+  if (actionIds.length > 0) {
+    await fixture.prisma.actionTakenRevision.deleteMany({ where: { actionId: { in: actionIds } } });
+    await fixture.prisma.actionTaken.deleteMany({ where: { id: { in: actionIds } } });
+  }
+  await fixture.prisma.ticketWorkflowEvent.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.ticket.deleteMany({ where: { id: { in: ticketIds } } });
   await fixture.prisma.category.deleteMany({ where: { id: categoryId || -1 } });
   await fixture.prisma.relatedSystem.deleteMany({ where: { id: systemId || -1 } });
@@ -140,6 +147,23 @@ describe("COM-03 Requester resolution indication", () => {
     const indicated = await post(requester, `/api/tickets/${ticket.id}/resolution-indication`, { expectedVersion: ticket.version, confirmed: true });
     expect(indicated.status).toBe(200);
 
+    await fixture.prisma.actionTaken.create({
+      data: {
+        ticketId: ticket.id,
+        workflowCycle: ticket.workflowCycle,
+        recordedById: fixture.staff.id,
+        assigneeId: fixture.staff.id,
+        performedById: fixture.staff.id,
+        description: "Retained requester-advisory fixture with qualifying completed work",
+        result: "Formal Staff work completed independently of Requester advisory",
+        followUpRequired: false,
+        status: "COMPLETED",
+        updatedById: fixture.staff.id,
+        completedAt: new Date(),
+        clientRequestId: randomUUID(),
+        createFingerprint: `lab3-com-retained-${randomUUID()}`,
+      },
+    });
     const staff = await agentFor(fixture.staff.email);
     const resolved = await post(staff, `/api/staff/tickets/${ticket.id}/status`, { status: "RESOLVED", expectedVersion: ticket.version + 1, confirmed: true, resolutionSummary: "Requester confirmed the service is restored." });
     expect(resolved.status).toBe(200);

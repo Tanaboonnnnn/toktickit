@@ -3,6 +3,7 @@ import type { Actor } from "../auth/actor.js";
 import { ApiError, validationError } from "../errors.js";
 import { serializeAttachment } from "../attachment-service.js";
 import type { StaffTicketQuery } from "./staff-query.js";
+import { permittedStatusTransitions, resolutionBlockers, type ResolutionWorkState } from "./ticket-workflow.js";
 
 const queueSelect = {
   id: true, ticketNumber: true, summary: true,
@@ -15,6 +16,7 @@ const queueSelect = {
 
 const detailSelect = {
   ...queueSelect,
+  workflowCycle: true,
   relatedSystem: { select: { id: true, name: true } },
   description: true,
   attachments: { orderBy: [{ createdAt: "asc" as const }, { id: "asc" as const }], select: { id: true, ticketId: true, originalName: true, mimeType: true, sizeBytes: true, createdAt: true, removedAt: true, removalReason: true } },
@@ -68,12 +70,28 @@ export async function listStaffTickets(prisma: PrismaClient, actor: Actor, query
 export async function getStaffTicketDetail(prisma: PrismaClient, ticketId: number) {
   const row = await prisma.ticket.findUnique({ where: { id: ticketId }, select: detailSelect });
   if (!row) throw new ApiError(404, "RESOURCE_NOT_FOUND", "Resource not found");
+  const [completedCount, outstandingCount, unresolvedFollowUpCount, ownerEligibleCount] = await Promise.all([
+    prisma.actionTaken.count({ where: { ticketId, workflowCycle: row.workflowCycle, status: "COMPLETED" } }),
+    prisma.actionTaken.count({ where: { ticketId, workflowCycle: row.workflowCycle, status: { in: ["PENDING", "IN_PROGRESS"] } } }),
+    prisma.actionTaken.count({ where: { ticketId, workflowCycle: row.workflowCycle, status: { not: "CANCELLED" }, followUpRequired: true } }),
+    row.owner === null
+      ? Promise.resolve(0)
+      : prisma.user.count({ where: { id: row.owner.id, active: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } } }),
+  ]);
+  const resolution: ResolutionWorkState = { completedCount, outstandingCount, unresolvedFollowUpCount };
   return {
     ...serializeQueue(row), relatedSystem: row.relatedSystem, description: row.description,
     attachments: row.attachments.map(serializeAttachment), resolutionSummary: row.resolutionSummary,
     resolvedAt: row.resolvedAt?.toISOString() ?? null, closedAt: row.closedAt?.toISOString() ?? null,
     cancelReason: row.cancelReason, cancelledAt: row.cancelledAt?.toISOString() ?? null,
     requesterResolutionIndicatedAt: row.requesterResolutionIndicatedAt?.toISOString() ?? null,
+    workflow: {
+      permittedTransitions: permittedStatusTransitions(row.currentStatus, ownerEligibleCount > 0, resolution),
+      resolution: {
+        ...resolution,
+        blockers: resolutionBlockers(resolution),
+      },
+    },
   };
 }
 
