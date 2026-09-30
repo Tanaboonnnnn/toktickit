@@ -22,3 +22,7 @@ export function isActiveActionParentStatus(status: TicketStatus): boolean {
 export function actionTransitionAllowed(from: ActionStatus, to: ActionStatus): boolean {
   return actionTransitions[from].has(to);
 }
+
+export function permittedActionTransitions(from: ActionStatus): ActionStatus[] {
+  return [...actionTransitions[from]];
+}

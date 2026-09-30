@@ -23,7 +23,29 @@ export async function captureReleaseEvidence(page: Page, meta: ReleaseEvidenceMe
   if (!lab4EvidenceRoot && !evidenceRoot) return;
 
   await assertNoHorizontalOverflow(page);
-  const visibleText = await page.locator("body").innerText();
+  const visibleText = await page.locator("body").evaluate((body) => {
+    const text: string[] = [];
+    const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode as Text;
+      const parent = node.parentElement;
+      if (!parent || !node.textContent?.trim()) continue;
+      if (parent.closest("script, style, [hidden], [aria-hidden='true']")) continue;
+
+      const option = parent.closest("option") as HTMLOptionElement | null;
+      if (option) {
+        const select = option.closest("select");
+        if (!select || select.selectedOptions[0] !== option) continue;
+        text.push(node.textContent);
+        continue;
+      }
+
+      const style = getComputedStyle(parent);
+      if (style.display === "none" || style.visibility === "hidden" || parent.getClientRects().length === 0) continue;
+      text.push(node.textContent);
+    }
+    return text.join("\n");
+  });
   const enteredValues = await page.locator("input, textarea").evaluateAll((elements) =>
     elements.map((element) => (element as HTMLInputElement | HTMLTextAreaElement).value).filter(Boolean).join("\n"),
   );

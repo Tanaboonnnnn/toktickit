@@ -4,7 +4,7 @@ import type { Actor } from "../auth/actor.js";
 import { ApiError } from "../errors.js";
 import { validationError } from "../errors.js";
 import type { ActionListQuery, ActionStatusInput, CreateActionInput, UpdateActionInput } from "./action-contract.js";
-import { actionTransitionAllowed, isActiveActionParentStatus } from "./action-policy.js";
+import { actionTransitionAllowed, isActiveActionParentStatus, permittedActionTransitions } from "./action-policy.js";
 
 const userSummarySelect = {
   id: true,
@@ -140,6 +140,21 @@ function actionReadOnly(actor: Actor, ticket: TicketActionScope, action: ActionP
     || action.status === "CANCELLED";
 }
 
+function actionCapabilities(actor: Actor, ticket: TicketActionScope, action: ActionPublicRow) {
+  const activeCurrentCycle = actor.role !== "REQUESTER"
+    && isActiveActionParentStatus(ticket.currentStatus)
+    && action.workflowCycle === ticket.workflowCycle
+    && action.status !== "CANCELLED";
+  if (!activeCurrentCycle) {
+    return { canEdit: false, canReassign: false, permittedTransitions: [] };
+  }
+  return {
+    canEdit: true,
+    canReassign: action.status === "PENDING" || action.status === "IN_PROGRESS",
+    permittedTransitions: permittedActionTransitions(action.status),
+  };
+}
+
 export function serializeActionPublic(actor: Actor, ticket: TicketActionScope, action: ActionPublicRow) {
   return {
     ...action,
@@ -148,6 +163,13 @@ export function serializeActionPublic(actor: Actor, ticket: TicketActionScope, a
     completedAt: action.completedAt?.toISOString() ?? null,
     cancelledAt: action.cancelledAt?.toISOString() ?? null,
     readOnly: actionReadOnly(actor, ticket, action),
+    capabilities: actionCapabilities(actor, ticket, action),
+  };
+}
+
+function actionListCapabilities(actor: Actor, ticket: TicketActionScope) {
+  return {
+    canCreate: actor.role !== "REQUESTER" && isActiveActionParentStatus(ticket.currentStatus),
   };
 }
 
@@ -161,8 +183,9 @@ export async function listActions(
   const where: Prisma.ActionTakenWhereInput = { ticketId };
   const totalItems = await prisma.actionTaken.count({ where });
   const totalPages = totalItems === 0 ? 0 : Math.ceil(totalItems / query.pageSize);
+  const capabilities = actionListCapabilities(actor, ticket);
   if (totalItems === 0 || query.page > totalPages) {
-    return { items: [], page: query.page, pageSize: query.pageSize, totalItems, totalPages };
+    return { items: [], page: query.page, pageSize: query.pageSize, totalItems, totalPages, capabilities };
   }
   const rows = await prisma.actionTaken.findMany({
     where,
@@ -177,6 +200,7 @@ export async function listActions(
     pageSize: query.pageSize,
     totalItems,
     totalPages,
+    capabilities,
   };
 }
 
