@@ -418,7 +418,9 @@ export async function updateAction(
     if (action.status === "COMPLETED" && input.assigneeId !== undefined) throw conflict("Completed Action assignment cannot be changed");
 
     const nextAssigneeId = input.assigneeId ?? action.assignee.id;
-    await assertEligibleAssignee(tx, nextAssigneeId);
+    if (action.status === "PENDING" || action.status === "IN_PROGRESS") {
+      await assertEligibleAssignee(tx, nextAssigneeId);
+    }
     const nextDescription = input.description ?? action.description;
     const nextResult = input.result !== undefined ? input.result : action.result;
     const nextFollowUpRequired = input.followUpRequired ?? action.followUpRequired;

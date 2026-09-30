@@ -468,6 +468,76 @@ describe("API-03 / API-05 Action assignment, lifecycle, optimistic versions and 
     expect(reversal.status).toBe(409);
   });
 
+  it("allows completed content correction after the historical assignee becomes inactive without changing completion provenance", async () => {
+    const historicalAssignee = await fixture.prisma.user.create({
+      data: {
+        name: `Issue 74 historical assignee ${randomUUID()}`,
+        email: `issue74-historical-${randomUUID()}@example.test`,
+        role: "IT_STAFF",
+        active: true,
+        mustChangePassword: false,
+      },
+    });
+    fixture.extraUserIds.push(historicalAssignee.id);
+
+    const ticket = await createActionTicket(fixture);
+    const recorder = await agentFor(fixture, fixture.staff.email);
+    const completer = await agentFor(fixture, fixture.administrator.email);
+    const created = await postJson(fixture, recorder, `/api/staff/tickets/${ticket.id}/actions-taken`, {
+      clientRequestId: randomUUID(),
+      expectedTicketVersion: ticket.version,
+      description: "Document completed historical work",
+      assigneeId: historicalAssignee.id,
+      followUpRequired: false,
+    });
+    expect(created.status).toBe(201);
+
+    const completed = await postJson(fixture, completer, `/api/staff/tickets/${ticket.id}/actions-taken/${created.body.action.id}/status`, {
+      expectedTicketVersion: created.body.ticketVersion,
+      expectedActionVersion: created.body.action.version,
+      status: "COMPLETED",
+      result: "Historical work completed",
+      confirmation: true,
+    });
+    expect(completed.status).toBe(200);
+    const completedAt = completed.body.action.completedAt;
+
+    const admin = await agentFor(fixture, fixture.administrator.email);
+    const deactivated = await patchJson(fixture, admin, `/api/admin/users/${historicalAssignee.id}`, {
+      name: historicalAssignee.name,
+      email: historicalAssignee.email,
+      role: "IT_STAFF",
+      active: false,
+      expectedVersion: historicalAssignee.version,
+    });
+    expect(deactivated.status).toBe(200);
+
+    const corrected = await patchJson(fixture, recorder, `/api/staff/tickets/${ticket.id}/actions-taken/${created.body.action.id}`, {
+      expectedTicketVersion: completed.body.ticketVersion,
+      expectedActionVersion: completed.body.action.version,
+      result: "Historical work completed and documentation corrected",
+      followUpRequired: true,
+      followUpNote: "Retain the corrected record for audit history",
+    });
+    expect(corrected.status).toBe(200);
+    expect(corrected.body).toMatchObject({
+      changed: true,
+      action: {
+        status: "COMPLETED",
+        assignee: { id: historicalAssignee.id },
+        performedBy: { id: fixture.administrator.id },
+        completedAt,
+        result: "Historical work completed and documentation corrected",
+        followUpRequired: true,
+        followUpNote: "Retain the corrected record for audit history",
+      },
+    });
+    expect(await fixture.prisma.actionTakenRevision.findFirst({
+      where: { actionId: created.body.action.id, actionVersion: corrected.body.action.version },
+      select: { eventType: true },
+    })).toEqual({ eventType: "CONTENT_CORRECTED" });
+  });
+
   it("cancels outstanding work with immutable cancellation provenance and blocks terminal reversal", async () => {
     const ticket = await createActionTicket(fixture);
     const staff = await agentFor(fixture, fixture.staff.email);
@@ -586,6 +656,52 @@ describe("API-03 / API-05 Action assignment, lifecycle, optimistic versions and 
     expect(stored).toMatchObject({ description: "Updated diagnostic", assigneeId: fixture.administrator.id, version: 2 });
     expect((await fixture.prisma.ticket.findUniqueOrThrow({ where: { id: ticket.id } })).version).toBe(changed.body.ticketVersion);
     expect(await fixture.prisma.actionTakenRevision.count({ where: { actionId } })).toBe(2);
+  });
+
+  it("rolls back Action and Ticket changes and returns a safe error when revision persistence fails", async () => {
+    const ticket = await createActionTicket(fixture);
+    const staff = await agentFor(fixture, fixture.staff.email);
+    const created = await postJson(fixture, staff, `/api/staff/tickets/${ticket.id}/actions-taken`, {
+      clientRequestId: randomUUID(),
+      expectedTicketVersion: ticket.version,
+      description: "Rollback probe",
+      followUpRequired: false,
+    });
+    expect(created.status).toBe(201);
+
+    const actionId = created.body.action.id as number;
+    await fixture.prisma.actionTakenRevision.create({
+      data: {
+        actionId,
+        actionVersion: created.body.action.version + 1,
+        eventType: "EDITED",
+        actorId: fixture.staff.id,
+        snapshot: {},
+      },
+    });
+
+    const failed = await patchJson(fixture, staff, `/api/staff/tickets/${ticket.id}/actions-taken/${actionId}`, {
+      expectedTicketVersion: created.body.ticketVersion,
+      expectedActionVersion: created.body.action.version,
+      description: "This mutation must roll back",
+    });
+    expect(failed.status).toBe(500);
+    expect(failed.body).toEqual({
+      error: { code: "INTERNAL_ERROR", message: "Unable to update Action" },
+    });
+    expect(JSON.stringify(failed.body)).not.toMatch(/prisma|sql|constraint|unique|stack|filesystem|path/i);
+
+    const [storedAction, storedTicket, revisions] = await Promise.all([
+      fixture.prisma.actionTaken.findUniqueOrThrow({ where: { id: actionId } }),
+      fixture.prisma.ticket.findUniqueOrThrow({ where: { id: ticket.id } }),
+      fixture.prisma.actionTakenRevision.findMany({ where: { actionId }, orderBy: { actionVersion: "asc" } }),
+    ]);
+    expect(storedAction).toMatchObject({
+      description: "Rollback probe",
+      version: created.body.action.version,
+    });
+    expect(storedTicket.version).toBe(created.body.ticketVersion);
+    expect(revisions.map((row) => row.actionVersion)).toEqual([1, 2]);
   });
 
   it("blocks normal edits for previous-cycle Actions and terminal parent Tickets", async () => {

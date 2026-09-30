@@ -264,9 +264,9 @@ Fresh focused evidence after the final Issue #74 gap audit:
 
 | Check | Issue #74 result |
 |---|---|
-| `npm.cmd test -- tests/lab-04/actions-policy.unit.test.ts tests/lab-04/actions-taken.api.test.ts tests/lab-04/actions-concurrency.api.test.ts tests/lab-04/action-assignment-safety.api.test.ts` (server) | **Pass - 4 files / 30 tests** |
+| `npm.cmd test -- tests/lab-04/actions-policy.unit.test.ts tests/lab-04/actions-taken.api.test.ts tests/lab-04/actions-concurrency.api.test.ts tests/lab-04/action-assignment-safety.api.test.ts` (server) | **Pass - 4 files / 32 tests** |
 | `UNIT-01` | Pass - normalization/validation, immutable client-field rejection, lifecycle matrix, pagination query policy |
-| `API-01..API-06` | Pass - public read/privacy, nested parent IDOR, create/edit/status/revision behavior, actor-scoped replay, all lifecycle edges/statuses/cycles, stale/no-op/audit semantics |
+| `API-01..API-06` | Pass - public read/privacy, nested parent IDOR, create/edit/status/revision behavior, actor-scoped replay, all lifecycle edges/statuses/cycles, completed correction after a historical assignee becomes inactive, stale/no-op/audit semantics, and injected revision-persistence rollback with a safe 500 envelope |
 | `RACE-01` | Pass - simultaneous identical create produced one logical Action/create revision and one parent bump with `201` + replay-safe `200` |
 | `RACE-02` | Pass - outstanding assignment blocks deactivation/demotion; forced assignment-first and admin-first serialization were exercised for both deactivation and demotion |
 | `RACE-03` | Pass - competing Action edits and Action edit vs Ticket owner mutation serialize to one valid winner without partial audit/version state |
@@ -277,7 +277,9 @@ Fresh pre-PR verification after the Issue #74 gap additions:
 |---|---|
 | `npm.cmd --prefix server run build` | **Pass** |
 | `npm.cmd run test:trace:lab4 -- --mode=increment --issue=74` | **Pass** - 24 FRs / 54 BRs / 28 ACs / 57 Test IDs; Issue #74 owns only `UNIT-01`, `API-01..API-06`, and `RACE-01..RACE-03` |
-| `npm.cmd run verify` | **Pass** - server 58 files / 322 tests; client 25 files / 136 tests; Lab 4 harness 9 Node tests + 3 server safety tests; retained Lab 3 trace pass; Lab 4 planning trace pass; retained E2E 37/37; retained responsive 13/13 |
+| `npm.cmd run verify` | **Pass** - server 58 files / 324 tests; client 25 files / 136 tests; Lab 4 harness 9 Node tests + 3 server safety tests; retained Lab 3 trace pass; Lab 4 planning trace pass; retained E2E 37/37; retained responsive 13/13 |
 | `git diff --check` | **Pass**; line-ending warnings only, no whitespace errors |
+
+The 32-test/324-server-test results above include a local self-review correction after PR #84 was already opened: a focused RED reproduced that completed content correction was incorrectly blocked after its historical assignee became inactive, then the implementation was narrowed so current assignee eligibility is rechecked only for outstanding `PENDING`/`IN_PROGRESS` Actions. A second regression deliberately caused revision persistence to fail after the in-transaction Action/Ticket updates and proved rollback plus the safe public 500 envelope. These self-review corrections have not been pushed or represented as hosted PR-head evidence yet.
 
 The full `verify` result above is local candidate evidence, not hosted PR-head CI and not final-main/release evidence. `FLOW-01..FLOW-05`, `RACE-04`, `RACE-05`, UI/Dashboard/E2E Lab 4 product IDs, `REL-02`, and later release rows remain `Planned / Not run` exactly because Issue #74 does not implement or execute them.
