@@ -162,8 +162,10 @@ describe("USER-03 Administrator account safety", () => {
     const isolated = new PrismaClient({ datasources: { db: { url: withSchema(testUrl, schema) } } });
     try {
       await adminDb.$executeRawUnsafe(`CREATE TYPE "${schema}"."UserRole" AS ENUM ('REQUESTER','IT_STAFF','ADMINISTRATOR')`);
+      await adminDb.$executeRawUnsafe(`CREATE TYPE "${schema}"."ActionStatus" AS ENUM ('PENDING','IN_PROGRESS','COMPLETED','CANCELLED')`);
       await adminDb.$executeRawUnsafe(`CREATE TABLE "${schema}"."RequesterUser" ("id" SERIAL PRIMARY KEY, "name" TEXT NOT NULL, "email" TEXT NOT NULL UNIQUE, "active" BOOLEAN NOT NULL DEFAULT true, "role" "${schema}"."UserRole" NOT NULL DEFAULT 'REQUESTER', "passwordHash" TEXT, "mustChangePassword" BOOLEAN NOT NULL DEFAULT true, "authVersion" INTEGER NOT NULL DEFAULT 1, "version" INTEGER NOT NULL DEFAULT 1, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP)`);
       await adminDb.$executeRawUnsafe(`CREATE TABLE "${schema}"."Ticket" ("id" SERIAL PRIMARY KEY, "ownerId" INTEGER)`);
+      await adminDb.$executeRawUnsafe(`CREATE TABLE "${schema}"."ActionTaken" ("id" SERIAL PRIMARY KEY, "assigneeId" INTEGER NOT NULL, "status" "${schema}"."ActionStatus" NOT NULL DEFAULT 'PENDING')`);
       await isolated.$connect();
       const [a, b] = await Promise.all([
         isolated.user.create({ data: { name: "Admin A", email: "a@example.test", role: "ADMINISTRATOR", active: true, mustChangePassword: false } }),

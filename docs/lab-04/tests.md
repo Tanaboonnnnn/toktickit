@@ -1,6 +1,6 @@
 # Lab 4 Test DD Plan
 
-Status: **Issue #72 verification-harness increment. HAR-01, HAR-02, and HAR-03 have executed local evidence recorded below; all later product/release Test IDs remain `Planned / Not run` until their own executable checks run on the relevant source SHA.**
+Status: **Issue #74 Actions API increment in progress. HAR-01..HAR-03, MIG-01..MIG-03, SEED-01, UNIT-01, API-01..API-06, and RACE-01..RACE-03 have executed local evidence recorded below. All other product/release Test IDs remain `Planned / Not run` until their own executable checks run on the relevant source SHA.**
 
 Primary authority: `SE+Lab+4.pdf` section 10 and the Acceptance Criteria in `specification.md`.
 
@@ -31,16 +31,16 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 | MIG-02 | Integration | AC-13, AC-19 | Repeat deploy, legacy terminal zero-Action Tickets, schema drift | Repeat is safe; legacy terminals remain valid; no destructive rewrite | `server/tests/lab-04/migration.integration.test.ts` | **Pass - Issue #73 local integration** |
 | MIG-03 | Integration | AC-19 | Inject late migration failure in disposable target and execute documented recovery | No half-applied product mutation; recovery succeeds safely | `server/tests/lab-04/migration.integration.test.ts` | **Pass - Issue #73 local integration** |
 | SEED-01 | Integration | AC-20 | Seed all required Lab 4 demo states, rerun, then rerun after deliberate fixture edits | No duplicates; edited identity/workflow/Action state is not reset | `server/tests/lab-04/seed.integration.test.ts` | **Pass - Issue #73 local integration** |
-| UNIT-01 | Unit | AC-02, AC-03, AC-05 | Normalize/validate Action fields, server-only recorder/performer fields, conditional Result/follow-up, lifecycle matrix | Exact valid/invalid boundary behavior | `server/tests/lab-04/actions-policy.unit.test.ts` | Planned / Not run |
-| API-01 | API | AC-01, AC-02, AC-03 | Valid Action create with different Ticket Owner/recorder/assignee; spoofed recorder/performer rejected | One Action under correct Ticket/cycle; authentic recorder/time; performer null before completion | `server/tests/lab-04/actions-taken.api.test.ts` | Planned / Not run |
-| API-02 | API/Auth | AC-06, AC-21 | Requester/Staff/Admin/session/CSRF/nested-parent authorization | Permitted reads/writes succeed; denied paths disclose nothing extra | `server/tests/lab-04/actions-taken.api.test.ts` | Planned / Not run |
-| API-03 | API | AC-04, AC-05 | Eligible/inactive/wrong-role assignment and all Action lifecycle paths with a different completing actor | Only documented assignments/transitions commit; completion auto-records immutable actual performer | `server/tests/lab-04/actions-taken.api.test.ts` | Planned / Not run |
-| API-04 | API | AC-07 | Same-key replay, changed-payload conflict, replay after later edit/parent close | One logical Action; matching replay returns same current identity | `server/tests/lab-04/actions-taken.api.test.ts` | Planned / Not run |
-| API-05 | API | AC-08, AC-14 | Stale child/parent versions, atomic revision/version behavior, explicit valid no-op | No lost update/false revision; accepted change increments once | `server/tests/lab-04/actions-taken.api.test.ts` | Planned / Not run |
-| API-06 | API | AC-06, AC-14 | All Action statuses/cycles across stable pages/ties; public revisions | Every Action reachable in deterministic order, safe public history | `server/tests/lab-04/actions-taken.api.test.ts` | Planned / Not run |
-| RACE-01 | Concurrent API | AC-07, AC-08 | Simultaneous identical Action create requests | Exactly one Action/create revision; replay-safe responses | `server/tests/lab-04/actions-concurrency.api.test.ts` | Planned / Not run |
-| RACE-02 | Concurrent API | AC-04, AC-08 | Assignment versus Administrator deactivation/demotion in both lock orders | No outstanding Action ends assigned to an ineligible User | `server/tests/lab-04/action-assignment-safety.api.test.ts` | Planned / Not run |
-| RACE-03 | Concurrent API | AC-08, AC-09 | Two Action edits and parent Ticket version/owner change races | One valid serial outcome; stale loser cannot overwrite | `server/tests/lab-04/actions-concurrency.api.test.ts` | Planned / Not run |
+| UNIT-01 | Unit | AC-02, AC-03, AC-05 | Normalize/validate Action fields, server-only recorder/performer fields, conditional Result/follow-up, lifecycle matrix | Exact valid/invalid boundary behavior | `server/tests/lab-04/actions-policy.unit.test.ts` | **Pass - Issue #74 local** |
+| API-01 | API | AC-01, AC-02, AC-03 | Valid Action create with different Ticket Owner/recorder/assignee; spoofed recorder/performer rejected | One Action under correct Ticket/cycle; authentic recorder/time; performer null before completion | `server/tests/lab-04/actions-taken.api.test.ts` | **Pass - Issue #74 local** |
+| API-02 | API/Auth | AC-06, AC-21 | Requester/Staff/Admin/session/CSRF/nested-parent authorization | Permitted reads/writes succeed; denied paths disclose nothing extra | `server/tests/lab-04/actions-taken.api.test.ts` | **Pass - Issue #74 local** |
+| API-03 | API | AC-04, AC-05 | Eligible/inactive/wrong-role assignment and all Action lifecycle paths with a different completing actor | Only documented assignments/transitions commit; completion auto-records immutable actual performer | `server/tests/lab-04/actions-taken.api.test.ts` | **Pass - Issue #74 local** |
+| API-04 | API | AC-07 | Same-key replay, changed-payload conflict, replay after later edit/parent close | One logical Action; matching replay returns same current identity | `server/tests/lab-04/actions-taken.api.test.ts` | **Pass - Issue #74 local** |
+| API-05 | API | AC-08, AC-14 | Stale child/parent versions, atomic revision/version behavior, explicit valid no-op | No lost update/false revision; accepted change increments once | `server/tests/lab-04/actions-taken.api.test.ts` | **Pass - Issue #74 local** |
+| API-06 | API | AC-06, AC-14 | All Action statuses/cycles across stable pages/ties; public revisions | Every Action reachable in deterministic order, safe public history | `server/tests/lab-04/actions-taken.api.test.ts` | **Pass - Issue #74 local** |
+| RACE-01 | Concurrent API | AC-07, AC-08 | Simultaneous identical Action create requests | Exactly one Action/create revision; replay-safe responses | `server/tests/lab-04/actions-concurrency.api.test.ts` | **Pass - Issue #74 local** |
+| RACE-02 | Concurrent API | AC-04, AC-08 | Assignment versus Administrator deactivation/demotion in both lock orders | No outstanding Action ends assigned to an ineligible User | `server/tests/lab-04/action-assignment-safety.api.test.ts` | **Pass - Issue #74 local** |
+| RACE-03 | Concurrent API | AC-08, AC-09 | Two Action edits and parent Ticket version/owner change races | One valid serial outcome; stale loser cannot overwrite | `server/tests/lab-04/actions-concurrency.api.test.ts` | **Pass - Issue #74 local** |
 | FLOW-01 | Unit/API | AC-10 | Evaluate all 64 Ticket source/destination pairs plus role/owner/text/confirmation guards | Only documented matrix edges pass | `server/tests/lab-04/ticket-workflow.unit.test.ts`, `ticket-workflow.api.test.ts` | Planned / Not run |
 | FLOW-02 | API | AC-11 | Resolution with zero/pending/mixed/all-cancelled/completed/follow-up combinations | Only qualifying current-cycle state resolves | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned / Not run |
 | FLOW-03 | API | AC-12 | Requester advisory indication and Action completion | Neither silently changes formal Ticket status | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned / Not run |
@@ -253,3 +253,33 @@ Fresh local checks executed after the safe-output routing was installed:
 | `git diff --check` | Pass |
 
 The three Issue #72-owned HAR rows may therefore record local Pass evidence. This does **not** promote TRACE-01, REL-02, migration, Actions, Dashboard, final regression, or final-main rows: those remain future work. Hosted PR-head CI/review evidence is recorded only after GitHub actually produces it.
+
+## 11. Issue #74 Actions API execution record
+
+Issue #74 started from fetched `origin/lab4-staging` SHA `29538dd5af5cc0202d30105b4d4c2e383ddf5bec` in a dedicated clean `feature/74-lab4-actions-api` worktree. The preserved dirty root and Issue #73 worktree were not reset, stashed, cleaned, deleted, or reused. Before database-backed tests, the local safety check resolved the development database as `loopback:5432/toktickit` and the test database as `loopback:5432/toktickit_test`; Prisma reported the test schema up to date with all four migrations.
+
+TDD progressed through meaningful RED -> GREEN waves: missing pure Action policy modules; missing read/auth routes; missing create/replay mutation service; missing edit/status/version/audit routes; then a real Administrator-safety RED where an outstanding Action assignee could still be deactivated. The latter was fixed by extending the existing locked Administrator safety transaction, not by weakening the race assertion. A later broad test run exposed only a test-fixture Ticket Number collision caused by two parallel fixture creates; the fixture identity was changed to UUID-backed uniqueness without changing product assertions.
+
+Fresh focused evidence after the final Issue #74 gap audit:
+
+| Check | Issue #74 result |
+|---|---|
+| `npm.cmd test -- tests/lab-04/actions-policy.unit.test.ts tests/lab-04/actions-taken.api.test.ts tests/lab-04/actions-concurrency.api.test.ts tests/lab-04/action-assignment-safety.api.test.ts` (server) | **Pass - 4 files / 32 tests** |
+| `UNIT-01` | Pass - normalization/validation, immutable client-field rejection, lifecycle matrix, pagination query policy |
+| `API-01..API-06` | Pass - public read/privacy, nested parent IDOR, create/edit/status/revision behavior, actor-scoped replay, all lifecycle edges/statuses/cycles, completed correction after a historical assignee becomes inactive, stale/no-op/audit semantics, and injected revision-persistence rollback with a safe 500 envelope |
+| `RACE-01` | Pass - simultaneous identical create produced one logical Action/create revision and one parent bump with `201` + replay-safe `200` |
+| `RACE-02` | Pass - outstanding assignment blocks deactivation/demotion; forced assignment-first and admin-first serialization were exercised for both deactivation and demotion |
+| `RACE-03` | Pass - competing Action edits and Action edit vs Ticket owner mutation serialize to one valid winner without partial audit/version state |
+
+Fresh pre-PR verification after the Issue #74 gap additions:
+
+| Check | Issue #74 result |
+|---|---|
+| `npm.cmd --prefix server run build` | **Pass** |
+| `npm.cmd run test:trace:lab4 -- --mode=increment --issue=74` | **Pass** - 24 FRs / 54 BRs / 28 ACs / 57 Test IDs; Issue #74 owns only `UNIT-01`, `API-01..API-06`, and `RACE-01..RACE-03` |
+| `npm.cmd run verify` | **Pass** - server 58 files / 324 tests; client 25 files / 136 tests; Lab 4 harness 9 Node tests + 3 server safety tests; retained Lab 3 trace pass; Lab 4 planning trace pass; retained E2E 37/37; retained responsive 13/13 |
+| `git diff --check` | **Pass**; line-ending warnings only, no whitespace errors |
+
+The 32-test/324-server-test results above include a self-review correction prepared after PR #84 was already opened: a focused RED reproduced that completed content correction was incorrectly blocked after its historical assignee became inactive, then the implementation was narrowed so current assignee eligibility is rechecked only for outstanding `PENDING`/`IN_PROGRESS` Actions. A second regression deliberately caused revision persistence to fail after the in-transaction Action/Ticket updates and proved rollback plus the safe public 500 envelope. This correction is included in the branch update that accompanies this evidence record; hosted PR-head CI must therefore be checked again on the resulting exact remote SHA before review/merge evidence is treated as current.
+
+The full `verify` result above is local candidate evidence, not hosted PR-head CI and not final-main/release evidence. `FLOW-01..FLOW-05`, `RACE-04`, `RACE-05`, UI/Dashboard/E2E Lab 4 product IDs, `REL-02`, and later release rows remain `Planned / Not run` exactly because Issue #74 does not implement or execute them.
