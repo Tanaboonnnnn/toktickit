@@ -30,10 +30,22 @@ export interface StaffQueueQuery {
   itPriority?: RequestedPriority; owner?: StaffOwnerFilter; sortBy?: StaffSortField; sortDirection?: StaffSortDirection;
   page?: number; pageSize?: StaffPageSize;
 }
+export type ResolutionBlocker = "COMPLETED_ACTION_REQUIRED" | "OUTSTANDING_ACTIONS" | "FOLLOW_UP_REQUIRED";
+export interface StaffTicketWorkflow {
+  permittedTransitions: TicketStatus[];
+  resolution: {
+    completedCount: number;
+    outstandingCount: number;
+    unresolvedFollowUpCount: number;
+    blockers: ResolutionBlocker[];
+  };
+}
 export interface StaffTicketDetail extends StaffQueueItem {
   relatedSystem: Category; description: string; attachments: TicketAttachmentMetadata[];
   resolutionSummary: string | null; resolvedAt: string | null; closedAt: string | null; cancelReason: string | null;
   cancelledAt: string | null; requesterResolutionIndicatedAt: string | null;
+  workflowCycle: number;
+  workflow: StaffTicketWorkflow;
 }
 
 const priorities = ["LOW", "MEDIUM", "HIGH"] as const;
@@ -47,6 +59,15 @@ function userSummary(value: unknown): value is StaffUserSummary {
   return reference(value) && roles.includes((value as StaffUserSummary).role);
 }
 function priority(value: unknown): value is RequestedPriority { return priorities.includes(value as RequestedPriority); }
+const resolutionBlockers: ResolutionBlocker[] = ["COMPLETED_ACTION_REQUIRED", "OUTSTANDING_ACTIONS", "FOLLOW_UP_REQUIRED"];
+function workflow(value: unknown): value is StaffTicketWorkflow {
+  if (!isRecord(value) || !Array.isArray(value.permittedTransitions) || !value.permittedTransitions.every(isTicketStatus) || !isRecord(value.resolution)) return false;
+  const resolution = value.resolution;
+  return Number.isSafeInteger(resolution.completedCount) && (resolution.completedCount as number) >= 0
+    && Number.isSafeInteger(resolution.outstandingCount) && (resolution.outstandingCount as number) >= 0
+    && Number.isSafeInteger(resolution.unresolvedFollowUpCount) && (resolution.unresolvedFollowUpCount as number) >= 0
+    && Array.isArray(resolution.blockers) && resolution.blockers.every((item) => resolutionBlockers.includes(item as ResolutionBlocker));
+}
 function queueItem(value: unknown): value is StaffQueueItem {
   if (!isRecord(value)) return false;
   return Number.isSafeInteger(value.id) && typeof value.ticketNumber === "string" && typeof value.summary === "string"
@@ -73,7 +94,9 @@ function detail(value: unknown): value is StaffTicketDetail {
     && (value.resolutionSummary === null || typeof value.resolutionSummary === "string")
     && (value.resolvedAt === null || typeof value.resolvedAt === "string") && (value.closedAt === null || typeof value.closedAt === "string")
     && (value.cancelReason === null || typeof value.cancelReason === "string") && (value.cancelledAt === null || typeof value.cancelledAt === "string")
-    && (value.requesterResolutionIndicatedAt === null || typeof value.requesterResolutionIndicatedAt === "string");
+    && (value.requesterResolutionIndicatedAt === null || typeof value.requesterResolutionIndicatedAt === "string")
+    && Number.isSafeInteger(value.workflowCycle) && (value.workflowCycle as number) >= 1
+    && workflow(value.workflow);
 }
 function append(params: URLSearchParams, query: StaffQueueQuery): void {
   const search = query.search?.trim(); if (search) params.set("search", search);

@@ -5,6 +5,7 @@ const ISSUE_TEST_IDS = new Map([
   [72, ["HAR-01", "HAR-02", "HAR-03"]],
   [73, ["MIG-01", "MIG-02", "MIG-03", "SEED-01"]],
   [74, ["UNIT-01", "API-01", "API-02", "API-03", "API-04", "API-05", "API-06", "RACE-01", "RACE-02", "RACE-03"]],
+  [75, ["FLOW-01", "FLOW-02", "FLOW-03", "FLOW-04", "FLOW-05", "RACE-04", "RACE-05", "UI-03", "E2E-02"]],
 ]);
 
 function fail(message) {

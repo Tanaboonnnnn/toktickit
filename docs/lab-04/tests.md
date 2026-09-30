@@ -1,6 +1,6 @@
 # Lab 4 Test DD Plan
 
-Status: **Issue #74 Actions API increment in progress. HAR-01..HAR-03, MIG-01..MIG-03, SEED-01, UNIT-01, API-01..API-06, and RACE-01..RACE-03 have executed local evidence recorded below. All other product/release Test IDs remain `Planned / Not run` until their own executable checks run on the relevant source SHA.**
+Status: **Issue #75 Ticket workflow implementation candidate. HAR-01..HAR-03, MIG-01..MIG-03, SEED-01, UNIT-01, API-01..API-06, RACE-01..RACE-03, FLOW-01..FLOW-05, RACE-04, RACE-05, UI-03, and E2E-02 have executed local evidence recorded below. Dashboard/#76/release Test IDs remain future work.**
 
 Primary authority: `SE+Lab+4.pdf` section 10 and the Acceptance Criteria in `specification.md`.
 
@@ -41,16 +41,16 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 | RACE-01 | Concurrent API | AC-07, AC-08 | Simultaneous identical Action create requests | Exactly one Action/create revision; replay-safe responses | `server/tests/lab-04/actions-concurrency.api.test.ts` | **Pass - Issue #74 local** |
 | RACE-02 | Concurrent API | AC-04, AC-08 | Assignment versus Administrator deactivation/demotion in both lock orders | No outstanding Action ends assigned to an ineligible User | `server/tests/lab-04/action-assignment-safety.api.test.ts` | **Pass - Issue #74 local** |
 | RACE-03 | Concurrent API | AC-08, AC-09 | Two Action edits and parent Ticket version/owner change races | One valid serial outcome; stale loser cannot overwrite | `server/tests/lab-04/actions-concurrency.api.test.ts` | **Pass - Issue #74 local** |
-| FLOW-01 | Unit/API | AC-10 | Evaluate all 64 Ticket source/destination pairs plus role/owner/text/confirmation guards | Only documented matrix edges pass | `server/tests/lab-04/ticket-workflow.unit.test.ts`, `ticket-workflow.api.test.ts` | Planned / Not run |
-| FLOW-02 | API | AC-11 | Resolution with zero/pending/mixed/all-cancelled/completed/follow-up combinations | Only qualifying current-cycle state resolves | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned / Not run |
-| FLOW-03 | API | AC-12 | Requester advisory indication and Action completion | Neither silently changes formal Ticket status | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned / Not run |
-| FLOW-04 | API | AC-13 | Legacy close and repeated reopen cycles | Legacy remains valid; new cycle demands new qualifying work | `server/tests/lab-04/ticket-workflow.api.test.ts` | Planned / Not run |
-| FLOW-05 | API | AC-09, AC-14 | Ticket cancellation fan-out and workflow-event order | Outstanding current-cycle Actions cancel atomically; history append-only | `server/tests/lab-04/workflow-history.api.test.ts` | Planned / Not run |
-| RACE-04 | Concurrent API | AC-09, AC-11 | Resolve versus Action create/complete/follow-up edit in both serialization orders | Final DB always satisfies resolution invariant or remains unresolved | `server/tests/lab-04/ticket-resolution-concurrency.api.test.ts` | Planned / Not run |
-| RACE-05 | Concurrent API | AC-09, AC-14 | Ticket cancel versus child Action mutation / injected failure | No partial child/history cancellation survives rollback | `server/tests/lab-04/ticket-resolution-concurrency.api.test.ts` | Planned / Not run |
+| FLOW-01 | Unit/API | AC-10 | Evaluate all 64 Ticket source/destination pairs plus role/owner/text/confirmation guards | Only documented matrix edges pass | `server/tests/lab-04/ticket-workflow.unit.test.ts`, `server/tests/lab-04/ticket-workflow.api.test.ts` | **Pass - local Issue #75 focused run** |
+| FLOW-02 | API | AC-11 | Resolution with zero/pending/mixed/all-cancelled/completed/follow-up combinations | Only qualifying current-cycle state resolves | `server/tests/lab-04/ticket-workflow.api.test.ts` | **Pass - local Issue #75 focused run** |
+| FLOW-03 | API | AC-12 | Requester advisory indication and Action completion | Neither silently changes formal Ticket status | `server/tests/lab-04/ticket-workflow.api.test.ts` | **Pass - local Issue #75 focused run** |
+| FLOW-04 | API | AC-13 | Legacy close and repeated reopen cycles | Legacy remains valid; new cycle demands new qualifying work | `server/tests/lab-04/ticket-workflow.api.test.ts` | **Pass - local Issue #75 focused run** |
+| FLOW-05 | API | AC-09, AC-14 | Ticket cancellation fan-out and workflow-event order | Outstanding current-cycle Actions cancel atomically; history append-only | `server/tests/lab-04/workflow-history.api.test.ts` | **Pass - local Issue #75 focused run** |
+| RACE-04 | Concurrent API | AC-09, AC-11 | Resolve versus Action create/complete/follow-up edit in both serialization orders | Final DB always satisfies resolution invariant or remains unresolved | `server/tests/lab-04/ticket-resolution-concurrency.api.test.ts` | **Pass - 6-test real-concurrency file** |
+| RACE-05 | Concurrent API | AC-09, AC-14 | Ticket cancel versus child Action mutation / injected failure | No partial child/history cancellation survives rollback | `server/tests/lab-04/ticket-resolution-concurrency.api.test.ts` | **Pass - 6-test real-concurrency file** |
 | UI-01 | Component | AC-02, AC-03, AC-05 | Staff Actions list/create/edit/assign/start/complete/cancel; distinct recorder/assignee/performer labels; conditional fields | Correct controls, labels, validation, authoritative server result | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned / Not run |
 | UI-02 | Component | AC-06, AC-14 | Requester all-items read-only Actions/history/privacy | All public Actions reachable; no mutation/Internal Notes | `client/tests/lab-04/ActionsTaken.test.tsx` | Planned / Not run |
-| UI-03 | Component | AC-10, AC-11, AC-24 | Ticket permitted transitions/blocker feedback and unrelated draft retention | Backend-guided controls; blocked resolution clear; drafts preserved | `client/tests/lab-04/TicketWorkflow.test.tsx` | Planned / Not run |
+| UI-03 | Component | AC-10, AC-11, AC-24 | Ticket permitted transitions/blocker feedback and unrelated draft retention | Backend-guided controls; blocked resolution clear; drafts preserved | `client/tests/lab-04/TicketWorkflow.test.tsx` | **Pass - 5 component tests** |
 | UI-04 | Component | AC-07, AC-08, AC-24 | Ambiguous POST replay, stale edit reconciliation, cross-form draft lifetime | Same logical key retained; no silent overwrite/draft loss | `client/tests/lab-04/ActionsTaken.test.tsx`, `action-drafts.test.tsx` | Planned / Not run |
 | DASH-01 | Unit/API | AC-15, AC-17 | Requester counts/previews, zero data, two-requester ownership isolation | Exact own-only metrics/previews | `server/tests/lab-04/requester-dashboard.api.test.ts`, `dashboard-metrics.unit.test.ts` | Planned / Not run |
 | DASH-02 | API | AC-16, AC-17 | Staff/Admin metrics and current-user Action recorder/assignee/performer OR predicate | Exact counts; one Action matching multiple actor roles is deduplicated once with complete attribution | `server/tests/lab-04/staff-dashboard.api.test.ts` | Planned / Not run |
@@ -69,7 +69,7 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 | RESP-02 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 834x1112 | Tablet reflow remains usable/readable | `e2e/lab-04/responsive-tablet.spec.ts` | Planned / Not run |
 | RESP-03 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 390x844 | Mobile actions/content remain accessible without page overflow | `e2e/lab-04/responsive-mobile.spec.ts` | Planned / Not run |
 | E2E-01 | E2E | AC-02, AC-05, AC-06, AC-07 | Different recorder/assignee/completing performer actors, lifecycle, denied writes, Requester visibility, lost-success retry | Complete Action journey with one logical create and truthful performer attribution | `e2e/lab-04/actions-taken-flow.spec.ts` | Planned / Not run |
-| E2E-02 | E2E | AC-09, AC-10, AC-11, AC-12, AC-13, AC-14 | Ticket lifecycle, resolution gate/follow-up, close/reopen/cancel/history | Complete documented lifecycle and audit behavior | `e2e/lab-04/ticket-resolution.spec.ts` | Planned / Not run |
+| E2E-02 | E2E | AC-09, AC-10, AC-11, AC-12, AC-13, AC-14 | Ticket lifecycle, resolution gate/follow-up, close/reopen/cancel/history | Complete documented lifecycle and audit behavior | `e2e/lab-04/ticket-resolution.spec.ts` | **Pass - 2 Chromium tests** |
 | E2E-03 | E2E | AC-15, AC-16, AC-17, AC-18 | Requester + Staff dashboards, actual metrics, card/list/detail/back/deep-link | UI reflects backend predicates and preserves context | `e2e/lab-04/dashboards.spec.ts` | Planned / Not run |
 | E2E-04 | E2E | AC-21, AC-22, AC-23, AC-24, AC-25 | Representative all-role retained flows, safe failures, keyboard/responsive checks | Labs 1-3 representative regression remains correct | `e2e/lab-04/final-regression.spec.ts` | Planned / Not run |
 | REG-01 | Retained suites | AC-21 | Lab 3 auth/session/password/CSRF/role homes, with intentional Dashboard-home updates | Security/auth behavior retained | `server/tests/lab-03/`, `client/tests/lab-03/`, `e2e/lab-03/` | Planned / Not run for Lab 4 candidate |
@@ -283,3 +283,30 @@ Fresh pre-PR verification after the Issue #74 gap additions:
 The 32-test/324-server-test results above include a self-review correction prepared after PR #84 was already opened: a focused RED reproduced that completed content correction was incorrectly blocked after its historical assignee became inactive, then the implementation was narrowed so current assignee eligibility is rechecked only for outstanding `PENDING`/`IN_PROGRESS` Actions. A second regression deliberately caused revision persistence to fail after the in-transaction Action/Ticket updates and proved rollback plus the safe public 500 envelope. This correction is included in the branch update that accompanies this evidence record; hosted PR-head CI must therefore be checked again on the resulting exact remote SHA before review/merge evidence is treated as current.
 
 The full `verify` result above is local candidate evidence, not hosted PR-head CI and not final-main/release evidence. `FLOW-01..FLOW-05`, `RACE-04`, `RACE-05`, UI/Dashboard/E2E Lab 4 product IDs, `REL-02`, and later release rows remain `Planned / Not run` exactly because Issue #74 does not implement or execute them.
+
+Hosted Issue #74 completion evidence was rechecked at Issue #75 kickoff: human reviewer `@thananun-7203` **Approved** exact PR #84 head `bdacb67cd42ea06b797215dbbc70dc0597d25614` at `2026-09-30T07:08:24Z`; PR #84 merged into `lab4-staging` at `2026-09-30T07:08:44Z` as `6ced65026bc91804363108588e708f0445f3eb65`; post-merge Lab 4 CI run `36682044004` completed **success** on that exact staging SHA. These hosted facts complement, rather than replace, the local Issue #74 execution record above.
+
+## 12. Issue #75 Ticket workflow execution record
+
+Issue #75 starts from a fresh fetch of `origin/lab4-staging` at exact SHA `6ced65026bc91804363108588e708f0445f3eb65` in dedicated clean worktree `.worktrees/feature-75-lab4-ticket-workflow`. Live GitHub showed Issue #75 open with no existing feature branch/PR; the preserved dirty Lab 3 root and completed Issue #74 worktree were not reset, stashed, cleaned, deleted, or reused.
+
+Before Issue #75 product edits, Prisma Client generation succeeded and the focused retained/current workflow baseline passed **4 files / 33 tests**: Lab 3 Ticket workflow/concurrency plus Lab 4 Actions API/concurrency. This is startup baseline evidence only; no Issue #75 Test ID is promoted to Pass by that run.
+
+Issue #75 owns `FLOW-01..FLOW-05`, `RACE-04`, `RACE-05`, `UI-03`, and `E2E-02`. TDD produced meaningful RED before implementation: the new resolution unit test failed all three missing current-cycle predicates; the first API/history run failed eight assertions across gate/event/reopen/cancel/projection behavior; the UI suite failed on duplicated transition authority and draft reset; and the first browser run exposed an incorrect frontend-origin CSRF target in the new fixture. A later fail-closed UI regression also reproduced that accepting a Staff Detail DTO without backend workflow metadata would reintroduce duplicated client authority.
+
+The implemented workflow now enforces the retained eight-status matrix plus the current-cycle resolution predicate in the same locked Ticket transaction; records forward-only Ticket workflow events; increments `workflowCycle` on reopen; atomically cancels outstanding current-cycle Actions with revisions when the Ticket is cancelled; exposes bounded ownership-safe workflow history; returns backend-authoritative permitted transitions and blocker counts; preserves Requester advisory independence; and keeps unrelated Staff status drafts through refresh/conflict reloads. Retained Lab 3 fixtures were evolved only where the approved Lab 4 rule changed their setup/cleanup, with the original assertions preserved in `docs/lab-04/regression-map.md`.
+
+Fresh local candidate verification after those corrections:
+
+| Check | Issue #75 result |
+|---|---|
+| Focused workflow/API/history set | **Pass - 5 files / 33 tests** |
+| `server/tests/lab-04/ticket-resolution-concurrency.api.test.ts` | **Pass - 6/6 real-concurrency tests** |
+| Focused Staff workflow client/regression set | **Pass - 4 files / 21 tests** |
+| `npm.cmd run test:trace:lab4 -- --mode=increment --issue=75` | **Pass** - 24 FRs / 54 BRs / 28 ACs / 57 Test IDs; Issue #75 mapping is limited to its reviewed workflow IDs |
+| `npm.cmd run test:e2e:lab4` | **Pass - 2/2 Chromium tests** |
+| `npm.cmd run verify` | **Pass** - server **62 files / 349 tests**; client **26 files / 141 tests**; Lab 4 harness **9 Node + 3 server safety tests**; retained Lab 3 trace pass; Lab 4 planning trace pass; browser E2E **39/39** including the two Issue #75 Lab 4 cases; retained responsive **13/13** |
+
+During verification, one earlier interrupted run had left a single `issue44/issue48` fixture group in the isolated `TEST_DATABASE_URL`; this was proven to be test-owned data from the retained Staff workflow fixture and removed transactionally before the final full verification. No development/project database row was reset or deleted. The final verification above was then rerun from a clean test-fixture state and passed.
+
+These results are **local candidate evidence only**. Mandatory Issue #75 self-review, exact remote PR-head hosted CI, real peer review, integration, and final-main/release evidence remain separate gates and are not pre-claimed here.

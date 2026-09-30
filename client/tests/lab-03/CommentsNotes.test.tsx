@@ -20,6 +20,11 @@ const staffTicket = {
   ...requesterTicket,
   itPriority: "MEDIUM" as const,
   owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const },
+  workflowCycle: 1,
+  workflow: {
+    permittedTransitions: ["WAITING_FOR_REQUESTER", "RESOLVED", "CANCELLED"],
+    resolution: { completedCount: 1, outstandingCount: 0, unresolvedFollowUpCount: 0, blockers: [] },
+  },
 };
 const comments = [
   { id: 1, ticketId: 91, author: { id: 8, name: "Anan Student", role: "REQUESTER" as const }, body: "Requester update", createdAt: "2026-09-18T01:00:00.000Z" },

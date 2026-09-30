@@ -27,6 +27,7 @@ function testDatabaseUrl(): string {
 const password = "Staff-Ticket-E2E-Password-48!";
 const STAFF_NAME = "Nida Sombat";
 const REQUESTER_NAME = "Mali Charoen";
+const runTag = randomUUID().replaceAll("-", "").slice(0, 12);
 let prisma: PrismaClient;
 let staff: { id: number; email: string };
 let requester: { id: number; email: string };
@@ -56,8 +57,8 @@ test.beforeAll(async () => {
   prisma = new PrismaClient({ datasources: { db: { url: testDatabaseUrl() } } });
   await prisma.$connect();
   const passwordHash = await hashPassword(password);
-  staff = await prisma.user.create({ data: { name: STAFF_NAME, email: "nida.sombat@example.test", active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
-  requester = await prisma.user.create({ data: { name: REQUESTER_NAME, email: "mali.charoen@example.test", active: true, role: "REQUESTER", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  staff = await prisma.user.create({ data: { name: STAFF_NAME, email: `nida.sombat.${runTag}@example.test`, active: true, role: "IT_STAFF", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
+  requester = await prisma.user.create({ data: { name: REQUESTER_NAME, email: `mali.charoen.${runTag}@example.test`, active: true, role: "REQUESTER", passwordHash, mustChangePassword: false }, select: { id: true, email: true } });
   const category = await prisma.category.upsert({ where: { name: "Account and Access" }, update: { active: true }, create: { name: "Account and Access", active: true }, select: { id: true } });
   const system = await prisma.relatedSystem.upsert({ where: { name: "Student Portal" }, update: { active: true }, create: { name: "Student Portal", active: true }, select: { id: true } });
   categoryId = category.id; relatedSystemId = system.id;
@@ -77,6 +78,13 @@ test.afterAll(async () => {
   await prisma.internalNote.deleteMany({ where: { ticketId } });
   await prisma.publicComment.deleteMany({ where: { ticketId } });
   await prisma.attachment.deleteMany({ where: { ticketId } });
+  const actions = await prisma.actionTaken.findMany({ where: { ticketId }, select: { id: true } });
+  const actionIds = actions.map((row) => row.id);
+  if (actionIds.length > 0) {
+    await prisma.actionTakenRevision.deleteMany({ where: { actionId: { in: actionIds } } });
+    await prisma.actionTaken.deleteMany({ where: { id: { in: actionIds } } });
+  }
+  await prisma.ticketWorkflowEvent.deleteMany({ where: { ticketId } });
   await prisma.ticket.deleteMany({ where: { id: ticketId } });
   const userIds = [staff?.id, requester?.id].filter((id): id is number => Number.isSafeInteger(id));
   const sessions = await prisma.session.findMany({ select: { sid: true, sess: true } });
@@ -119,6 +127,27 @@ test("E2E-03 Queue -> claim -> priority -> resolve -> close -> reopen follows th
 
   await chooseStatus(page, "OPEN");
   await chooseStatus(page, "IN_PROGRESS");
+  const current = await prisma.ticket.findUniqueOrThrow({ where: { id: ticketId }, select: { workflowCycle: true } });
+  await prisma.actionTaken.create({
+    data: {
+      ticketId,
+      workflowCycle: current.workflowCycle,
+      recordedById: staff.id,
+      assigneeId: staff.id,
+      performedById: staff.id,
+      description: "Retained Lab 3 E2E qualifying completed work",
+      result: "Requester access was restored and verified",
+      followUpRequired: false,
+      status: "COMPLETED",
+      updatedById: staff.id,
+      completedAt: new Date(),
+      clientRequestId: randomUUID(),
+      createFingerprint: `retained-e2e-${randomUUID()}`,
+    },
+  });
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Staff Ticket Detail" })).toBeVisible();
+  await expect(page.getByLabel("Next status").locator("option[value=RESOLVED]")).toHaveCount(1);
   await page.getByLabel("Next status").selectOption("RESOLVED");
   await page.getByLabel("Resolution Summary").fill("Requester access restored and verified.");
   await page.getByRole("checkbox", { name: /confirm transition/i }).check();
