@@ -1,6 +1,6 @@
 # Lab 4 Test DD Plan
 
-Status: **Issue #74 Actions API increment in progress. HAR-01..HAR-03, MIG-01..MIG-03, SEED-01, UNIT-01, API-01..API-06, and RACE-01..RACE-03 have executed local evidence recorded below. All other product/release Test IDs remain `Planned / Not run` until their own executable checks run on the relevant source SHA.**
+Status: **Issue #75 Ticket workflow increment in progress. HAR-01..HAR-03, MIG-01..MIG-03, SEED-01, UNIT-01, API-01..API-06, and RACE-01..RACE-03 have executed evidence recorded below. FLOW-01..FLOW-05, RACE-04, RACE-05, UI-03, and E2E-02 remain `Planned / Not run` until their Issue #75 executable checks run on the relevant source SHA. All Dashboard/#76/release Test IDs remain future work.**
 
 Primary authority: `SE+Lab+4.pdf` section 10 and the Acceptance Criteria in `specification.md`.
 
@@ -283,3 +283,13 @@ Fresh pre-PR verification after the Issue #74 gap additions:
 The 32-test/324-server-test results above include a self-review correction prepared after PR #84 was already opened: a focused RED reproduced that completed content correction was incorrectly blocked after its historical assignee became inactive, then the implementation was narrowed so current assignee eligibility is rechecked only for outstanding `PENDING`/`IN_PROGRESS` Actions. A second regression deliberately caused revision persistence to fail after the in-transaction Action/Ticket updates and proved rollback plus the safe public 500 envelope. This correction is included in the branch update that accompanies this evidence record; hosted PR-head CI must therefore be checked again on the resulting exact remote SHA before review/merge evidence is treated as current.
 
 The full `verify` result above is local candidate evidence, not hosted PR-head CI and not final-main/release evidence. `FLOW-01..FLOW-05`, `RACE-04`, `RACE-05`, UI/Dashboard/E2E Lab 4 product IDs, `REL-02`, and later release rows remain `Planned / Not run` exactly because Issue #74 does not implement or execute them.
+
+Hosted Issue #74 completion evidence was rechecked at Issue #75 kickoff: human reviewer `@thananun-7203` **Approved** exact PR #84 head `bdacb67cd42ea06b797215dbbc70dc0597d25614` at `2026-09-30T07:08:24Z`; PR #84 merged into `lab4-staging` at `2026-09-30T07:08:44Z` as `6ced65026bc91804363108588e708f0445f3eb65`; post-merge Lab 4 CI run `36682044004` completed **success** on that exact staging SHA. These hosted facts complement, rather than replace, the local Issue #74 execution record above.
+
+## 12. Issue #75 Ticket workflow kickoff record
+
+Issue #75 starts from a fresh fetch of `origin/lab4-staging` at exact SHA `6ced65026bc91804363108588e708f0445f3eb65` in dedicated clean worktree `.worktrees/feature-75-lab4-ticket-workflow`. Live GitHub showed Issue #75 open with no existing feature branch/PR; the preserved dirty Lab 3 root and completed Issue #74 worktree were not reset, stashed, cleaned, deleted, or reused.
+
+Before Issue #75 product edits, Prisma Client generation succeeded and the focused retained/current workflow baseline passed **4 files / 33 tests**: Lab 3 Ticket workflow/concurrency plus Lab 4 Actions API/concurrency. This is startup baseline evidence only; no Issue #75 Test ID is promoted to Pass by that run.
+
+Issue #75 owns the next TDD waves for `FLOW-01..FLOW-05`, `RACE-04`, `RACE-05`, `UI-03`, and `E2E-02`. Each row stays `Planned / Not run` until its actual test exists and has been observed RED for missing Issue #75 behavior, then GREEN on the implementation.
