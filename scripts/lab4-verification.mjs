@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 const ISSUE_TEST_IDS = new Map([
   [72, ["HAR-01", "HAR-02", "HAR-03"]],
   [73, ["MIG-01", "MIG-02", "MIG-03", "SEED-01"]],
+  [74, ["UNIT-01", "API-01", "API-02", "API-03", "API-04", "API-05", "API-06", "RACE-01", "RACE-02", "RACE-03"]],
 ]);
 
 function fail(message) {

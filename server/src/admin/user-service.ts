@@ -84,6 +84,12 @@ async function assertAccountSafety(
     if (ownedTickets > 0) {
       throw accountConflict("Reassign owned Tickets before deactivating or demoting this user");
     }
+    const outstandingAssignedActions = await tx.actionTaken.count({
+      where: { assigneeId: current.id, status: { in: ["PENDING", "IN_PROGRESS"] } },
+    });
+    if (outstandingAssignedActions > 0) {
+      throw accountConflict("Reassign or finish outstanding Actions before deactivating or demoting this user");
+    }
   }
 
   const removesActiveAdministrator = current.active

@@ -71,10 +71,20 @@ test("HAR-03 planning trace accepts honest planned rows while release rejects th
   assert.throws(() => verifyLab4TraceabilityFromDisk({ root, mode: "release" }), /not executed Pass evidence/i);
 });
 
+test("HAR-03 increment trace recognizes reviewed Issue #74 ownership without claiming later workflow IDs", () => {
+  const issue74 = verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 74 });
+  assert.equal(issue74.issue, 74);
+  assert.equal(issue74.testCount, 57);
+  assert.throws(
+    () => verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 75 }),
+    /no reviewed ownership mapping for Issue #75/i,
+  );
+});
+
 test("HAR-03 rejects fake Pass, duplicate Test IDs, unknown mapping and missing rubric destinations", () => {
   const specification = read("docs/lab-04/specification.md");
   const tests = read("docs/lab-04/tests.md");
-  const fakePass = tests.replace(/(^\| UNIT-01 .*\|) Planned \/ Not run \|$/m, "$1 Pass |");
+  const fakePass = tests.replace(/(^\| FLOW-01 .*\|) Planned \/ Not run \|$/m, "$1 Pass |");
   assert.throws(() => verifyLab4Traceability({ specification, tests: fakePass, root, mode: "planning" }), /references missing path/i);
 
   const duplicate = tests.replace("| HAR-02 | Harness |", `${tests.match(/^\| HAR-01 .*$/m)[0]}\n| HAR-02 | Harness |`);
