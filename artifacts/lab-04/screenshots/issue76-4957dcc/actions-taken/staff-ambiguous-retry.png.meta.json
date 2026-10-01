@@ -1,0 +1,14 @@
+{
+  "file": "actions-taken/staff-ambiguous-retry.png",
+  "role": "IT Staff",
+  "route": "#/staff/tickets/6779",
+  "scenario": "Lost Action-create response freezes the original draft and offers same-request reconciliation",
+  "scenarioId": "L4-STF-ACTIONS",
+  "mapping": [
+    "AC-07",
+    "AC-24"
+  ],
+  "testId": "E2E-01",
+  "rubricPart": "P6",
+  "viewport": "1280x720"
+}

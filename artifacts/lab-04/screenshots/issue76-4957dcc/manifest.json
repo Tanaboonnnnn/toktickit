@@ -1,0 +1,212 @@
+{
+  "label": "issue76",
+  "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39",
+  "expectedSourceSha": null,
+  "generatedAtUtc": "2026-10-01T03:00:41.454Z",
+  "command": "npm run capture:evidence:lab4 -- issue76",
+  "screenshotCount": 12,
+  "entries": [
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/desktop-requester.png",
+      "file": "actions-taken/desktop-requester.png",
+      "role": "Requester",
+      "route": "#/tickets/6780",
+      "scenario": "desktop Requester read-only Actions Taken",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-25"
+      ],
+      "testId": "RESP-01",
+      "rubricPart": "P9",
+      "viewport": "1440x900",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/desktop-staff.png",
+      "file": "actions-taken/desktop-staff.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/6780",
+      "scenario": "desktop Staff Actions Taken list and create editor",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-01",
+      "rubricPart": "P9",
+      "viewport": "1440x900",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/mobile-requester.png",
+      "file": "actions-taken/mobile-requester.png",
+      "role": "Requester",
+      "route": "#/tickets/6780",
+      "scenario": "mobile Requester read-only Actions Taken",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-25"
+      ],
+      "testId": "RESP-03",
+      "rubricPart": "P9",
+      "viewport": "390x844",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/mobile-staff.png",
+      "file": "actions-taken/mobile-staff.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/6780",
+      "scenario": "mobile Staff Actions Taken list and create editor",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-03",
+      "rubricPart": "P9",
+      "viewport": "390x844",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/requester-read-only.png",
+      "file": "actions-taken/requester-read-only.png",
+      "role": "Requester",
+      "route": "#/tickets/6779",
+      "scenario": "Owning Requester sees public completed Action and revision history without mutation controls",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-07"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P8",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/staff-ambiguous-retry.png",
+      "file": "actions-taken/staff-ambiguous-retry.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/6779",
+      "scenario": "Lost Action-create response freezes the original draft and offers same-request reconciliation",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-07",
+        "AC-24"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/staff-completed.png",
+      "file": "actions-taken/staff-completed.png",
+      "role": "Administrator",
+      "route": "#/staff/tickets/6779",
+      "scenario": "Completed Action with distinct recorder, assignee, and actual performer",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-02",
+        "AC-05",
+        "AC-07"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/staff-conflict-draft.png",
+      "file": "actions-taken/staff-conflict-draft.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/6779",
+      "scenario": "Stale Action edit preserves the entered draft beside refreshed authoritative state without blind retry",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-08",
+        "AC-24"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/staff-create-validation.png",
+      "file": "actions-taken/staff-create-validation.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/6779",
+      "scenario": "Staff Action create validation keeps the editor open and focuses the first invalid field",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-03",
+        "AC-25"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/staff-edit.png",
+      "file": "actions-taken/staff-edit.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/6779",
+      "scenario": "Staff edits current-cycle Action content while provenance remains read-only",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-02",
+        "AC-03"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/tablet-requester.png",
+      "file": "actions-taken/tablet-requester.png",
+      "role": "Requester",
+      "route": "#/tickets/6780",
+      "scenario": "tablet Requester read-only Actions Taken",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-25"
+      ],
+      "testId": "RESP-02",
+      "rubricPart": "P9",
+      "viewport": "834x1112",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue76-4957dcc/actions-taken/tablet-staff.png",
+      "file": "actions-taken/tablet-staff.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/6780",
+      "scenario": "tablet Staff Actions Taken list and create editor",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-02",
+      "rubricPart": "P9",
+      "viewport": "834x1112",
+      "command": "npm run capture:evidence:lab4 -- issue76",
+      "sourceSha": "4957dccc9c36037b9a3005d1c19954880d300c39"
+    }
+  ]
+}

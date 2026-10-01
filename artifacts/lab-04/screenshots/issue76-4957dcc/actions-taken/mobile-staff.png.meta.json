@@ -1,0 +1,13 @@
+{
+  "file": "actions-taken/mobile-staff.png",
+  "role": "IT Staff",
+  "route": "#/staff/tickets/6780",
+  "scenario": "mobile Staff Actions Taken list and create editor",
+  "scenarioId": "L4-STF-ACTIONS",
+  "mapping": [
+    "AC-25"
+  ],
+  "testId": "RESP-03",
+  "rubricPart": "P9",
+  "viewport": "390x844"
+}
