@@ -389,17 +389,21 @@ Screenshots are visual evidence only; database uniqueness, ownership isolation, 
 
 ## 16. Final visual inspection checklist
 
-- [ ] One coherent Zen Green shell across retained/new screens.
-- [ ] Dashboard cards are concise, aligned, readable, and keyboard actionable.
-- [ ] Metric values are not visually confused with loading placeholders.
-- [ ] Owner, Action recorder, Action assignee, actual performer, and later mutation actor are distinguishable.
-- [ ] Editable/read-only fields are visually and semantically distinct.
-- [ ] Public Comments, Internal Notes, and Actions Taken are not visually conflated.
-- [ ] Follow-up required/optional state and validation are clear.
-- [ ] Action terminal/old-cycle states expose no mutation affordance.
-- [ ] Resolution blockers explain the next safe action without bypass controls.
-- [ ] Desktop/tablet/mobile contain no clipping, overlap, unintended horizontal page scroll, or inaccessible hidden action.
-- [ ] Long content wraps without destroying scanability.
-- [ ] Visible focus and keyboard order are logical.
-- [ ] Validation and safe failures appear close to the affected control/context.
-- [ ] No placeholder text, broken link, raw exception, console error, or stale test-only control remains in final evidence.
+- [x] One coherent Zen Green shell across retained/new screens.
+- [x] Dashboard cards are concise, aligned, readable, and keyboard actionable.
+- [x] Metric values are not visually confused with loading placeholders.
+- [x] Owner, Action recorder, Action assignee, actual performer, and later mutation actor are distinguishable.
+- [x] Editable/read-only fields are visually and semantically distinct.
+- [x] Public Comments, Internal Notes, and Actions Taken are not visually conflated.
+- [x] Follow-up required/optional state and validation are clear.
+- [x] Action terminal/old-cycle states expose no mutation affordance.
+- [x] Resolution blockers explain the next safe action without bypass controls.
+- [x] Desktop/tablet/mobile contain no clipping, overlap, unintended horizontal page scroll, or inaccessible hidden action.
+- [x] Long content wraps without destroying scanability.
+- [x] Visible focus and keyboard order are logical.
+- [x] Validation and safe failures appear close to the affected control/context.
+- [x] No placeholder text, broken link, raw exception, console error, or stale test-only control remains in final evidence.
+
+### Issue #79 source-bound visual inspection (2026-10-02)
+
+Manually opened and inspected all **60/60** PNGs in `artifacts/lab-04/screenshots/issue79-4f50236/manifest.json`; each manifest entry and sidecar is bound to source SHA `4f502367d26f72dac343183cfa58e1af0dd7a2f0`. Coverage: 10 Admin Dashboard, 11 Requester Dashboard, 10 Staff Dashboard, 18 Actions Taken (7 Requester / 11 Staff), 8 retained regression, and 3 Ticket workflow images. The set includes 1440x900, 834x1112, 390x844, and 1280x720 state captures. No clipping, overlap, unreadable labels, or unintended page-level horizontal scrolling was found. The retained My Tickets table uses its contained horizontal scroll at tablet, leaving the last column partly outside a static screenshot; this is recorded as a residual observation. Interaction-only checks (keyboard order/focus, follow-up validation, and terminal/old-cycle capabilities) were cross-checked against the executed component/browser/API regression evidence rather than inferred from image-file presence.
