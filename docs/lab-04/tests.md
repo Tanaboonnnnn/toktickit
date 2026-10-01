@@ -222,6 +222,8 @@ Controlled PERF-01 fixture: **1,000 test-owned Tickets / 3,000 Actions**; Window
 
 The first full TypeScript build after adding query instrumentation caught a test-only Prisma generic inference error (`query` event inferred as `never`). The listener was attached to the inferred query-enabled client instead of widening types. This compile correction is not recorded as product TDD RED. Trace ownership is extended only now that all six #77 Test IDs have real executable local evidence. UI-05..07, E2E-03, broad responsive/accessibility and final-main/release rows remain Planned / Not run in their later scopes.
 
+Fresh final local aggregate verification on the implementation tree committed as `de60e2ac20d96437876eb7259d7860a565153b57`: `npm.cmd run verify` **Pass (exit 0)**; server **67 files / 403 tests**, client **29 files / 153 tests**, harness **9 Node + 3 safety tests**, retained Lab 3 trace and Lab 4 planning trace **Pass**, Chromium E2E **43/43**, responsive **16/16**. Increment trace #77 and `git diff --check` passed. The aggregate smoke logged **9/11 business queries**, **4,510/7,573 bytes**, **25.90/32.83 ms p95**. These fresh results supplement the focused evidence above; they do not claim Dashboard UI execution, human review, hosted CI, or final-main/release completion.
+
 ## 9. Issue #71 baseline verification record
 
 These checks were executed only to establish the delivered Lab 3 source baseline before writing this contract. They are **not Lab 4 product Test-ID Pass evidence**.
