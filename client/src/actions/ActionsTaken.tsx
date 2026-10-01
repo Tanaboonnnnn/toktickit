@@ -50,7 +50,10 @@ export default function ActionsTaken(props: ActionsTakenProps) {
   const [page, setPage] = useState(1);
   const [reload, setReload] = useState(0);
   const [state, setState] = useState<LoadState>({ kind: "loading" });
+  const [refreshError, setRefreshError] = useState("");
   const requestGeneration = useRef(0);
+  const loadedTicketId = useRef<number | null>(null);
+  const loadedPage = useRef<number | null>(null);
   const [assignees, setAssignees] = useState<StaffUserSummary[]>([]);
   const [assigneeLoadError, setAssigneeLoadError] = useState("");
   const [assigneeReload, setAssigneeReload] = useState(0);
@@ -110,13 +113,21 @@ export default function ActionsTaken(props: ActionsTakenProps) {
 
   useEffect(() => {
     const generation = ++requestGeneration.current;
-    setState({ kind: "loading" });
+    const preserveExisting = loadedTicketId.current === ticketId && loadedPage.current === page;
+    setRefreshError("");
+    if (!preserveExisting) setState({ kind: "loading" });
     void fetchActionsTaken(ticketId, page, 20)
       .then((response) => {
-        if (requestGeneration.current === generation) setState({ kind: "success", response });
+        if (requestGeneration.current === generation) {
+          loadedTicketId.current = ticketId;
+          loadedPage.current = page;
+          setState({ kind: "success", response });
+        }
       })
       .catch(() => {
-        if (requestGeneration.current === generation) setState({ kind: "failure" });
+        if (requestGeneration.current !== generation) return;
+        if (preserveExisting) setRefreshError("Unable to refresh Actions Taken. Your current draft and last loaded Actions are still available.");
+        else setState({ kind: "failure" });
       });
   }, [ticketId, page, reload]);
 
@@ -297,6 +308,7 @@ export default function ActionsTaken(props: ActionsTakenProps) {
           <button type="button" className="lab2-button lab2-button-secondary" onClick={() => setReload((value) => value + 1)}>Retry Actions Taken</button>
         </div>
       )}
+      {refreshError && <div className="lab2-error" role="alert"><p>{refreshError}</p><button type="button" className="lab2-button lab2-button-secondary" onClick={() => setReload((value) => value + 1)}>Retry Actions Taken refresh</button></div>}
       {response && response.totalItems === 0 && <p className="lab2-muted">No Actions Taken yet.</p>}
       {response && response.items.length > 0 && (
         <div className="lab4-action-list">
@@ -345,6 +357,7 @@ function ActionCard({
 }) {
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<Awaited<ReturnType<typeof fetchActionRevisions>> | null>(null);
+  const [historyPage, setHistoryPage] = useState(1);
   const [historyError, setHistoryError] = useState("");
   const [historyBusy, setHistoryBusy] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -539,6 +552,20 @@ function ActionCard({
     );
   }
 
+  async function loadHistory(nextPage: number) {
+    setHistoryBusy(true);
+    setHistoryError("");
+    try {
+      const response = await fetchActionRevisions(ticketId, action.id, nextPage, 20);
+      setHistory(response);
+      setHistoryPage(response.page);
+    } catch {
+      setHistoryError("Unable to load Action history.");
+    } finally {
+      setHistoryBusy(false);
+    }
+  }
+
   async function toggleHistory() {
     if (showHistory) {
       setShowHistory(false);
@@ -546,15 +573,7 @@ function ActionCard({
     }
     setShowHistory(true);
     if (history) return;
-    setHistoryBusy(true);
-    setHistoryError("");
-    try {
-      setHistory(await fetchActionRevisions(ticketId, action.id));
-    } catch {
-      setHistoryError("Unable to load Action history.");
-    } finally {
-      setHistoryBusy(false);
-    }
+    await loadHistory(historyPage);
   }
   return (
     <article className="lab4-action-card" aria-labelledby={`action-heading-${action.id}`}>
@@ -626,6 +645,11 @@ function ActionCard({
             <dt>Performed by</dt><dd>{revision.snapshot.performedBy?.name ?? "Not completed"}</dd>
           </dl>
         </article>)}
+        {history && history.totalPages > 1 && <nav className="lab2-pagination" aria-label={`Revision history pagination for Action #${action.id}`}>
+          <button type="button" className="lab2-button lab2-button-secondary" disabled={historyBusy || history.page <= 1} onClick={() => void loadHistory(history.page - 1)}>Previous revision history page for Action #{action.id}</button>
+          <span>Revision page {history.page} of {history.totalPages} ({history.totalItems} total)</span>
+          <button type="button" className="lab2-button lab2-button-secondary" disabled={historyBusy || history.page >= history.totalPages} onClick={() => void loadHistory(history.page + 1)}>Next revision history page for Action #{action.id}</button>
+        </nav>}
       </div>}
     </article>
   );

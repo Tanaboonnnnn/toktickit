@@ -142,12 +142,35 @@ test("E2E-01 reconciles a lost create response, preserves attribution, completes
 
   await page.getByRole("button", { name: "Create Action" }).click();
   await expect(page.getByLabel("Assigned to")).toHaveValue(String(recorder.id));
+  await page.getByRole("button", { name: "Save Action" }).click();
+  await expect(page.getByText("Action Description is required.")).toBeVisible();
+  await expect(page.getByLabel("Action Description")).toBeFocused();
+  await captureReleaseEvidence(page, {
+    file: "actions-taken/staff-create-validation.png",
+    role: "IT Staff",
+    route: `#/staff/tickets/${ticket.id}`,
+    scenario: "Staff Action create validation keeps the editor open and focuses the first invalid field",
+    scenarioId: "L4-STF-ACTIONS",
+    mapping: ["AC-03", "AC-25"],
+    testId: "E2E-01",
+    rubricPart: "P6",
+  });
   await page.getByLabel("Action Description").fill("Inspect the access point uplink and replace the damaged patch cable");
   await page.getByLabel("Assigned to").selectOption(String(assignee.id));
   await page.getByLabel("Attachment Notes").fill("Reference the Ticket attachment when validating the switch port");
   await page.getByRole("button", { name: "Save Action" }).click();
   await expect(page.getByRole("alert")).toContainText(/result is uncertain/i);
   await expect(page.getByLabel("Action Description")).toBeDisabled();
+  await captureReleaseEvidence(page, {
+    file: "actions-taken/staff-ambiguous-retry.png",
+    role: "IT Staff",
+    route: `#/staff/tickets/${ticket.id}`,
+    scenario: "Lost Action-create response freezes the original draft and offers same-request reconciliation",
+    scenarioId: "L4-STF-ACTIONS",
+    mapping: ["AC-07", "AC-24"],
+    testId: "E2E-01",
+    rubricPart: "P6",
+  });
 
   const committedAfterLoss = await prisma.actionTaken.findMany({ where: { ticketId: ticket.id } });
   expect(committedAfterLoss).toHaveLength(1);
@@ -166,8 +189,46 @@ test("E2E-01 reconciles a lost create response, preserves attribution, completes
   const actionId = actionsAfterReplay[0].id;
   await page.getByRole("button", { name: `Edit Action #${actionId}` }).click();
   await page.getByLabel("Edit Action Description").fill("Inspect the access point uplink, replace the damaged cable, and verify packet loss");
+  await captureReleaseEvidence(page, {
+    file: "actions-taken/staff-edit.png",
+    role: "IT Staff",
+    route: `#/staff/tickets/${ticket.id}`,
+    scenario: "Staff edits current-cycle Action content while provenance remains read-only",
+    scenarioId: "L4-STF-ACTIONS",
+    mapping: ["AC-02", "AC-03"],
+    testId: "E2E-01",
+    rubricPart: "P6",
+  });
   await page.getByRole("button", { name: "Save Action changes" }).click();
   await expect(page.getByText(/verify packet loss/i)).toBeVisible();
+
+  await page.getByRole("button", { name: `Edit Action #${actionId}` }).click();
+  const conflictDraft = "Preserve this draft while reconciling a concurrent Action update";
+  await page.getByLabel("Edit Action Description").fill(conflictDraft);
+  await prisma.actionTaken.update({
+    where: { id: actionId },
+    data: {
+      description: "Authoritative concurrent Action update",
+      version: { increment: 1 },
+      updatedById: assignee.id,
+    },
+  });
+  await page.getByRole("button", { name: "Save Action changes" }).click();
+  await expect(page.getByText(/Action or Ticket changed or the operation is no longer available/i)).toBeVisible();
+  await expect(page.getByLabel("Edit Action Description")).toHaveValue(conflictDraft);
+  await expect(page.getByText("Authoritative concurrent Action update", { exact: true })).toBeVisible();
+  await captureReleaseEvidence(page, {
+    file: "actions-taken/staff-conflict-draft.png",
+    role: "IT Staff",
+    route: `#/staff/tickets/${ticket.id}`,
+    scenario: "Stale Action edit preserves the entered draft beside refreshed authoritative state without blind retry",
+    scenarioId: "L4-STF-ACTIONS",
+    mapping: ["AC-08", "AC-24"],
+    testId: "E2E-01",
+    rubricPart: "P6",
+  });
+  await page.getByRole("button", { name: "Save Action changes" }).click();
+  await expect(page.getByText(conflictDraft, { exact: true })).toBeVisible();
 
   await logout(page);
   await login(page, assignee.email, "Ticket Queue");
@@ -207,7 +268,7 @@ test("E2E-01 reconciles a lost create response, preserves attribution, completes
   await login(page, requester.email, "My Tickets");
   await page.goto(`/#/tickets/${ticket.id}`);
   await expect(page.getByRole("heading", { name: "Actions Taken" })).toBeVisible();
-  await expect(page.getByText(/verify packet loss/i)).toBeVisible();
+  await expect(page.getByText(conflictDraft, { exact: true })).toBeVisible();
   await expect(page.getByText("Connectivity restored and packet loss is no longer observed")).toBeVisible();
   await expect(page.getByText(completer.name, { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Create Action" })).toHaveCount(0);

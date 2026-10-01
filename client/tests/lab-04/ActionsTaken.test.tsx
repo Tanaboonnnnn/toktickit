@@ -444,8 +444,9 @@ describe("UI-02 Requester Actions Taken", () => {
         return json({ items: [previousCompleted, currentCancelled], page: 1, pageSize: 20, totalItems: 2, totalPages: 1, capabilities: { canCreate: false } });
       }
       if (url.includes("/api/tickets/91/actions-taken/500/revisions")) {
+        const page = new URL(url).searchParams.get("page") === "2" ? 2 : 1;
         return json({
-          items: [{
+          items: [page === 1 ? {
             actionId: 500,
             actionVersion: 1,
             eventType: "CREATED",
@@ -461,11 +462,27 @@ describe("UI-02 Requester Actions Taken", () => {
               attachmentNotes: null,
               status: "PENDING",
             },
+          } : {
+            actionId: 500,
+            actionVersion: 2,
+            eventType: "COMPLETED",
+            actor: { id: 41, name: "Mali Staff", role: "IT_STAFF" },
+            occurredAt: "2026-09-29T11:00:00.000Z",
+            snapshot: {
+              assignee: previousCompleted.assignee,
+              performedBy: { id: 41, name: "Mali Staff", role: "IT_STAFF" },
+              description: "Initial previous-cycle work",
+              result: "Previous-cycle work completed",
+              followUpRequired: false,
+              followUpNote: null,
+              attachmentNotes: null,
+              status: "COMPLETED",
+            },
           }],
-          page: 1,
+          page,
           pageSize: 20,
-          totalItems: 1,
-          totalPages: 1,
+          totalItems: 2,
+          totalPages: 2,
         });
       }
       return json({});
@@ -490,5 +507,9 @@ describe("UI-02 Requester Actions Taken", () => {
     await user.click(screen.getByRole("button", { name: "History for Action #500" }));
     expect(await screen.findByText("Initial previous-cycle work")).toBeInTheDocument();
     expect(screen.getByText(/Created by Niran Staff/i)).toBeInTheDocument();
+    expect(screen.getByText(/Revision page 1 of 2/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Next revision history page for Action #500" }));
+    expect(await screen.findByText(/Completed by Mali Staff/i)).toBeInTheDocument();
+    expect(screen.getByText(/Revision page 2 of 2/i)).toBeInTheDocument();
   });
 });
