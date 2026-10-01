@@ -532,3 +532,7 @@ PR #89 is open. GitHub Actions workflow run `36926719416` (`Lab 4 CI`) is **in p
 #### Issue #79 hosted PR CI result (2026-10-02)
 
 GitHub Actions run `36927385677` (`Lab 4 CI`) completed successfully on exact PR head SHA `54e242555e6894019fec9531e90962985e97602f` with base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`. The run included the integrated build, test, retained E2E, and responsive verification workflow. This hosted result is separate from local `npm.cmd run verify` and is tied to SHA `54e2425`.
+
+#### Issue #79 final source-head CI result (2026-10-02)
+
+GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR head SHA `f9b808a04818e9bfa4dfc11c526e9eb0bda41f6f`, with base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`. This was the successful rerun after the PR evidence/status update; it validates the full candidate through the latest product-code SHA. Any subsequent PR-head change in this checkpoint is documentation-only.
