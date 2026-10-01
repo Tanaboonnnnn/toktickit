@@ -1,8 +1,9 @@
 import { Prisma, type PrismaClient, type TicketStatus } from "@prisma/client";
 import type { RequesterIdentity } from "./requester-identity.js";
 import type { TicketListQuery } from "./ticket-query.js";
+import { ticketStatusWhere } from "./ticket-status-filter.js";
 
-const ticketListSelect = {
+export const ticketListSelect = {
   id: true,
   ticketNumber: true,
   category: { select: { id: true, name: true } },
@@ -41,6 +42,7 @@ function buildWhere(requester: RequesterIdentity, query: TicketListQuery): Prism
     // This predicate is deliberately part of the database query. Never move
     // ownership filtering into serialization or the client.
     requesterId: requester.id,
+    ...ticketStatusWhere(query),
   };
 
   if (query.search !== undefined) {
@@ -51,7 +53,6 @@ function buildWhere(requester: RequesterIdentity, query: TicketListQuery): Prism
   }
   if (query.categoryId !== undefined) where.categoryId = query.categoryId;
   if (query.requestedPriority !== undefined) where.requestedPriority = query.requestedPriority;
-  if (query.currentStatus !== undefined) where.currentStatus = query.currentStatus;
   return where;
 }
 
