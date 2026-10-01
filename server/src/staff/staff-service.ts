@@ -3,9 +3,10 @@ import type { Actor } from "../auth/actor.js";
 import { ApiError, validationError } from "../errors.js";
 import { serializeAttachment } from "../attachment-service.js";
 import type { StaffTicketQuery } from "./staff-query.js";
+import { ticketStatusWhere } from "../ticket-status-filter.js";
 import { permittedStatusTransitions, resolutionBlockers, type ResolutionWorkState } from "./ticket-workflow.js";
 
-const queueSelect = {
+export const queueSelect = {
   id: true, ticketNumber: true, summary: true,
   category: { select: { id: true, name: true } },
   requester: { select: { id: true, name: true, email: true } },
@@ -26,19 +27,18 @@ const detailSelect = {
 type QueueRow = Prisma.TicketGetPayload<{ select: typeof queueSelect }>;
 type DetailRow = Prisma.TicketGetPayload<{ select: typeof detailSelect }>;
 
-function serializeQueue(row: QueueRow) {
+export function serializeQueue(row: QueueRow) {
   return { ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() };
 }
 
-function whereFor(actor: Actor, query: StaffTicketQuery): Prisma.TicketWhereInput {
-  const where: Prisma.TicketWhereInput = {};
+export function whereFor(actor: Actor, query: StaffTicketQuery): Prisma.TicketWhereInput {
+  const where: Prisma.TicketWhereInput = ticketStatusWhere(query);
   if (query.search) where.OR = [
     { ticketNumber: { contains: query.search, mode: "insensitive" } },
     { summary: { contains: query.search, mode: "insensitive" } },
     { requester: { name: { contains: query.search, mode: "insensitive" } } },
   ];
   if (query.categoryId) where.categoryId = query.categoryId;
-  if (query.currentStatus) where.currentStatus = query.currentStatus;
   if (query.requestedPriority) where.requestedPriority = query.requestedPriority;
   if (query.itPriority) where.itPriority = query.itPriority;
   if (query.owner === "unassigned") where.ownerId = null;

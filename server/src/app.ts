@@ -21,6 +21,7 @@ import { parseCommunicationBody, parseResolutionIndicationBody } from "./communi
 import { createAdminRouter } from "./admin/user-routes.js";
 import { createActionsRouter } from "./actions/action-routes.js";
 import { listWorkflowEvents, parseWorkflowEventQuery } from "./staff/workflow-events.js";
+import { createDashboardRouter } from "./dashboard/dashboard-routes.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -45,6 +46,7 @@ app.use("/api/auth", createAuthRouter({ infrastructureMounted: true }));
 app.use("/api", createActionsRouter());
 app.use("/api/staff", createStaffRouter());
 app.use("/api/admin", createAdminRouter());
+app.use("/api/dashboard", createDashboardRouter());
 
 app.get("/api/tickets/:ticketId/workflow-events", requireActor(), requireCapability("ACTION_READ"), async (req: Request, res: Response) => {
   try {

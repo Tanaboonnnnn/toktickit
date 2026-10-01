@@ -1,6 +1,7 @@
 import { validationError } from "./errors.js";
 import type { RequestedPriority } from "./ticket-contract.js";
 import { isTicketStatus, TICKET_STATUSES, type TicketStatusValue } from "./ticket-status.js";
+import { parseTicketStatusFilter, type TicketStatusFilter } from "./ticket-status-filter.js";
 
 export type TicketStatus = TicketStatusValue;
 export type TicketSortField = "createdAt" | "updatedAt" | "ticketNumber" | "summary";
@@ -12,7 +13,7 @@ export type TicketListOrder = {
   direction: TicketSortDirection;
 };
 
-export interface TicketListQuery {
+export interface TicketListQuery extends TicketStatusFilter {
   search?: string;
   categoryId?: number;
   requestedPriority?: RequestedPriority;
@@ -30,6 +31,7 @@ const allowedParameters = new Set([
   "categoryId",
   "requestedPriority",
   "currentStatus",
+  "statusGroup", "resolvedFrom", "resolvedBefore",
   "sortBy",
   "sortDirection",
   "page",
@@ -116,6 +118,12 @@ export function parseTicketListQuery(input: QueryInput): TicketListQuery {
   const categoryValue = readScalar(values, "categoryId", fieldErrors);
   const priorityValue = readScalar(values, "requestedPriority", fieldErrors);
   const statusValue = readScalar(values, "currentStatus", fieldErrors);
+  const statusFilter = parseTicketStatusFilter({
+    currentStatus: statusValue,
+    statusGroup: readScalar(values, "statusGroup", fieldErrors),
+    resolvedFrom: readScalar(values, "resolvedFrom", fieldErrors),
+    resolvedBefore: readScalar(values, "resolvedBefore", fieldErrors),
+  }, fieldErrors);
   const sortByValue = readScalar(values, "sortBy", fieldErrors);
   const sortDirectionValue = readScalar(values, "sortDirection", fieldErrors);
   const pageValue = readScalar(values, "page", fieldErrors);
@@ -171,6 +179,7 @@ export function parseTicketListQuery(input: QueryInput): TicketListQuery {
   if (Object.keys(fieldErrors).length > 0) throw validationError(fieldErrors);
 
   return {
+    ...statusFilter,
     ...(search === undefined ? {} : { search }),
     ...(categoryId === undefined ? {} : { categoryId }),
     ...(requestedPriority === undefined ? {} : { requestedPriority }),
