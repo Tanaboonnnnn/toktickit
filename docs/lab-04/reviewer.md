@@ -466,4 +466,9 @@ At fixed base/merge-base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` and candidat
 
 #### Issue #79 post-cross-review verification (2026-10-02)
 
-After recording the 60/60 visual inspection and correcting the checklist/Test DD, `npm.cmd run test:trace:lab4 -- --mode=increment --issue=79` passed **24 FR / 54 BR / 28 AC / 57 Test IDs**. `git diff --check 5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` passed; Git emitted only CRLF conversion warnings. This candidate remains local and uncommitted in the four living docs while the user arranges an additional coding-agent review. No push, PR, hosted CI, human peer review, or merge has occurred.
+After recording the 60/60 visual inspection and correcting the checklist/Test DD, `npm.cmd run test:trace:lab4 -- --mode=increment --issue=79` passed **24 FR / 54 BR / 28 AC / 57 Test IDs**. `git diff --check 5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` passed; Git emitted only CRLF conversion warnings. These four living-doc updates were committed as `86f33e4`; at the time of this evidence entry there was no push, PR, hosted CI, human peer review, or merge. The user's latest instruction now authorizes proceeding to PR after the final review gate.
+
+
+#### Issue #79 final fixed-point review status correction (2026-10-02)
+
+At fixed base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` and HEAD `86f33e408a61fca485d5200b1ac479371ec04b23`, Standards found one P2 stale commit-status statement in the living evidence; the separate Spec review found no actionable gap. Verified the finding against `git show --stat HEAD` and clean `git status`: `86f33e4` contains all four living-doc updates. Corrected the old entries to state they are committed and that push/PR were still pending at that time. The user now authorizes PR creation. No push, PR, hosted CI, human peer review, or merge has occurred yet.
