@@ -57,6 +57,7 @@ describe("UI-05 Public Comments, Internal Notes, and Requester indication", () =
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url.endsWith("/api/tickets/91") && !init?.method) return json({ ticket: requesterTicket });
+      if (url.includes("/api/tickets/91/actions-taken?") && !init?.method) return json({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0, capabilities: { canCreate: false } });
       if (url.endsWith("/api/tickets/91/comments") && !init?.method) { commentReads += 1; return json({ items: commentReads === 1 ? comments : [...comments, posted] }); }
       if (url.endsWith("/api/auth/csrf")) return json({ csrfToken: "csrf-49" });
       if (url.endsWith("/api/tickets/91/comments") && init?.method === "POST") return json({ comment: posted }, 201);
@@ -82,6 +83,7 @@ describe("UI-05 Public Comments, Internal Notes, and Requester indication", () =
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url.endsWith("/api/tickets/91") && !init?.method) return json({ ticket: requesterTicket });
+      if (url.includes("/api/tickets/91/actions-taken?") && !init?.method) return json({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0, capabilities: { canCreate: false } });
       if (url.endsWith("/api/tickets/91/comments") && !init?.method) return json({ items: [] });
       if (url.endsWith("/api/auth/csrf")) return json({ csrfToken: "csrf-49" });
       if (url.endsWith("/api/tickets/91/comments")) return json({ error: { code: "INTERNAL_ERROR", message: "Unable to add Public Comment" } }, 500);
@@ -103,6 +105,7 @@ describe("UI-05 Public Comments, Internal Notes, and Requester indication", () =
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input);
       if (url.endsWith("/api/tickets/91") && !init?.method) { detailReads += 1; return json({ ticket: detailReads === 1 ? requesterTicket : updatedTicket }); }
+      if (url.includes("/api/tickets/91/actions-taken?") && !init?.method) return json({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0, capabilities: { canCreate: false } });
       if (url.endsWith("/api/tickets/91/comments") && !init?.method) return json({ items: [] });
       if (url.endsWith("/api/auth/csrf")) return json({ csrfToken: "csrf-49" });
       if (url.endsWith("/resolution-indication")) return json({ ticket: indicated });
@@ -129,6 +132,7 @@ describe("UI-05 Public Comments, Internal Notes, and Requester indication", () =
       const url = String(input);
       if (url.endsWith("/api/staff/tickets/91") && !init?.method) return json({ ticket: staffTicket });
       if (url.endsWith("/api/staff/assignees")) return json({ items: [staffTicket.owner] });
+      if (url.includes("/api/tickets/91/actions-taken?") && !init?.method) return json({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0, capabilities: { canCreate: true } });
       if (url.endsWith("/api/tickets/91/comments") && !init?.method) { publicReads += 1; return json({ items: publicReads === 1 ? comments : [...comments, publicPosted] }); }
       if (url.endsWith("/api/staff/tickets/91/internal-notes") && !init?.method) { noteReads += 1; return json({ items: noteReads === 1 ? notes : [...notes, privatePosted] }); }
       if (url.endsWith("/api/auth/csrf")) return json({ csrfToken: "csrf-49" });

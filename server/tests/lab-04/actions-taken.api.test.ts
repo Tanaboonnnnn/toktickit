@@ -92,6 +92,37 @@ describe("API-02 / API-06 Action read authorization and stable public history", 
     expect(JSON.stringify(revisions.body)).not.toMatch(/createFingerprint|session|PRIVATE-DIAGNOSTIC|PRIVATE-HASH|passwordHash/i);
   });
 
+  it("projects Action UI capabilities from the backend policy instead of requiring a client lifecycle matrix", async () => {
+    const ticket = await createActionTicket(fixture);
+    const pending = await createStoredAction(fixture, ticket, { status: "PENDING", description: "Pending capability probe" });
+    const completed = await createStoredAction(fixture, ticket, { status: "COMPLETED", description: "Completed capability probe", result: "Done" });
+    const staff = await agentFor(fixture, fixture.staff.email);
+    const requester = await agentFor(fixture, fixture.normalRequester.email);
+
+    const staffList = await staff.get(`/api/tickets/${ticket.id}/actions-taken`).expect(200);
+    expect(staffList.body.capabilities).toEqual({ canCreate: true });
+    const staffPending = staffList.body.items.find((row: { id: number }) => row.id === pending.id);
+    const staffCompleted = staffList.body.items.find((row: { id: number }) => row.id === completed.id);
+    expect(staffPending.capabilities).toEqual({
+      canEdit: true,
+      canReassign: true,
+      permittedTransitions: ["IN_PROGRESS", "COMPLETED", "CANCELLED"],
+    });
+    expect(staffCompleted.capabilities).toEqual({ canEdit: true, canReassign: false, permittedTransitions: [] });
+
+    const requesterList = await requester.get(`/api/tickets/${ticket.id}/actions-taken`).expect(200);
+    expect(requesterList.body.capabilities).toEqual({ canCreate: false });
+    expect(requesterList.body.items.every((row: { capabilities: unknown }) => JSON.stringify(row.capabilities) === JSON.stringify({
+      canEdit: false,
+      canReassign: false,
+      permittedTransitions: [],
+    }))).toBe(true);
+
+    const closed = await createActionTicket(fixture, { status: "CLOSED" });
+    const closedList = await staff.get(`/api/tickets/${closed.id}/actions-taken`).expect(200);
+    expect(closedList.body.capabilities).toEqual({ canCreate: false });
+  });
+
   it("enforces nested Ticket/Action relationship without disclosing a foreign child", async () => {
     const [ticketA, ticketB] = await Promise.all([createActionTicket(fixture), createActionTicket(fixture)]);
     const action = await createStoredAction(fixture, ticketA);

@@ -29,6 +29,36 @@ function renderDetail(fetchMock: ReturnType<typeof vi.fn>) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe("UI-04 Staff Ticket Detail operations", () => {
+  it("hosts Actions Taken and reports a failed Staff attachment download without an unhandled promise", async () => {
+    const withAttachment = {
+      ...base,
+      attachments: [{
+        id: 55,
+        ticketId: 91,
+        originalName: "switch-photo.png",
+        mimeType: "image/png",
+        sizeBytes: 2048,
+        state: "ACTIVE" as const,
+        createdAt: "2026-09-17T03:05:00.000Z",
+        removedAt: null,
+        removalReason: null,
+        downloadUrl: "/api/tickets/91/attachments/55/download",
+      }],
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/api/staff/tickets/91") && !init?.method) return json({ ticket: withAttachment });
+      if (url.includes("/api/tickets/91/actions-taken?") && !init?.method) return json({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0, capabilities: { canCreate: true } });
+      if (url.endsWith("/api/staff/assignees")) return json({ items: [{ id: 21, name: "Niran Staff", role: "IT_STAFF" }] });
+      if (url.endsWith("/api/tickets/91/attachments/55/download")) return Promise.reject(new TypeError("Failed to fetch"));
+      return json({});
+    });
+    renderDetail(fetchMock);
+    expect(await screen.findByRole("heading", { name: "Actions Taken" })).toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Download switch-photo.png" }));
+    expect(await screen.findByText(/unable to download switch-photo\.png/i)).toBeInTheDocument();
+  });
+
   it("claims an unassigned Ticket and renders the authoritative returned owner without changing status", async () => {
     const claimed = { ...base, owner: { id: 21, name: "Niran Staff", role: "IT_STAFF" as const }, version: 3 };
     const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {

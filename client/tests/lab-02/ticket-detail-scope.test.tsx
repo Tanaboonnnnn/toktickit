@@ -16,9 +16,13 @@ const ticket = {
 describe("STYLE-04 Ticket Detail scope guard", () => {
   beforeEach(() => {
     sessionStorage.setItem("toktickit.developmentRequesterId", "1");
-    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => String(input).includes("development-requesters")
-      ? Promise.resolve({ ok: true, status: 200, json: async () => requester })
-      : Promise.resolve({ ok: true, status: 200, json: async () => ({ ticket }) })));
+    vi.stubGlobal("fetch", vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("development-requesters")) return Promise.resolve({ ok: true, status: 200, json: async () => requester });
+      if (url.includes("/api/tickets/7/actions-taken?")) return Promise.resolve({ ok: true, status: 200, json: async () => ({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0, capabilities: { canCreate: false } }) });
+      if (url.endsWith("/comments")) return Promise.resolve({ ok: true, status: 200, json: async () => ({ items: [] }) });
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ ticket }) });
+    }));
   });
   afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.restoreAllMocks(); sessionStorage.clear(); });
 
@@ -27,9 +31,12 @@ describe("STYLE-04 Ticket Detail scope guard", () => {
     await screen.findByText(ticket.ticketNumber);
     expect(screen.getByRole("heading", { name: "Public Comments" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Problem Appears Resolved" })).toBeInTheDocument();
-    for (const text of ["Internal Notes", "Actions Taken", "Assign", "Reassign", "Ticket Owner", "IT Priority", "Change status", "Administrator"]) {
+    expect(screen.getByRole("heading", { name: "Actions Taken" })).toBeInTheDocument();
+    expect(await screen.findByText("No Actions Taken yet.")).toBeInTheDocument();
+    for (const text of ["Internal Notes", "Ticket Owner", "IT Priority", "Change status", "Administrator"]) {
       expect(screen.queryByText(new RegExp(text, "i"))).not.toBeInTheDocument();
     }
+    expect(screen.queryByRole("button", { name: /create action|edit action|start action|complete action|cancel action/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /confirm status change|resolve ticket|close ticket|reopen ticket/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /upload|download|remove|preview|status|priority/i })).not.toBeInTheDocument();
   });

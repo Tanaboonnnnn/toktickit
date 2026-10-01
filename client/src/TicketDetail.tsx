@@ -5,6 +5,7 @@ import { formatDisplayDate } from "./date-format.js";
 import { ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
 import PublicComments from "./communication/PublicComments.js";
 import ResolutionIndication from "./communication/ResolutionIndication.js";
+import ActionsTaken from "./actions/ActionsTaken.js";
 
 type DetailState =
   | { kind: "loading" }
@@ -108,6 +109,7 @@ function TicketContents({ ticket, onRefresh }: { ticket: Ticket; onRefresh: () =
       </section>
 
       <AttachmentPanel ticket={ticket} onRefresh={onRefresh} />
+      <ActionsTaken mode="requester" ticketId={ticket.id} ticketNumber={ticket.ticketNumber} />
       <PublicComments ticketId={ticket.id} />
       <ResolutionIndication ticket={ticket} onIndicated={onRefresh} />
     </>

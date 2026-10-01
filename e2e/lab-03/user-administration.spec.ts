@@ -97,6 +97,9 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   });
   await page.getByRole("button", { name: "Close edit" }).click();
   await page.getByRole("button", { name: "Clear search/filters" }).click();
+  await search.fill(administrator.email);
+  await search.press("Enter");
+  await expect(page.getByText(administrator.email)).toBeVisible();
 
   const targetName = MANAGED_STAFF_NAME;
   const targetUpdatedName = MANAGED_STAFF_UPDATED_NAME;

@@ -161,7 +161,7 @@ interface ActionListResponse {
 
 Ordering: `(createdAt ASC, id ASC)`.
 
-The list includes all statuses and all workflow cycles. `readOnly` is authoritative UI guidance derived from role/parent/cycle/lifecycle, not authorization by itself.
+The list includes all statuses and all workflow cycles. `readOnly` is authoritative UI guidance derived from role/parent/cycle/lifecycle, not authorization by itself. Issue #76 also exposes narrow backend-derived UI guidance so React does not copy lifecycle authority: the list response includes `capabilities: { canCreate }`, while each public Action includes `{ canEdit, canReassign, permittedTransitions }`. Requesters and terminal-parent list contexts receive `canCreate=false`; Requesters and other read-only Action records receive `false`, `false`, and `[]`; active current-cycle Staff/Admin records receive values derived from `action-policy.ts`. Direct writes remain server-authorized regardless of these projections.
 
 ## 5. Create Action interface
 
