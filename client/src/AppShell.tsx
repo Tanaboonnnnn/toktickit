@@ -6,6 +6,11 @@ import TicketDetail from "./TicketDetail.js";
 import StaffTicketQueue from "./staff/StaffTicketQueue.js";
 import StaffTicketDetail from "./staff/StaffTicketDetail.js";
 import UserManagement from "./admin/UserManagement.js";
+import RequesterDashboard from "./dashboard/RequesterDashboard.js";
+import StaffDashboard from "./dashboard/StaffDashboard.js";
+import { parseTicketListContext } from "./ticket-list-context.js";
+import { parseStaffQueueContext } from "./staff/staff-queue-context.js";
+import { staffQueueContext } from "./api/staff.js";
 
 function navigate(hash: string): void {
   window.location.hash = hash;
@@ -20,18 +25,27 @@ function NotFound() {
 }
 
 function requesterRoute(route: string) {
-  if (route === "#/tickets") return { kind: "list" } as const;
-  if (route === "#/tickets/new") return { kind: "create" } as const;
-  const match = /^#\/tickets\/([1-9]\d*)$/.exec(route);
-  if (match) return { kind: "detail", ticketId: Number(match[1]) } as const;
+  const [path, context = ""] = route.split("?", 2);
+  if (path === "#/dashboard" && !context) return { kind: "dashboard" } as const;
+  if (path === "#/tickets" && parseTicketListContext(context)) return { kind: "list", context } as const;
+  if (path === "#/tickets/new" && !context) return { kind: "create" } as const;
+  const match = /^#\/tickets\/([1-9]\d*)$/.exec(path);
+  if (match && parseTicketListContext(context)) return { kind: "detail", ticketId: Number(match[1]), context } as const;
   return null;
 }
 
 function staffRoute(route: string) {
   const [path, query = ""] = route.split("?", 2);
-  if (path === "#/staff/tickets") return { kind: "queue", context: query } as const;
+  if (path === "#/staff/dashboard" && !query) return { kind: "dashboard" } as const;
+  if (path === "#/staff/tickets") {
+    const parsed = parseStaffQueueContext(query);
+    return parsed ? { kind: "queue", context: query } as const : null;
+  }
   const match = /^#\/staff\/tickets\/([1-9]\d*)$/.exec(path);
-  if (match) return { kind: "detail", ticketId: Number(match[1]), context: query } as const;
+  if (match) {
+    const parsed = parseStaffQueueContext(query, true);
+    return parsed ? { kind: "detail", ticketId: Number(match[1]), context: staffQueueContext(parsed.query), targetActionId: parsed.targetActionId } as const : null;
+  }
   return null;
 }
 
@@ -60,17 +74,21 @@ export default function AppShell({ route }: { route: string }) {
   if (requestRoute) {
     content = user.role !== "REQUESTER"
       ? <AccessDenied />
-      : requestRoute.kind === "list"
-        ? <MyTickets onCreateTicket={() => navigate("#/tickets/new")} onViewTicket={(ticketId) => navigate(`#/tickets/${ticketId}`)} />
+      : requestRoute.kind === "dashboard"
+        ? <RequesterDashboard />
+        : requestRoute.kind === "list"
+          ? <MyTickets initialContext={requestRoute.context} syncUrl onCreateTicket={() => navigate("#/tickets/new")} onViewTicket={(ticketId) => navigate(`#/tickets/${ticketId}${requestRoute.context ? `?${requestRoute.context}` : ""}`)} />
         : requestRoute.kind === "detail"
-          ? <TicketDetail ticketId={requestRoute.ticketId} onBack={() => navigate("#/tickets")} />
+          ? <TicketDetail ticketId={requestRoute.ticketId} onBack={() => navigate(`#/tickets${requestRoute.context ? `?${requestRoute.context}` : ""}`)} />
           : <CreateTicketForm onViewTicket={(ticketId) => navigate(`#/tickets/${ticketId}`)} onMyTickets={() => navigate("#/tickets")} />;
   } else if (staffRoute(route)) {
     const staff = staffRoute(route)!;
     content = user.role === "IT_STAFF" || user.role === "ADMINISTRATOR"
-      ? staff.kind === "queue"
-        ? <StaffTicketQueue initialContext={staff.context} onViewTicket={(ticketId, context) => navigate(`#/staff/tickets/${ticketId}?${context}`)} />
-        : <StaffTicketDetail ticketId={staff.ticketId} queueContext={staff.context} onBack={(context) => navigate(`#/staff/tickets${context ? `?${context}` : ""}`)} />
+      ? staff.kind === "dashboard"
+        ? <StaffDashboard />
+        : staff.kind === "queue"
+          ? <StaffTicketQueue initialContext={staff.context} syncUrl onViewTicket={(ticketId, context) => navigate(`#/staff/tickets/${ticketId}?${context}`)} />
+          : <StaffTicketDetail ticketId={staff.ticketId} queueContext={staff.context} targetActionId={staff.targetActionId} onBack={(context) => navigate(`#/staff/tickets${context ? `?${context}` : ""}`)} />
       : <AccessDenied />;
   } else if (route === "#/admin/users") {
     content = user.role === "ADMINISTRATOR"
@@ -102,14 +120,20 @@ export default function AppShell({ route }: { route: string }) {
 
       <nav className="lab2-navigation" aria-label="Primary navigation">
         {user.role === "REQUESTER" && <>
-          <button type="button" className={`lab2-nav-item ${route === "#/tickets" ? "lab2-nav-item-active" : ""}`}
-            aria-current={route === "#/tickets" ? "page" : undefined} onClick={() => navigate("#/tickets")}>My Tickets</button>
+          <button type="button" className={`lab2-nav-item ${route === "#/dashboard" ? "lab2-nav-item-active" : ""}`}
+            aria-current={route === "#/dashboard" ? "page" : undefined} onClick={() => navigate("#/dashboard")}>Dashboard</button>
+          <button type="button" className={`lab2-nav-item ${route.startsWith("#/tickets") && !route.startsWith("#/tickets/new") ? "lab2-nav-item-active" : ""}`}
+            aria-current={route.startsWith("#/tickets") && !route.startsWith("#/tickets/new") ? "page" : undefined} onClick={() => navigate("#/tickets")}>My Tickets</button>
           <button type="button" className={`lab2-nav-item ${route === "#/tickets/new" ? "lab2-nav-item-active" : ""}`}
             aria-current={route === "#/tickets/new" ? "page" : undefined} onClick={() => navigate("#/tickets/new")}>Create Ticket</button>
         </>}
         {(user.role === "IT_STAFF" || user.role === "ADMINISTRATOR") && (
-          <button type="button" className={`lab2-nav-item ${route.startsWith("#/staff/tickets") ? "lab2-nav-item-active" : ""}`}
-            onClick={() => navigate("#/staff/tickets")}>Ticket Queue</button>
+          <>
+            <button type="button" className={`lab2-nav-item ${route === "#/staff/dashboard" ? "lab2-nav-item-active" : ""}`}
+              aria-current={route === "#/staff/dashboard" ? "page" : undefined} onClick={() => navigate("#/staff/dashboard")}>Dashboard</button>
+            <button type="button" className={`lab2-nav-item ${route.startsWith("#/staff/tickets") ? "lab2-nav-item-active" : ""}`}
+              aria-current={route.startsWith("#/staff/tickets") ? "page" : undefined} onClick={() => navigate("#/staff/tickets")}>Ticket Queue</button>
+          </>
         )}
         {user.role === "ADMINISTRATOR" && (
           <button type="button" className={`lab2-nav-item ${route === "#/admin/users" ? "lab2-nav-item-active" : ""}`}

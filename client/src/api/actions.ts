@@ -146,7 +146,7 @@ function nullableUser(value: unknown): value is ActionUserSummary | null {
   return value === null || userSummary(value);
 }
 
-function publicAction(value: unknown): value is ActionTakenPublic {
+export function isActionTakenPublic(value: unknown): value is ActionTakenPublic {
   if (!isRecord(value)) return false;
   const capabilities = value.capabilities;
   return Number.isSafeInteger(value.id)
@@ -181,7 +181,7 @@ function actionList(value: unknown): value is ActionListResponse {
   if (!isRecord(value)) return false;
   const capabilities = value.capabilities;
   return Array.isArray(value.items)
-    && value.items.every(publicAction)
+    && value.items.every(isActionTakenPublic)
     && Number.isSafeInteger(value.page)
     && Number.isSafeInteger(value.pageSize)
     && Number.isSafeInteger(value.totalItems)
@@ -256,7 +256,7 @@ export async function createActionTaken(ticketId: number, input: CreateActionTak
     body: JSON.stringify(input),
   }));
   if (!isRecord(body)
-    || !publicAction(body.action)
+    || !isActionTakenPublic(body.action)
     || !Number.isSafeInteger(body.ticketVersion)
     || (body.ticketVersion as number) < 1
     || typeof body.replayed !== "boolean") {
@@ -279,7 +279,7 @@ export async function fetchActionRevisions(ticketId: number, actionId: number, p
 }
 
 function mutationResult(body: unknown): ActionMutationResult {
-  if (!isRecord(body) || !publicAction(body.action) || !Number.isSafeInteger(body.ticketVersion) || (body.ticketVersion as number) < 1) {
+  if (!isRecord(body) || !isActionTakenPublic(body.action) || !Number.isSafeInteger(body.ticketVersion) || (body.ticketVersion as number) < 1) {
     throw new SafeApiError(500, "INTERNAL_ERROR", "Unexpected response from TokTickIT API");
   }
   return { action: body.action, ticketVersion: body.ticketVersion as number };

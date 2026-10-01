@@ -56,6 +56,25 @@ afterEach(() => {
 });
 
 describe("UI-01 Staff Actions Taken", () => {
+  it("locates a Dashboard target Action on page two and focuses it", async () => {
+    const target = { ...pendingAction, id: 777, description: "Target from the Dashboard" };
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/api/tickets/91/actions-taken?page=1&pageSize=20")) return json({ items: [pendingAction], page: 1, pageSize: 20, totalItems: 21, totalPages: 2, capabilities: { canCreate: true } });
+      if (url.endsWith("/api/tickets/91/actions-taken?page=2&pageSize=20")) return json({ items: [target], page: 2, pageSize: 20, totalItems: 21, totalPages: 2, capabilities: { canCreate: true } });
+      if (url.endsWith("/api/staff/assignees")) return json({ items: [staff, pendingAction.assignee] });
+      return json({});
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<AuthProvider initialUser={staff}><ActionsTaken mode="staff" ticketId={91} ticketNumber="TKT-91" ticketVersion={7} targetActionId={777} /></AuthProvider>);
+    expect(await screen.findByText("Target from the Dashboard")).toBeInTheDocument();
+    const card = screen.getByRole("article", { name: /Target Action 777/ });
+    await waitFor(() => expect(card).toHaveFocus());
+    expect(fetchMock.mock.calls.map(([input]) => String(input)).filter((url) => url.includes("/actions-taken?page="))).toEqual(expect.arrayContaining([
+      expect.stringContaining("page=1&pageSize=20"), expect.stringContaining("page=2&pageSize=20"),
+    ]));
+  });
+
   it("associates create validation errors and focuses the first invalid editable field", async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);

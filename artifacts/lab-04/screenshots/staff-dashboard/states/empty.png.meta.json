@@ -1,0 +1,15 @@
+{
+  "file": "staff-dashboard/states/empty.png",
+  "role": "IT Staff",
+  "route": "#/staff/dashboard",
+  "scenario": "IT Staff Dashboard empty state with backend-confirmed zero counts",
+  "scenarioId": "L4-STF-DASHBOARD",
+  "mapping": [
+    "AC-16",
+    "AC-24"
+  ],
+  "testId": "UI-06",
+  "rubricPart": "P5",
+  "sourceRevision": null,
+  "viewport": "1280x720"
+}

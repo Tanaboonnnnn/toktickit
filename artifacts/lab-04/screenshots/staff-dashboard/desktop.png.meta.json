@@ -1,0 +1,13 @@
+{
+  "file": "staff-dashboard/desktop.png",
+  "role": "IT Staff",
+  "route": "#/staff/dashboard",
+  "scenario": "staff Dashboard at desktop viewport",
+  "scenarioId": "L4-STF-DASHBOARD",
+  "mapping": [
+    "AC-25"
+  ],
+  "testId": "RESP-01",
+  "rubricPart": "P9",
+  "viewport": "1440x900"
+}

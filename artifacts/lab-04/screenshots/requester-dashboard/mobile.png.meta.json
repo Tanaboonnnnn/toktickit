@@ -1,0 +1,13 @@
+{
+  "file": "requester-dashboard/mobile.png",
+  "role": "Requester",
+  "route": "#/dashboard",
+  "scenario": "requester Dashboard at mobile viewport",
+  "scenarioId": "L4-REQ-DASHBOARD",
+  "mapping": [
+    "AC-25"
+  ],
+  "testId": "RESP-03",
+  "rubricPart": "P9",
+  "viewport": "390x844"
+}

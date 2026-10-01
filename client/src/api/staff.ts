@@ -28,6 +28,7 @@ export interface StaffQueueResponse { items: StaffQueueItem[]; page: number; pag
 export interface StaffQueueQuery {
   search?: string; categoryId?: number; currentStatus?: TicketStatus; requestedPriority?: RequestedPriority;
   itPriority?: RequestedPriority; owner?: StaffOwnerFilter; sortBy?: StaffSortField; sortDirection?: StaffSortDirection;
+  statusGroup?: "active" | "resolved"; resolvedFrom?: string; resolvedBefore?: string;
   page?: number; pageSize?: StaffPageSize;
 }
 export type ResolutionBlocker = "COMPLETED_ACTION_REQUIRED" | "OUTSTANDING_ACTIONS" | "FOLLOW_UP_REQUIRED";
@@ -68,7 +69,7 @@ function workflow(value: unknown): value is StaffTicketWorkflow {
     && Number.isSafeInteger(resolution.unresolvedFollowUpCount) && (resolution.unresolvedFollowUpCount as number) >= 0
     && Array.isArray(resolution.blockers) && resolution.blockers.every((item) => resolutionBlockers.includes(item as ResolutionBlocker));
 }
-function queueItem(value: unknown): value is StaffQueueItem {
+export function isStaffQueueItem(value: unknown): value is StaffQueueItem {
   if (!isRecord(value)) return false;
   return Number.isSafeInteger(value.id) && typeof value.ticketNumber === "string" && typeof value.summary === "string"
     && reference(value.category) && requester(value.requester) && priority(value.requestedPriority) && priority(value.itPriority)
@@ -77,7 +78,7 @@ function queueItem(value: unknown): value is StaffQueueItem {
 }
 function queueResponse(value: unknown): value is StaffQueueResponse {
   if (!isRecord(value)) return false;
-  return Array.isArray(value.items) && value.items.every(queueItem) && Number.isSafeInteger(value.page) && (value.page as number) >= 1
+  return Array.isArray(value.items) && value.items.every(isStaffQueueItem) && Number.isSafeInteger(value.page) && (value.page as number) >= 1
     && [10, 20, 50].includes(value.pageSize as number) && Number.isSafeInteger(value.totalItems) && (value.totalItems as number) >= 0
     && Number.isSafeInteger(value.totalPages) && (value.totalPages as number) >= 0;
 }
@@ -89,7 +90,7 @@ function attachment(value: unknown): value is TicketAttachmentMetadata {
     && (value.removalReason === null || typeof value.removalReason === "string") && (value.downloadUrl === null || typeof value.downloadUrl === "string");
 }
 function detail(value: unknown): value is StaffTicketDetail {
-  if (!queueItem(value) || !isRecord(value)) return false;
+  if (!isStaffQueueItem(value) || !isRecord(value)) return false;
   return reference(value.relatedSystem) && typeof value.description === "string" && Array.isArray(value.attachments) && value.attachments.every(attachment)
     && (value.resolutionSummary === null || typeof value.resolutionSummary === "string")
     && (value.resolvedAt === null || typeof value.resolvedAt === "string") && (value.closedAt === null || typeof value.closedAt === "string")
@@ -102,6 +103,9 @@ function append(params: URLSearchParams, query: StaffQueueQuery): void {
   const search = query.search?.trim(); if (search) params.set("search", search);
   if (query.categoryId) params.set("categoryId", String(query.categoryId));
   if (query.currentStatus) params.set("currentStatus", query.currentStatus);
+  if (query.statusGroup === "active" || query.statusGroup === "resolved") params.set("statusGroup", query.statusGroup);
+  if (query.resolvedFrom) params.set("resolvedFrom", query.resolvedFrom);
+  if (query.resolvedBefore) params.set("resolvedBefore", query.resolvedBefore);
   if (query.requestedPriority) params.set("requestedPriority", query.requestedPriority);
   if (query.itPriority) params.set("itPriority", query.itPriority);
   const owner = query.owner ?? "all"; params.set("owner", typeof owner === "number" ? String(owner) : owner);

@@ -910,6 +910,20 @@ select:focus-visible {
 }
 
 /* Lab 4 Actions Taken */
+.lab4-dashboard { display: grid; gap: 24px; min-width: 0; }
+.lab4-dashboard > h1,
+.lab4-dashboard section h2 { margin: 0; }
+.lab4-dashboard-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 16px; }
+.lab4-dashboard-metric { min-width: 0; padding: 18px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; box-shadow: var(--surface-shadow); }
+.lab4-dashboard-metric h2 { font-size: 1.1rem; }
+.lab4-dashboard-value { margin: 12px 0; color: var(--color-primary); font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; }
+.lab4-dashboard-list { display: grid; gap: 12px; margin: 14px 0 0; padding: 0; list-style: none; }
+.lab4-dashboard-list li { display: grid; gap: 6px; min-width: 0; padding: 14px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; overflow-wrap: anywhere; }
+.lab4-dashboard-list li span { color: var(--color-muted); }
+.lab4-dashboard-list a:not(.lab2-button) { color: var(--color-secondary); }
+.lab4-dashboard-metric .lab2-button { display: flex; width: fit-content; max-width: 100%; box-sizing: border-box; white-space: normal; text-align: center; overflow-wrap: anywhere; }
+.lab4-action-card-target { outline: 3px solid var(--color-secondary); outline-offset: 3px; }
+
 .lab4-actions { border-left: 4px solid var(--color-secondary); }
 .lab4-actions-heading,
 .lab4-action-card-heading,

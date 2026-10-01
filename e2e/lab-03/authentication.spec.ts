@@ -71,10 +71,13 @@ test("E2E-01 login -> forced password change -> Requester app -> logout -> prote
     await page.getByLabel("Confirm new password").fill(newPassword);
     await page.getByRole("button", { name: "Change Password" }).click();
 
-    await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
     await expect(page.getByText("Ploy Charoen", { exact: true })).toBeVisible();
     await expect(page.getByText("Requester", { exact: true })).toBeVisible();
-    await expect(page).toHaveURL(/#\/tickets$/);
+    await expect(page).toHaveURL(/#\/dashboard$/);
+
+    await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
+    await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();
 
     await page.reload();
     await expect(page.getByRole("heading", { name: "My Tickets" })).toBeVisible();

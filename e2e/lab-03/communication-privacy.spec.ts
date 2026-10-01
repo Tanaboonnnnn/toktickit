@@ -40,6 +40,8 @@ async function login(page: Page, email: string, home: "Ticket Queue" | "My Ticke
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByRole("heading", { name: home === "My Tickets" ? "Dashboard" : "Staff Dashboard" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: home }).click();
   await expect(page.getByRole("heading", { name: home })).toBeVisible();
 }
 

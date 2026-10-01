@@ -16,6 +16,7 @@ import {
 import { useAuth } from "./auth-context.js";
 import { formatDisplayDate } from "./date-format.js";
 import { TICKET_STATUSES, ticketStatusClassName, ticketStatusLabel } from "./ticket-status.js";
+import { parseTicketListContext, ticketListContext } from "./ticket-list-context.js";
 
 type AppliedQuery = Required<Pick<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">>
   & Omit<TicketListQuery, "sortBy" | "sortDirection" | "page" | "pageSize">;
@@ -50,7 +51,7 @@ function priorityLabel(priority: RequestedPriority): string {
 }
 
 function restricted(query: AppliedQuery): boolean {
-  return Boolean(query.search || query.categoryId || query.requestedPriority || query.currentStatus);
+  return Boolean(query.search || query.categoryId || query.requestedPriority || query.currentStatus || query.statusGroup);
 }
 
 function safeFailureMessage(error: unknown): string {
@@ -62,18 +63,23 @@ function safeFailureMessage(error: unknown): string {
 interface MyTicketsProps {
   onCreateTicket?: () => void;
   onViewTicket?: (ticketId: number) => void;
+  initialContext?: string;
+  syncUrl?: boolean;
 }
 
-export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsProps) {
+export default function MyTickets({ onCreateTicket, onViewTicket, initialContext = "", syncUrl = false }: MyTicketsProps) {
   const { user } = useAuth();
-  const [draftSearch, setDraftSearch] = useState("");
-  const [query, setQuery] = useState<AppliedQuery>(DEFAULT_QUERY);
+  const [draftSearch, setDraftSearch] = useState(() => parseTicketListContext(initialContext)?.search ?? "");
+  const [query, setQuery] = useState<AppliedQuery>(() => ({ ...DEFAULT_QUERY, ...(parseTicketListContext(initialContext) ?? {}) }));
   const [result, setResult] = useState<ListState>({ kind: "loading" });
   const [reloadToken, setReloadToken] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryState, setCategoryState] = useState<"loading" | "ready" | "error">("loading");
   const [categoryError, setCategoryError] = useState("");
   const suppressNextQueryFetch = useRef(false);
+  const routeContextRef = useRef(initialContext);
+  const skipUrlSync = useRef(false);
+  const mountedUrlSync = useRef(false);
 
   const loadCategories = useCallback(async () => {
     setCategoryState("loading");
@@ -91,6 +97,27 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
   useEffect(() => {
     void loadCategories();
   }, [loadCategories]);
+
+  useEffect(() => {
+    if (routeContextRef.current === initialContext) return;
+    routeContextRef.current = initialContext;
+    skipUrlSync.current = true;
+    const parsed = parseTicketListContext(initialContext);
+    if (!parsed) return;
+    const next = { ...DEFAULT_QUERY, ...parsed };
+    setQuery((current) => Object.keys({ ...current, ...next }).every((key) => current[key as keyof AppliedQuery] === next[key as keyof AppliedQuery]) ? current : next);
+    setDraftSearch(parsed.search ?? "");
+  }, [initialContext]);
+
+  useEffect(() => {
+    if (!syncUrl) return;
+    if (!mountedUrlSync.current) { mountedUrlSync.current = true; return; }
+    if (skipUrlSync.current) { skipUrlSync.current = false; return; }
+    if (routeContextRef.current !== initialContext) { routeContextRef.current = initialContext; return; }
+    const context = ticketListContext(query);
+    const next = `#/tickets${context ? `?${context}` : ""}`;
+    if (window.location.hash !== next) window.location.hash = next;
+  }, [initialContext, query, syncUrl]);
 
   useEffect(() => {
     if (suppressNextQueryFetch.current) {
@@ -142,7 +169,7 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
     void run();
     return () => { active = false; };
     // Explicit scalar dependencies avoid refetching for unrelated state.
-  }, [query.search, query.categoryId, query.requestedPriority, query.currentStatus,
+  }, [query.search, query.categoryId, query.requestedPriority, query.currentStatus, query.statusGroup, query.resolvedFrom, query.resolvedBefore,
     query.sortBy, query.sortDirection, query.page, query.pageSize, reloadToken]);
 
   const applySearch = () => {
@@ -162,6 +189,7 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
   const response = result.kind === "success" ? result.response : null;
   const noResults = result.kind === "success" && result.zeroKind === "no-results";
   const empty = result.kind === "success" && result.zeroKind === "empty";
+  const openTicket = (ticketId: number) => onViewTicket?.(ticketId);
 
   return (
     <section className="lab2-my-tickets" aria-labelledby="my-tickets-heading">
@@ -212,7 +240,7 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
         <div className="lab2-field-group">
           <label htmlFor="my-tickets-status">Current Status</label>
           <select id="my-tickets-status" value={query.currentStatus ?? ""}
-            onChange={(event) => changeQuery("currentStatus", event.target.value ? event.target.value as TicketStatus : undefined)}>
+            onChange={(event) => setQuery((current) => ({ ...current, currentStatus: event.target.value ? event.target.value as TicketStatus : undefined, statusGroup: undefined, resolvedFrom: undefined, resolvedBefore: undefined, page: 1 }))}>
             <option value="">All Statuses</option>
             {TICKET_STATUSES.map((status) => <option key={status} value={status}>{ticketStatusLabel(status)}</option>)}
           </select>
@@ -276,11 +304,11 @@ export default function MyTickets({ onCreateTicket, onViewTicket }: MyTicketsPro
                   <th scope="col">Ticket Number</th><th scope="col">Created</th><th scope="col">Summary</th>
                   <th scope="col">Category</th><th scope="col">Requested Priority</th><th scope="col">Current Status</th><th scope="col">Last Updated</th><th scope="col">Action</th>
                 </tr></thead>
-                <tbody>{response.items.map((ticket) => <TicketTableRow key={ticket.id} ticket={ticket} onViewTicket={onViewTicket} />)}</tbody>
+                <tbody>{response.items.map((ticket) => <TicketTableRow key={ticket.id} ticket={ticket} onViewTicket={openTicket} />)}</tbody>
               </table>
             </div>
             <div className="lab2-ticket-cards" aria-label="My Tickets cards">
-              {response.items.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} onViewTicket={onViewTicket} />)}
+              {response.items.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} onViewTicket={openTicket} />)}
             </div>
           </>
         )}

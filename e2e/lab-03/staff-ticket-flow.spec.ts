@@ -42,6 +42,8 @@ async function login(page: Page, email: string, expectedHome: "Ticket Queue" | "
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByRole("heading", { name: expectedHome === "My Tickets" ? "Dashboard" : "Staff Dashboard" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: expectedHome }).click();
   await expect(page.getByRole("heading", { name: expectedHome })).toBeVisible();
 }
 async function chooseStatus(page: Page, status: string): Promise<void> {

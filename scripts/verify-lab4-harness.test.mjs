@@ -71,7 +71,7 @@ test("HAR-03 planning trace accepts honest planned rows while release rejects th
   assert.throws(() => verifyLab4TraceabilityFromDisk({ root, mode: "release" }), /not executed Pass evidence/i);
 });
 
-test("HAR-03 increment trace recognizes reviewed Issue #74/#75/#76/#77 ownership without claiming future Issue IDs", () => {
+test("HAR-03 increment trace recognizes reviewed Issue #74/#75/#76/#77/#78 ownership without claiming future Issue IDs", () => {
   const issue74 = verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 74 });
   assert.equal(issue74.issue, 74);
   assert.equal(issue74.testCount, 57);
@@ -84,17 +84,20 @@ test("HAR-03 increment trace recognizes reviewed Issue #74/#75/#76/#77 ownership
   const issue77 = verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 77 });
   assert.equal(issue77.issue, 77);
   assert.equal(issue77.testCount, 57);
+  const issue78 = verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 78 });
+  assert.equal(issue78.issue, 78);
+  assert.equal(issue78.testCount, 57);
   assert.throws(
-    () => verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 78 }),
-    /no reviewed ownership mapping for Issue #78/i,
+    () => verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 79 }),
+    /no reviewed ownership mapping for Issue #79/i,
   );
 });
 
-test("HAR-03 rejects fake Pass, duplicate Test IDs, unknown mapping and missing rubric destinations", () => {
+test("HAR-03 rejects missing evidence paths, duplicate Test IDs, unknown mapping and missing rubric destinations", () => {
   const specification = read("docs/lab-04/specification.md");
   const tests = read("docs/lab-04/tests.md");
-  const fakePass = tests.replace(/(^\| UI-05 .*\|) Planned \/ Not run \|$/m, "$1 Pass |");
-  assert.throws(() => verifyLab4Traceability({ specification, tests: fakePass, root, mode: "planning" }), /references missing path/i);
+  const missingPath = tests.replace("client/tests/lab-04/RequesterDashboard.test.tsx", "client/tests/lab-04/not-created.test.tsx");
+  assert.throws(() => verifyLab4Traceability({ specification, tests: missingPath, root, mode: "planning" }), /references missing path/i);
 
   const duplicate = tests.replace("| HAR-02 | Harness |", `${tests.match(/^\| HAR-01 .*$/m)[0]}\n| HAR-02 | Harness |`);
   assert.throws(() => verifyLab4Traceability({ specification, tests: duplicate, root, mode: "planning" }), /duplicate Test ID HAR-01/i);

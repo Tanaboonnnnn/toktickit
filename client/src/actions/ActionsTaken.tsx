@@ -24,6 +24,7 @@ interface ActionsTakenProps {
   ticketVersion?: number;
   onTicketChanged?: (ticketVersion: number) => void | Promise<void>;
   onConflict?: () => number | void | Promise<number | void>;
+  targetActionId?: number;
 }
 
 type LoadState =
@@ -52,6 +53,8 @@ export default function ActionsTaken(props: ActionsTakenProps) {
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [refreshError, setRefreshError] = useState("");
   const requestGeneration = useRef(0);
+  const targetLocatedKey = useRef("");
+  const [targetMissing, setTargetMissing] = useState(false);
   const loadedTicketId = useRef<number | null>(null);
   const loadedPage = useRef<number | null>(null);
   const [assignees, setAssignees] = useState<StaffUserSummary[]>([]);
@@ -79,6 +82,8 @@ export default function ActionsTaken(props: ActionsTakenProps) {
 
   useEffect(() => {
     setPage(1);
+    setTargetMissing(false);
+    targetLocatedKey.current = "";
     setShowCreate(false);
     setDescription("");
     setResult("");
@@ -90,7 +95,7 @@ export default function ActionsTaken(props: ActionsTakenProps) {
     setCreateAmbiguous(false);
     setCreateFeedback("");
     boundCreate.current = null;
-  }, [ticketId]);
+  }, [ticketId, props.targetActionId]);
 
   useEffect(() => {
     if (props.ticketVersion !== undefined) setCurrentTicketVersion(props.ticketVersion);
@@ -113,23 +118,59 @@ export default function ActionsTaken(props: ActionsTakenProps) {
 
   useEffect(() => {
     const generation = ++requestGeneration.current;
+    let active = true;
     const preserveExisting = loadedTicketId.current === ticketId && loadedPage.current === page;
     setRefreshError("");
     if (!preserveExisting) setState({ kind: "loading" });
-    void fetchActionsTaken(ticketId, page, 20)
-      .then((response) => {
-        if (requestGeneration.current === generation) {
-          loadedTicketId.current = ticketId;
-          loadedPage.current = page;
-          setState({ kind: "success", response });
+    void (async () => {
+      try {
+        if (props.targetActionId && targetLocatedKey.current !== `${ticketId}:${props.targetActionId}`) {
+          setTargetMissing(false);
+          let totalPages = 1;
+          let firstPage: ActionListResponse | null = null;
+          for (let targetPage = 1; targetPage <= totalPages; targetPage += 1) {
+            const loaded = await fetchActionsTaken(ticketId, targetPage, 20);
+            if (!active || requestGeneration.current !== generation) return;
+            firstPage ??= loaded;
+            totalPages = loaded.totalPages;
+            if (loaded.items.some((item) => item.id === props.targetActionId)) {
+              targetLocatedKey.current = `${ticketId}:${props.targetActionId}`;
+              loadedTicketId.current = ticketId;
+              loadedPage.current = targetPage;
+              setPage(targetPage);
+              setState({ kind: "success", response: loaded });
+              return;
+            }
+          }
+          if (firstPage) {
+            loadedTicketId.current = ticketId;
+            loadedPage.current = 1;
+            setPage(1);
+            setTargetMissing(true);
+            setState({ kind: "success", response: firstPage });
+            return;
+          }
         }
-      })
-      .catch(() => {
-        if (requestGeneration.current !== generation) return;
+        const response = await fetchActionsTaken(ticketId, page, 20);
+        if (!active || requestGeneration.current !== generation) return;
+        loadedTicketId.current = ticketId;
+        loadedPage.current = page;
+        setState({ kind: "success", response });
+      } catch {
+        if (!active || requestGeneration.current !== generation) return;
         if (preserveExisting) setRefreshError("Unable to refresh Actions Taken. Your current draft and last loaded Actions are still available.");
         else setState({ kind: "failure" });
-      });
-  }, [ticketId, page, reload]);
+      }
+    })();
+    return () => { active = false; };
+  }, [ticketId, page, reload, props.targetActionId, user?.id]);
+
+  useEffect(() => {
+    if (!props.targetActionId || state.kind !== "success" || !state.response.items.some((item) => item.id === props.targetActionId)) return;
+    const target = document.getElementById(`lab4-action-${props.targetActionId}`);
+    target?.focus();
+    (target as (HTMLElement & { scrollIntoView?: (options?: ScrollIntoViewOptions) => void }) | null)?.scrollIntoView?.({ block: "center" });
+  }, [props.targetActionId, state]);
 
   const response = state.kind === "success" ? state.response : null;
 
@@ -308,6 +349,7 @@ export default function ActionsTaken(props: ActionsTakenProps) {
           <button type="button" className="lab2-button lab2-button-secondary" onClick={() => setReload((value) => value + 1)}>Retry Actions Taken</button>
         </div>
       )}
+      {targetMissing && <p className="lab2-status" role="status">That Action is not available on this Ticket.</p>}
       {refreshError && <div className="lab2-error" role="alert"><p>{refreshError}</p><button type="button" className="lab2-button lab2-button-secondary" onClick={() => setReload((value) => value + 1)}>Retry Actions Taken refresh</button></div>}
       {response && response.totalItems === 0 && <p className="lab2-muted">No Actions Taken yet.</p>}
       {response && response.items.length > 0 && (
@@ -317,6 +359,7 @@ export default function ActionsTaken(props: ActionsTakenProps) {
             ticketId={ticketId}
             ticketNumber={props.ticketNumber}
             action={action}
+            targeted={action.id === props.targetActionId}
             currentTicketVersion={currentTicketVersion}
             assignees={assignees}
             onMutation={handleMutation}
@@ -340,6 +383,7 @@ function ActionCard({
   ticketId,
   ticketNumber,
   action,
+  targeted,
   currentTicketVersion,
   assignees,
   onMutation,
@@ -349,6 +393,7 @@ function ActionCard({
   ticketId: number;
   ticketNumber: string;
   action: ActionTakenPublic;
+  targeted: boolean;
   currentTicketVersion: number;
   assignees: StaffUserSummary[];
   onMutation: (ticketVersion: number) => void | Promise<void>;
@@ -576,7 +621,7 @@ function ActionCard({
     await loadHistory(historyPage);
   }
   return (
-    <article className="lab4-action-card" aria-labelledby={`action-heading-${action.id}`}>
+    <article id={targeted ? `lab4-action-${action.id}` : undefined} tabIndex={targeted ? 0 : undefined} aria-label={targeted ? `Target Action ${action.id}: ${action.description}` : undefined} className={`lab4-action-card${targeted ? " lab4-action-card-target" : ""}`} aria-labelledby={targeted ? undefined : `action-heading-${action.id}`}>
       <div className="lab4-action-card-heading">
         <h3 id={`action-heading-${action.id}`}>Action #{action.id}</h3>
         <span className="lab4-action-status">{statusLabels[action.status]}</span>

@@ -1,0 +1,15 @@
+{
+  "file": "requester-dashboard/states/forbidden.png",
+  "role": "Requester",
+  "route": "#/dashboard",
+  "scenario": "Requester Dashboard forbidden state without Dashboard data",
+  "scenarioId": "L4-REQ-DASHBOARD",
+  "mapping": [
+    "AC-15",
+    "AC-24"
+  ],
+  "testId": "UI-05",
+  "rubricPart": "P8",
+  "sourceRevision": null,
+  "viewport": "1280x720"
+}

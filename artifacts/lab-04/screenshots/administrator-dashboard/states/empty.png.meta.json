@@ -1,0 +1,15 @@
+{
+  "file": "administrator-dashboard/states/empty.png",
+  "role": "Administrator",
+  "route": "#/staff/dashboard",
+  "scenario": "Administrator Dashboard empty state with backend-confirmed zero counts",
+  "scenarioId": "L4-ADM-DASHBOARD",
+  "mapping": [
+    "AC-16",
+    "AC-24"
+  ],
+  "testId": "UI-06",
+  "rubricPart": "P5",
+  "sourceRevision": null,
+  "viewport": "1280x720"
+}

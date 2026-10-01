@@ -11,7 +11,7 @@ import InternalNotes from "../communication/InternalNotes.js";
 
 type State = { kind: "loading" } | { kind: "missing" } | { kind: "forbidden" } | { kind: "failure" } | { kind: "success"; ticket: StaffDetail };
 const priorityLabel = (v: string) => v[0] + v.slice(1).toLowerCase();
-export default function StaffTicketDetail({ ticketId, queueContext, onBack }: { ticketId: number; queueContext: string; onBack: (context: string) => void }) {
+export default function StaffTicketDetail({ ticketId, queueContext, targetActionId, onBack }: { ticketId: number; queueContext: string; targetActionId?: number; onBack: (context: string) => void }) {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [retry, setRetry] = useState(0);
   const [conflict, setConflict] = useState("");
@@ -55,10 +55,10 @@ export default function StaffTicketDetail({ ticketId, queueContext, onBack }: { 
     {state.kind === "missing" && <div className="lab2-status" role="status"><h2>Ticket unavailable</h2><p>This Ticket is unavailable.</p></div>}
     {state.kind === "forbidden" && <div className="lab2-error" role="alert"><h2>Access Denied</h2><p>You do not have permission to open this Ticket.</p></div>}
     {state.kind === "failure" && <div className="lab2-error" role="alert"><p>Unable to load Staff Ticket Detail</p><button className="lab2-button lab2-button-secondary" type="button" onClick={() => setRetry((v) => v + 1)}>Retry</button></div>}
-    {state.kind === "success" && <Contents ticket={state.ticket} onUpdated={(ticket) => { requestGeneration.current += 1; setState({ kind: "success", ticket }); setConflict(""); }} onConflict={reloadAfterConflict} onActionUpdated={reloadAfterAction} />}
+    {state.kind === "success" && <Contents ticket={state.ticket} targetActionId={targetActionId} onUpdated={(ticket) => { requestGeneration.current += 1; setState({ kind: "success", ticket }); setConflict(""); }} onConflict={reloadAfterConflict} onActionUpdated={reloadAfterAction} />}
   </section>;
 }
-function Contents({ ticket: t, onUpdated, onConflict, onActionUpdated }: { ticket: StaffDetail; onUpdated: (ticket: StaffDetail) => void; onConflict: () => Promise<number | void>; onActionUpdated: () => Promise<void> }) {
+function Contents({ ticket: t, targetActionId, onUpdated, onConflict, onActionUpdated }: { ticket: StaffDetail; targetActionId?: number; onUpdated: (ticket: StaffDetail) => void; onConflict: () => Promise<number | void>; onActionUpdated: () => Promise<void> }) {
   const [downloadError, setDownloadError] = useState("");
   async function handleDownload(id: number, originalName: string) {
     setDownloadError("");
@@ -73,7 +73,7 @@ function Contents({ ticket: t, onUpdated, onConflict, onActionUpdated }: { ticke
     <section className="lab2-attachments-section"><h2>Attachments</h2>{downloadError && <div className="lab2-error" role="alert">{downloadError}</div>}{t.attachments.length === 0 ? <p className="lab2-muted">No attachments.</p> : <div className="lab2-attachment-list">{t.attachments.map((a) => <article className="lab2-attachment-card" key={a.id}><h3>{a.originalName}</h3><p>{a.state === "REMOVED" ? "Removed" : "Available"}</p>{a.downloadUrl && <button className="lab2-button lab2-button-secondary" type="button" aria-label={`Download ${a.originalName}`} onClick={() => { void handleDownload(a.id, a.originalName); }}>Download</button>}</article>)}</div>}</section>
     <PublicComments ticketId={t.id} />
     <InternalNotes ticketId={t.id} />
-    <ActionsTaken mode="staff" ticketId={t.id} ticketNumber={t.ticketNumber} ticketVersion={t.version} onTicketChanged={() => onActionUpdated()} onConflict={onConflict} />
+    <ActionsTaken mode="staff" ticketId={t.id} ticketNumber={t.ticketNumber} ticketVersion={t.version} targetActionId={targetActionId} onTicketChanged={() => onActionUpdated()} onConflict={onConflict} />
     <TicketWorkflowHistory ticketId={t.id} ticketVersion={t.version} />
   </>;
 }

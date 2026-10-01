@@ -44,6 +44,8 @@ async function loginStaff(page: Page): Promise<void> {
   await page.getByLabel("Email").fill(staff.email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByRole("heading", { name: "Staff Dashboard" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "Ticket Queue" }).click();
   await expect(page.getByRole("heading", { name: "Ticket Queue" })).toBeVisible();
 }
 

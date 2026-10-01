@@ -89,6 +89,9 @@ export interface TicketListQuery {
   categoryId?: number;
   requestedPriority?: RequestedPriority;
   currentStatus?: TicketStatus;
+  statusGroup?: "active" | "resolved";
+  resolvedFrom?: string;
+  resolvedBefore?: string;
   sortBy?: TicketSortField;
   sortDirection?: TicketSortDirection;
   page?: number;
@@ -257,7 +260,7 @@ function isReferenceItem(value: unknown): value is Category {
   return Number.isSafeInteger(item.id) && typeof item.name === "string";
 }
 
-function isTicketListItem(value: unknown): value is TicketListItem {
+export function isTicketListItem(value: unknown): value is TicketListItem {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
   return Number.isSafeInteger(item.id)
@@ -330,6 +333,9 @@ function appendListQuery(params: URLSearchParams, query: TicketListQuery): void 
     params.set("requestedPriority", query.requestedPriority);
   }
   if (query.currentStatus && isTicketStatus(query.currentStatus)) params.set("currentStatus", query.currentStatus);
+  if (query.statusGroup === "active" || query.statusGroup === "resolved") params.set("statusGroup", query.statusGroup);
+  if (query.resolvedFrom) params.set("resolvedFrom", query.resolvedFrom);
+  if (query.resolvedBefore) params.set("resolvedBefore", query.resolvedBefore);
   if (query.sortBy && ["createdAt", "updatedAt", "ticketNumber", "summary"].includes(query.sortBy)) {
     params.set("sortBy", query.sortBy);
   }

@@ -1,0 +1,15 @@
+{
+  "file": "administrator-dashboard/states/forbidden.png",
+  "role": "Administrator",
+  "route": "#/staff/dashboard",
+  "scenario": "Administrator Dashboard forbidden state without dashboard data",
+  "scenarioId": "L4-ADM-DASHBOARD",
+  "mapping": [
+    "AC-16",
+    "AC-24"
+  ],
+  "testId": "UI-06",
+  "rubricPart": "P5",
+  "sourceRevision": null,
+  "viewport": "1280x720"
+}
