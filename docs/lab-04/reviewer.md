@@ -472,3 +472,8 @@ After recording the 60/60 visual inspection and correcting the checklist/Test DD
 #### Issue #79 final fixed-point review status correction (2026-10-02)
 
 At fixed base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` and HEAD `86f33e408a61fca485d5200b1ac479371ec04b23`, Standards found one P2 stale commit-status statement in the living evidence; the separate Spec review found no actionable gap. Verified the finding against `git show --stat HEAD` and clean `git status`: `86f33e4` contains all four living-doc updates. Corrected the old entries to state they are committed and that push/PR were still pending at that time. The user now authorizes PR creation. No push, PR, hosted CI, human peer review, or merge has occurred yet.
+
+
+#### Issue #79 PR-open checkpoint (2026-10-02)
+
+Opened PR #89, `[Lab 4][#79] Integrated regression, security and visual hardening`, targeting `lab4-staging`. GitHub confirmed base SHA `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` and PR head SHA `9deba9f9d9a7050e137c56f5632dc8dae2dfec5d`; `Fixes #79` links the Issue. Requested a real peer review from `Peepipat-Suesoongnuen`. GitHub Actions run `36926719416` (`Lab 4 CI`) is in progress on that exact head. This is an open PR checkpoint only: hosted CI and human review remain pending; no approval or merge is claimed.
