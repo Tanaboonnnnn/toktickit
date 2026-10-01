@@ -1,0 +1,15 @@
+{
+  "file": "actions-taken/staff-conflict-draft.png",
+  "role": "IT Staff",
+  "route": "#/staff/tickets/19136",
+  "scenario": "Stale Action edit preserves the entered draft beside refreshed authoritative state without blind retry",
+  "scenarioId": "L4-STF-ACTIONS",
+  "mapping": [
+    "AC-08",
+    "AC-24"
+  ],
+  "testId": "E2E-01",
+  "rubricPart": "P6",
+  "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "viewport": "1280x720"
+}

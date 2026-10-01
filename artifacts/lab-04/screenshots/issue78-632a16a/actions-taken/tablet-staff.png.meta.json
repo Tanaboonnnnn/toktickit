@@ -1,0 +1,14 @@
+{
+  "file": "actions-taken/tablet-staff.png",
+  "role": "IT Staff",
+  "route": "#/staff/tickets/19142",
+  "scenario": "tablet Staff Actions Taken list and create editor",
+  "scenarioId": "L4-STF-ACTIONS",
+  "mapping": [
+    "AC-25"
+  ],
+  "testId": "RESP-02",
+  "rubricPart": "P9",
+  "viewport": "834x1112",
+  "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+}
