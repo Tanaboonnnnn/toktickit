@@ -269,6 +269,14 @@ The **code-review Skill was invoked** and both required parallel read-only sub-a
 
 These are AI self-review and local candidate results. PR-head hosted CI and real human approval remain separate gates; the user authorized stopping after PR creation/review request, without waiting for peer review or merging.
 
+### Issue #77 PR creation and review handoff
+
+[PR #87](https://github.com/Tanaboonnnnn/toktickit/pull/87) was created at `2026-10-01T09:31:32Z`, open/non-draft, from `feature/77-lab4-dashboard-api` into `lab4-staging`, with the required title `[Lab 4][#77] Implement authoritative dashboard metrics and drill-down queries`. Its creation head was independently verified as `f448a2963f3b4fd3faebfd1bffe190684bea25e5`; the commit after implementation `de60e2a` changes only the three living evidence documents. Review requests were accepted by GitHub for `@Peepipat-Suesoongnuen` and `@L0u1sss`.
+
+PR-head [Lab 4 CI 36843303522](https://github.com/Tanaboonnnnn/toktickit/actions/runs/36843303522) was observed **IN_PROGRESS** on that creation head, with no success conclusion yet. The PR body contains `Closes #77`; because the initial closing-reference query returned empty for the non-default integration target, the explicit GitHub closing-reference API was used. A fresh closingIssuesReferences query returned Issue #77 and a separate Issue query confirmed it remained OPEN. The issue is not manually closed and the PR is not merged. The next documentation-only evidence commit requires a new current-head CI inspection; the creation-head run is not claimed as final-head evidence.
+
+The authorized task stops at this PR/review-request gate. Human approval, CI success, integration and final-main/release evidence are not pre-claimed, and no peer-review wait or merge is performed.
+
 ## Evidence integrity rules for later updates
 
 When review starts, this document must record:
