@@ -46,6 +46,8 @@ async function login(page: Page, email: string, password: string, expectedHeadin
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByRole("heading", { name: "Staff Dashboard" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "Users" }).click();
   await expect(page.getByRole("heading", { name: expectedHeading })).toBeVisible();
 }
 

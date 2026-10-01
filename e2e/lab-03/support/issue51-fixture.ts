@@ -87,6 +87,8 @@ export async function loginIssue51(page: Page, email: string, home: "My Tickets"
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(ISSUE51_PASSWORD);
   await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByRole("heading", { name: home === "My Tickets" ? "Dashboard" : "Staff Dashboard" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: home === "User Management" ? "Users" : home }).click();
   await expect(page.getByRole("heading", { name: home })).toBeVisible();
 }
 

@@ -1,0 +1,15 @@
+{
+  "file": "requester-dashboard/states/safe-failure.png",
+  "role": "Requester",
+  "route": "#/dashboard",
+  "scenario": "Requester Dashboard safe API failure with a retry action",
+  "scenarioId": "L4-REQ-DASHBOARD",
+  "mapping": [
+    "AC-15",
+    "AC-24"
+  ],
+  "testId": "UI-05",
+  "rubricPart": "P8",
+  "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "viewport": "1280x720"
+}

@@ -18,6 +18,8 @@ export interface ReleaseEvidenceMeta {
 
 export async function captureReleaseEvidence(page: Page, meta: ReleaseEvidenceMeta): Promise<void> {
   const lab4EvidenceRoot = process.env.LAB4_EVIDENCE_ROOT?.trim();
+  const sourceRevision = lab4EvidenceRoot ? process.env.LAB4_EVIDENCE_SOURCE_REVISION?.trim() || null : null;
+  if (sourceRevision && !/^[0-9a-f]{40}$/i.test(sourceRevision)) throw new Error("LAB4_EVIDENCE_SOURCE_REVISION must be a full Git commit SHA");
   const legacyLab3Capture = process.env.LAB3_EVIDENCE_CAPTURE === "1";
   const evidenceRoot = legacyLab3Capture ? process.env.LAB3_EVIDENCE_ROOT?.trim() : undefined;
   if (!lab4EvidenceRoot && !evidenceRoot) return;
@@ -63,6 +65,7 @@ export async function captureReleaseEvidence(page: Page, meta: ReleaseEvidenceMe
 
   writeFileSync(`${absolutePng}.meta.json`, JSON.stringify({
     ...meta,
+    ...(lab4EvidenceRoot ? { sourceRevision } : {}),
     viewport: meta.viewport ?? (viewport ? `${viewport.width}x${viewport.height}` : "unknown"),
   }, null, 2) + "\n", "utf8");
 }

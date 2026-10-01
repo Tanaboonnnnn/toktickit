@@ -27,9 +27,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function roleHome(role: CurrentUser["role"]): string {
-  if (role === "REQUESTER") return "#/tickets";
-  if (role === "IT_STAFF") return "#/staff/tickets";
-  return "#/admin/users";
+  if (role === "REQUESTER") return "#/dashboard";
+  return "#/staff/dashboard";
 }
 
 export function roleLabel(role: CurrentUser["role"]): string {

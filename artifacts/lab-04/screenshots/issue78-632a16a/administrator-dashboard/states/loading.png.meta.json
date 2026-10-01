@@ -1,0 +1,15 @@
+{
+  "file": "administrator-dashboard/states/loading.png",
+  "role": "Administrator",
+  "route": "#/staff/dashboard",
+  "scenario": "Administrator Dashboard loading without placeholder metrics",
+  "scenarioId": "L4-ADM-DASHBOARD",
+  "mapping": [
+    "AC-16",
+    "AC-24"
+  ],
+  "testId": "UI-06",
+  "rubricPart": "P5",
+  "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "viewport": "1280x720"
+}

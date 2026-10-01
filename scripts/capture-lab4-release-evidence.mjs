@@ -42,7 +42,7 @@ const runner = spawnSync(process.execPath, [
   "--project=chromium",
 ], {
   cwd: root,
-  env: { ...process.env, LAB4_EVIDENCE_ROOT: relativeRoot, LAB4_EVIDENCE_COMMAND: command },
+  env: { ...process.env, LAB4_EVIDENCE_ROOT: relativeRoot, LAB4_EVIDENCE_SOURCE_REVISION: sourceSha, LAB4_EVIDENCE_COMMAND: command },
   stdio: "inherit",
 });
 if (runner.error) throw runner.error;
@@ -54,6 +54,7 @@ const entries = screenshots.map((file) => {
   const metadataPath = `${file}.meta.json`;
   if (!existsSync(metadataPath)) throw new Error(`Missing evidence metadata for ${relative(root, file)}`);
   const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
+  if (metadata.sourceRevision !== sourceSha) throw new Error(`Evidence ${relative(root, file)} is not bound to its source revision`);
   for (const field of ["role", "route", "scenario", "scenarioId", "testId", "rubricPart", "viewport"]) {
     if (!metadata[field]) throw new Error(`Evidence ${relative(root, file)} is missing ${field}`);
   }

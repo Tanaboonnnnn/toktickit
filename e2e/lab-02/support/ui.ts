@@ -12,15 +12,18 @@ export type LoginRequester = { email: string };
 export async function loginRequester(page: Page, requester: LoginRequester): Promise<void> {
   await page.goto("/#/login");
   const loginHeading = page.getByRole("heading", { name: "Login" });
-  const ticketsHeading = page.getByRole("heading", { name: "My Tickets" });
+  const dashboardHeading = page.getByRole("heading", { name: "Dashboard" });
   await Promise.race([
     loginHeading.waitFor(),
-    ticketsHeading.waitFor(),
+    dashboardHeading.waitFor(),
   ]);
-  if (await ticketsHeading.isVisible().catch(() => false)) return;
-  await page.getByLabel("Email").fill(requester.email);
-  await page.getByLabel("Password").fill(E2E_REQUESTER_PASSWORD);
-  await page.getByRole("button", { name: "Login" }).click();
+  if (!(await dashboardHeading.isVisible().catch(() => false))) {
+    await page.getByLabel("Email").fill(requester.email);
+    await page.getByLabel("Password").fill(E2E_REQUESTER_PASSWORD);
+    await page.getByRole("button", { name: "Login" }).click();
+    await dashboardHeading.waitFor();
+  }
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
   await page.getByRole("heading", { name: "My Tickets" }).waitFor();
 }
 

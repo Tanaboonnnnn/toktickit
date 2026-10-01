@@ -4,6 +4,7 @@ import { useAuth } from "../auth-context.js";
 import { formatDisplayDate } from "../date-format.js";
 import { TICKET_STATUSES, ticketStatusClassName, ticketStatusLabel, type TicketStatus } from "../ticket-status.js";
 import { fetchStaffAssignees, fetchStaffQueue, staffQueueContext, type StaffPageSize, type StaffQueueItem, type StaffQueueQuery, type StaffQueueResponse, type StaffSortDirection, type StaffSortField, type StaffUserSummary } from "../api/staff.js";
+import { parseStaffQueueContext } from "./staff-queue-context.js";
 
 type AppliedQuery = Required<Pick<StaffQueueQuery, "owner" | "sortBy" | "sortDirection" | "page" | "pageSize">> & Omit<StaffQueueQuery, "owner" | "sortBy" | "sortDirection" | "page" | "pageSize">;
 const DEFAULT: AppliedQuery = { owner: "all", sortBy: "updatedAt", sortDirection: "desc", page: 1, pageSize: 10 };
@@ -13,26 +14,12 @@ const sortFields: Array<{ value: StaffSortField; label: string }> = [
   { value: "updatedAt", label: "Last Updated" }, { value: "createdAt", label: "Created" }, { value: "ticketNumber", label: "Ticket Number" }, { value: "itPriority", label: "IT Priority" },
 ];
 
-function parseContext(value: string): AppliedQuery {
-  const p = new URLSearchParams(value.replace(/^\?/, ""));
-  const page = Number(p.get("page")); const pageSize = Number(p.get("pageSize")); const owner = p.get("owner");
-  return {
-    ...(p.get("search") ? { search: p.get("search")! } : {}), ...(Number(p.get("categoryId")) > 0 ? { categoryId: Number(p.get("categoryId")) } : {}),
-    ...(p.get("currentStatus") ? { currentStatus: p.get("currentStatus") as TicketStatus } : {}),
-    ...(p.get("requestedPriority") ? { requestedPriority: p.get("requestedPriority") as RequestedPriority } : {}),
-    ...(p.get("itPriority") ? { itPriority: p.get("itPriority") as RequestedPriority } : {}),
-    owner: owner === "me" || owner === "unassigned" || owner === "all" ? owner : Number(owner) > 0 ? Number(owner) : "all",
-    sortBy: (["updatedAt", "createdAt", "ticketNumber", "itPriority"].includes(p.get("sortBy") ?? "") ? p.get("sortBy") : "updatedAt") as StaffSortField,
-    sortDirection: p.get("sortDirection") === "asc" ? "asc" : "desc",
-    page: Number.isSafeInteger(page) && page > 0 ? page : 1,
-    pageSize: ([10, 20, 50].includes(pageSize) ? pageSize : 10) as StaffPageSize,
-  };
-}
-function restricted(q: AppliedQuery) { return Boolean(q.search || q.categoryId || q.currentStatus || q.requestedPriority || q.itPriority || q.owner !== "all"); }
+function parseContext(value: string): AppliedQuery { return { owner: "all", sortBy: "updatedAt", sortDirection: "desc", page: 1, pageSize: 10, ...(parseStaffQueueContext(value)?.query ?? {}) }; }
+function restricted(q: AppliedQuery) { return Boolean(q.search || q.categoryId || q.currentStatus || q.statusGroup || q.requestedPriority || q.itPriority || q.owner !== "all"); }
 function priorityLabel(v: RequestedPriority) { return v[0] + v.slice(1).toLowerCase(); }
 type State = { kind: "loading" } | { kind: "forbidden" } | { kind: "failure"; message: string } | { kind: "success"; response: StaffQueueResponse; zero?: "empty" | "no-results" };
 
-export default function StaffTicketQueue({ onViewTicket, initialContext = "", initialSearch = "" }: { onViewTicket?: (id: number, context: string) => void; initialContext?: string; initialSearch?: string }) {
+export default function StaffTicketQueue({ onViewTicket, initialContext = "", initialSearch = "", syncUrl = false }: { onViewTicket?: (id: number, context: string) => void; initialContext?: string; initialSearch?: string; syncUrl?: boolean }) {
   const { user } = useAuth();
   const initial = parseContext(initialContext);
   if (initialSearch && !initial.search) initial.search = initialSearch;
@@ -43,12 +30,36 @@ export default function StaffTicketQueue({ onViewTicket, initialContext = "", in
   const [categories, setCategories] = useState<Category[]>([]);
   const [assignees, setAssignees] = useState<StaffUserSummary[]>([]);
   const suppress = useRef(false);
+  const routeContextRef = useRef(initialContext);
+  const skipUrlSync = useRef(false);
+  const mountedUrlSync = useRef(false);
 
   const loadChoices = useCallback(() => {
     void fetchCategories().then(setCategories).catch(() => setCategories([]));
     void fetchStaffAssignees().then(setAssignees).catch(() => setAssignees([]));
   }, []);
   useEffect(loadChoices, [loadChoices]);
+
+  useEffect(() => {
+    if (routeContextRef.current === initialContext) return;
+    routeContextRef.current = initialContext;
+    skipUrlSync.current = true;
+    const parsed = parseStaffQueueContext(initialContext);
+    if (!parsed) return;
+    const next: AppliedQuery = { owner: "all", sortBy: "updatedAt", sortDirection: "desc", page: 1, pageSize: 10, ...parsed.query };
+    setQuery((current) => Object.keys({ ...current, ...next }).every((key) => current[key as keyof AppliedQuery] === next[key as keyof AppliedQuery]) ? current : next);
+    setDraftSearch(parsed.query.search ?? initialSearch);
+  }, [initialContext]);
+
+  useEffect(() => {
+    if (!syncUrl) return;
+    if (!mountedUrlSync.current) { mountedUrlSync.current = true; return; }
+    if (skipUrlSync.current) { skipUrlSync.current = false; return; }
+    if (routeContextRef.current !== initialContext) { routeContextRef.current = initialContext; return; }
+    const context = staffQueueContext(query);
+    const next = `#/staff/tickets?${context}`;
+    if (window.location.hash !== next) window.location.hash = next;
+  }, [initialContext, query, syncUrl]);
 
   useEffect(() => {
     if (suppress.current) { suppress.current = false; return; }
@@ -73,7 +84,7 @@ export default function StaffTicketQueue({ onViewTicket, initialContext = "", in
       }
     })();
     return () => { active = false; };
-  }, [query.search, query.categoryId, query.currentStatus, query.requestedPriority, query.itPriority, query.owner, query.sortBy, query.sortDirection, query.page, query.pageSize, reload]);
+  }, [query.search, query.categoryId, query.currentStatus, query.statusGroup, query.resolvedFrom, query.resolvedBefore, query.requestedPriority, query.itPriority, query.owner, query.sortBy, query.sortDirection, query.page, query.pageSize, reload]);
 
   const change = <K extends keyof AppliedQuery>(key: K, value: AppliedQuery[K]) => setQuery((q) => ({ ...q, [key]: value, page: 1 }));
   const clear = () => { setDraftSearch(""); setQuery(DEFAULT); };
@@ -84,7 +95,7 @@ export default function StaffTicketQueue({ onViewTicket, initialContext = "", in
       <div className="lab2-field-group lab2-search-field"><label htmlFor="staff-search">Search Ticket Number, Summary, or Requester</label><input id="staff-search" type="search" value={draftSearch} onChange={(e) => setDraftSearch(e.target.value)} maxLength={120} /></div>
       <button className="lab2-button lab2-button-primary" type="submit">Search</button>
       <Filter label="Category" id="staff-category" value={query.categoryId ?? ""} onChange={(v) => change("categoryId", v ? Number(v) : undefined)} options={categories.map((x) => [String(x.id), x.name])} all="All Categories" />
-      <Filter label="Current Status" id="staff-status" value={query.currentStatus ?? ""} onChange={(v) => change("currentStatus", v ? v as TicketStatus : undefined)} options={TICKET_STATUSES.map((x) => [x, ticketStatusLabel(x)])} all="All Statuses" />
+      <Filter label="Current Status" id="staff-status" value={query.currentStatus ?? ""} onChange={(v) => setQuery((q) => ({ ...q, currentStatus: v ? v as TicketStatus : undefined, statusGroup: undefined, resolvedFrom: undefined, resolvedBefore: undefined, page: 1 }))} options={TICKET_STATUSES.map((x) => [x, ticketStatusLabel(x)])} all="All Statuses" />
       <Filter label="Requested Priority" id="staff-requested-priority" value={query.requestedPriority ?? ""} onChange={(v) => change("requestedPriority", v ? v as RequestedPriority : undefined)} options={priorities.map((x) => [x, priorityLabel(x)])} all="All Priorities" />
       <Filter label="IT Priority" id="staff-it-priority" value={query.itPriority ?? ""} onChange={(v) => change("itPriority", v ? v as RequestedPriority : undefined)} options={priorities.map((x) => [x, priorityLabel(x)])} all="All Priorities" />
       <Filter label="Owner" id="staff-owner" value={typeof query.owner === "number" ? String(query.owner) : query.owner} onChange={(v) => change("owner", v === "all" || v === "me" || v === "unassigned" ? v : Number(v))} options={[["unassigned", "Unassigned"], ["me", "Mine"], ...assignees.map((x) => [String(x.id), `${x.name} (${x.role === "IT_STAFF" ? "IT Staff" : "Administrator"})`])]} all="All Owners" />

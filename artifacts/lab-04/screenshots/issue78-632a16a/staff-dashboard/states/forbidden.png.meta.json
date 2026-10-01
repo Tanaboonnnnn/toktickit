@@ -1,0 +1,15 @@
+{
+  "file": "staff-dashboard/states/forbidden.png",
+  "role": "IT Staff",
+  "route": "#/staff/dashboard",
+  "scenario": "IT Staff Dashboard forbidden state without dashboard data",
+  "scenarioId": "L4-STF-DASHBOARD",
+  "mapping": [
+    "AC-16",
+    "AC-24"
+  ],
+  "testId": "UI-06",
+  "rubricPart": "P5",
+  "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "viewport": "1280x720"
+}
