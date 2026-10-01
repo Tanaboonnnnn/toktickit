@@ -56,6 +56,37 @@ afterEach(() => {
 });
 
 describe("UI-01 Staff Actions Taken", () => {
+  it("associates create validation errors and focuses the first invalid editable field", async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/api/tickets/91/actions-taken?")) {
+        return json({ items: [], page: 1, pageSize: 20, totalItems: 0, totalPages: 0, capabilities: { canCreate: true } });
+      }
+      if (url.endsWith("/api/staff/assignees")) return json({ items: [staff, pendingAction.assignee] });
+      return json({});
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(
+      <AuthProvider initialUser={staff}>
+        <ActionsTaken mode="staff" ticketId={91} ticketNumber="TKT-20260930-000091" ticketVersion={7} />
+      </AuthProvider>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Create Action" }));
+    await user.click(screen.getByRole("checkbox", { name: "Follow-Up Required" }));
+    await user.selectOptions(screen.getByRole("combobox", { name: "Assigned to" }), "");
+    await user.click(screen.getByRole("button", { name: "Save Action" }));
+
+    const description = screen.getByRole("textbox", { name: "Action Description" });
+    const assignee = screen.getByRole("combobox", { name: "Assigned to" });
+    const followUp = screen.getByRole("textbox", { name: "Follow-up Note" });
+    expect(description).toHaveFocus();
+    expect(description).toHaveAttribute("aria-describedby", expect.stringMatching(/action-description-error/));
+    expect(assignee).toHaveAttribute("aria-describedby", expect.stringMatching(/action-assignee-error/));
+    expect(followUp).toHaveAttribute("aria-describedby", expect.stringMatching(/action-follow-up-error/));
+  });
+
   it("renders the authoritative public Action fields and keeps recorder, assignee, and performer distinct", async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);

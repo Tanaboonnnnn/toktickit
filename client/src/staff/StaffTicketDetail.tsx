@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { downloadAttachment, SafeApiError } from "../api.js";
 import { fetchStaffTicketDetail, type StaffTicketDetail as StaffDetail } from "../api/staff.js";
 import ActionsTaken from "../actions/ActionsTaken.js";
+import TicketWorkflowHistory from "../workflow/TicketWorkflowHistory.js";
 import { formatDisplayDate } from "../date-format.js";
 import { ticketStatusClassName, ticketStatusLabel } from "../ticket-status.js";
 import TicketOperations from "./TicketOperations.js";
@@ -69,9 +70,10 @@ function Contents({ ticket: t, onUpdated, onConflict, onActionUpdated }: { ticke
   }
   return <><section className="lab2-readonly-section"><h2>Ticket information</h2><dl className="lab2-detail-grid"><dt>Ticket Number</dt><dd>{t.ticketNumber}</dd><dt>Current Status</dt><dd><span className={`lab2-badge ${ticketStatusClassName(t.currentStatus)}`}>{ticketStatusLabel(t.currentStatus)}</span></dd><dt>Created</dt><dd>{formatDisplayDate(t.createdAt)}</dd><dt>Last Updated</dt><dd>{formatDisplayDate(t.updatedAt)}</dd><dt>Requester</dt><dd>{t.requester.name} ({t.requester.email})</dd><dt>Category</dt><dd>{t.category.name}</dd><dt>Related System</dt><dd>{t.relatedSystem.name}</dd><dt>Summary</dt><dd>{t.summary}</dd><dt>Requested Priority</dt><dd>{priorityLabel(t.requestedPriority)}</dd><dt>IT Priority</dt><dd>{priorityLabel(t.itPriority)}</dd><dt>Owner</dt><dd>{t.owner?.name ?? "Unassigned"}</dd><dt>Description</dt><dd className="lab2-detail-description">{t.description}</dd></dl></section>
     <TicketOperations ticket={t} onUpdated={onUpdated} onConflict={async () => { await onConflict(); }} />
-    <ActionsTaken mode="staff" ticketId={t.id} ticketNumber={t.ticketNumber} ticketVersion={t.version} onTicketChanged={() => onActionUpdated()} onConflict={onConflict} />
     <section className="lab2-attachments-section"><h2>Attachments</h2>{downloadError && <div className="lab2-error" role="alert">{downloadError}</div>}{t.attachments.length === 0 ? <p className="lab2-muted">No attachments.</p> : <div className="lab2-attachment-list">{t.attachments.map((a) => <article className="lab2-attachment-card" key={a.id}><h3>{a.originalName}</h3><p>{a.state === "REMOVED" ? "Removed" : "Available"}</p>{a.downloadUrl && <button className="lab2-button lab2-button-secondary" type="button" aria-label={`Download ${a.originalName}`} onClick={() => { void handleDownload(a.id, a.originalName); }}>Download</button>}</article>)}</div>}</section>
     <PublicComments ticketId={t.id} />
     <InternalNotes ticketId={t.id} />
+    <ActionsTaken mode="staff" ticketId={t.id} ticketNumber={t.ticketNumber} ticketVersion={t.version} onTicketChanged={() => onActionUpdated()} onConflict={onConflict} />
+    <TicketWorkflowHistory ticketId={t.id} ticketVersion={t.version} />
   </>;
 }

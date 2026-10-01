@@ -68,6 +68,11 @@ export default function ActionsTaken(props: ActionsTakenProps) {
   const [createFeedback, setCreateFeedback] = useState("");
   const [currentTicketVersion, setCurrentTicketVersion] = useState(props.ticketVersion ?? 0);
   const boundCreate = useRef<CreateActionTakenInput | null>(null);
+  const createDescriptionRef = useRef<HTMLTextAreaElement>(null);
+  const createAssigneeRef = useRef<HTMLSelectElement>(null);
+  const createResultRef = useRef<HTMLTextAreaElement>(null);
+  const createFollowUpRef = useRef<HTMLTextAreaElement>(null);
+  const createAttachmentRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setPage(1);
@@ -160,7 +165,10 @@ export default function ActionsTaken(props: ActionsTakenProps) {
     else if (Array.from(normalizedFollowUpNote).length > 2000) errors.followUpNote = "Follow-up Note must contain at most 2000 characters.";
     if (Array.from(normalizedAttachmentNotes).length > 2000) errors.attachmentNotes = "Attachment Notes must contain at most 2000 characters.";
     setCreateFieldErrors(errors);
-    if (Object.keys(errors).length > 0) return null;
+    if (Object.keys(errors).length > 0) {
+      focusCreateError(errors);
+      return null;
+    }
     return {
       clientRequestId: crypto.randomUUID(),
       expectedTicketVersion: currentTicketVersion,
@@ -198,7 +206,9 @@ export default function ActionsTaken(props: ActionsTakenProps) {
       await props.onTicketChanged?.(created.ticketVersion);
     } catch (caught) {
       if (caught instanceof SafeApiError) {
-        setCreateFieldErrors(caught.fieldErrors ?? {});
+        const fieldErrors = caught.fieldErrors ?? {};
+        setCreateFieldErrors(fieldErrors);
+        if (Object.keys(fieldErrors).length > 0) queueMicrotask(() => focusCreateError(fieldErrors));
         setCreateError(caught.message);
         if (caught.status < 500) {
           boundCreate.current = null;
@@ -212,6 +222,16 @@ export default function ActionsTaken(props: ActionsTakenProps) {
     } finally {
       setCreateBusy(false);
     }
+  }
+
+  function focusCreateError(errors: Record<string, string>) {
+    const target = errors.description ? createDescriptionRef.current
+      : errors.assigneeId ? createAssigneeRef.current
+        : errors.result ? createResultRef.current
+          : errors.followUpNote ? createFollowUpRef.current
+            : errors.attachmentNotes ? createAttachmentRef.current
+              : null;
+    target?.focus();
   }
   return (
     <section className="lab2-readonly-section lab4-actions" aria-labelledby={`actions-heading-${ticketId}`}>
@@ -232,34 +252,34 @@ export default function ActionsTaken(props: ActionsTakenProps) {
           <div className="lab4-action-form-grid">
             <div className="lab2-field-group">
               <label htmlFor={`action-description-${ticketId}`}>Action Description</label>
-              <textarea id={`action-description-${ticketId}`} value={description} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.description)} aria-describedby={createFieldErrors.description ? `action-description-error-${ticketId}` : undefined} onChange={(event) => setDescription(event.target.value)} />
+              <textarea ref={createDescriptionRef} id={`action-description-${ticketId}`} value={description} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.description)} aria-describedby={createFieldErrors.description ? `action-description-error-${ticketId}` : undefined} onChange={(event) => setDescription(event.target.value)} />
               {createFieldErrors.description && <p id={`action-description-error-${ticketId}`} role="alert">{createFieldErrors.description}</p>}
             </div>
             <div className="lab2-field-group">
               <label htmlFor={`action-assignee-${ticketId}`}>Assigned to</label>
-              <select id={`action-assignee-${ticketId}`} value={assigneeId} disabled={createBusy || createAmbiguous || assignees.length === 0} aria-invalid={Boolean(createFieldErrors.assigneeId)} onChange={(event) => setAssigneeId(event.target.value)}>
+              <select ref={createAssigneeRef} id={`action-assignee-${ticketId}`} value={assigneeId} disabled={createBusy || createAmbiguous || assignees.length === 0} aria-invalid={Boolean(createFieldErrors.assigneeId)} aria-describedby={createFieldErrors.assigneeId ? `action-assignee-error-${ticketId}` : undefined} onChange={(event) => setAssigneeId(event.target.value)}>
                 <option value="">Select eligible assignee</option>
                 {assignees.map((assignee) => <option key={assignee.id} value={assignee.id}>{assignee.name} ({roleLabel(assignee.role)})</option>)}
               </select>
-              {createFieldErrors.assigneeId && <p role="alert">{createFieldErrors.assigneeId}</p>}
+              {createFieldErrors.assigneeId && <p id={`action-assignee-error-${ticketId}`} role="alert">{createFieldErrors.assigneeId}</p>}
             </div>
             <div className="lab2-field-group">
               <label htmlFor={`action-result-${ticketId}`}>Result</label>
-              <textarea id={`action-result-${ticketId}`} value={result} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.result)} onChange={(event) => setResult(event.target.value)} />
-              {createFieldErrors.result && <p role="alert">{createFieldErrors.result}</p>}
+              <textarea ref={createResultRef} id={`action-result-${ticketId}`} value={result} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.result)} aria-describedby={createFieldErrors.result ? `action-result-error-${ticketId}` : undefined} onChange={(event) => setResult(event.target.value)} />
+              {createFieldErrors.result && <p id={`action-result-error-${ticketId}`} role="alert">{createFieldErrors.result}</p>}
             </div>
             <div className="lab2-field-group">
               <label className="lab4-action-checkbox"><input type="checkbox" checked={followUpRequired} disabled={createBusy || createAmbiguous} onChange={(event) => setFollowUpRequired(event.target.checked)} /> Follow-Up Required</label>
             </div>
             {followUpRequired && <div className="lab2-field-group">
               <label htmlFor={`action-follow-up-${ticketId}`}>Follow-up Note</label>
-              <textarea id={`action-follow-up-${ticketId}`} value={followUpNote} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.followUpNote)} onChange={(event) => setFollowUpNote(event.target.value)} />
-              {createFieldErrors.followUpNote && <p role="alert">{createFieldErrors.followUpNote}</p>}
+              <textarea ref={createFollowUpRef} id={`action-follow-up-${ticketId}`} value={followUpNote} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.followUpNote)} aria-describedby={createFieldErrors.followUpNote ? `action-follow-up-error-${ticketId}` : undefined} onChange={(event) => setFollowUpNote(event.target.value)} />
+              {createFieldErrors.followUpNote && <p id={`action-follow-up-error-${ticketId}`} role="alert">{createFieldErrors.followUpNote}</p>}
             </div>}
             <div className="lab2-field-group">
               <label htmlFor={`action-attachment-notes-${ticketId}`}>Attachment Notes</label>
-              <textarea id={`action-attachment-notes-${ticketId}`} value={attachmentNotes} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.attachmentNotes)} onChange={(event) => setAttachmentNotes(event.target.value)} />
-              {createFieldErrors.attachmentNotes && <p role="alert">{createFieldErrors.attachmentNotes}</p>}
+              <textarea ref={createAttachmentRef} id={`action-attachment-notes-${ticketId}`} value={attachmentNotes} maxLength={2000} disabled={createBusy || createAmbiguous} aria-invalid={Boolean(createFieldErrors.attachmentNotes)} aria-describedby={createFieldErrors.attachmentNotes ? `action-attachment-notes-error-${ticketId}` : undefined} onChange={(event) => setAttachmentNotes(event.target.value)} />
+              {createFieldErrors.attachmentNotes && <p id={`action-attachment-notes-error-${ticketId}`} role="alert">{createFieldErrors.attachmentNotes}</p>}
             </div>
           </div>
           <p className="lab2-muted">Action Date/Time and Recorded by are set by the server. Performed by is set automatically only when the Action is completed.</p>
@@ -344,6 +364,28 @@ function ActionCard({
   const [completeConfirmed, setCompleteConfirmed] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [cancelConfirmed, setCancelConfirmed] = useState(false);
+  const editDescriptionRef = useRef<HTMLTextAreaElement>(null);
+  const editAssigneeRef = useRef<HTMLSelectElement>(null);
+  const editResultRef = useRef<HTMLTextAreaElement>(null);
+  const editFollowUpRef = useRef<HTMLTextAreaElement>(null);
+  const editAttachmentRef = useRef<HTMLTextAreaElement>(null);
+  const completeResultRef = useRef<HTMLTextAreaElement>(null);
+  const completeFollowUpRef = useRef<HTMLTextAreaElement>(null);
+  const completeConfirmRef = useRef<HTMLInputElement>(null);
+  const cancelReasonRef = useRef<HTMLTextAreaElement>(null);
+  const cancelConfirmRef = useRef<HTMLInputElement>(null);
+
+  function focusMutationError(errors: Record<string, string>) {
+    const target = errors.description ? editDescriptionRef.current
+      : errors.assigneeId ? editAssigneeRef.current
+        : errors.result ? (completeResultRef.current ?? editResultRef.current)
+          : errors.followUpNote ? (completeFollowUpRef.current ?? editFollowUpRef.current)
+            : errors.attachmentNotes ? editAttachmentRef.current
+              : errors.cancellationReason ? cancelReasonRef.current
+                : errors.confirmation ? (completeConfirmRef.current ?? cancelConfirmRef.current)
+                  : null;
+    target?.focus();
+  }
 
   function openEdit() {
     setEditDescription(action.description);
@@ -368,7 +410,9 @@ function ActionCard({
     } catch (caught) {
       if (caught instanceof SafeApiError) {
         setMutationError(caught.message);
-        setMutationFieldErrors(caught.fieldErrors ?? {});
+        const fieldErrors = caught.fieldErrors ?? {};
+        setMutationFieldErrors(fieldErrors);
+        if (Object.keys(fieldErrors).length > 0) queueMicrotask(() => focusMutationError(fieldErrors));
         if (caught.status === 409) {
           onAssigneeConflict();
           await onConflict();
@@ -388,11 +432,16 @@ function ActionCard({
     const attachmentNotes = editAttachmentNotes.trim();
     const errors: Record<string, string> = {};
     if (!description) errors.description = "Action Description is required.";
+    else if (Array.from(description).length > 2000) errors.description = "Action Description must contain at most 2000 characters.";
+    if (Array.from(result).length > 2000) errors.result = "Result must contain at most 2000 characters.";
     if (editFollowUpRequired && !followUpNote) errors.followUpNote = "Follow-up Note is required when follow-up is required.";
+    else if (Array.from(followUpNote).length > 2000) errors.followUpNote = "Follow-up Note must contain at most 2000 characters.";
+    if (Array.from(attachmentNotes).length > 2000) errors.attachmentNotes = "Attachment Notes must contain at most 2000 characters.";
     const assigneeId = Number(editAssigneeId);
     if (action.capabilities.canReassign && (!Number.isSafeInteger(assigneeId) || assigneeId < 1)) errors.assigneeId = "Assignee is required.";
     if (Object.keys(errors).length > 0) {
       setMutationFieldErrors(errors);
+      focusMutationError(errors);
       return;
     }
     await runMutation(
@@ -436,10 +485,13 @@ function ActionCard({
     const note = completeFollowUpNote.trim();
     const errors: Record<string, string> = {};
     if (!result) errors.result = "Result is required when completing an Action.";
+    else if (Array.from(result).length > 2000) errors.result = "Result must contain at most 2000 characters.";
     if (completeFollowUpRequired && !note) errors.followUpNote = "Follow-up Note is required when follow-up is required.";
+    else if (Array.from(note).length > 2000) errors.followUpNote = "Follow-up Note must contain at most 2000 characters.";
     if (!completeConfirmed) errors.confirmation = "Confirmation is required.";
     if (Object.keys(errors).length > 0) {
       setMutationFieldErrors(errors);
+      focusMutationError(errors);
       return;
     }
     await runMutation(
@@ -468,9 +520,11 @@ function ActionCard({
     const reason = cancelReason.trim();
     const errors: Record<string, string> = {};
     if (Array.from(reason).length < 3) errors.cancellationReason = "Cancellation reason must contain at least 3 characters.";
+    else if (Array.from(reason).length > 200) errors.cancellationReason = "Cancellation reason must contain at most 200 characters.";
     if (!cancelConfirmed) errors.confirmation = "Confirmation is required.";
     if (Object.keys(errors).length > 0) {
       setMutationFieldErrors(errors);
+      focusMutationError(errors);
       return;
     }
     await runMutation(
@@ -525,29 +579,29 @@ function ActionCard({
       {editing && <div className="lab4-action-editor" aria-label={`Edit Action #${action.id}`}>
         {action.status === "COMPLETED" && <p className="lab2-warning">Corrections to completed Action content are audited in revision history. Assignment and lifecycle status remain read-only.</p>}
         <div className="lab4-action-form-grid">
-          <div className="lab2-field-group"><label htmlFor={`edit-action-description-${action.id}`}>Edit Action Description</label><textarea id={`edit-action-description-${action.id}`} value={editDescription} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.description)} onChange={(event) => setEditDescription(event.target.value)} />{mutationFieldErrors.description && <p role="alert">{mutationFieldErrors.description}</p>}</div>
-          <div className="lab2-field-group"><label htmlFor={`edit-action-assignee-${action.id}`}>Edit Assigned to</label><select id={`edit-action-assignee-${action.id}`} value={editAssigneeId} disabled={mutationBusy || !action.capabilities.canReassign} aria-invalid={Boolean(mutationFieldErrors.assigneeId)} onChange={(event) => setEditAssigneeId(event.target.value)}>{assignees.map((assignee) => <option key={assignee.id} value={assignee.id}>{assignee.name} ({roleLabel(assignee.role)})</option>)}</select>{mutationFieldErrors.assigneeId && <p role="alert">{mutationFieldErrors.assigneeId}</p>}</div>
-          <div className="lab2-field-group"><label htmlFor={`edit-action-result-${action.id}`}>Edit Result</label><textarea id={`edit-action-result-${action.id}`} value={editResult} disabled={mutationBusy} onChange={(event) => setEditResult(event.target.value)} /></div>
+          <div className="lab2-field-group"><label htmlFor={`edit-action-description-${action.id}`}>Edit Action Description</label><textarea ref={editDescriptionRef} id={`edit-action-description-${action.id}`} value={editDescription} maxLength={2000} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.description)} aria-describedby={mutationFieldErrors.description ? `edit-action-description-error-${action.id}` : undefined} onChange={(event) => setEditDescription(event.target.value)} />{mutationFieldErrors.description && <p id={`edit-action-description-error-${action.id}`} role="alert">{mutationFieldErrors.description}</p>}</div>
+          <div className="lab2-field-group"><label htmlFor={`edit-action-assignee-${action.id}`}>Edit Assigned to</label><select ref={editAssigneeRef} id={`edit-action-assignee-${action.id}`} value={editAssigneeId} disabled={mutationBusy || !action.capabilities.canReassign} aria-invalid={Boolean(mutationFieldErrors.assigneeId)} aria-describedby={mutationFieldErrors.assigneeId ? `edit-action-assignee-error-${action.id}` : undefined} onChange={(event) => setEditAssigneeId(event.target.value)}>{assignees.map((assignee) => <option key={assignee.id} value={assignee.id}>{assignee.name} ({roleLabel(assignee.role)})</option>)}</select>{mutationFieldErrors.assigneeId && <p id={`edit-action-assignee-error-${action.id}`} role="alert">{mutationFieldErrors.assigneeId}</p>}</div>
+          <div className="lab2-field-group"><label htmlFor={`edit-action-result-${action.id}`}>Edit Result</label><textarea ref={editResultRef} id={`edit-action-result-${action.id}`} value={editResult} maxLength={2000} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.result)} aria-describedby={mutationFieldErrors.result ? `edit-action-result-error-${action.id}` : undefined} onChange={(event) => setEditResult(event.target.value)} />{mutationFieldErrors.result && <p id={`edit-action-result-error-${action.id}`} role="alert">{mutationFieldErrors.result}</p>}</div>
           <div className="lab2-field-group"><label className="lab4-action-checkbox"><input type="checkbox" checked={editFollowUpRequired} disabled={mutationBusy} onChange={(event) => setEditFollowUpRequired(event.target.checked)} /> Edit Follow-Up Required</label></div>
-          {editFollowUpRequired && <div className="lab2-field-group"><label htmlFor={`edit-action-follow-up-${action.id}`}>Edit Follow-up Note</label><textarea id={`edit-action-follow-up-${action.id}`} value={editFollowUpNote} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.followUpNote)} onChange={(event) => setEditFollowUpNote(event.target.value)} />{mutationFieldErrors.followUpNote && <p role="alert">{mutationFieldErrors.followUpNote}</p>}</div>}
-          <div className="lab2-field-group"><label htmlFor={`edit-action-attachment-notes-${action.id}`}>Edit Attachment Notes</label><textarea id={`edit-action-attachment-notes-${action.id}`} value={editAttachmentNotes} disabled={mutationBusy} onChange={(event) => setEditAttachmentNotes(event.target.value)} /></div>
+          {editFollowUpRequired && <div className="lab2-field-group"><label htmlFor={`edit-action-follow-up-${action.id}`}>Edit Follow-up Note</label><textarea ref={editFollowUpRef} id={`edit-action-follow-up-${action.id}`} value={editFollowUpNote} maxLength={2000} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.followUpNote)} aria-describedby={mutationFieldErrors.followUpNote ? `edit-action-follow-up-error-${action.id}` : undefined} onChange={(event) => setEditFollowUpNote(event.target.value)} />{mutationFieldErrors.followUpNote && <p id={`edit-action-follow-up-error-${action.id}`} role="alert">{mutationFieldErrors.followUpNote}</p>}</div>}
+          <div className="lab2-field-group"><label htmlFor={`edit-action-attachment-notes-${action.id}`}>Edit Attachment Notes</label><textarea ref={editAttachmentRef} id={`edit-action-attachment-notes-${action.id}`} value={editAttachmentNotes} maxLength={2000} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.attachmentNotes)} aria-describedby={mutationFieldErrors.attachmentNotes ? `edit-action-attachment-notes-error-${action.id}` : undefined} onChange={(event) => setEditAttachmentNotes(event.target.value)} />{mutationFieldErrors.attachmentNotes && <p id={`edit-action-attachment-notes-error-${action.id}`} role="alert">{mutationFieldErrors.attachmentNotes}</p>}</div>
         </div>
         <div className="lab4-action-buttons"><button type="button" className="lab2-button lab2-button-primary" disabled={mutationBusy} onClick={() => void saveEdit()}>{mutationBusy ? "Saving..." : "Save Action changes"}</button><button type="button" className="lab2-button lab2-button-secondary" disabled={mutationBusy} onClick={() => setEditing(false)}>Cancel edit</button></div>
       </div>}
 
       {statusMode === "complete" && <div className="lab4-action-editor" aria-label={`Complete Action #${action.id}`}>
         <p className="lab2-warning">Complete {ticketNumber}, Action #{action.id} ({action.description}): {statusLabels[action.status]} → Completed. The authenticated completing actor will be recorded as Performed by, and the Action cannot return to an earlier status.</p>
-        <div className="lab2-field-group"><label htmlFor={`complete-action-result-${action.id}`}>Completion Result</label><textarea id={`complete-action-result-${action.id}`} value={completeResult} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.result)} onChange={(event) => setCompleteResult(event.target.value)} />{mutationFieldErrors.result && <p role="alert">{mutationFieldErrors.result}</p>}</div>
+        <div className="lab2-field-group"><label htmlFor={`complete-action-result-${action.id}`}>Completion Result</label><textarea ref={completeResultRef} id={`complete-action-result-${action.id}`} value={completeResult} maxLength={2000} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.result)} aria-describedby={mutationFieldErrors.result ? `complete-action-result-error-${action.id}` : undefined} onChange={(event) => setCompleteResult(event.target.value)} />{mutationFieldErrors.result && <p id={`complete-action-result-error-${action.id}`} role="alert">{mutationFieldErrors.result}</p>}</div>
         <label className="lab4-action-checkbox"><input type="checkbox" checked={completeFollowUpRequired} disabled={mutationBusy} onChange={(event) => setCompleteFollowUpRequired(event.target.checked)} /> Follow-Up Required after completion</label>
-        {completeFollowUpRequired && <div className="lab2-field-group"><label htmlFor={`complete-action-follow-up-${action.id}`}>Completion Follow-up Note</label><textarea id={`complete-action-follow-up-${action.id}`} value={completeFollowUpNote} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.followUpNote)} onChange={(event) => setCompleteFollowUpNote(event.target.value)} />{mutationFieldErrors.followUpNote && <p role="alert">{mutationFieldErrors.followUpNote}</p>}</div>}
-        <label className="lab4-action-checkbox"><input type="checkbox" checked={completeConfirmed} disabled={mutationBusy} onChange={(event) => setCompleteConfirmed(event.target.checked)} /> Confirm Action completion</label>{mutationFieldErrors.confirmation && <p className="lab2-error-text" role="alert">{mutationFieldErrors.confirmation}</p>}
+        {completeFollowUpRequired && <div className="lab2-field-group"><label htmlFor={`complete-action-follow-up-${action.id}`}>Completion Follow-up Note</label><textarea ref={completeFollowUpRef} id={`complete-action-follow-up-${action.id}`} value={completeFollowUpNote} maxLength={2000} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.followUpNote)} aria-describedby={mutationFieldErrors.followUpNote ? `complete-action-follow-up-error-${action.id}` : undefined} onChange={(event) => setCompleteFollowUpNote(event.target.value)} />{mutationFieldErrors.followUpNote && <p id={`complete-action-follow-up-error-${action.id}`} role="alert">{mutationFieldErrors.followUpNote}</p>}</div>}
+        <label className="lab4-action-checkbox"><input ref={completeConfirmRef} type="checkbox" checked={completeConfirmed} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.confirmation)} aria-describedby={mutationFieldErrors.confirmation ? `complete-action-confirmation-error-${action.id}` : undefined} onChange={(event) => setCompleteConfirmed(event.target.checked)} /> Confirm Action completion</label>{mutationFieldErrors.confirmation && <p id={`complete-action-confirmation-error-${action.id}`} className="lab2-error-text" role="alert">{mutationFieldErrors.confirmation}</p>}
         <div className="lab4-action-buttons"><button type="button" className="lab2-button lab2-button-primary" disabled={mutationBusy} onClick={() => void completeAction()}>Confirm complete Action</button><button type="button" className="lab2-button lab2-button-secondary" disabled={mutationBusy} onClick={() => setStatusMode(null)}>Cancel completion</button></div>
       </div>}
 
       {statusMode === "cancel" && <div className="lab4-action-editor" aria-label={`Cancel Action #${action.id}`}>
         <p className="lab2-warning">Cancel {ticketNumber}, Action #{action.id} ({action.description}): {statusLabels[action.status]} → Cancelled. This Action becomes read-only and remains visible in history.</p>
-        <div className="lab2-field-group"><label htmlFor={`cancel-action-reason-${action.id}`}>Cancellation Reason</label><textarea id={`cancel-action-reason-${action.id}`} value={cancelReason} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.cancellationReason)} onChange={(event) => setCancelReason(event.target.value)} />{mutationFieldErrors.cancellationReason && <p role="alert">{mutationFieldErrors.cancellationReason}</p>}</div>
-        <label className="lab4-action-checkbox"><input type="checkbox" checked={cancelConfirmed} disabled={mutationBusy} onChange={(event) => setCancelConfirmed(event.target.checked)} /> Confirm Action cancellation</label>{mutationFieldErrors.confirmation && <p className="lab2-error-text" role="alert">{mutationFieldErrors.confirmation}</p>}
+        <div className="lab2-field-group"><label htmlFor={`cancel-action-reason-${action.id}`}>Cancellation Reason</label><textarea ref={cancelReasonRef} id={`cancel-action-reason-${action.id}`} value={cancelReason} maxLength={200} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.cancellationReason)} aria-describedby={mutationFieldErrors.cancellationReason ? `cancel-action-reason-error-${action.id}` : undefined} onChange={(event) => setCancelReason(event.target.value)} />{mutationFieldErrors.cancellationReason && <p id={`cancel-action-reason-error-${action.id}`} role="alert">{mutationFieldErrors.cancellationReason}</p>}</div>
+        <label className="lab4-action-checkbox"><input ref={cancelConfirmRef} type="checkbox" checked={cancelConfirmed} disabled={mutationBusy} aria-invalid={Boolean(mutationFieldErrors.confirmation)} aria-describedby={mutationFieldErrors.confirmation ? `cancel-action-confirmation-error-${action.id}` : undefined} onChange={(event) => setCancelConfirmed(event.target.checked)} /> Confirm Action cancellation</label>{mutationFieldErrors.confirmation && <p id={`cancel-action-confirmation-error-${action.id}`} className="lab2-error-text" role="alert">{mutationFieldErrors.confirmation}</p>}
         <div className="lab4-action-buttons"><button type="button" className="lab2-button lab2-button-destructive" disabled={mutationBusy} onClick={() => void cancelAction()}>Confirm cancel Action</button><button type="button" className="lab2-button lab2-button-secondary" disabled={mutationBusy} onClick={() => setStatusMode(null)}>Keep Action</button></div>
       </div>}
       <div className="lab4-action-buttons">

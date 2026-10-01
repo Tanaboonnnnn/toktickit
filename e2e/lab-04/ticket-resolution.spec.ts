@@ -156,6 +156,9 @@ test("E2E-02 blocks premature resolution, preserves Requester advisory independe
   await page.getByRole("checkbox", { name: /confirm transition/i }).check();
   await page.getByRole("button", { name: "Confirm status change" }).click();
   await expect(page.getByText("Resolved", { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ticket workflow history" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "In Progress → Resolved" })).toBeVisible();
+  await expect(page.getByText(/Verified current-cycle completed work restored service/)).toBeVisible();
 
   const stored = await prisma.ticket.findUniqueOrThrow({ where: { id: ticket.id } });
   expect(stored.currentStatus).toBe("RESOLVED");
