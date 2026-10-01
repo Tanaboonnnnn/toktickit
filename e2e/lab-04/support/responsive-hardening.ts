@@ -19,6 +19,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await assertNoHorizontalOverflow(page);
   await assertVisibleWithinViewport(page, [".lab2-shell-header", ".lab2-navigation", ".lab4-dashboard"]);
   await assertTouchTargets(page, [".lab2-navigation button", ".lab4-dashboard-metric a"], 40);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `requester-dashboard/${viewport.name}-issue79.png`, role: "Requester", route: "#/dashboard",
     scenario: `${viewport.name} Requester Dashboard with an owned Ticket`, scenarioId: "L4-REQ-DASHBOARD",
@@ -30,6 +31,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await expect(page.getByText("Campus access point disconnects during online classes", { exact: true }).filter({ visible: true }).first()).toBeVisible();
   await assertNoHorizontalOverflow(page);
   await assertTouchTargets(page, [".lab2-my-tickets button", ".lab2-my-tickets a"], 40);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `regression/${viewport.name}-issue79-my-tickets.png`, role: "Requester", route: "#/tickets",
     scenario: `${viewport.name} retained My Tickets list for the signed-in Requester`, scenarioId: "L4-RETAINED-REGRESSION",
@@ -44,6 +46,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await assertNoHorizontalOverflow(page);
   await assertVisibleWithinViewport(page, [".lab2-ticket-detail", ".lab2-attachments-section", ".lab4-actions", ".lab4-action-card"]);
   await assertTouchTargets(page, [".lab2-ticket-detail button"], 40);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `actions-taken/${viewport.name}-issue79-requester.png`, role: "Requester", route: `#/tickets/${fixture.ticketId}`,
     scenario: `${viewport.name} read-only Requester Actions and Attachment error state`, scenarioId: "L4-REQ-ACTIONS",
@@ -54,6 +57,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await signIn(page, fixture, fixture.staff.email, "Staff Dashboard");
   await assertNoHorizontalOverflow(page);
   await assertVisibleWithinViewport(page, [".lab2-shell-header", ".lab2-navigation", ".lab4-dashboard"]);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `staff-dashboard/${viewport.name}-issue79.png`, role: "IT Staff", route: "#/staff/dashboard",
     scenario: `${viewport.name} Staff Dashboard with current-user Actions`, scenarioId: "L4-STF-DASHBOARD",
@@ -79,6 +83,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await assertNoHorizontalOverflow(page);
   await assertVisibleWithinViewport(page, [".lab2-ticket-detail", ".lab4-actions", ".lab4-action-card", ".lab4-action-editor", ".lab4-workflow-history"]);
   await assertTouchTargets(page, [".lab2-ticket-detail button", ".lab4-actions button"], 40);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `actions-taken/${viewport.name}-issue79-staff-validation.png`, role: "IT Staff", route: `#/staff/tickets/${fixture.ticketId}`,
     scenario: `${viewport.name} Staff Action validation, private note, and workflow history`, scenarioId: "L4-STF-ACTIONS",
@@ -95,6 +100,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await page.getByRole("checkbox", { name: /Confirm transition and consequence/ }).check();
   await expect(confirmStatus).toBeDisabled();
   await assertNoHorizontalOverflow(page);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `ticket-workflow/${viewport.name}-issue79-validation.png`, role: "IT Staff", route: `#/staff/tickets/${fixture.ticketId}`,
     scenario: `${viewport.name} resolution remains disabled until its required summary is supplied`, scenarioId: "L4-TICKET-WORKFLOW",
@@ -108,6 +114,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await signOut(page);
   await signIn(page, fixture, fixture.administrator.email, "Staff Dashboard");
   await assertNoHorizontalOverflow(page);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `administrator-dashboard/${viewport.name}-issue79.png`, role: "Administrator", route: "#/staff/dashboard",
     scenario: `${viewport.name} Administrator reuses the Staff Dashboard`, scenarioId: "L4-ADM-DASHBOARD",
@@ -116,6 +123,7 @@ export async function checkIssue79ResponsiveScreens(page: Page, fixture: Issue79
   await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "Users" }).click();
   await expect(page.getByRole("heading", { name: "User Management" })).toBeVisible();
   await assertNoHorizontalOverflow(page);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await captureReleaseEvidence(page, {
     file: `regression/${viewport.name}-issue79-administrator-users.png`, role: "Administrator", route: "#/staff/users",
     scenario: `${viewport.name} retained Administrator User Management screen`, scenarioId: "L4-RETAINED-REGRESSION",

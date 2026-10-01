@@ -447,3 +447,8 @@ Primary audit extended `e2e/lab-04/support/responsive-hardening.ts` to activate 
 #### Issue #79 final pre-review aggregate update (2026-10-02)
 
 Fresh `npm.cmd run verify` passed after the keyboard E2E path was added: server 69/407, client build + 37/178, harness 9+3, Lab 3 trace 50/32, Lab 4 planning trace 24/54/28/57, E2E 70/70 Chromium, and responsive 28/28 Chromium. Test DD records the local A11Y-01 and RESP-01..03 checks as Pass, while the screenshots remain `sourceRevision:null` and are not accepted as the final SHA-bound artifact set. A clean implementation commit and exact-SHA release capture remain before the final increment trace/review packet. No self-review/cross-review, human review, PR, or merge has yet occurred.
+
+
+#### Issue #79 screenshot scroll-reset and aggregate rerun (2026-10-02)
+
+Visual audit found that the mobile Administrator Dashboard screenshot started below the shell header after prior page scrolling. Updated only the managed responsive evidence helper to scroll to the top before each capture. Fresh full `npm.cmd run verify` exited 0 on the candidate worktree: server 69/407; client build + 37/178; harness 9+3; Lab 3 trace 50/32; Lab 4 planning trace 24/54/28/57; E2E 70/70 Chromium; responsive 28/28 Chromium. PERF-01: 1,000 Tickets/3,000 Actions, 9/11 max queries, 4,480/7,530 bytes, p95 30.58/34.04 ms. The isolated temp cluster stopped cleanly. The prior exact capture at source 26f7b86 was removed only after validating its manifest/path; it is superseded by the screenshot-helper correction. New exact-source capture is pending a local commit. No review, PR, or merge has occurred.

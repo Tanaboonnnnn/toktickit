@@ -510,3 +510,8 @@ After the keyboard operation was added to the shared responsive helper, `npm.cmd
 #### Issue #79 exact-source status boundary (2026-10-02)
 
 The automated accessibility/style/network tests and all responsive E2E runs have executed, including the managed keyboard Enter/Tab path. The Test DD rows record local Pass for the executed A11Y/RESP assertions and manual inspection. Current Playwright sidecars still have `sourceRevision:null`, so they are not accepted as the final SHA-bound screenshot artifact set. Exact-source capture from a clean implementation commit is still required before the review packet/PR gate.
+
+
+#### Issue #79 screenshot scroll-reset verification (2026-10-02)
+
+Visual review found one captured Administrator mobile Dashboard image began below the shell header because a preceding responsive scenario left the page scrolled. Added `window.scrollTo(0, 0)` before each responsive evidence capture in the E2E helper; no application source changed. Fresh `npm.cmd run verify` exited 0: server 69 files/407 tests; client build + 37 files/178 tests; harness 9+3; Lab 3 trace 50 IDs/32 ACs; Lab 4 planning trace 24/54/28/57; E2E 70/70; responsive 28/28. PERF-01: 1k Tickets/3k Actions, 9/11 queries, 4,480/7,530 bytes, p95 30.58/34.04 ms. The first 60-image exact capture was verified and inspected but removed because its mobile Admin screenshot was scrolled; its source was 26f7b86 and no historical evidence was affected. Capture will be rerun from the scroll-reset commit before source-bound visual acceptance.

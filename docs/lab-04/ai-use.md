@@ -172,3 +172,8 @@ Primary self-review found the managed responsive helper still used mouse input t
 #### Issue #79 full verify and exact-source evidence boundary (2026-10-02)
 
 After adding keyboard Enter/Tab assertions to the managed responsive helper, a fresh `npm.cmd run verify` exited 0: server 69 files/407 tests, client 37 files/178 tests and build, harness 9+3, Lab 3 trace 50 IDs/32 ACs, Lab 4 planning trace 24/54/28/57, E2E 70/70, responsive 28/28. The candidate's screenshot sidecars still have `sourceRevision:null`; the Test DD therefore leaves A11Y-01 and RESP-01..03 executed locally but not Pass until source-bound evidence is captured after the implementation commit. The selected key-prompt table remains 10; no reflection was added.
+
+
+#### Issue #79 screenshot scroll-reset correction (2026-10-02)
+
+Exact-source screenshot review found that the Administrator mobile Dashboard capture started below the shell header because the previous scenario left the page scrolled. This was a capture/test-helper issue, not a product layout defect. `e2e/lab-04/support/responsive-hardening.ts` now scrolls to the top before each scenario capture. A fresh `npm.cmd run verify` exited 0 with server 69/407, client build + 37/178, harness 9+3, Lab 3 trace 50/32, Lab 4 planning trace 24/54/28/57, E2E 70/70 and responsive 28/28. PERF-01: 1k Tickets/3k Actions, 9/11 queries, 4,480/7,530 bytes, p95 30.58/34.04 ms. The isolated cluster was stopped cleanly after this run. The prior issue79-26f7b86 capture was verified as 60 source-bound images, visually inspected, then removed as superseded because one screenshot was scrolled. Exact capture from the new scroll-reset source commit remains pending. Selected prompts remain 10; no student reflection was added.
