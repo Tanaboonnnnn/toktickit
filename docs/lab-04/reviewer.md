@@ -351,7 +351,99 @@ GPT-6.1 Sol, reasoning effort **high**, completed the final review against fixed
 The reviewed source evidence remains bound to implementation commit `632a16adb2591ee0dcbf232831c978b0fae981f6`: the 34-entry manifest is `artifacts/lab-04/screenshots/issue78-632a16a/manifest.json`, and all 22 Dashboard sidecars use that same source SHA. The evidence-only follow-up did not change application source.
 
 ### Issue #78 PR #88 opened (historical creation-head record)
+The following reconciles the creation-time PR #88 snapshot above with live GitHub at the #79 kickoff.
+
+#### Issue #78 final approval and integration
+
+- PR [#88](https://github.com/Tanaboonnnnn/toktickit/pull/88), titled `[Lab 4][#78] Integrate role dashboards and round-trip navigation`, is merged into `lab4-staging`.
+- Reviewer `@Peepipat-Suesoongnuen` submitted **APPROVED** at `2026-10-01T15:37:50Z` on reviewed head `4aeb9dc6794892f1d95b4f5f3719babbcfc402de`: [review event](https://github.com/Tanaboonnnnn/toktickit/pull/88#pullrequestreview-5381699473).
+- The two observations were explicitly minor/non-blocking: deep-linked Action focus may be stolen again after another Action save/refresh; PR #86's ambiguous-create flow has no confirmed discard-and-start-new path. Neither is recorded as fixed.
+- PR-head Lab 4 CI run `36881957384` completed successfully on `4aeb9dc6794892f1d95b4f5f3719babbcfc402de`.
+- PR #88 merged at `2026-10-01T15:39:33Z` as `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`; Issue #78 closed/completed at `2026-10-01T15:40:32Z`.
+- Live `lab4-staging` is `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`; post-merge Lab 4 CI run `36885992672` completed successfully on that SHA at `2026-10-01T15:51:52Z`.
+
+#### Issue #79 kickoff (2026-10-01)
+
+Live/preflight state at `2026-10-01T16:17:48Z`: Issue #79 OPEN; dependency Issues #71-#78 CLOSED/completed; Issue #80 OPEN; no existing #79 PR or remote feature/79-lab4-hardening branch found.
+
+Live branch API and fetched origin/lab4-staging both resolved to `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`. New clean worktree `.worktrees/feature-79-lab4-hardening` is on branch `feature/79-lab4-hardening` with HEAD at that fixed base. The existing root remains dirty on `feature/42-lab3-verification-harness` at `f9274942dab73e8e802d8dbff66a319b4b0e4654`; its Lab 3 changes/artifacts were preserved.
+
+Scope is the live Issue #79 integrated verification/hardening increment. Product changes are limited to reproducible contract defects and missing required executable evidence. SLA/notification/inventory/billing/approval/BI/multitenancy features and Issue #80 release/final-main work are excluded. Baseline commands, full source/test inventory, and complete execution evidence remain pending.
+
+No #79 source/test/evidence changes or test results are claimed at kickoff. No self-review/cross-review, PR, hosted CI, or human review has occurred. The two prior human observations remain candidates for reproduction/audit, not assumed defects or fixes.
+
+The user requires a written Review Packet before a separate agent performs read-only Standards and Spec cross-review, verification of every finding before correction, a real PR into `lab4-staging`, and an absolute stop before merge. The user explicitly excluded the GPT-6.1 Sol reviewer. Cross-review, PR, hosted CI, and human review remain pending.
+
+#### Issue #79 confirmed focus-steal RED
+
+The first focused client run could not start because the new worktree lacked `client/node_modules`; `npm.cmd ci --prefix client --offline` installed the locked client dependencies successfully. The subsequent `npm.cmd --prefix client test -- tests/lab-04/ActionsTaken.test.tsx` produced **1 failed / 9 passed**. The newly added regression located/focused deep-linked Action 777 on page two, saved a different Action 888, waited for the refreshed list, then failed because focus had returned to Action 777. This reproduces the PR #88 observation on the current candidate. Inspection identifies the focus effect's `[props.targetActionId, state]` dependency as the cause: each new successful list response retriggers it. No correction is applied yet; focused GREEN, aggregate tests/builds, self-review, and cross-review remain pending. The test change is uncommitted on baseline HEAD `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`; this is AI implementation evidence, not a human review event.
+
 
 PR [#88](https://github.com/Tanaboonnnnn/toktickit/pull/88) is **OPEN** with exact title **`[Lab 4][#78] Integrate role dashboards and round-trip navigation`**, from `feature/78-lab4-dashboard-ui` into `lab4-staging`. At creation its head was `e6c3e949521600b58a66210f3e23ee763b0cc9cd`; GitHub Issue #78 timeline shows the PR cross-reference, and real review requests were submitted to `Peepipat-Suesoongnuen` and `L0u1sss`.
 
 Hosted CI run `36881149214` was observed **in_progress** on that opened head. This is only the status reported for that run/head at this checkpoint; it is not a completed CI result or a claim about a later PR head. No human review/approval or merge has occurred. The AI self-review recorded above remains separate from required human peer review. Exact-source screenshot evidence continues to reference implementation SHA `632a16adb2591ee0dcbf232831c978b0fae981f6` and its 34-entry manifest/22 Dashboard sidecars.
+
+
+#### Issue #79 focus-steal correction
+
+The once-per-target correction is implemented in `client/src/actions/ActionsTaken.tsx`: focus is keyed by Ticket and target Action, and resets only when either route identity changes. The exact focused command `npm.cmd --prefix client test -- tests/lab-04/ActionsTaken.test.tsx` passed **1 file / 10 tests**, including the regression that first reproduced the steal. This verifies the initial RED/GREEN loop; broader Dashboard navigation, E2E, accessibility, full verify, and trace checks remain pending. No AI or human review has occurred. The candidate remains uncommitted above baseline HEAD `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`.
+
+
+#### Issue #79 retry audit / focused regression milestone
+
+The PR #86 optional discard suggestion was checked against the approved UI and BR-34/35 idempotency rules and is intentionally not implemented: ambiguous requests remain bound to their original key/payload until the server result is reconciled. Existing UI tests verify locked draft and identical retry; API-04 tests contain same-key changed-payload conflict, matching replay uniqueness, and replay after mutation/closure, but that DB-backed file has not run in this session because no isolated DB config exists. `npm.cmd --prefix client test -- tests/lab-04/ActionsTaken.test.tsx tests/lab-04/DashboardNavigation.test.tsx tests/lab-04/DashboardListContext.test.tsx tests/lab-04/action-drafts.test.tsx` passed **4 files / 20 tests**; `npm.cmd --prefix client run build` passed. No review or approval is claimed.
+
+
+#### Issue #79 non-DB verification checkpoint (2026-10-02)
+
+The three new client hardening files are present. `npm.cmd --prefix client test -- tests/lab-04/accessibility.test.tsx tests/lab-04/zen-green-styles.test.tsx tests/lab-04/safe-failures.test.tsx` passed **3 files / 4 tests**; the corresponding full Test IDs remain Planned pending their entire scope/manual checks. `npm.cmd --prefix client run build` and `npm.cmd --prefix server run build` passed. Server unit/safety subset passed **4 files / 53 tests**. `npm.cmd run test:harness:lab4` passed **9 Node + 3 server safety tests**; `npm.cmd run test:trace:lab3` passed **50 IDs / 32 ACs**; Lab 4 planning trace passed **24 FR / 54 BR / 28 AC / 57 Test IDs**. Prisma build setup used generated ignored artifacts from clean PR #88 worktree only after verifying version 5.22.0 and exact checked-in schema SHA; no tracked files in #78 were changed. PostgreSQL 18 is running and localhost:5432 responds, but no DATABASE_URL, TEST_DATABASE_URL, `.env`, or isolated upload root is available; Docker CLI is installed with daemon unavailable. No DB mutation or container/service start occurred. DB-backed API/migration/seed/concurrency and browser/visual gates are not verified. AI implementation evidence only; no cross-review or human peer review occurred.
+
+
+#### Issue #79 database-backed verification setup (2026-10-02)
+
+The sandboxed `initdb` attempt failed before initializing data; approved escalation succeeded after independent-path verification. New cluster: unique Temp data directory, PostgreSQL 18.3, bound only to `127.0.0.1:55432`, `pg_ctl` PID 5984; two empty databases `toktickit_issue79_dev` and `toktickit_issue79_test`. Existing service/data on 5432 was not accessed for tests or mutated. Four forward migrations were applied only to the fresh test DB. First full server run returned **68/69 files, 406/407 tests**; only Lab 1 category baseline failed because a new empty database had not been seeded. Repeat-safe seed ran on TEST_DATABASE_URL only, with credential output suppressed and exit 0; read-only query confirmed all four expected baseline categories. Rerun pending. The first mandatory-password gate assertion was a fixture mistake because `createActionsFixture` clears that flag; the test now resets it before sign-in, and `security-regression.api.test.ts` passes **3/3**. `safe-errors.api.test.ts` passes **1/1**. No code behavior finding resulted from either first red run. No merge/review activity.
+
+
+#### Issue #79 full server verification (2026-10-02)
+
+The retained reference-ordering test failed only on the intentionally C-collated scratch DB because that legacy assertion compares database order with JavaScript `localeCompare`. A second fresh test DB was created on the same isolated temp cluster with ICU `en-US`; catalog showed provider `i`, locale `en-US`, version `153.128`. The focused retained `requester-regression.api.test.ts` passed **14/14**, without changing code/assertions. Full `npm.cmd --prefix server test` then passed **69 files / 407 tests**, including Labs 1-3, SEC-01/API suites, migration and late-failure recovery, repeat seed, real concurrency, dashboard SQL/performance, and SAFE-01. PERF-01: 1,000 Tickets / 3,000 Actions, 3 warmups + 20 measurements per role; 9/11 max business queries, 4,450/7,497 max bytes, p95 29.61/32.39 ms. This is local smoke evidence only. Candidate remains uncommitted; Test DD statuses and source-SHA-bound visual evidence are still pending. No self-review/cross-review/human review occurred.
+
+
+#### Issue #79 client aggregate verification (2026-10-02)
+
+`npm.cmd --prefix client test` passed **37 files / 178 tests**; `npm.cmd --prefix client run build` passed. The existing jsdom navigation diagnostic from a successful AttachmentPanel download test was non-fatal. The new focus, A11Y, style, and safe-failure tests all ran. E2E/responsive/manual visual checks and source-SHA-bound captures remain pending. No Test ID status is promoted from this result, and no AI/human review has occurred.
+
+
+#### Issue #79 visual inspection / Admin Users tablet readability (2026-10-02)
+
+Inspected transient desktop, tablet, and mobile screenshots under `artifacts/lab-04/test-output/playwright-30916/` for Requester/Staff/Admin Dashboards, My Tickets, Requester detail/Actions, Staff Action validation/workflow, and Admin User Management. At all three sizes the product had no observed clipping, overlap, page-level horizontal overflow, or inaccessible controls; Staff Action details and dashboard previews wrapped. The old screenshot data itself was unsuitable for final evidence because it showed generated category/system/email labels, a UUID-style ticket reference, and test-centric Action text. The current fixture has since been cleaned to use active seeded `Network`/`Campus Wi-Fi` references, plausible test identities, a contract-style ticket number, and realistic Action copy. One real AC-25 readability defect was reproduced at 834x1112: Admin User Management split the `Administrator` role and `Inactive` badge mid-word. This conflicts with `ui-spec.md` responsive scanability/readable-label requirements. The new focused tablet browser assertion failed before styling, confirming `white-space: normal`; a narrow nowrap CSS correction is in progress. No screenshot from the old fixture set is treated as accepted evidence; no source-SHA-bound capture, Test ID Pass, AI cross-review, human review, or PR is claimed.
+
+
+#### Issue #79 responsive correction and inspection (2026-10-02)
+
+The narrowly scoped Admin Users Role/Status nowrap rule made the focused tablet test pass **1/1**; managed `npm.cmd run test:responsive:lab4` passed **15/15 Chromium**. I manually inspected all 24 cleaned transient captures under `artifacts/lab-04/test-output/playwright-24232/`: Requester/Staff/Admin Dashboard, My Tickets, Requester read-only Actions, Staff Action validation/workflow, and Admin User Management at 1440x900, 834x1112, and 390x844. The changed Admin Users labels are whole at tablet/mobile; primary Lab 4 screens show no clipping, overlap, page-level horizontal overflow, or unusable controls. Existing My Tickets table is internally horizontally scrollable at tablet, so the static capture shows part of the final column; the page itself does not overflow. This retained-table behavior is recorded as an observation, not changed in this Issue. The older `playwright-30916` screenshots are superseded and not accepted because their fixture data was technical. New screenshot sidecars still state `sourceRevision:null`; candidate is uncommitted. Test DD complete status, increment trace, broad verify, and exact SHA-bound release captures remain pending. No self-review, AI cross-review, human review, PR, or merge has occurred.
+
+
+#### Issue #79 aggregate verification (2026-10-02)
+
+Full `npm.cmd run verify` passed on the uncommitted working tree at fixed base HEAD `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`, with the run-owned ICU test DB at `127.0.0.1:55432`. Server build and **69 files / 407 tests** passed; client build and **37 files / 178 tests** passed; harness **9 Node + 3 server safety checks** passed; Lab 3 trace **50 IDs / 32 ACs** passed; Lab 4 planning trace **24 FR / 54 BR / 28 AC / 57 IDs** passed; retained Labs 2-4 E2E **70/70 Chromium** and retained+Lab 4 responsive **28/28 Chromium** passed. Aggregate PERF-01 reported 1,000 Tickets / 3,000 Actions, 3 warmups + 20 requests per role, max business-query counts 9/11, payload maxima 4,480/7,502 bytes, and p95 69.45/71.66 ms on local Windows x64, Node 24.14, PostgreSQL 18.3 ICU test DB; these are local smoke values. Only known nonfatal jsdom navigation and FORCE_COLOR/NO_COLOR diagnostics occurred. The candidate is still uncommitted, so this is worktree-run evidence and screenshot sidecars remain `sourceRevision:null`; parent must bind final candidate screenshots after committing locally. No source change was reviewed, no cross-review/human review or PR exists, and no merge occurred.
+
+
+#### Issue #79 traceability gate (2026-10-02)
+
+Added #79 verifier ownership for `SEC-01`, `SAFE-01`, `STYLE-01`, `A11Y-01`, `RESP-01..03`, `E2E-04`, `REG-01..04`, and `TRACE-01`; HAR-03 now accepts #79 and rejects unmapped #80. Test DD reflects the actual full aggregate. Post-mapping `npm.cmd run test:harness:lab4` passed **9/9 Node + 3/3 server checks**; `npm.cmd run test:trace:lab4 -- --mode=increment --issue=79` passed **24 FR / 54 BR / 28 AC / 57 Test IDs**. No product code changed after `npm.cmd run verify`, so the mapping-specific harness and increment checks were rerun. Evidence remains tied to the uncommitted working tree at base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`, not an implementation commit. Exact-SHA screenshot capture, self-review, separate-agent cross-review, human review, PR, and merge have not happened.
+
+
+#### Issue #79 keyboard-operation check (2026-10-02)
+
+Primary pre-review audit found that the managed viewport helper still opened the Staff Action editor by mouse. It now activates Create Action with Enter, checks Tab order through Close to Action Description, and checks first-invalid focus. `npm.cmd run test:responsive:lab4` passed 15/15 Chromium. This is local executable keyboard evidence, not a human review. The test DB was the run-owned ICU database on loopback 55432; the server on 5432 was not used. Screenshots remain sourceRevision:null until the source commit and exact-SHA recapture. No AI cross-review, human review, PR, or merge has occurred.
+
+
+#### Issue #79 keyboard operation and fresh aggregate verification (2026-10-02)
+
+Primary audit extended `e2e/lab-04/support/responsive-hardening.ts` to activate Create Action with Enter and assert Tab order through Close to Action Description before validation. The managed responsive suite passed **15/15 Chromium**. Fresh `npm.cmd run verify` exited 0 after that change: server **69/69 files, 407/407 tests**; client build + **37/37 files, 178/178 tests**; harness **9/9 Node + 3/3 server checks**; Lab 3 trace **50 IDs / 32 ACs**; Lab 4 planning trace **24 FR / 54 BR / 28 AC / 57 Test IDs**; E2E **70/70 Chromium**; responsive **28/28 Chromium**. PERF-01 measured 1k Tickets/3k Actions, 9/11 max queries, 4,460/7,487 max bytes, and p95 27.86/33.92 ms. Known diagnostics were the nonfatal jsdom Attachment navigation log and Node color warnings. The test database remained the isolated ICU database on 127.0.0.1:55432; the existing service on 5432 was not used. No AI cross-review, human review, PR, hosted CI, or merge has occurred. Screenshots remain sourceRevision:null pending exact-source capture after a local implementation commit.
+
+
+#### Issue #79 final pre-review aggregate update (2026-10-02)
+
+Fresh `npm.cmd run verify` passed after the keyboard E2E path was added: server 69/407, client build + 37/178, harness 9+3, Lab 3 trace 50/32, Lab 4 planning trace 24/54/28/57, E2E 70/70 Chromium, and responsive 28/28 Chromium. Test DD records the local A11Y-01 and RESP-01..03 checks as Pass, while the screenshots remain `sourceRevision:null` and are not accepted as the final SHA-bound artifact set. A clean implementation commit and exact-SHA release capture remain before the final increment trace/review packet. No self-review/cross-review, human review, PR, or merge has yet occurred.

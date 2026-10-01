@@ -880,6 +880,9 @@ select:focus-visible {
 .lab3-password-reset > .lab2-button { justify-self: start; }
 .lab3-user-table { width: 100%; }
 .lab3-user-table td { overflow-wrap: anywhere; }
+.lab3-user-table td[data-label="Role"],
+.lab3-user-table td[data-label="Status"],
+.lab3-user-table .lab3-account-badge { white-space: nowrap; }
 .lab3-user-table th:last-child,
 .lab3-user-table td:last-child { width: 1%; white-space: nowrap; }
 .lab3-account-badge { display: inline-block; padding: 4px 10px; border: 1px solid var(--color-border); border-radius: 999px; font-weight: 700; }

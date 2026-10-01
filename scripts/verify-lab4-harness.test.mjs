@@ -71,7 +71,7 @@ test("HAR-03 planning trace accepts honest planned rows while release rejects th
   assert.throws(() => verifyLab4TraceabilityFromDisk({ root, mode: "release" }), /not executed Pass evidence/i);
 });
 
-test("HAR-03 increment trace recognizes reviewed Issue #74/#75/#76/#77/#78 ownership without claiming future Issue IDs", () => {
+test("HAR-03 increment trace recognizes reviewed Issue #74-#79 ownership without claiming future Issue IDs", () => {
   const issue74 = verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 74 });
   assert.equal(issue74.issue, 74);
   assert.equal(issue74.testCount, 57);
@@ -87,9 +87,12 @@ test("HAR-03 increment trace recognizes reviewed Issue #74/#75/#76/#77/#78 owner
   const issue78 = verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 78 });
   assert.equal(issue78.issue, 78);
   assert.equal(issue78.testCount, 57);
+  const issue79 = verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 79 });
+  assert.equal(issue79.issue, 79);
+  assert.equal(issue79.testCount, 57);
   assert.throws(
-    () => verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 79 }),
-    /no reviewed ownership mapping for Issue #79/i,
+    () => verifyLab4TraceabilityFromDisk({ root, mode: "increment", issue: 80 }),
+    /no reviewed ownership mapping for Issue #80/i,
   );
 });
 
