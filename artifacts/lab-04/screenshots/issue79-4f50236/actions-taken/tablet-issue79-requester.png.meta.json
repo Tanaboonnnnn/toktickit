@@ -1,0 +1,16 @@
+{
+  "file": "actions-taken/tablet-issue79-requester.png",
+  "role": "Requester",
+  "route": "#/tickets/5106",
+  "scenario": "tablet read-only Requester Actions and Attachment error state",
+  "scenarioId": "L4-REQ-ACTIONS",
+  "mapping": [
+    "AC-06",
+    "AC-24",
+    "AC-25"
+  ],
+  "testId": "RESP-02",
+  "rubricPart": "P9",
+  "viewport": "834x1112",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

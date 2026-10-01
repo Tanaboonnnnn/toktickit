@@ -1,0 +1,15 @@
+{
+  "file": "actions-taken/desktop-requester.png",
+  "role": "Requester",
+  "route": "#/tickets/5103",
+  "scenario": "desktop Requester read-only Actions Taken",
+  "scenarioId": "L4-REQ-ACTIONS",
+  "mapping": [
+    "AC-06",
+    "AC-25"
+  ],
+  "testId": "RESP-01",
+  "rubricPart": "P9",
+  "viewport": "1440x900",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}
