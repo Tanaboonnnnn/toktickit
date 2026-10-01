@@ -1,0 +1,16 @@
+{
+  "file": "regression/desktop-issue79-my-tickets.png",
+  "role": "Requester",
+  "route": "#/tickets",
+  "scenario": "desktop retained My Tickets list for the signed-in Requester",
+  "scenarioId": "L4-RETAINED-REGRESSION",
+  "mapping": [
+    "AC-21",
+    "AC-22",
+    "AC-25"
+  ],
+  "testId": "RESP-01",
+  "rubricPart": "P8",
+  "viewport": "1440x900",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

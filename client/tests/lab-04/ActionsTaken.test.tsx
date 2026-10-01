@@ -75,6 +75,44 @@ describe("UI-01 Staff Actions Taken", () => {
     ]));
   });
 
+  it("does not steal focus back to a deep-linked Action after another Action is saved", async () => {
+    const target = { ...pendingAction, id: 777, description: "Target from the Dashboard" };
+    const other = { ...pendingAction, id: 888, description: "Another Action" };
+    const updated = { ...other, description: "Another Action updated", version: 4 };
+    let pageTwoReads = 0;
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/api/tickets/91/actions-taken?page=1&pageSize=20")) {
+        return json({ items: [pendingAction], page: 1, pageSize: 20, totalItems: 22, totalPages: 2, capabilities: { canCreate: true } });
+      }
+      if (url.endsWith("/api/tickets/91/actions-taken?page=2&pageSize=20")) {
+        pageTwoReads += 1;
+        return json({ items: [target, pageTwoReads === 1 ? other : updated], page: 2, pageSize: 20, totalItems: 22, totalPages: 2, capabilities: { canCreate: true } });
+      }
+      if (url.endsWith("/api/staff/assignees")) return json({ items: [staff, pendingAction.assignee] });
+      if (url.endsWith("/api/auth/csrf")) return json({ csrfToken: "csrf-79" });
+      if (url.endsWith("/api/staff/tickets/91/actions-taken/888") && init?.method === "PATCH") {
+        return json({ action: updated, ticketVersion: 8, changed: true });
+      }
+      return json({});
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<AuthProvider initialUser={staff}><ActionsTaken mode="staff" ticketId={91} ticketNumber="TKT-91" ticketVersion={7} targetActionId={777} /></AuthProvider>);
+
+    const targetCard = await screen.findByRole("article", { name: /Target Action 777/ });
+    await waitFor(() => expect(targetCard).toHaveFocus());
+    await user.click(screen.getByRole("button", { name: "Edit Action #888" }));
+    const description = screen.getByRole("textbox", { name: "Edit Action Description" });
+    await user.clear(description);
+    await user.type(description, "Another Action updated");
+    await user.click(screen.getByRole("button", { name: "Save Action changes" }));
+
+    expect(await screen.findByText("Another Action updated")).toBeInTheDocument();
+    expect(targetCard).not.toHaveFocus();
+    expect(pageTwoReads).toBeGreaterThan(1);
+  });
+
   it("associates create validation errors and focuses the first invalid editable field", async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);

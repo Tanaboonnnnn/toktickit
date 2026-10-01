@@ -1,0 +1,14 @@
+{
+  "file": "administrator-dashboard/mobile.png",
+  "role": "Administrator",
+  "route": "#/staff/dashboard",
+  "scenario": "administrator Dashboard at mobile viewport",
+  "scenarioId": "L4-ADM-DASHBOARD",
+  "mapping": [
+    "AC-25"
+  ],
+  "testId": "RESP-03",
+  "rubricPart": "P9",
+  "viewport": "390x844",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

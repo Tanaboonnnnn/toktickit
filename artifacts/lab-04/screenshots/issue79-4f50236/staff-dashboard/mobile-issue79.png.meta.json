@@ -1,0 +1,15 @@
+{
+  "file": "staff-dashboard/mobile-issue79.png",
+  "role": "IT Staff",
+  "route": "#/staff/dashboard",
+  "scenario": "mobile Staff Dashboard with current-user Actions",
+  "scenarioId": "L4-STF-DASHBOARD",
+  "mapping": [
+    "AC-16",
+    "AC-25"
+  ],
+  "testId": "RESP-03",
+  "rubricPart": "P9",
+  "viewport": "390x844",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

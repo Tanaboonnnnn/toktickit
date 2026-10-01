@@ -61,22 +61,22 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 | UI-06 | Component | AC-16, AC-17, AC-24 | Staff/Admin Dashboard, current-user Actions, malformed DTO/failure states | Correct operational values and safe states | `client/tests/lab-04/StaffDashboard.test.tsx`, `client/tests/lab-04/DashboardApi.test.tsx`, `client/tests/lab-04/ActionsTaken.test.tsx` | **Pass - Issue #78 local focused suite** |
 | UI-07 | Component | AC-18, AC-21 | Role homes, exact windows, refresh/Back/Forward, deep Action target, identity race | URL context preserved and stale private responses discarded | `client/tests/lab-04/DashboardNavigation.test.tsx`, `client/tests/lab-04/DashboardListContext.test.tsx`, `client/tests/lab-04/ActionsTaken.test.tsx` | **Pass - Issue #78 focused + browser suite** |
 | PERF-01 | Performance smoke | AC-17 | Fixed ~1k Tickets/~3k Actions, warmups + 20 dashboard measurements, query/payload budget | Bounded query count/payload and approved local p95 smoke threshold | `server/tests/lab-04/dashboard-performance.integration.test.ts` | **Pass - Issue #77 local** |
-| SEC-01 | API/security | AC-06, AC-21, AC-23 | Integrated auth/role/ownership/CSRF/nested-ID/Internal-Note privacy matrix | Direct requests enforce backend authorization/non-disclosure | `server/tests/lab-04/security-regression.api.test.ts` | Planned / Not run |
-| SAFE-01 | API/UI | AC-24 | Safe unknown server failure and rejected Attachment download/client promise | No internal leak/unhandled client rejection; recoverable state preserved | `server/tests/lab-04/safe-errors.api.test.ts`, `client/tests/lab-04/safe-failures.test.tsx` | Planned / Not run |
-| STYLE-01 | Style | AC-25 | Zen Green tokens, editable/read-only/private/shared/state conventions | Consistent text-bearing accessible visual semantics | `client/tests/lab-04/zen-green-styles.test.tsx` | Planned / Not run |
-| A11Y-01 | Component/browser/manual | AC-25 | Labels/errors/keyboard/focus/busy/disabled semantics + final manual inspection | Operable without mouse; visible focus and associated errors | `client/tests/lab-04/accessibility.test.tsx`, `e2e/lab-04/final-regression.spec.ts`, `docs/lab-04/ui-spec.md` | Planned / Not run |
-| RESP-01 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 1440x900 | No clipping/overlap/page overflow; readable controls | `e2e/lab-04/responsive-dashboards.spec.ts` | Planned / Not run for all major screens; Dashboard surfaces executed for Issue #78 |
-| RESP-02 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 834x1112 | Tablet reflow remains usable/readable | `e2e/lab-04/responsive-dashboards.spec.ts` | Planned / Not run for all major screens; Dashboard surfaces executed for Issue #78 |
-| RESP-03 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 390x844 | Mobile actions/content remain accessible without page overflow | `e2e/lab-04/responsive-dashboards.spec.ts` | Planned / Not run for all major screens; Dashboard surfaces executed for Issue #78 |
+| SEC-01 | API/security | AC-06, AC-21, AC-23 | Integrated auth/role/ownership/CSRF/nested-ID/Internal-Note privacy matrix | Direct requests enforce backend authorization/non-disclosure | `server/tests/lab-04/security-regression.api.test.ts` | **Pass - Issue #79 full verify and source-bound capture at 4f502367** |
+| SAFE-01 | API/UI | AC-24 | Safe unknown server failure and rejected Attachment download/client promise | No internal leak/unhandled client rejection; recoverable state preserved | `server/tests/lab-04/safe-errors.api.test.ts`, `client/tests/lab-04/safe-failures.test.tsx`, `e2e/lab-04/final-regression.spec.ts` | **Pass - Issue #79 full verify and source-bound capture at 4f502367** |
+| STYLE-01 | Style | AC-25 | Zen Green tokens, editable/read-only/private/shared/state conventions | Consistent text-bearing accessible visual semantics | `client/tests/lab-04/zen-green-styles.test.tsx` | **Pass - Issue #79 full verify and source-bound capture at 4f502367** |
+| A11Y-01 | Component/browser/manual | AC-25 | Labels/errors/keyboard/focus/busy/disabled semantics + final manual inspection | Operable without mouse; visible focus and associated errors | `client/tests/lab-04/accessibility.test.tsx`, `e2e/lab-04/final-regression.spec.ts`, `docs/lab-04/ui-spec.md` | **Pass - Issue #79 local aggregate plus 60/60 source-bound screenshots manually inspected at 4f502367** |
+| RESP-01 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 1440x900 | No clipping/overlap/page overflow; readable controls | `e2e/lab-04/responsive-actions.spec.ts`, `e2e/lab-04/responsive-dashboards.spec.ts`, `e2e/lab-04/responsive-desktop.spec.ts` | **Pass - Issue #79 local aggregate plus 60/60 source-bound screenshots manually inspected at 4f502367** |
+| RESP-02 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 834x1112 | Tablet reflow remains usable/readable | `e2e/lab-04/responsive-actions.spec.ts`, `e2e/lab-04/responsive-dashboards.spec.ts`, `e2e/lab-04/responsive-tablet.spec.ts` | **Pass - Issue #79 local aggregate plus 60/60 source-bound screenshots manually inspected at 4f502367** |
+| RESP-03 | Browser/visual | AC-25 | Major Lab 4 screens + long content at 390x844 | Mobile actions/content remain accessible without page overflow | `e2e/lab-04/responsive-actions.spec.ts`, `e2e/lab-04/responsive-dashboards.spec.ts`, `e2e/lab-04/responsive-mobile.spec.ts` | **Pass - Issue #79 local aggregate plus 60/60 source-bound screenshots manually inspected at 4f502367** |
 | E2E-01 | E2E | AC-02, AC-05, AC-06, AC-07 | Different recorder/assignee/completing performer actors, lifecycle, denied writes, Requester visibility, lost-success retry | Complete Action journey with one logical create and truthful performer attribution | `e2e/lab-04/actions-taken-flow.spec.ts` | **Pass - 1 Chromium flow on Issue #76 candidate** |
 | E2E-02 | E2E | AC-09, AC-10, AC-11, AC-12, AC-13, AC-14 | Ticket lifecycle, resolution gate/follow-up, close/reopen/cancel/history | Complete documented lifecycle and audit behavior | `e2e/lab-04/ticket-resolution.spec.ts` | **Pass - 2 Chromium tests** |
 | E2E-03 | E2E | AC-15, AC-16, AC-17, AC-18 | Requester + Staff dashboards, actual metrics, card/list/detail/back/deep-link | UI reflects backend predicates and preserves context | `e2e/lab-04/dashboards.spec.ts` | **Pass - 1 Chromium DB-backed flow on Issue #78 candidate** |
-| E2E-04 | E2E | AC-21, AC-22, AC-23, AC-24, AC-25 | Representative all-role retained flows, safe failures, keyboard/responsive checks | Labs 1-3 representative regression remains correct | `e2e/lab-04/final-regression.spec.ts` | Planned / Not run |
-| REG-01 | Retained suites | AC-21 | Lab 3 auth/session/password/CSRF/role homes, with intentional Dashboard-home updates | Security/auth behavior retained | `server/tests/lab-03/`, `client/tests/lab-03/`, `e2e/lab-03/` | Planned / Not run for Lab 4 candidate |
-| REG-02 | Retained suites | AC-22 | Lab 2/3 Ticket create/idempotency/list/detail/Attachment lifecycle | Requester MVP remains correct under authentication | `server/tests/lab-02/`, `client/tests/lab-02/`, `e2e/lab-02/` | Planned / Not run for Lab 4 candidate |
-| REG-03 | Retained suites | AC-23 | Comments/Internal Notes/advisory/Staff operations/Admin safety | Operational/admin behavior retained with Action-assignee safety extension | `server/tests/lab-03/`, `client/tests/lab-03/`, `e2e/lab-03/` | Planned / Not run for Lab 4 candidate |
-| REG-04 | Retained suites | AC-19, AC-20, AC-26 | Earlier health/reference/migration/seed suites remain selected and meaningful | No regression hidden by suite exclusion | `server/tests/`, `client/tests/`, `e2e/`, `docs/lab-04/tests.md` | Planned / Not run for Lab 4 candidate |
-| TRACE-01 | Traceability | AC-26 | Unique IDs, every AC mapped to planned tests and an Answer Part/rubric evidence destination, paths/evidence/results honest | No orphan AC/Test ID/evidence destination, fake Pass, or historical artifact rewrite | `scripts/verify-lab4-traceability.mjs`, `docs/lab-04/tests.md` | Planned / Not run |
+| E2E-04 | E2E | AC-21, AC-22, AC-23, AC-24, AC-25 | Representative all-role retained flows, safe failures, keyboard/responsive checks | Labs 1-3 representative regression remains correct | `e2e/lab-04/final-regression.spec.ts` | **Pass - Issue #79 full verify and source-bound capture at 4f502367** |
+| REG-01 | Retained suites | AC-21 | Lab 3 auth/session/password/CSRF/role homes, with intentional Dashboard-home updates | Security/auth behavior retained | `server/tests/lab-03/`, `client/tests/lab-03/`, `e2e/lab-03/` | **Pass - Issue #79 full verify at 4f502367** |
+| REG-02 | Retained suites | AC-22 | Lab 2/3 Ticket create/idempotency/list/detail/Attachment lifecycle | Requester MVP remains correct under authentication | `server/tests/lab-02/`, `client/tests/lab-02/`, `e2e/lab-02/` | **Pass - Issue #79 full verify at 4f502367** |
+| REG-03 | Retained suites | AC-23 | Comments/Internal Notes/advisory/Staff operations/Admin safety | Operational/admin behavior retained with Action-assignee safety extension | `server/tests/lab-03/`, `client/tests/lab-03/`, `e2e/lab-03/` | **Pass - Issue #79 full verify at 4f502367** |
+| REG-04 | Retained suites | AC-19, AC-20, AC-26 | Earlier health/reference/migration/seed suites remain selected and meaningful | No regression hidden by suite exclusion | `server/tests/`, `client/tests/`, `e2e/`, `docs/lab-04/tests.md` | **Pass - Issue #79 full verify at 4f502367** |
+| TRACE-01 | Traceability | AC-26 | Unique IDs, every AC mapped to planned tests and an Answer Part/rubric evidence destination, paths/evidence/results honest | No orphan AC/Test ID/evidence destination, fake Pass, or historical artifact rewrite | `scripts/verify-lab4-traceability.mjs`, `docs/lab-04/tests.md` | **Pass - Issue #79 planning + increment traces at 4f502367** |
 | REL-01 | Review/process | AC-27 | Real peer review, Development links, staged history, actual board state | Process evidence matches GitHub reality | `docs/lab-04/reviewer.md`, live GitHub Issue/PR/Project evidence | Planned / Not run |
 | REL-02 | Release verification | AC-26, AC-27 | Fresh complete verification on exact resulting final `main` SHA | Candidate evidence not substituted for final-main evidence | `docs/lab-04/tests.md`, `artifacts/lab-04/`, exact final GitHub SHA/check evidence | Planned / Not run |
 | PDF-01 | Submission/manual | AC-28 | One PDF, Answer Part 1-9, working links, readable render, actual reflection/evidence | Grader-readable complete submission | `docs/lab-04/submission-outline.md` or final generation source; final PDF | Planned / Not run |
@@ -416,3 +416,123 @@ Fresh verification after adding Requester 403 behavior/evidence: `npm.cmd run ve
 ### Issue #78 exact-source dashboard evidence capture
 
 After implementation commit `632a16adb2591ee0dcbf232831c978b0fae981f6`, `npm.cmd run capture:evidence:lab4 -- issue78` produced `artifacts/lab-04/screenshots/issue78-632a16a/manifest.json` with **34 entries**. Every manifest entry's `sourceRevision` and `sourceSha` match the commit SHA. A focused rerun of `responsive-dashboards.spec.ts` and `dashboard-states.spec.ts` with `LAB4_EVIDENCE_ROOT=artifacts/lab-04/screenshots` and that explicit source SHA passed **22/22**; all 22 Requester/Staff/Admin dashboard PNG sidecars under their role folders match the same SHA. The files were byte-identical to the previously visually inspected PNGs; four representative images were inspected again. The separate broad responsive suite remains **25/25** from final aggregate verification.
+
+
+
+
+## Issue #79 non-DB verification checkpoint (2026-10-02)
+
+These results are on the #79 working tree at baseline HEAD `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` plus uncommitted changes. They do not promote a complete Test ID to Pass; the registry rows remain Planned / Not run until their full approved scope is exercised.
+
+| Check | Current #79 result |
+|---|---|
+| Focus-steal regression: `npm.cmd --prefix client test -- tests/lab-04/ActionsTaken.test.tsx` | RED: **1 failed / 9 passed** before the focus guard; GREEN: **1 file / 10 tests passed** after the once-per-ticket/target guard. |
+| Actions / Dashboard-navigation / list-context / draft regression: `npm.cmd --prefix client test -- tests/lab-04/ActionsTaken.test.tsx tests/lab-04/DashboardNavigation.test.tsx tests/lab-04/DashboardListContext.test.tsx tests/lab-04/action-drafts.test.tsx` | **4 files / 20 tests passed**. Includes ambiguous-create identical retry key/body and draft-preservation assertions. |
+| New focused client hardening: `npm.cmd --prefix client test -- tests/lab-04/accessibility.test.tsx tests/lab-04/zen-green-styles.test.tsx tests/lab-04/safe-failures.test.tsx` | **3 files / 4 tests passed**. Partial automated coverage only; full A11Y-01, STYLE-01, and SAFE-01 remain Planned. |
+| Client/server builds: `npm.cmd --prefix client run build`; `npm.cmd --prefix server run build` | Pass. Prisma client generation used ignored local artifacts verified against Prisma 5.22.0 and matching checked-in schema; see `reviewer.md`. |
+| Selected server units: `npm.cmd --prefix server test -- tests/lab-04/actions-policy.unit.test.ts tests/lab-04/ticket-workflow.unit.test.ts tests/lab-04/dashboard-metrics.unit.test.ts tests/lab-04/harness-safety.unit.test.ts` | **4 files / 53 tests passed**; no DB-backed suites selected. |
+| `npm.cmd run test:harness:lab4` | **9 Node harness + 3 server safety tests passed**. |
+| `npm.cmd run test:trace:lab3` | Pass: **50 unique Test IDs / 32 ACs**. |
+| `npm.cmd run test:trace:lab4 -- --mode=planning` | Pass: **24 FR / 54 BR / 28 AC / 57 Test IDs**; no #79 increment ownership claimed. |
+| DB-backed API, migration/seed/recovery, concurrency, managed E2E/responsive, current-source screenshot capture | **Blocked / not run**: no DATABASE_URL, TEST_DATABASE_URL, or isolated upload root. Local PostgreSQL is running, but no DB was created or mutated; Docker daemon is unavailable. |
+
+Issue #79 has not assigned new Test-ID ownership or changed registry statuses. The existing SEC-01, SAFE-01, STYLE-01, A11Y-01, RESP-01..03, E2E-04, REG-01..04, and TRACE-01 scopes are not complete based on these partial non-DB results.
+
+
+
+
+
+### Issue #79 database setup follow-up (2026-10-02)
+
+The server Test DD baseline was rerun on an isolated PostgreSQL 18.3 cluster at loopback port 55432, with distinct fresh databases `toktickit_issue79_dev` and `toktickit_issue79_test`; only the test database was migrated/seeded. First aggregate result: `npm.cmd --prefix server test` **68/69 files, 406/407 tests**. The single failure was `server/tests/lab-01/categories.test.ts`, which expects the retained four seeded reference categories. Root cause was the intentionally fresh, migrated-but-unseeded test DB, not product behavior. The repeat-safe seed then exited 0 on the isolated TEST database, and a read-only query confirmed all four expected categories. No assertions were changed. Full aggregate rerun is pending.
+
+New DB-backed #79 checks: `security-regression.api.test.ts` **3/3 passed** after the test explicitly restored `mustChangePassword=true` that the shared Actions fixture clears; `safe-errors.api.test.ts` **1/1 passed**, including generic failure shape and unchanged Action count/Ticket version. The initial mandatory-change mismatch was test setup only. New files are executable but no #79 increment mapping or complete Test-ID Pass status is yet claimed.
+
+
+
+
+
+### Issue #79 full server regression rerun (2026-10-02)
+
+The C-collated scratch database produced a locale-specific mismatch in retained `requester-regression.api.test.ts`; the assertion/source was left unchanged. A new isolated database with ICU `en-US` collation was created in the same Temp cluster (`datlocprovider=i`, `datlocale=en-US`, collation version `153.128`). Focused requester regression passed **14/14**. The full server suite then passed:
+
+| Check | #79 result |
+|---|---|
+| `npm.cmd --prefix server test` on ICU test DB | **Pass - 69 files / 407 tests** |
+| `migration.integration.test.ts` | Included in aggregate: **3 tests**, populated Lab 3 upgrade/Attachment checksums, repeat deploy/schema drift, late failure rollback and forward recovery passed |
+| `seed.integration.test.ts` | Included in aggregate: **1 test**, Lab 4 repeat seed preserved intentional identity/workflow/Action edits |
+| `security-regression.api.test.ts` / `safe-errors.api.test.ts` | Included in aggregate: **3/3 + 1/1**, role/ownership/privacy/CSRF/immutable-field/nested-resource/session gates and safe 500 behavior passed |
+| `dashboard-performance.integration.test.ts` | Included in aggregate: **2 tests**; 1,000 Tickets / 3,000 Actions, 3 warmups + 20 requests/role, maxima 9/11 business queries, 4,450/7,497 response bytes, p95 29.61/32.39 ms |
+
+Environment: Windows x64, Node v24.14.0, PostgreSQL 18.3 in an isolated Temp cluster on loopback port 55432, ICU `en-US` test DB. Values are course smoke evidence, not production performance. No #79 Test ID status is promoted yet: the candidate is uncommitted and full client/browser/manual evidence remains pending.
+
+
+
+
+
+### Issue #79 client aggregate rerun (2026-10-02)
+
+| Check | #79 result |
+|---|---|
+| `npm.cmd --prefix client test` | **Pass - 37 files / 178 tests** across retained Labs 1-3 and Lab 4. The existing jsdom navigation diagnostic was non-fatal in a successful AttachmentPanel object-URL test. |
+| `npm.cmd --prefix client run build` | **Pass** |
+
+The suite includes the added focus, A11Y, Zen Green styles, and recoverable Action-draft tests. These automated results do not replace E2E, responsive/manual inspection, or exact-source screenshots; those remain pending. No full A11Y/STYLE/SAFE Test ID status is promoted yet.
+
+
+### Issue #79 first visual inspection and tablet RED (2026-10-02)
+
+Manually inspected the previous transient screenshot set in `artifacts/lab-04/test-output/playwright-30916/` for Requester/Staff/Admin Dashboards, My Tickets, Requester detail/Actions, Staff Action validation/workflow, and Admin User Management at desktop, tablet `834x1112`, and mobile. Product layout showed no clipping, overlap, page-level horizontal overflow, or hidden controls. The fixture strings in that older capture set were generated/technical and are not accepted final evidence. At tablet width, retained Admin User Management split `Administrator` and `Inactive` mid-word. This is covered by the `ui-spec.md` readability/scanability requirements. Added a focused assertion in `e2e/lab-04/responsive-tablet.spec.ts`; after `npm.cmd --prefix server run build` passed, the managed command `node e2e/lab-02/support/run-playwright.mjs e2e/lab-04/responsive-tablet.spec.ts --project=chromium` failed **1/1** on computed role-cell `white-space: normal` where the check expects `nowrap`. The test reproduces a real visual defect rather than an environment failure. A narrow CSS correction is in progress. The active fixture is now cleaned (seeded Network/Campus Wi-Fi, plausible test identities, normal Ticket number, realistic Action copy); refreshed screenshots and a second manual review are required before recording the corrected state. Candidate is uncommitted, so no source-SHA-bound capture or Test DD Pass status is claimed.
+
+
+### Issue #79 responsive correction and refreshed visual run (2026-10-02)
+
+Added a narrow CSS rule to keep retained Administrator Role/Status labels intact. The exact tablet assertion now passes **1/1**. `npm.cmd run test:responsive:lab4` passed **15/15 Chromium** after rebuilding the server; three existing Actions viewport checks, nine role-dashboard viewport checks, and three comprehensive Issue #79 responsive specs ran. Refreshed screenshots are under `artifacts/lab-04/test-output/playwright-24232/`, eight Issue #79 surfaces at each required viewport. Manually inspected all 24; Requester/Staff/Admin Dashboards, Requester detail/Actions, Staff Action validation/workflow, and Admin Users remain legible without page overflow/overlap/clipping. Admin Users tablet role/status labels no longer split mid-word. The retained My Tickets table uses its existing contained horizontal scroll at tablet, leaving the rightmost column partly outside a static screenshot; no document/page horizontal overflow was observed and that pre-existing behavior was not changed. Test-run captures have `sourceRevision:null`, so they are visual inspection inputs only, not final exact-SHA evidence. The candidate remains uncommitted; Test ID statuses remain planned pending full verify and source-SHA-bound capture.
+
+
+### Issue #79 aggregate verification and increment trace (2026-10-02)
+
+The complete `npm.cmd run verify` command exited 0 on the uncommitted candidate at fixed base HEAD `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`, using only the run-owned PostgreSQL 18.3 ICU database at `127.0.0.1:55432`; the original 5432 service was not used. Results: server build + **69 files / 407 tests**; client build + **37 files / 178 tests**; harness **9/9 Node + 3/3 server checks**; Lab 3 trace **50 IDs / 32 ACs**; Lab 4 planning trace **24 FR / 54 BR / 28 AC / 57 Test IDs**; retained Labs 2-4 E2E **70/70 Chromium**; retained + Lab 4 responsive **28/28 Chromium**. PERF-01 reported 1,000 Tickets / 3,000 Actions, 3 warmups + 20 per role, query maxima 9/11, payload maxima 4,480/7,502 bytes, and p95 69.45/71.66 ms; these are local smoke values. The known nonfatal jsdom navigation diagnostic and color-environment warnings were observed.
+
+Issue #79 now owns `SEC-01`, `SAFE-01`, `STYLE-01`, `A11Y-01`, `RESP-01..03`, `E2E-04`, `REG-01..04`, and `TRACE-01` in `scripts/lab4-verification.mjs`; HAR-03 checks that #79 is mapped while future Issue #80 is not. All these Test DD rows reflect the local aggregate. After adding the mapping, `npm.cmd run test:harness:lab4` passed **9/9 Node + 3/3 server checks** and `npm.cmd run test:trace:lab4 -- --mode=increment --issue=79` passed **24 FR / 54 BR / 28 AC / 57 Test IDs**, with all paths/statuses valid. This evidence describes the current uncommitted working tree at the named base, not a commit SHA. Responsive screenshot sidecars remain `sourceRevision:null`; exact-source evidence still requires the parent’s local implementation commit and post-commit capture. Local Issue #79 checks pass; AI cross-review, human review, PR creation, hosted CI, merge, final-main verification, and PDF submission remain separate gates.
+
+
+#### Issue #79 keyboard operation follow-up (2026-10-02)
+
+The managed responsive helper now opens the Staff Action editor using Enter, verifies Tab traversal from the editor Close button to Action Description, submits the invalid form, and verifies focus moves to the first invalid field. `npm.cmd run test:responsive:lab4` passed **15/15 Chromium** on the isolated ICU test DB, including the keyboard sequence at desktop, tablet, and mobile viewports. This result follows the earlier aggregate `npm.cmd run verify`; a fresh full aggregate and increment trace will run again after this candidate change. Current capture metadata remains sourceRevision:null pending a local implementation commit and exact-source evidence capture.
+
+
+#### Issue #79 keyboard-path aggregate rerun (2026-10-02)
+
+After the keyboard operation was added to the shared responsive helper, `npm.cmd run test:responsive:lab4` passed **15/15 Chromium**, including Enter activation and Tab traversal through the Staff Action editor at desktop, tablet, and mobile. A fresh `npm.cmd run verify` exited 0 on the same uncommitted candidate and isolated ICU test DB: server build + **69 files / 407 tests**; client build + **37 files / 178 tests**; harness **9 Node + 3 server**; Lab 3 trace **50 IDs / 32 ACs**; Lab 4 planning trace **24 FR / 54 BR / 28 AC / 57 Test IDs**; E2E **70/70**; retained+Lab 4 responsive **28/28**. PERF-01: 1,000 Tickets / 3,000 Actions, 3 warmups + 20 measurements, query maxima 9/11, payload maxima 4,460/7,487 bytes, p95 27.86/33.92 ms. Browser captures from this run remain unbound (`sourceRevision:null`); they will be recaptured from the implementation commit before final trace/PR review.
+
+
+#### Issue #79 exact-source status boundary (2026-10-02)
+
+The automated accessibility/style/network tests and all responsive E2E runs have executed, including the managed keyboard Enter/Tab path. The Test DD rows record local Pass for the executed A11Y/RESP assertions and manual inspection. Current Playwright sidecars still have `sourceRevision:null`, so they are not accepted as the final SHA-bound screenshot artifact set. Exact-source capture from a clean implementation commit is still required before the review packet/PR gate.
+
+
+#### Issue #79 screenshot scroll-reset verification (2026-10-02)
+
+Visual review found one captured Administrator mobile Dashboard image began below the shell header because a preceding responsive scenario left the page scrolled. Added `window.scrollTo(0, 0)` before each responsive evidence capture in the E2E helper; no application source changed. Fresh `npm.cmd run verify` exited 0: server 69 files/407 tests; client build + 37 files/178 tests; harness 9+3; Lab 3 trace 50 IDs/32 ACs; Lab 4 planning trace 24/54/28/57; E2E 70/70; responsive 28/28. PERF-01: 1k Tickets/3k Actions, 9/11 queries, 4,480/7,530 bytes, p95 30.58/34.04 ms. The first 60-image exact capture was verified and inspected but removed because its mobile Admin screenshot was scrolled; its source was 26f7b86 and no historical evidence was affected. Capture will be rerun from the scroll-reset commit before source-bound visual acceptance.
+
+
+#### Issue #79 exact-source evidence capture (2026-10-02)
+
+Command: `npm.cmd run capture:evidence:lab4 -- issue79`, with `EXPECTED_EVIDENCE_SHA=4f502367d26f72dac343183cfa58e1af0dd7a2f0`, run on a clean checkout at source SHA `4f502367d26f72dac343183cfa58e1af0dd7a2f0` and the isolated ICU test DB. All **33/33 Lab 4 Chromium specs** passed; capture produced **60 screenshots** and one manifest at `artifacts/lab-04/screenshots/issue79-4f50236/manifest.json`. The capture orchestrator and a separate read-only manifest audit found zero invalid/missing scenario identity, zero absent PNG/sidecar, and zero `sourceRevision`/`sourceSha` mismatch; the manifest lists four viewport values: 1280x720 states, 1440x900, 834x1112 and 390x844. The exact-source images were inspected for the key Requester/Staff/Admin, Actions, workflow, retained User Management, and failure-state views. The scroll-reset correction is confirmed: the mobile Administrator Dashboard shows the entire shell header. The tablet My Tickets table uses its existing contained horizontal scroll; no page-level overflow was observed. These are candidate screenshots for the Lab 4 rubric, not final-main or submission evidence.
+
+#### Issue #79 cross-review evidence verification (2026-10-02)
+
+The separate Spec cross-review found that the acceptance required every required screenshot to be manually inspected, while the earlier exact-source entry recorded only representative views and A11Y/RESP statuses were inconsistent. I verified the mismatch against the live Issue #79 body, current Test DD/checklist, and the 60-entry manifest. Manually opened and inspected all 60/60 PNGs at source SHA `4f502367d26f72dac343183cfa58e1af0dd7a2f0`: 10 Admin Dashboard, 11 Requester Dashboard, 10 Staff Dashboard, 18 Actions Taken, 8 retained regression, and 3 Ticket workflow images. No clipping, overlap, unreadable labels, or page-level overflow was found. The tablet My Tickets table keeps its contained horizontal scroll and partial rightmost column in the static capture. The manifest/sidecar audit confirmed all files exist and source metadata matches. Updated A11Y-01 and RESP-01..03 statuses and completed the visual checklist from screenshot plus interaction-test evidence. After the documentation updates, `npm.cmd run test:trace:lab4 -- --mode=increment --issue=79` passed **24 FR / 54 BR / 28 AC / 57 Test IDs** and `git diff --check 5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3` passed with only CRLF conversion warnings. No product code changed.
+
+#### Issue #79 hosted PR CI checkpoint (2026-10-02)
+
+PR #89 is open. GitHub Actions workflow run `36926719416` (`Lab 4 CI`) is **in progress** on PR head SHA `9deba9f9d9a7050e137c56f5632dc8dae2dfec5d` against base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`. Local `npm.cmd run verify` and the Issue #79 increment trace are recorded above; they are distinct from hosted CI. Human review is requested from `Peepipat-Suesoongnuen` and remains pending.
+
+#### Issue #79 hosted PR CI result (2026-10-02)
+
+GitHub Actions run `36927385677` (`Lab 4 CI`) completed successfully on exact PR head SHA `54e242555e6894019fec9531e90962985e97602f` with base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`. The run included the integrated build, test, retained E2E, and responsive verification workflow. This hosted result is separate from local `npm.cmd run verify` and is tied to SHA `54e2425`.
+
+#### Issue #79 final source-head CI result (2026-10-02)
+
+GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR head SHA `f9b808a04818e9bfa4dfc11c526e9eb0bda41f6f`, with base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`. This was the successful rerun after the PR evidence/status update; it validates the full candidate through the latest product-code SHA. Any subsequent PR-head change in this checkpoint is documentation-only.

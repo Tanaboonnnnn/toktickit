@@ -54,6 +54,7 @@ export default function ActionsTaken(props: ActionsTakenProps) {
   const [refreshError, setRefreshError] = useState("");
   const requestGeneration = useRef(0);
   const targetLocatedKey = useRef("");
+  const targetFocusedKey = useRef("");
   const [targetMissing, setTargetMissing] = useState(false);
   const loadedTicketId = useRef<number | null>(null);
   const loadedPage = useRef<number | null>(null);
@@ -84,6 +85,7 @@ export default function ActionsTaken(props: ActionsTakenProps) {
     setPage(1);
     setTargetMissing(false);
     targetLocatedKey.current = "";
+    targetFocusedKey.current = "";
     setShowCreate(false);
     setDescription("");
     setResult("");
@@ -167,10 +169,14 @@ export default function ActionsTaken(props: ActionsTakenProps) {
 
   useEffect(() => {
     if (!props.targetActionId || state.kind !== "success" || !state.response.items.some((item) => item.id === props.targetActionId)) return;
+    const targetKey = `${ticketId}:${props.targetActionId}`;
+    if (targetFocusedKey.current === targetKey) return;
     const target = document.getElementById(`lab4-action-${props.targetActionId}`);
-    target?.focus();
-    (target as (HTMLElement & { scrollIntoView?: (options?: ScrollIntoViewOptions) => void }) | null)?.scrollIntoView?.({ block: "center" });
-  }, [props.targetActionId, state]);
+    if (!target) return;
+    target.focus();
+    (target as HTMLElement & { scrollIntoView?: (options?: ScrollIntoViewOptions) => void }).scrollIntoView?.({ block: "center" });
+    targetFocusedKey.current = targetKey;
+  }, [ticketId, props.targetActionId, state]);
 
   const response = state.kind === "success" ? state.response : null;
 

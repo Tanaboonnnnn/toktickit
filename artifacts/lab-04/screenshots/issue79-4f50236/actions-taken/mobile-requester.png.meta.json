@@ -1,0 +1,15 @@
+{
+  "file": "actions-taken/mobile-requester.png",
+  "role": "Requester",
+  "route": "#/tickets/5103",
+  "scenario": "mobile Requester read-only Actions Taken",
+  "scenarioId": "L4-REQ-ACTIONS",
+  "mapping": [
+    "AC-06",
+    "AC-25"
+  ],
+  "testId": "RESP-03",
+  "rubricPart": "P9",
+  "viewport": "390x844",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

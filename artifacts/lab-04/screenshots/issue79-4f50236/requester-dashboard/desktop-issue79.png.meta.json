@@ -1,0 +1,15 @@
+{
+  "file": "requester-dashboard/desktop-issue79.png",
+  "role": "Requester",
+  "route": "#/dashboard",
+  "scenario": "desktop Requester Dashboard with an owned Ticket",
+  "scenarioId": "L4-REQ-DASHBOARD",
+  "mapping": [
+    "AC-15",
+    "AC-25"
+  ],
+  "testId": "RESP-01",
+  "rubricPart": "P9",
+  "viewport": "1440x900",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}
