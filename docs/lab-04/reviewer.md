@@ -118,3 +118,11 @@ The final review confirmed the exact branch, builds, Test DD traceability, Actio
 ## Evidence integrity note
 
 Only submitted human GitHub reviews appear in the review table. AI review, CI, requested reviewers, and local test output are separate evidence. The Project/Kanban state and final-main review are not claimed here.
+
+## Issue #80 AI self-review (not human peer approval)
+
+- Fixed point: `4921d9528fbe34dec573a635e42fdfdb54262c86`; first candidate reviewed: `42dcad4407ed3d2a9f56bdebdeed4cd494dc89b6`.
+- The GPT-6 Luna xhigh review found one Standards issue and one matching Spec gap: `tests.md` still called the committed candidate uncommitted. It also asked the evidence record to state whether the `4f502367` screenshots still represent the current product source. No judgement-call smells were found.
+- The follow-up docs candidate corrects the commit-state statement and records an empty source diff from `4f502367` to the candidate for application, migration, test, E2E, and evidence-generator paths. Follow-up review is pending.
+- `docs/agents/issue-tracker.md` is absent. The review used the full live Issue #80 body fetched for this task and the reviewed Lab 4 contract; this does not claim the repository's general issue-tracker skill setup is complete.
+- This was an AI self-review. It is separate from the friend's pending human GitHub review and is not peer approval.
