@@ -555,11 +555,12 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 
 - GitHub Actions run 36934401703 completed successfully on staging SHA 4921d9528fbe34dec573a635e42fdfdb54262c86. Its job and run page were checked independently from the local candidate.
 - GitHub search with linked:issue returned PRs #81–#89, and linked:pr returned Issues #71–#79; each PR title, branch and scope matched its Issue.
+- PR #90 opened at creation head `e3272ce0854707898cbb48d0fd6a35dcba499981` into base `4921d9528fbe34dec573a635e42fdfdb54262c86`. The Issue #80 timeline records its cross-reference. CI run `37000618139` was in progress on that creation head; the branch head changes for this evidence-only update, so CI for the updated head must be checked separately.
 - npm.cmd run verify passed on the worktree based at 4921d952. Server build and 69 files / 407 tests passed; client build and 37 files / 178 tests passed; harness passed 9 Node tests and 3 server safety tests; Lab 3 trace passed 50 Test IDs / 32 ACs; Lab 4 planning trace passed 24 FRs / 54 BRs / 28 ACs / 57 Test IDs; E2E passed 70/70; responsive passed 28/28.
 - PERF-01 used 1,000 Tickets / 3,000 Actions, 3 warmups and 20 measurements. Requester: at most 9 business queries, 4,490-byte payload, p95 25.81 ms. Staff: at most 11 business queries, 7,558-byte payload, p95 28.26 ms.
 - The first verify attempt reached E2E with a shell `FRONTEND_ORIGIN` of `http://localhost:5173`, but the managed browser runs at `http://127.0.0.1:4312`; its trace showed `/api/auth/me` requests failing without a response and the expected "Unable to check session" page. This was a run-configuration mismatch. Rerunning with the managed E2E origin passed the complete command, including 70/70 E2E and 28/28 responsive checks; no application files changed.
 - Fixed-base AI self-review at `4921d9528fbe34dec573a635e42fdfdb54262c86` first found a stale uncommitted-status claim and asked the evidence record to make the screenshot-source comparison explicit. Both were corrected in `f3d1705`; follow-up review on that exact candidate found 0 Standards findings, 0 Spec findings, and no advisory issues.
-- Local verify used Node v24.14.0; the hosted workflow pins Node 22. Its successful run 36934401703 is on base SHA 4921d952 and predates docs commit `42dcad4`, so hosted CI on the Issue #80 PR head remains pending.
+- Local verify used Node v24.14.0; the hosted workflow pins Node 22. Its successful run 36934401703 is on base SHA 4921d952 and predates the Issue #80 docs commits, so it is not PR-head CI.
 - The command used the tracked example URLs only in the current process: DATABASE_URL resolved to toktickit and TEST_DATABASE_URL to toktickit_test on localhost. A read-only psql check confirmed distinct database names; Prisma reported all 4 migrations current on toktickit_test. No .env file was created. E2E uploads used temporary directories, and ordinary browser output used the ignored Lab 4 test-output path.
 - git diff --check passed with no whitespace errors. No Test ID status changed.
 
@@ -567,4 +568,5 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 
 - No new source-bound screenshot capture was made. The existing Issue #79 manifest contains 60 images at source SHA 4f502367d26f72dac343183cfa58e1af0dd7a2f0; no server/src, client/src or server/prisma files changed between that SHA and staging 4921d952.
 - Project/Kanban state is not verified and no board status was changed. The connected GitHub tools in this session expose no Project read operation.
+- Hosted CI on the post-evidence-update PR head and the friend's human review remain pending.
 - Exact-main verification and the final submission PDF remain pending. The user has deferred PDF work; staging or PR-head evidence is not final-main evidence.

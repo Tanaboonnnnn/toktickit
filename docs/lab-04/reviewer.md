@@ -111,8 +111,10 @@ The final review confirmed the exact branch, builds, Test DD traceability, Actio
 
 ## Release review / approval evidence
 
-- Issue #80 is open. No Issue #80 feature PR or staging-to-main promotion PR exists yet.
-- The author requested an independent agent review before opening the Issue #80 PR.
+- Issue #80 remains open. PR [#90](https://github.com/Tanaboonnnnn/toktickit/pull/90), titled `[Lab 4][#80] จัดเอกสารและผลตรวจสำหรับการปล่อยระบบ`, is open into `lab4-staging`. At creation (`2026-10-02T11:22:07Z`), its base was `4921d9528fbe34dec573a635e42fdfdb54262c86` and its head was `e3272ce0854707898cbb48d0fd6a35dcba499981`.
+- GitHub Issue #80's timeline contains a `cross-referenced` event for PR #90. No closing reference or issue closure is claimed.
+- Lab 4 CI run [#37000618139](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37000618139) was **in progress** on PR #90's creation head when this checkpoint was recorded. A real human review/approval is still pending; the friend reviewer has not been identified/requested in GitHub here.
+- No staging-to-main promotion PR exists yet. The author requested a separate friend review of PR #90.
 - PR #89's approval applies to its reviewed #79 head and is not approval to merge Lab 4 to main.
 
 ## Evidence integrity note
