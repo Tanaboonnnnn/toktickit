@@ -570,3 +570,15 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 - Project/Kanban state is not verified and no board status was changed. The connected GitHub tools in this session expose no Project read operation.
 - PR #90 exact-head CI 37002207449 passed on 2743e17; human review 5394000598 approved the PR; merge 8d724c5 into lab4-staging was followed by successful exact-staging CI 37031519434.
 - Exact-main verification and the final submission PDF remain pending. The user has deferred PDF work; staging or PR-head evidence is not final-main evidence.
+
+## Issue #80 dependency-audit hardening (2026-10-03)
+
+- Starting integration base: `14464b26931485069a01e650ee2467b31645f2b6` (`lab4-staging` after approved PR #91).
+- Candidate implementation commit: `7609feab7c94219bc97cb925f4164e0a82cd56e0`.
+- The production `qs` / Express advisory chain was removed by the non-breaking lockfile updates selected by `npm audit fix`; server production audit then reported **0 vulnerabilities**.
+- The remaining development-tool advisories required an explicit reviewed toolchain update rather than `npm audit fix --force`: Server and Client now use Vitest `5.0.3` with Vite `6.4.3`; the Client uses `@testing-library/jest-dom` `7.0.1` through its Vitest-specific entry point. The server declares Vite only as Vitest's peer provider. Lab 4 CI is pinned to Node `22.12.0`, the minimum supported Node 22 line for Vitest 5.
+- Fresh audits after the update: root **0 vulnerabilities**, server **0 vulnerabilities**, client **0 vulnerabilities**.
+- Fresh local aggregate verification on the candidate passed: server build + **69 files / 407 tests**, client build + **37 files / 178 tests**, Lab 4 harness **9 Node + 3 server safety tests**, Lab 3 trace **50 Test IDs / 32 ACs**, Lab 4 planning trace **24 FR / 54 BR / 28 AC / 57 Test IDs**, Chromium E2E **70/70**, responsive **28/28**.
+- PERF-01 on the same candidate used 1,000 Tickets / 3,000 Actions, three warmups and 20 measurements per role. Requester: at most 9 business queries, 4,510-byte payload, p95 42.34 ms. Staff: at most 11 business queries, 7,573-byte payload, p95 51.54 ms. Both remain far below the documented course smoke limits.
+- No application source, Prisma schema, migration, seed, product Test DD, E2E scenario, or grader-facing screenshot was changed by this hardening increment.
+- Release-mode traceability is intentionally **not** promoted by this dependency work. `REL-02`, `PDF-01`, student-confirmed reflection, exact-final-main verification, and final PDF remain separate release gates.
