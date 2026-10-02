@@ -568,5 +568,5 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 
 - No new source-bound screenshot capture was made. The existing Issue #79 manifest contains 60 images at source SHA 4f502367d26f72dac343183cfa58e1af0dd7a2f0; no server/src, client/src or server/prisma files changed between that SHA and staging 4921d952.
 - Project/Kanban state is not verified and no board status was changed. The connected GitHub tools in this session expose no Project read operation.
-- Hosted CI for the next evidence-only PR head and the friend's human review remain pending.
+- PR #90 exact-head CI 37002207449 passed on 2743e17; human review 5394000598 approved the PR; merge 8d724c5 into lab4-staging was followed by successful exact-staging CI 37031519434.
 - Exact-main verification and the final submission PDF remain pending. The user has deferred PDF work; staging or PR-head evidence is not final-main evidence.
