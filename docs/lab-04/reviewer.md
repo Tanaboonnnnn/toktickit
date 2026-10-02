@@ -111,11 +111,10 @@ The final review confirmed the exact branch, builds, Test DD traceability, Actio
 
 ## Release review / approval evidence
 
-- Issue #80 remains open. PR [#90](https://github.com/Tanaboonnnnn/toktickit/pull/90), titled `[Lab 4][#80] จัดเอกสารและผลตรวจสำหรับการปล่อยระบบ`, is open into `lab4-staging`. At creation (`2026-10-02T11:22:07Z`), its base was `4921d9528fbe34dec573a635e42fdfdb54262c86` and its head was `e3272ce0854707898cbb48d0fd6a35dcba499981`.
-- GitHub Issue #80's timeline contains a `cross-referenced` event for PR #90. No closing reference or issue closure is claimed.
-- Lab 4 CI run [#37000618139](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37000618139) was **in progress** on PR #90's creation head `e3272ce`. After the living-evidence commit `4103b1a` moved the branch, run [#37000913603](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37000913603) was **pending** on exact head `4103b1a65f555a3d9c36a614253777f051850951`. Run [#37001217465](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37001217465) later completed **success** on exact head `61ca617db36057c060ee16fea2896ec176881250` at `2026-10-02T11:36:42Z`. A new CI run is required for the following evidence-only docs head. A real human review/approval is still pending; the friend reviewer has not been identified/requested in GitHub here.
-- No staging-to-main promotion PR exists yet. The author requested a separate friend review of PR #90.
-- PR #89's approval applies to its reviewed #79 head and is not approval to merge Lab 4 to main.
+- PR [#90](https://github.com/Tanaboonnnnn/toktickit/pull/90), [Lab 4][#80] จัดเอกสารและผลตรวจสำหรับการปล่อยระบบ, was approved by @Peepipat-Suesoongnuen in human review [5394000598](https://github.com/Tanaboonnnnn/toktickit/pull/90#pullrequestreview-5394000598) at 2026-10-02T16:05:10Z. The reviewer confirmed the compact review ledger, tests evidence, PR #86 spot-check, truthful separation of AI/CI from human approval, README regression handling, and docs-only scope.
+- The review left two non-blocking notes: confirm that the Thai-language editing workflow complies with course AI policy, and keep the author identity as the verifiable GitHub handle. The evidence record continues to disclose the actual OpenAI assistants and representative prompts; internal editing workflow names are not treated as course evidence or peer approval.
+- Exact PR-head Lab 4 CI run [37002207449](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37002207449) completed **success** on 2743e17de9493ec27bf0d37f0079c3f98c03e03f. PR #90 then merged to lab4-staging as 8d724c5bca47c134e7054bb3eae51fc56e5d16e7 at 2026-10-02T16:05:19Z. Post-merge push run [37031519434](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37031519434) completed **success** on that exact staging SHA.
+- PR #90 is release-readiness documentation into lab4-staging; it is not the separate lab4-staging -> main promotion. As of this reconciliation, remote main remains d41ab98d9d40266b355fe5fb3b3bcb193df8a116, so exact-final-main evidence remains a separate gate.
 
 ## Evidence integrity note
 
@@ -126,6 +125,5 @@ Only submitted human GitHub reviews appear in the review table. AI review, CI, r
 - Fixed point: `4921d9528fbe34dec573a635e42fdfdb54262c86`; first candidate reviewed: `42dcad4407ed3d2a9f56bdebdeed4cd494dc89b6`.
 - The GPT-6 Luna xhigh review found one Standards issue and one matching Spec gap: `tests.md` still called the committed candidate uncommitted. It also asked the evidence record to state whether the `4f502367` screenshots still represent the current product source. No judgement-call smells were found.
 - Commit `f3d170564e9b8c8c4ab1b9ac615e1203dfc281b2` corrects the commit-state statement and records an empty source diff from `4f502367` to the candidate for application, migration, test, E2E, and evidence-generator paths.
-- The follow-up review checked fixed base `4921d9528fbe34dec573a635e42fdfdb54262c86` against exact candidate `f3d170564e9b8c8c4ab1b9ac615e1203dfc281b2`: Standards 0 hard violations / 0 smells; Spec 0 findings; no advisory issues. The separate human GitHub review is still pending.
-- `docs/agents/issue-tracker.md` is absent. The review used the full live Issue #80 body fetched for this task and the reviewed Lab 4 contract; this does not claim the repository's general issue-tracker skill setup is complete.
-- This was an AI self-review. It is separate from the friend's pending human GitHub review and is not peer approval.
+- The follow-up review checked fixed base `4921d9528fbe34dec573a635e42fdfdb54262c86` against exact candidate `f3d170564e9b8c8c4ab1b9ac615e1203dfc281b2`: Standards 0 hard violations / 0 smells; Spec 0 findings; no advisory issues. The later human GitHub review of PR #90 is recorded above.
+- This was an AI self-review and is not peer approval; the later human PR #90 approval is recorded separately above.
