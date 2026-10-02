@@ -536,3 +536,37 @@ GitHub Actions run `36927385677` (`Lab 4 CI`) completed successfully on exact PR
 #### Issue #79 final source-head CI result (2026-10-02)
 
 GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR head SHA `f9b808a04818e9bfa4dfc11c526e9eb0bda41f6f`, with base `5f3d5392bd29410b8a4cc29a3f23f27ef74da8c3`. This was the successful rerun after the PR evidence/status update; it validates the full candidate through the latest product-code SHA. Any subsequent PR-head change in this checkpoint is documentation-only.
+
+## Issue #80 release-candidate verification status (2026-10-02)
+
+### Candidate context
+
+- The isolated worktree `feature/80-lab4-release` was created from `origin/lab4-staging` at base SHA `4921d9528fbe34dec573a635e42fdfdb54262c86`. The first docs-only candidate commit was `42dcad4407ed3d2a9f56bdebdeed4cd494dc89b6`; commit `f3d170564e9b8c8c4ab1b9ac615e1203dfc281b2` corrects the stale uncommitted-status statement.
+- A source comparison from screenshot SHA `4f502367d26f72dac343183cfa58e1af0dd7a2f0` to reviewed candidate `f3d170564e9b8c8c4ab1b9ac615e1203dfc281b2` is empty across `server/src`, `client/src`, `server/prisma`, `server/tests`, `client/tests`, `e2e`, and `scripts`. The existing Issue #79 manifest's 60 images remain bound to SHA `4f502367d26f72dac343183cfa58e1af0`; product, test, migration, browser, and evidence-generator files match that source SHA. The images are not labeled as captured from the docs commit.
+
+### Release document reconciliation
+
+- The six handout documents are present: `specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md`, `reviewer.md`, and `ai-use.md`. The three contract files remain the reviewed Issue #71 baseline; this release-readiness increment adds no new product requirement that would justify changing them. The current planning trace checks the contract and Test-ID totals.
+- `tests.md`, `reviewer.md`, and `ai-use.md` now contain the Issue #80 verification, human review/integration provenance, and selected prompt record. `regression-map.md` remains a supporting map referenced by the Test DD; the handout calls its six-file list the minimum structure, so the supporting file stays in place.
+- README setup, migration, seed, legacy-user provisioning, verification, trace, E2E, responsive, and evidence-capture commands were compared with the root/server package scripts and checked-in workflow. There are four forward migration directories (`init`, `lab2_schema`, `lab3_users`, `lab4_actions`) and no separate `demo` script; README documents the repeat-safe `prisma:seed` flow instead.
+- `.gitignore` already excludes `artifacts/lab-04/test-output/` while leaving grader-facing screenshots trackable. It is unchanged; no ignore-rule edit was needed.
+
+### Verified
+
+- GitHub Actions run 36934401703 completed successfully on staging SHA 4921d9528fbe34dec573a635e42fdfdb54262c86. Its job and run page were checked independently from the local candidate.
+- GitHub search with linked:issue returned PRs #81–#89, and linked:pr returned Issues #71–#79; each PR title, branch and scope matched its Issue.
+- PR #90 opened at creation head `e3272ce0854707898cbb48d0fd6a35dcba499981` into base `4921d9528fbe34dec573a635e42fdfdb54262c86`. The Issue #80 timeline records its cross-reference. CI run `37000618139` was in progress on that creation head. After evidence commit `4103b1a` moved the branch, run `37000913603` was pending on exact head `4103b1a65f555a3d9c36a614253777f051850951`. Run `37001217465` later completed successfully on exact head `61ca617db36057c060ee16fea2896ec176881250` at `2026-10-02T11:36:42Z`. A subsequent evidence-only commit requires its own head check.
+- npm.cmd run verify passed on the worktree based at 4921d952. Server build and 69 files / 407 tests passed; client build and 37 files / 178 tests passed; harness passed 9 Node tests and 3 server safety tests; Lab 3 trace passed 50 Test IDs / 32 ACs; Lab 4 planning trace passed 24 FRs / 54 BRs / 28 ACs / 57 Test IDs; E2E passed 70/70; responsive passed 28/28.
+- PERF-01 used 1,000 Tickets / 3,000 Actions, 3 warmups and 20 measurements. Requester: at most 9 business queries, 4,490-byte payload, p95 25.81 ms. Staff: at most 11 business queries, 7,558-byte payload, p95 28.26 ms.
+- The first verify attempt reached E2E with a shell `FRONTEND_ORIGIN` of `http://localhost:5173`, but the managed browser runs at `http://127.0.0.1:4312`; its trace showed `/api/auth/me` requests failing without a response and the expected "Unable to check session" page. This was a run-configuration mismatch. Rerunning with the managed E2E origin passed the complete command, including 70/70 E2E and 28/28 responsive checks; no application files changed.
+- Fixed-base AI self-review at `4921d9528fbe34dec573a635e42fdfdb54262c86` first found a stale uncommitted-status claim and asked the evidence record to make the screenshot-source comparison explicit. Both were corrected in `f3d1705`; follow-up review on that exact candidate found 0 Standards findings, 0 Spec findings, and no advisory issues.
+- Local verify used Node v24.14.0; the hosted workflow pins Node 22. Its successful run 36934401703 is on base SHA 4921d952 and predates the Issue #80 docs commits, so it is not PR-head CI.
+- The command used the tracked example URLs only in the current process: DATABASE_URL resolved to toktickit and TEST_DATABASE_URL to toktickit_test on localhost. A read-only psql check confirmed distinct database names; Prisma reported all 4 migrations current on toktickit_test. No .env file was created. E2E uploads used temporary directories, and ordinary browser output used the ignored Lab 4 test-output path.
+- git diff --check passed with no whitespace errors. No Test ID status changed.
+
+### Not run or still pending
+
+- No new source-bound screenshot capture was made. The existing Issue #79 manifest contains 60 images at source SHA 4f502367d26f72dac343183cfa58e1af0dd7a2f0; no server/src, client/src or server/prisma files changed between that SHA and staging 4921d952.
+- Project/Kanban state is not verified and no board status was changed. The connected GitHub tools in this session expose no Project read operation.
+- Hosted CI for the next evidence-only PR head and the friend's human review remain pending.
+- Exact-main verification and the final submission PDF remain pending. The user has deferred PDF work; staging or PR-head evidence is not final-main evidence.
