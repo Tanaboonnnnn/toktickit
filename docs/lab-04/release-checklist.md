@@ -5,10 +5,10 @@ This checklist is the current Issue #80 release gate. It records only events tha
 ## Current reviewed staging candidate
 
 - Integration branch: `lab4-staging`
-- Staging SHA after approved PR #92: `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`
-- PR #92 exact reviewed head: `002ad78112831a90741f967d4ebe96059e5c4413`
-- PR #92 exact-head CI: run `37109923169` - success
-- PR #92 post-merge staging CI: run `37112630882` - success on `88a8dce`
+- Current reviewed staging SHA after approved PR #93: `cb205a6b768a085dac217de646a4a27873fb0e07`
+- PR #93 exact reviewed head: `5c1de21a244354c0060a631c1d789c228e0ca7c4`
+- PR #93 exact-head CI: run `37115432452` - success
+- PR #93 post-merge staging CI: run `37118280869` - success on `cb205a6`
 - Remote `main` at this checkpoint: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` (Lab 3)
 
 ## Documentation and repository state
@@ -20,13 +20,13 @@ This checklist is the current Issue #80 release gate. It records only events tha
 - [x] README setup, migration, seed, verification, E2E/responsive commands and Node prerequisite are current.
 - [x] `.gitignore` keeps transient Lab 4 test output ignored while grader-facing screenshots remain trackable.
 - [x] `regression-map.md` records the final staging regression checkpoint.
-- [x] Human review records through PR #92 are preserved separately from AI review and CI.
+- [x] Human review records through PR #93 are preserved separately from AI review and CI.
 - [x] Student confirmed the first-person `My Reflection` text in `ai-use.md` after a final wording pass.
-- [ ] Actual GitHub Project/Kanban state has been verified with Project read access.
+- [x] Student provided a current GitHub Project/Kanban screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, and Done 38, with Issue #80 visible in Done. This is human-verified Project evidence; the local CLI still lacks Project API read scope.
 
 ## Verification state
 
-Fresh clean-worktree verification on staging merge `88a8dce`:
+Fresh hosted verification on exact staging merge `cb205a6` after PR #93:
 
 - [x] Server build passed.
 - [x] Server tests: 69 files / 407 tests.
@@ -38,7 +38,7 @@ Fresh clean-worktree verification on staging merge `88a8dce`:
 - [x] Chromium E2E: 70/70.
 - [x] Responsive: 28/28.
 - [x] Root/server/client dependency audits/install checks report 0 vulnerabilities.
-- [x] Post-merge staging CI `37112630882` succeeded on exact SHA `88a8dce`.
+- [x] Post-merge staging CI `37118280869` succeeded on exact SHA `cb205a6`.
 - [ ] Release trace passes on exact final `main` with every Test ID recorded as executed Pass evidence.
 
 ## Release workflow
@@ -48,7 +48,7 @@ Fresh clean-worktree verification on staging merge `88a8dce`:
 - [x] Review-evidence reconciliation PR #91 reviewed and merged.
 - [x] Dependency/toolchain hardening PR #92 reviewed and merged.
 - [x] Issue #80 reopened after premature closure because its release gates were still incomplete.
-- [ ] Current final-reconciliation PR reviewed and merged into `lab4-staging`.
+- [x] Final-reconciliation PR #93 received Changes Requested, the workflow-state mismatch was corrected, the same exact head was then approved by `@L0u1sss`, and PR #93 merged into `lab4-staging` as `cb205a6`.
 - [ ] Separate `lab4-staging -> main` promotion PR opened.
 - [ ] Promotion PR receives real human approval.
 - [ ] Promotion PR merged after approval.
@@ -80,6 +80,6 @@ Release requirements:
 - [ ] Exactly one final PDF delivered for submission.
 - [ ] Issue #80 closed only after every applicable gate above is complete.
 
-## Known external gate
+## Project evidence note
 
-The authenticated local GitHub CLI token currently has scopes `gist`, `read:org`, `repo`, and `workflow`, but not `read:project`. Therefore Project/Kanban completion is intentionally not claimed. This must be verified through an authorized Project view before `REL-01` can be marked Pass.
+The local GitHub CLI still lacks `read:project`, so automated Project API verification is unavailable. The student supplied a current Project board screenshot instead. It shows all workflow columns except Done at 0, Done at 38, and Issue #80 visible in Done. This resolves the Project-visibility gap for the release record without claiming API access that is not available.
