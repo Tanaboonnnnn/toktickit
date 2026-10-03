@@ -1,6 +1,6 @@
 # Lab 4 Zen Green UI Specification
 
-Status: **Reviewed Issue #71 UI contract. The Lab 4 dashboards, Actions Taken, workflow surfaces, retained role screens, responsive behavior, and accessibility checks are implemented on `lab4-staging`; source-bound visual evidence is recorded under `artifacts/lab-04/screenshots/` and in `tests.md`. Exact-final-main verification and the final submission PDF remain separate Issue #80 gates.**
+Status: **Reviewed Issue #71 UI contract. The Lab 4 dashboards, Actions Taken, workflow surfaces, retained role screens, responsive behavior, and accessibility checks are implemented on reviewed `lab4-staging` SHA `cb205a6` after PR #93; source-bound visual evidence is recorded under `artifacts/lab-04/screenshots/` and in `tests.md`. Exact-final-main verification and the final submission PDF remain separate Issue #80 gates.**
 
 Primary authority: `SE+Lab+4.pdf` sections 7-8 and 14, plus the approved project decisions in `specification.md` and interface shapes in `api-spec.md`.
 
