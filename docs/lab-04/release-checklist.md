@@ -22,7 +22,10 @@ This checklist is the current Issue #80 release gate. It records only events tha
 - [x] `regression-map.md` records the final staging regression checkpoint.
 - [x] Human review records through PR #93 are preserved separately from AI review and CI.
 - [x] Student confirmed the first-person `My Reflection` text in `ai-use.md` after a final wording pass.
-- [x] Student provided a current GitHub Project/Kanban screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, and Done 38, with Issue #80 visible in Done. This is human-verified Project evidence; the local CLI still lacks Project API read scope.
+- [x] Student provided a Project/Kanban checkpoint screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, and Done 38, with Issue #80 visible in Done at that checkpoint.
+- [x] Issue #80 is currently **open** because promotion, exact-main verification, and PDF gates are not finished.
+- [x] Native GitHub Development links were manually verified for Issue #80 and release PRs #90, #91, #92, #93, and the currently open PR #94.
+- [x] While PR #94 is open for review, Project item #80 is currently in **PR Review** rather than Done.
 
 ## Verification state
 
@@ -49,9 +52,11 @@ Fresh hosted verification on exact staging merge `cb205a6` after PR #93:
 - [x] Dependency/toolchain hardening PR #92 reviewed and merged.
 - [x] Issue #80 reopened after premature closure because its release gates were still incomplete.
 - [x] Final-reconciliation PR #93 received Changes Requested, the workflow-state mismatch was corrected, the same exact head was then approved by `@L0u1sss`, and PR #93 merged into `lab4-staging` as `cb205a6`.
-- [ ] Separate `lab4-staging -> main` promotion PR opened.
+- [x] PR #94 is natively Development-linked to Issue #80 and Project item #80 is in **PR Review** while that PR is open.
+- [ ] After PR #94 receives approval and merges, move Project item #80 to **Done** before starting the next release step.
+- [ ] Separate `lab4-staging -> main` promotion PR opened and natively Development-linked to Issue #80; when opened, move Project item #80 back to **PR Review**.
 - [ ] Promotion PR receives real human approval.
-- [ ] Promotion PR merged after approval.
+- [ ] Promotion PR merged after approval; then move Project item #80 back to **Done**.
 - [ ] Resulting exact `main` SHA re-read from remote.
 - [ ] Full exact-main verification passes on that SHA.
 - [ ] Exact-main hosted CI/evidence is preserved and linked.
@@ -82,4 +87,4 @@ Release requirements:
 
 ## Project evidence note
 
-The local GitHub CLI still lacks `read:project`, so automated Project API verification is unavailable. The student supplied a current Project board screenshot instead. It shows all workflow columns except Done at 0, Done at 38, and Issue #80 visible in Done. This resolves the Project-visibility gap for the release record without claiming API access that is not available.
+The local GitHub CLI still lacks `read:project`, so automated Project API verification is unavailable. The student-provided screenshot is retained as a historical checkpoint showing Done 38 with all non-Done columns at 0. Since PR #94 is now open, Issue #80 has been reopened and its Project item has been moved to **PR Review**. The item must return to **Done** after the PR merges, move back to **PR Review** when the separate staging-to-main PR opens, and return to **Done** after that promotion merges. This records real workflow transitions instead of treating one screenshot as a permanently current board state.
