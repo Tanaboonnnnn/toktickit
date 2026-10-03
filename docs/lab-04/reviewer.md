@@ -7,8 +7,8 @@ This file records human GitHub reviews only. AI review, automated checks, reques
 - Author GitHub account: @Tanaboonnnnn
 - Student ID: 67070507211
 - Integration branch: lab4-staging
-- Evidence covered here: feature PRs #81–#89 for Issues #71–#79 plus Issue #80 release-readiness PRs #90–#93
-- Development linkage: GitHub linked:issue and linked:pr searches returned every PR #81–#89 and Issue #71–#79; their scopes and branch names matched.
+- Evidence covered here: feature PRs #81–#89 for Issues #71–#79 plus Issue #80 release-readiness PRs #90–#94
+- Development linkage: GitHub linked:issue and linked:pr searches returned every feature PR #81–#89 and Issue #71–#79; their scopes and branch names matched. Issue #80's native Development panel was also manually verified to contain release PRs #90, #91, #92, #93, and open PR #94.
 - Latest reviewed staging state: PR #93 merged into `lab4-staging` at 2026-10-03T11:00:51Z as `cb205a6b768a085dac217de646a4a27873fb0e07`; post-merge Lab 4 CI run `37118280869` succeeded on that exact staging SHA. This still does not mean Lab 4 has been merged to `main`.
 
 ## Reviewers
@@ -17,7 +17,7 @@ This file records human GitHub reviews only. AI review, automated checks, reques
 - @L0u1sss reviewed PRs #81, #85, #89, #92 and #93.
 - @Peepipat-Suesoongnuen reviewed PRs #86, #88 and #90.
 
-GitHub review events establish these usernames only. Course names and student IDs for reviewers are not established here. The student separately supplied a current Project/Kanban screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, and Done 38, with Issue #80 visible in Done; this is human-verified Project evidence rather than GitHub API output.
+GitHub review events establish these usernames only. Course names and student IDs for reviewers are not established here. The student separately supplied a Project/Kanban checkpoint screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, and Done 38, with Issue #80 visible in Done at that checkpoint. Once PR #94 opened, Issue #80 was reopened and the Project item was moved to **PR Review**, which is the current workflow state while review is active.
 
 ## Reviews received
 
@@ -36,6 +36,7 @@ GitHub review events establish these usernames only. Course names and student ID
 | [#91](https://github.com/Tanaboonnnnn/toktickit/pull/91) | Reconcile PR #90 review evidence | @thananun-7203 | Approved at [2026-10-02 19:34:09](https://github.com/Tanaboonnnnn/toktickit/pull/91#pullrequestreview-5395987757) on exact head `094e527`. |
 | [#92](https://github.com/Tanaboonnnnn/toktickit/pull/92) | Dependency/toolchain hardening and audit cleanup | @L0u1sss | Requested changes on the Node prerequisite wording, then approved the corrected exact head `002ad781` at [2026-10-03 09:17:17](https://github.com/Tanaboonnnnn/toktickit/pull/92#pullrequestreview-5399941960). |
 | [#93](https://github.com/Tanaboonnnnn/toktickit/pull/93) | Final staging release-document reconciliation | @L0u1sss | Changes Requested at [2026-10-03 10:28:47](https://github.com/Tanaboonnnnn/toktickit/pull/93#pullrequestreview-5400305154) because Issue #80 was closed while the docs correctly said it should remain open; after #80 was reopened, the same exact head `5c1de21` was Approved at [11:00:40](https://github.com/Tanaboonnnnn/toktickit/pull/93#pullrequestreview-5400422865). |
+| [#94](https://github.com/Tanaboonnnnn/toktickit/pull/94) | Synchronize PR #93, Project and release workflow evidence before main promotion | @L0u1sss | Changes Requested at [2026-10-03 12:04:42](https://github.com/Tanaboonnnnn/toktickit/pull/94#pullrequestreview-5400646927) because Issue #80 had again been closed/completed while exact-main and PDF gates were still pending. The correction reopens #80, verifies native Development links, and places its Project item in **PR Review** while PR #94 is open. Re-review remains pending. |
 
 ## Integration ledger
 
@@ -120,6 +121,7 @@ The final review confirmed the exact branch, builds, Test DD traceability, Actio
 | PR #91 | Reviewer rechecked the PR #90 evidence reconciliation, source decisions, exact-head CI and pending release gates. | No product changes were needed; the docs-only correction remained separated from final-main claims. | ai-use.md, reviewer.md, specification.md, tests.md | Resolved; approved and merged. |
 | PR #92 | README said `Node.js 22.12 or newer`, which was broader than Vitest 5's supported Node engine families. | Reworded the prerequisite to `Node.js 22.12.0 or later within Node 22, Node 24.x, or Node 26+ and npm`, verified the installed Vitest engine range, and reran hosted CI. | README.md | Resolved on `002ad781`; final approval and merge followed. |
 | PR #93 | Release docs correctly said Issue #80 should remain open, but GitHub showed it closed as completed. | Reopened Issue #80, left the docs truthful, replied in the PR, and requested re-review. | GitHub Issue #80 / PR #93 workflow state | Resolved without a document-content change; the exact head `5c1de21` was then approved and merged. |
+| PR #94 | Issue #80 was again closed/completed even though release work was still active; the Project item also needed to reflect active review and the PR/Issue relationship needed to be unambiguous. | Reopened Issue #80, manually verified native Development links for release PRs #90–#94, moved Project item #80 to **PR Review**, and reconciled the release docs to distinguish the earlier Done screenshot from the current active-review state. | GitHub Issue #80 / Project 4 / PR #94 / release docs | Addressed on the current PR #94 head; awaiting human re-review. |
 
 ## Release review / approval evidence
 
@@ -129,13 +131,13 @@ The final review confirmed the exact branch, builds, Test DD traceability, Actio
 - PR [#91](https://github.com/Tanaboonnnnn/toktickit/pull/91) was approved by @thananun-7203 on exact head `094e527d93536d3087f1259fccfb09399af54d2e`; exact-head CI run [37039143983](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37039143983) passed. PR #91 merged as `14464b26931485069a01e650ee2467b31645f2b6`; post-merge staging run [37054984642](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37054984642) passed on that exact SHA.
 - PR [#92](https://github.com/Tanaboonnnnn/toktickit/pull/92) first received a documentation correction request from @L0u1sss for an over-broad Node prerequisite. The corrected head `002ad78112831a90741f967d4ebe96059e5c4413` was then approved at 2026-10-03T09:17:17Z. Exact-head CI run [37109923169](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37109923169) passed; PR #92 merged as `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`; post-merge staging run [37112630882](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37112630882) passed on that exact SHA.
 - PR [#93](https://github.com/Tanaboonnnnn/toktickit/pull/93) was reviewed by @L0u1sss on exact head `5c1de21a244354c0060a631c1d789c228e0ca7c4`. The first review requested reconciliation because GitHub Issue #80 was closed while the release docs correctly kept it open. After Issue #80 was reopened, the reviewer approved the same head at 2026-10-03T11:00:40Z. Exact-head CI run [37115432452](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37115432452) passed; PR #93 merged as `cb205a6b768a085dac217de646a4a27873fb0e07`; post-merge staging run [37118280869](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37118280869) passed on that exact SHA.
-- The student then supplied a current Project/Kanban screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0 and Done 38, with Issue #80 visible in Done. This closes the Project-visibility gap as human-verified evidence even though the local CLI still lacks `read:project`.
+- The student then supplied a Project/Kanban checkpoint screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0 and Done 38, with Issue #80 visible in Done at that checkpoint. After PR #94 opened, Issue #80 was reopened, its native Development panel was manually verified to include PRs #90–#94, and its Project status was moved to **PR Review**. This current active-review state supersedes the screenshot's earlier Done state without invalidating the screenshot as historical evidence.
 - Issue #80 was reopened after PR #92 because, at that point, its Definition of Done still required Project/Kanban verification, a reviewed `lab4-staging -> main` promotion, exact-final-main verification, and the single nine-part submission PDF. The Project state has since been human-verified from the student-provided screenshot; promotion, exact-main verification, and PDF generation remain separate later gates.
 - PR #90 is release-readiness documentation into `lab4-staging`; it is not the separate `lab4-staging -> main` promotion. Remote `main` remains `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` at this checkpoint, so exact-final-main evidence remains a separate gate.
 
 ## Evidence integrity note
 
-Only submitted human GitHub reviews appear in the review table. AI review, CI, requested reviewers, and local test output are separate evidence. The Project/Kanban state is human-verified from the student-provided board screenshot; the final `lab4-staging -> main` review is still pending.
+Only submitted human GitHub reviews appear in the review table. AI review, CI, requested reviewers, and local test output are separate evidence. Project/Kanban history is human-verified from the student-provided screenshot plus the current UI state: Issue #80 is open and in **PR Review** while PR #94 is active. After each linked PR merges the item returns to **Done**; opening the later `lab4-staging -> main` PR moves it back to **PR Review** until that promotion merges.
 
 ## Issue #80 AI self-review (not human peer approval)
 
