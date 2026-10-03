@@ -2,9 +2,9 @@
 
 This file is the working source for the single final Lab 4 PDF. It deliberately does not claim final-main, Project/Kanban, student-reflection, or PDF completion before those events happen.
 
-Current reviewed staging SHA: `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`  
-Current remote `main`: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116`  
-Issue #80: open until the release/submission gates are actually complete.
+- Current reviewed staging SHA: `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`
+- Current remote `main`: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116`
+- Issue #80: open until the release/submission gates are actually complete.
 
 # Answer Part 1
 
