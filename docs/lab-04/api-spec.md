@@ -1,6 +1,6 @@
 # Lab 4 REST Interface Specification
 
-Status: **Issue #71 contract only. No Lab 4 endpoint implementation is claimed. Planned Lab 4 execution evidence remains Planned / Not run.**
+Status: **Reviewed Issue #71 REST contract. The documented Lab 4 endpoints and retained API behavior are implemented and exercised on `lab4-staging` through PR #92 (`88a8dce`); executable evidence is recorded in `tests.md`. Exact-final-main verification remains a separate Issue #80 release gate.**
 
 Primary authority: `SE+Lab+4.pdf` sections 4-6 and 8-10, refined by the project decisions in `specification.md`.
 

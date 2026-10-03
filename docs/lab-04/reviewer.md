@@ -7,15 +7,15 @@ This file records human GitHub reviews only. AI review, automated checks, reques
 - Author GitHub account: @Tanaboonnnnn
 - Student ID: 67070507211
 - Integration branch: lab4-staging
-- Evidence covered here: feature PRs #81–#89 for Issues #71–#79
+- Evidence covered here: feature PRs #81–#89 for Issues #71–#79 plus Issue #80 release-readiness PRs #90–#92
 - Development linkage: GitHub linked:issue and linked:pr searches returned every PR #81–#89 and Issue #71–#79; their scopes and branch names matched.
-- PR #89 merged into lab4-staging at 2026-10-01T22:19:57Z as 4921d9528fbe34dec573a635e42fdfdb54262c86. This does not mean Lab 4 has been merged to main.
+- Latest reviewed staging state: PR #92 merged into `lab4-staging` at 2026-10-03T09:19:01Z as `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`; post-merge Lab 4 CI run `37112630882` succeeded on that exact staging SHA. This still does not mean Lab 4 has been merged to `main`.
 
 ## Reviewers
 
-- @thananun-7203 reviewed PRs #81, #82, #83, #84 and #87.
-- @L0u1sss reviewed PRs #81, #85 and #89.
-- @Peepipat-Suesoongnuen reviewed PRs #86 and #88.
+- @thananun-7203 reviewed PRs #81, #82, #83, #84, #87 and #91.
+- @L0u1sss reviewed PRs #81, #85, #89 and #92.
+- @Peepipat-Suesoongnuen reviewed PRs #86, #88 and #90.
 
 GitHub review events establish these usernames only. Course names and student IDs for reviewers are not established here.
 
@@ -32,6 +32,9 @@ GitHub review events establish these usernames only. Course names and student ID
 | [#87](https://github.com/Tanaboonnnnn/toktickit/pull/87) | Dashboard metrics and drill-down APIs | @thananun-7203 | Approved at [2026-10-01 09:53:33](https://github.com/Tanaboonnnnn/toktickit/pull/87#pullrequestreview-5377717299). |
 | [#88](https://github.com/Tanaboonnnnn/toktickit/pull/88) | Role dashboards and round-trip navigation | @Peepipat-Suesoongnuen | Approved at [2026-10-01 15:37:50](https://github.com/Tanaboonnnnn/toktickit/pull/88#pullrequestreview-5381699473). |
 | [#89](https://github.com/Tanaboonnnnn/toktickit/pull/89) | Integrated regression, security and visual hardening | @L0u1sss | Approved at [2026-10-01 22:18:14](https://github.com/Tanaboonnnnn/toktickit/pull/89#pullrequestreview-5386265955). |
+| [#90](https://github.com/Tanaboonnnnn/toktickit/pull/90) | Release documentation and verification evidence | @Peepipat-Suesoongnuen | Approved at [2026-10-02 16:05:10](https://github.com/Tanaboonnnnn/toktickit/pull/90#pullrequestreview-5394000598). |
+| [#91](https://github.com/Tanaboonnnnn/toktickit/pull/91) | Reconcile PR #90 review evidence | @thananun-7203 | Approved at [2026-10-02 19:34:09](https://github.com/Tanaboonnnnn/toktickit/pull/91#pullrequestreview-5395987757) on exact head `094e527`. |
+| [#92](https://github.com/Tanaboonnnnn/toktickit/pull/92) | Dependency/toolchain hardening and audit cleanup | @L0u1sss | Requested changes on the Node prerequisite wording, then approved the corrected exact head `002ad781` at [2026-10-03 09:17:17](https://github.com/Tanaboonnnnn/toktickit/pull/92#pullrequestreview-5399941960). |
 
 ## Integration ledger
 
@@ -108,13 +111,19 @@ The final review confirmed the exact branch, builds, Test DD traceability, Actio
 | PR #87 | Reviewer requested corrected pending-CI wording in the reviewer record and PR description. | Current local evidence records both successful runs; the already-merged PR description still has the old pending text. | reviewer.md and historical PR #87 description | Local record reconciled; historical GitHub description remains stale. |
 | PR #88 | Reviewer noted deep-link focus could be stolen after another Action save and repeated the PR #86 discard suggestion. | Issue #79 reproduced and fixed the focus behavior; discard remains deferred under the same-key retry rule. | Issue #79 / PR #89 and Actions UI | Focus issue resolved; discard suggestion deferred. |
 | PR #89 | tests.md had intermediate verification checkpoints that could obscure the latest #79 result. | Added an explicit Issue #80 release-candidate summary and kept historical checkpoints distinguishable. | tests.md | Addressed for the current candidate; exact-main reporting remains pending. |
+| PR #90 | Reviewer asked that AI disclosure remain course-relevant and that author identity stay verifiable. | Kept actual OpenAI assistant/prompt disclosure, removed internal workflow names from course evidence, and recorded the real GitHub author handle. | ai-use.md / reviewer.md via PR #91 | Resolved; PR #91 human-approved. |
+| PR #91 | Reviewer rechecked the PR #90 evidence reconciliation, source decisions, exact-head CI and pending release gates. | No product changes were needed; the docs-only correction remained separated from final-main claims. | ai-use.md, reviewer.md, specification.md, tests.md | Resolved; approved and merged. |
+| PR #92 | README said `Node.js 22.12 or newer`, which was broader than Vitest 5's supported Node engine families. | Reworded the prerequisite to `Node.js 22.12.0 or later within Node 22, Node 24.x, or Node 26+ and npm`, verified the installed Vitest engine range, and reran hosted CI. | README.md | Resolved on `002ad781`; final approval and merge followed. |
 
 ## Release review / approval evidence
 
-- PR [#90](https://github.com/Tanaboonnnnn/toktickit/pull/90), [Lab 4][#80] จัดเอกสารและผลตรวจสำหรับการปล่อยระบบ, was approved by @Peepipat-Suesoongnuen in human review [5394000598](https://github.com/Tanaboonnnnn/toktickit/pull/90#pullrequestreview-5394000598) at 2026-10-02T16:05:10Z. The reviewer confirmed the compact review ledger, tests evidence, PR #86 spot-check, truthful separation of AI/CI from human approval, README regression handling, and docs-only scope.
+- PR [#90](https://github.com/Tanaboonnnnn/toktickit/pull/90), **[Lab 4][#80] Prepare Release Documentation and Verification Evidence**, was approved by @Peepipat-Suesoongnuen in human review [5394000598](https://github.com/Tanaboonnnnn/toktickit/pull/90#pullrequestreview-5394000598) at 2026-10-02T16:05:10Z. The reviewer confirmed the compact review ledger, tests evidence, PR #86 spot-check, truthful separation of AI/CI from human approval, README regression handling, and docs-only scope.
 - The review left two non-blocking notes: confirm that the Thai-language editing workflow complies with course AI policy, and keep the author identity as the verifiable GitHub handle. The evidence record continues to disclose the actual OpenAI assistants and representative prompts; internal editing workflow names are not treated as course evidence or peer approval.
 - Exact PR-head Lab 4 CI run [37002207449](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37002207449) completed **success** on 2743e17de9493ec27bf0d37f0079c3f98c03e03f. PR #90 then merged to lab4-staging as 8d724c5bca47c134e7054bb3eae51fc56e5d16e7 at 2026-10-02T16:05:19Z. Post-merge push run [37031519434](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37031519434) completed **success** on that exact staging SHA.
-- PR #90 is release-readiness documentation into lab4-staging; it is not the separate lab4-staging -> main promotion. As of this reconciliation, remote main remains d41ab98d9d40266b355fe5fb3b3bcb193df8a116, so exact-final-main evidence remains a separate gate.
+- PR [#91](https://github.com/Tanaboonnnnn/toktickit/pull/91) was approved by @thananun-7203 on exact head `094e527d93536d3087f1259fccfb09399af54d2e`; exact-head CI run [37039143983](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37039143983) passed. PR #91 merged as `14464b26931485069a01e650ee2467b31645f2b6`; post-merge staging run [37054984642](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37054984642) passed on that exact SHA.
+- PR [#92](https://github.com/Tanaboonnnnn/toktickit/pull/92) first received a documentation correction request from @L0u1sss for an over-broad Node prerequisite. The corrected head `002ad78112831a90741f967d4ebe96059e5c4413` was then approved at 2026-10-03T09:17:17Z. Exact-head CI run [37109923169](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37109923169) passed; PR #92 merged as `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`; post-merge staging run [37112630882](https://github.com/Tanaboonnnnn/toktickit/actions/runs/37112630882) passed on that exact SHA.
+- Issue #80 was reopened after PR #92 because its own Definition of Done still requires actual Project/Kanban verification, a reviewed `lab4-staging -> main` promotion, exact-final-main verification, and the single nine-part submission PDF. The earlier close is not treated as release completion evidence.
+- PR #90 is release-readiness documentation into `lab4-staging`; it is not the separate `lab4-staging -> main` promotion. Remote `main` remains `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` at this checkpoint, so exact-final-main evidence remains a separate gate.
 
 ## Evidence integrity note
 

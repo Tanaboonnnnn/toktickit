@@ -1,10 +1,10 @@
 # Lab 4 Test DD Plan
 
-Status: **Issue #76 Actions UI implementation candidate. HAR-01..HAR-03, MIG-01..MIG-03, SEED-01, UNIT-01, API-01..API-06, RACE-01..RACE-05, FLOW-01..FLOW-05, UI-01..UI-04, E2E-01, and E2E-02 have executed local evidence recorded below. Dashboard, final hardening, release, and final-main Test IDs remain future work.**
+Status: **Final staging reconciliation for Issue #80. All product, migration, security, workflow, dashboard, UI, responsive, regression, harness, and traceability Test IDs through `TRACE-01` have executed Pass evidence. `SPEC-01` is revalidated in this release-document pass. `REL-01`, `REL-02`, and `PDF-01` remain intentionally open until the real Project/Kanban state, reviewed `lab4-staging -> main` promotion, exact-final-main verification, and the single nine-part submission PDF are complete. The student-confirmed reflection is now recorded in `ai-use.md`.**
 
 Primary authority: `SE+Lab+4.pdf` section 10 and the Acceptance Criteria in `specification.md`.
 
-Current contract count: **57 unique planned Test IDs covering AC-01 through AC-28.** Test-ID count is not the same as runner assertion/test-case count.
+Current contract count: **57 unique Test IDs covering AC-01 through AC-28.** Test-ID count is not the same as runner assertion/test-case count.
 
 ## 1. Strategy
 
@@ -23,7 +23,7 @@ Current contract count: **57 unique planned Test IDs covering AC-01 through AC-2
 
 | Test ID | Type | Requirement / AC | Planned behavior | Expected result | Planned executable/evidence path | Final |
 |---|---|---|---|---|---|---|
-| SPEC-01 | Contract consistency | AC-01, AC-02, AC-10, AC-11, AC-26 | Validate source reconciliation, eleven required specification sections, matrices, DTO/UI/test agreement, and AC -> Test ID -> submission/rubric evidence crosswalk | Contract is internally consistent before product implementation | `docs/lab-04/specification.md`, `api-spec.md`, `ui-spec.md`, `tests.md` | Planned / Not run |
+| SPEC-01 | Contract consistency | AC-01, AC-02, AC-10, AC-11, AC-26 | Validate source reconciliation, eleven required specification sections, matrices, DTO/UI/test agreement, and AC -> Test ID -> submission/rubric evidence crosswalk | Contract is internally consistent before product implementation | `docs/lab-04/specification.md`, `docs/lab-04/api-spec.md`, `docs/lab-04/ui-spec.md`, `docs/lab-04/tests.md` | **Pass - Issue #80 final staging contract reconciliation** |
 | HAR-01 | Harness | AC-26 | Discover all Lab 4 plus retained suites; reject missing required suite / false empty success | Required suites selected honestly | `scripts/verify-lab4-harness.test.mjs`, `playwright.config.ts` | **Pass - Issue #72 local harness** |
 | HAR-02 | Harness | AC-19, AC-26 | Protect test DB/upload roots and frozen Lab 3 artifact paths | Unsafe environment/frozen path fails closed before mutation | `scripts/verify-lab4-harness.test.mjs`, `server/tests/lab-04/harness-safety.unit.test.ts` | **Pass - Issue #72 local harness** |
 | HAR-03 | CI/traceability | AC-26, AC-27 | Distinguish planning/increment/release modes and exact SHA/output roots | No candidate result is mislabeled final-main evidence | `scripts/verify-lab4-traceability.mjs`, `scripts/capture-lab4-release-evidence.mjs` | **Pass - Issue #72 local harness** |
@@ -582,3 +582,16 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 - PERF-01 on the same candidate used 1,000 Tickets / 3,000 Actions, three warmups and 20 measurements per role. Requester: at most 9 business queries, 4,510-byte payload, p95 42.34 ms. Staff: at most 11 business queries, 7,573-byte payload, p95 51.54 ms. Both remain far below the documented course smoke limits.
 - No application source, Prisma schema, migration, seed, product Test DD, E2E scenario, or grader-facing screenshot was changed by this hardening increment.
 - Release-mode traceability is intentionally **not** promoted by this dependency work. `REL-02`, `PDF-01`, student-confirmed reflection, exact-final-main verification, and final PDF remain separate release gates.
+
+## Issue #80 final staging reconciliation after PR #92 (2026-10-03)
+
+- PR #91 was approved by `@thananun-7203` at exact head `094e527d93536d3087f1259fccfb09399af54d2e` and merged into `lab4-staging` as `14464b26931485069a01e650ee2467b31645f2b6`. Its review explicitly confirmed the docs-only scope, corrected PR #90 evidence, and the truthfulness of the remaining exact-main/PDF gates.
+- PR #92 was approved by `@L0u1sss` on corrected head `002ad78112831a90741f967d4ebe96059e5c4413`. Exact-head Lab 4 CI run `37109923169` passed. The PR merged into `lab4-staging` as `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`, and post-merge staging run `37112630882` completed successfully on that exact SHA.
+- A fresh clean-worktree `npm.cmd run verify` on staging merge `88a8dce` exited 0 after Prisma generation, migration deploy, and repeat-safe seed on the dedicated `toktickit_test` database. Results: server build + **69 files / 407 tests**; client build + **37 files / 178 tests**; Lab 4 harness **9 Node + 3 server safety tests**; Lab 3 trace **50 Test IDs / 32 ACs**; Lab 4 planning trace **24 FRs / 54 BRs / 28 ACs / 57 Test IDs**; Chromium E2E **70/70**; responsive **28/28**.
+- PERF-01 in that staging verification used 1,000 Tickets / 3,000 Actions with three warmups and 20 measurements per role. Requester: at most 9 business queries, 4,510-byte payload, p95 44.71 ms. Staff: at most 11 business queries, 7,573-byte payload, p95 44.07 ms.
+- Root, server, and client clean installs reported **0 vulnerabilities** with the reviewed Vitest/Vite/jest-dom hardening. The README Node prerequisite now matches Vitest 5's supported engine families.
+- The required six Lab 4 documents are present and their release-status banners are reconciled with the implemented staging state. `SPEC-01` is promoted to Pass only for this contract/document consistency check; it does **not** substitute for `REL-01`, `REL-02`, or `PDF-01`.
+- `.gitignore` still excludes transient `artifacts/lab-04/test-output/` while leaving grader-facing `artifacts/lab-04/screenshots/` trackable. No frozen Lab 3 evidence rule was changed.
+- Issue #80 was reopened because its own Definition of Done requires the final Project/Kanban state, reviewed staging-to-main promotion, exact-final-main verification, and one final PDF. The student-confirmed reflection has since been completed. The previous premature close is not treated as completion evidence.
+- Project/Kanban remains unverified from the available CLI credential because it lacks `read:project`. This is an explicit release gate rather than an invented Done claim.
+- Remote `main` remains the Lab 3 SHA `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` at this checkpoint. Therefore `REL-02` and `PDF-01` correctly remain `Planned / Not run` until the reviewed promotion and exact-main evidence actually exist.
