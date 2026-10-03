@@ -1,8 +1,8 @@
 # TokTickIT Lab 4 Submission Outline
 
-This file is the working source for the single final Lab 4 PDF. It deliberately does not claim final-main, Project/Kanban, student-reflection, or PDF completion before those events happen.
+This file is the working source for the single final Lab 4 PDF. The student-confirmed reflection and human-verified Project/Kanban state are complete. Final-main and PDF completion are not claimed before those events happen.
 
-- Current reviewed staging SHA: `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d`
+- Current reviewed staging SHA: `cb205a6b768a085dac217de646a4a27873fb0e07`
 - Current remote `main`: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116`
 - Issue #80: open until the release/submission gates are actually complete.
 
@@ -13,7 +13,7 @@ This file is the working source for the single final Lab 4 PDF. It deliberately 
 Evidence to render/link in the final PDF:
 
 - Feature flow: Issues #71-#79 -> PRs #81-#89 -> `lab4-staging`.
-- Release-readiness flow: PR #90 -> PR #91 -> PR #92 -> current final-reconciliation PR -> `lab4-staging`.
+- Release-readiness flow: PR #90 -> PR #91 -> PR #92 -> PR #93 -> `lab4-staging`.
 - Separate reviewed `lab4-staging -> main` promotion PR and resulting exact final-main SHA.
 - `docs/lab-04/reviewer.md` with real reviewer usernames, review findings, responses, approvals, exact heads, merge SHAs and CI provenance.
 - README setup/verification excerpt.
@@ -21,7 +21,7 @@ Evidence to render/link in the final PDF:
 - Repository tree showing the six required Lab 4 documents and required server/client/E2E test structure.
 - Actual final GitHub Project/Kanban with all truly completed Issues in the real Done state.
 
-Current state: feature and release-readiness review history is recorded through approved/merged PR #92. Project/Kanban and final `main` promotion remain pending.
+Current state: feature and release-readiness review history is recorded through approved/merged PR #93. The student supplied a current Project/Kanban screenshot showing all non-Done workflow columns at 0 and Done at 38, with Issue #80 visible in Done. The final `lab4-staging -> main` promotion remains pending.
 
 # Answer Part 2
 
@@ -57,7 +57,7 @@ Show:
 - exact final-main complete verification output after promotion.
 - distinction between 57 planned Test IDs and runner assertion/test-case counts.
 
-Current staging verification at `88a8dce`:
+Current exact staging verification at `cb205a6` (post-PR #93 CI run `37118280869`):
 
 - server: 69 files / 407 tests
 - client: 37 files / 178 tests
@@ -66,8 +66,7 @@ Current staging verification at `88a8dce`:
 - Lab 4 planning trace: 24 FR / 54 BR / 28 AC / 57 Test IDs
 - Chromium E2E: 70/70
 - responsive: 28/28
-- Requester performance smoke: 9 business queries, 4,510 bytes, p95 44.71 ms
-- Staff performance smoke: 11 business queries, 7,573 bytes, p95 44.07 ms
+- The latest product performance smoke remains the reviewed pre-PR #93 product evidence because PR #93 was documentation-only; no new performance number is invented for the docs-only merge.
 
 Final PDF must replace staging-only provenance with the resulting exact-main verification where the rubric requires main evidence.
 
