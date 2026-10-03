@@ -84,7 +84,7 @@ Include:
 - prompt purpose/result and short technical reflection;
 - a brief first-person **My Reflection** confirmed by the student.
 
-Current state: AI-use disclosure and ten prompt rows are complete. The first-person student reflection is intentionally not fabricated and still requires student confirmation.
+Current state: AI-use disclosure, ten prompt rows, and the first-person reflection are complete. The reflection text was confirmed by the student before inclusion.
 
 # Answer Part 5
 

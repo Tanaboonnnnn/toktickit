@@ -21,7 +21,7 @@ This checklist is the current Issue #80 release gate. It records only events tha
 - [x] `.gitignore` keeps transient Lab 4 test output ignored while grader-facing screenshots remain trackable.
 - [x] `regression-map.md` records the final staging regression checkpoint.
 - [x] Human review records through PR #92 are preserved separately from AI review and CI.
-- [ ] Student has confirmed the first-person `My Reflection` text in `ai-use.md`.
+- [x] Student confirmed the first-person `My Reflection` text in `ai-use.md` after a final wording pass.
 - [ ] Actual GitHub Project/Kanban state has been verified with Project read access.
 
 ## Verification state
@@ -73,7 +73,7 @@ The handout requires exactly one concise PDF with these headings in order:
 Release requirements:
 
 - [ ] `submission-outline.md` reconciled to the exact final-main SHA and actual final Project state.
-- [ ] Student-confirmed reflection included.
+- [x] Student-confirmed reflection included in the working submission source.
 - [ ] Required screenshots/links/metrics/review evidence are readable and source-accurate.
 - [ ] Final PDF rendered and every page visually inspected for clipping, overlap, broken glyphs, blank pages and unreadable screenshots.
 - [ ] Working links checked.

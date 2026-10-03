@@ -1,6 +1,6 @@
 # Lab 4 Sprint Engineering Specification
 
-Status: **Reviewed Sprint 4 engineering contract. The approved Lab 4 product scope is implemented and integrated on `lab4-staging` through PR #92 (`88a8dce`). Executed product and regression evidence is recorded in `tests.md`; exact-final-main verification, Project/Kanban confirmation, student reflection, and the single submission PDF remain separate Issue #80 release gates.**
+Status: **Reviewed Sprint 4 engineering contract. The approved Lab 4 product scope is implemented and integrated on `lab4-staging` through PR #92 (`88a8dce`). Executed product and regression evidence is recorded in `tests.md`; exact-final-main verification, Project/Kanban confirmation, and the single submission PDF remain separate Issue #80 release gates. The student-confirmed reflection is now recorded in `ai-use.md`.**
 
 Primary authority: `SE+Lab+4.pdf`. This contract extends the delivered Lab 3 `main` baseline `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` and preserves valid Labs 1-3 behavior unless this document explicitly evolves it.
 

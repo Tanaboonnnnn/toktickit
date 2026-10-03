@@ -1,6 +1,6 @@
 # Lab 4 Test DD Plan
 
-Status: **Final staging reconciliation for Issue #80. All product, migration, security, workflow, dashboard, UI, responsive, regression, harness, and traceability Test IDs through `TRACE-01` have executed Pass evidence. `SPEC-01` is revalidated in this release-document pass. `REL-01`, `REL-02`, and `PDF-01` remain intentionally open until the real Project/Kanban state, reviewed `lab4-staging -> main` promotion, exact-final-main verification, student-confirmed reflection, and the single nine-part submission PDF are complete.**
+Status: **Final staging reconciliation for Issue #80. All product, migration, security, workflow, dashboard, UI, responsive, regression, harness, and traceability Test IDs through `TRACE-01` have executed Pass evidence. `SPEC-01` is revalidated in this release-document pass. `REL-01`, `REL-02`, and `PDF-01` remain intentionally open until the real Project/Kanban state, reviewed `lab4-staging -> main` promotion, exact-final-main verification, and the single nine-part submission PDF are complete. The student-confirmed reflection is now recorded in `ai-use.md`.**
 
 Primary authority: `SE+Lab+4.pdf` section 10 and the Acceptance Criteria in `specification.md`.
 
@@ -592,6 +592,6 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 - Root, server, and client clean installs reported **0 vulnerabilities** with the reviewed Vitest/Vite/jest-dom hardening. The README Node prerequisite now matches Vitest 5's supported engine families.
 - The required six Lab 4 documents are present and their release-status banners are reconciled with the implemented staging state. `SPEC-01` is promoted to Pass only for this contract/document consistency check; it does **not** substitute for `REL-01`, `REL-02`, or `PDF-01`.
 - `.gitignore` still excludes transient `artifacts/lab-04/test-output/` while leaving grader-facing `artifacts/lab-04/screenshots/` trackable. No frozen Lab 3 evidence rule was changed.
-- Issue #80 was reopened because its own Definition of Done requires the final Project/Kanban state, reviewed staging-to-main promotion, exact-final-main verification, student-confirmed reflection, and one final PDF. The previous premature close is not treated as completion evidence.
+- Issue #80 was reopened because its own Definition of Done requires the final Project/Kanban state, reviewed staging-to-main promotion, exact-final-main verification, and one final PDF. The student-confirmed reflection has since been completed. The previous premature close is not treated as completion evidence.
 - Project/Kanban remains unverified from the available CLI credential because it lacks `read:project`. This is an explicit release gate rather than an invented Done claim.
 - Remote `main` remains the Lab 3 SHA `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` at this checkpoint. Therefore `REL-02` and `PDF-01` correctly remain `Planned / Not run` until the reviewed promotion and exact-main evidence actually exist.
