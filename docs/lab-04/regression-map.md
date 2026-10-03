@@ -35,7 +35,7 @@ Requester Dashboard authorization now has distinct retained evidence for an auth
 
 ## Issue #80 - Final staging regression checkpoint
 
-Starting reviewed staging SHA: `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d` after approved PR #92.
+Current reviewed staging SHA: `cb205a6b768a085dac217de646a4a27873fb0e07` after approved PR #93. PR #93 changed release documentation only; the product source/test tree remains the reviewed PR #92 product state.
 
 | Surface | Final staging check | Result |
 |---|---|---|
@@ -48,4 +48,4 @@ Starting reviewed staging SHA: `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d` after 
 | Dependency baseline | Clean root/server/client installs after PR #92 hardening | **0 vulnerabilities reported by npm install/audit checks** |
 | Historical evidence | Frozen Lab 3 evidence and source-bound Lab 4 Issue #79 screenshots | Preserved; no historical artifact rewrite |
 
-PR #92 changed dependency/tooling and release documentation only; it did not change application source, Prisma schema/migrations, seed behavior, product test cases, E2E scenarios, or grader-facing screenshots. The final-main regression checkpoint is intentionally separate and must run again after the reviewed `lab4-staging -> main` promotion.
+PR #92 changed dependency/tooling and release documentation only, and PR #93 changed release documentation only. Neither changed application source, Prisma schema/migrations, seed behavior, product test cases, E2E scenarios, or grader-facing screenshots. Post-merge staging CI `37118280869` passed on exact staging SHA `cb205a6`. The final-main regression checkpoint is intentionally separate and must run again after the reviewed `lab4-staging -> main` promotion.
