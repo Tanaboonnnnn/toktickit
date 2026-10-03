@@ -29,7 +29,7 @@ Selection, and Change Requester are not part of the post-#45 application contrac
 
 ## Prerequisites
 
-- Node.js 22.12 or newer and npm
+- Node.js 22.12.0 or later within Node 22, Node 24.x, or Node 26+ and npm
 - PostgreSQL running locally or on an accessible server
 - Git
 
