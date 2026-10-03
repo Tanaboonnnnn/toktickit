@@ -1,6 +1,6 @@
 # TokTickIT Lab 4 Submission Outline
 
-This file is the working source for the single final Lab 4 PDF. The student-confirmed reflection and human-verified Project/Kanban state are complete. Final-main and PDF completion are not claimed before those events happen.
+This file is the working source for the single final Lab 4 PDF. The student-confirmed reflection is complete. Project/Kanban workflow is being tracked as live evidence: the supplied screenshot records an earlier Done checkpoint, while Issue #80 is currently open and in `PR Review` because PR #94 is active. Final-main and PDF completion are not claimed before those events happen.
 
 - Current reviewed staging SHA: `cb205a6b768a085dac217de646a4a27873fb0e07`
 - Current remote `main`: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116`
@@ -19,9 +19,9 @@ Evidence to render/link in the final PDF:
 - README setup/verification excerpt.
 - `.gitignore` evidence showing transient Lab 4 outputs ignored while grader-facing screenshots remain trackable.
 - Repository tree showing the six required Lab 4 documents and required server/client/E2E test structure.
-- Actual final GitHub Project/Kanban with all truly completed Issues in the real Done state.
+- Actual final GitHub Project/Kanban with all truly completed Issues in the real Done state; intermediate release PRs should show Issue #80 in `PR Review` while review is active and return it to `Done` after merge.
 
-Current state: feature and release-readiness review history is recorded through approved/merged PR #93. The student supplied a current Project/Kanban screenshot showing all non-Done workflow columns at 0 and Done at 38, with Issue #80 visible in Done. The final `lab4-staging -> main` promotion remains pending.
+Current state: feature and release-readiness review history is recorded through approved/merged PR #93, with PR #94 now under review. The student-supplied screenshot records a checkpoint where all non-Done workflow columns were 0 and Done was 38, with Issue #80 visible in Done. Since PR #94 is active, Issue #80 is now open, its native Development panel is verified to link PRs #90–#94, and its Project status is `PR Review`. After PR #94 merges it returns to `Done`; opening the later `lab4-staging -> main` PR moves it back to `PR Review` until promotion merge.
 
 # Answer Part 2
 
