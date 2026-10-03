@@ -168,4 +168,3 @@ The final review confirmed the exact branch, builds, Test DD traceability, Actio
 ## Evidence integrity note
 
 Only submitted human GitHub reviews appear in the received/given review tables. Automated checks and CI are recorded separately from human review. Project/Kanban history is based on the student-provided board evidence and the observed PR Review/Done transitions during the release workflow.
-
