@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+const EXTERNAL_SUBMISSION_TEST_IDS = new Set(["PDF-01"]);
+
 const ISSUE_TEST_IDS = new Map([
   [72, ["HAR-01", "HAR-02", "HAR-03"]],
   [73, ["MIG-01", "MIG-02", "MIG-03", "SEED-01"]],
@@ -153,6 +155,7 @@ export function verifyLab4Traceability({ specification, tests, root, mode = "pla
     }
   } else if (mode === "release") {
     for (const row of parsed.testIds.values()) {
+      if (EXTERNAL_SUBMISSION_TEST_IDS.has(row.id)) continue;
       if (!isPass(row.final)) fail(`${row.id} is not executed Pass evidence in release mode`);
       requireExistingPaths(root, row);
     }

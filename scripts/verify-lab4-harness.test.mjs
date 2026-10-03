@@ -64,11 +64,14 @@ test("HAR-02 managed evidence environment behavior is fail-safe and preserves on
   assert.equal(explicitLegacy.LAB4_EVIDENCE_ROOT, undefined);
 });
 
-test("HAR-03 planning trace accepts honest planned rows while release rejects them", () => {
+test("HAR-03 release trace excludes the external PDF submission from repository completion", () => {
   const planning = verifyLab4TraceabilityFromDisk({ root, mode: "planning" });
   assert.equal(planning.acCount, 28);
   assert.equal(planning.testCount, 57);
-  assert.throws(() => verifyLab4TraceabilityFromDisk({ root, mode: "release" }), /not executed Pass evidence/i);
+
+  const release = verifyLab4TraceabilityFromDisk({ root, mode: "release" });
+  assert.equal(release.acCount, 28);
+  assert.equal(release.testCount, 57);
 });
 
 test("HAR-03 increment trace recognizes reviewed Issue #74-#79 ownership without claiming future Issue IDs", () => {

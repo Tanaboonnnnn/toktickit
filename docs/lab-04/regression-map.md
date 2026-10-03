@@ -33,19 +33,18 @@ For every retained fixture actually changed, replace `Planned` above (or add a r
 
 Requester Dashboard authorization now has distinct retained evidence for an authenticated Requester denied by a 403 versus an expired 401 session: `client/tests/lab-04/RequesterDashboard.test.tsx` and `e2e/lab-04/dashboard-states.spec.ts` assert Access Denied/no metrics for 403 and Login/no protected data for 401. Focused component suite passed 5/5; state E2E passed 13/13.
 
-## Issue #80 - Final staging regression checkpoint
+## Issue #80 - Final main regression checkpoint
 
-Current reviewed staging SHA: `cb205a6b768a085dac217de646a4a27873fb0e07` after approved PR #93. PR #93 changed release documentation only; the product source/test tree remains the reviewed PR #92 product state.
+Product-release main SHA: `39a7afbcd44da82990b5b79ecf0060830a7b960a`, produced by approved PR #95.
 
-| Surface | Final staging check | Result |
+| Surface | Exact-main check | Result |
 |---|---|---|
-| Server retained + Lab 4 suites | Fresh clean-worktree aggregate on the dedicated test database | **69 files / 407 tests passed** |
-| Client retained + Lab 4 suites | TypeScript/Vite production build plus component/style/accessibility regression | **37 files / 178 tests passed** |
+| Server retained + Lab 4 suites | Push-triggered Lab 4 CI run `37129118888` | **69 files / 407 tests passed** |
+| Client retained + Lab 4 suites | Production build + component/style/accessibility regression in the same run | **37 files / 178 tests passed** |
 | Browser regression | Labs 2-4 authenticated, workflow, privacy, failure and dashboard journeys | **70/70 Chromium passed** |
 | Responsive regression | Retained and Lab 4 desktop/tablet/mobile checks | **28/28 Chromium passed** |
-| Harness / traceability | Lab 4 harness plus Lab 3 and Lab 4 planning traces | **9 Node + 3 safety tests passed; 50 Lab 3 Test IDs / 32 ACs; 24 FR / 54 BR / 28 AC / 57 Lab 4 Test IDs** |
-| Performance smoke | 1,000 Tickets / 3,000 Actions; 3 warmups + 20 measurements per role | Requester: 9 business queries, 4,510 bytes, p95 44.71 ms; Staff: 11 queries, 7,573 bytes, p95 44.07 ms |
-| Dependency baseline | Clean root/server/client installs after PR #92 hardening | **0 vulnerabilities reported by npm install/audit checks** |
-| Historical evidence | Frozen Lab 3 evidence and source-bound Lab 4 Issue #79 screenshots | Preserved; no historical artifact rewrite |
+| Harness / traceability | Lab 4 harness plus Lab 3 and Lab 4 traces | **9 Node + 3 safety tests; 50 Lab 3 Test IDs / 32 ACs; 24 FR / 54 BR / 28 AC / 57 Lab 4 Test IDs** |
+| Dependency baseline | Final release install/audit evidence | **0 vulnerabilities reported** |
+| Historical evidence | Frozen Lab 3 evidence and source-bound Lab 4 screenshots | Preserved; no historical artifact rewrite |
 
-PR #92 changed dependency/tooling and release documentation only, and PR #93 changed release documentation only. Neither changed application source, Prisma schema/migrations, seed behavior, product test cases, E2E scenarios, or grader-facing screenshots. Post-merge staging CI `37118280869` passed on exact staging SHA `cb205a6`. The final-main regression checkpoint is intentionally separate and must run again after the reviewed `lab4-staging -> main` promotion.
+PR #96 changed release documentation only. PR #95 then promoted the reviewed staging tree to `main` and exact-main CI `37129118888` passed on `39a7afb`. The later final-evidence cleanup is documentation-only and does not change application source, Prisma schema/migrations, seed behavior, product tests, E2E scenarios, or grader-facing screenshots.
