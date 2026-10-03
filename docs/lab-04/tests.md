@@ -1,6 +1,6 @@
 # Lab 4 Test DD Plan
 
-Status: **Final staging reconciliation for Issue #80. All product, migration, security, workflow, dashboard, UI, responsive, regression, harness, and traceability Test IDs through `TRACE-01` have executed Pass evidence. `SPEC-01` is revalidated in this release-document pass. `REL-01`, `REL-02`, and `PDF-01` remain intentionally open until the real Project/Kanban state, reviewed `lab4-staging -> main` promotion, exact-final-main verification, and the single nine-part submission PDF are complete. The student-confirmed reflection is now recorded in `ai-use.md`.**
+Status: **Final staging release record for Issue #80. All product, migration, security, workflow, dashboard, UI, responsive, regression, harness, `SPEC-01`, and planning-trace evidence is reconciled through approved/merged PR #93 on staging SHA `cb205a6`. The student has human-verified the GitHub Project/Kanban from a current screenshot. `REL-01` remains open only for the real reviewed `lab4-staging -> main` promotion; `REL-02` requires fresh complete verification on the resulting exact `main` SHA; `PDF-01` is intentionally deferred until after `main`, per the student's instruction.**
 
 Primary authority: `SE+Lab+4.pdf` section 10 and the Acceptance Criteria in `specification.md`.
 
@@ -593,5 +593,16 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 - The required six Lab 4 documents are present and their release-status banners are reconciled with the implemented staging state. `SPEC-01` is promoted to Pass only for this contract/document consistency check; it does **not** substitute for `REL-01`, `REL-02`, or `PDF-01`.
 - `.gitignore` still excludes transient `artifacts/lab-04/test-output/` while leaving grader-facing `artifacts/lab-04/screenshots/` trackable. No frozen Lab 3 evidence rule was changed.
 - Issue #80 was reopened because its own Definition of Done requires the final Project/Kanban state, reviewed staging-to-main promotion, exact-final-main verification, and one final PDF. The student-confirmed reflection has since been completed. The previous premature close is not treated as completion evidence.
-- Project/Kanban remains unverified from the available CLI credential because it lacks `read:project`. This is an explicit release gate rather than an invented Done claim.
+- The local CLI still lacks `read:project`, but the student supplied a current GitHub Project/Kanban screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, and Done 38, with Issue #80 visible in Done. This is recorded as human-verified Project evidence rather than automated API evidence.
 - Remote `main` remains the Lab 3 SHA `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` at this checkpoint. Therefore `REL-02` and `PDF-01` correctly remain `Planned / Not run` until the reviewed promotion and exact-main evidence actually exist.
+
+## Issue #80 post-PR #93 staging release checkpoint (2026-10-03)
+
+- PR #93 exact head `5c1de21a244354c0060a631c1d789c228e0ca7c4` received a real Changes Requested review from `@L0u1sss` because GitHub Issue #80 was closed while the release documents correctly said it needed to remain open. Issue #80 was reopened without changing the reviewed document head, and the same exact head was then approved at 2026-10-03T11:00:40Z.
+- Exact-head Lab 4 CI run `37115432452` passed. PR #93 merged into `lab4-staging` as `cb205a6b768a085dac217de646a4a27873fb0e07` at 2026-10-03T11:00:51Z.
+- Post-merge staging CI run `37118280869` completed successfully on exact SHA `cb205a6`. The hosted job checked out that exact source, created the isolated test database, applied migrations, seeded the reference data, verified Lab 4 planning traceability, and ran the aggregate verification.
+- The exact staging aggregate reported: server **69 files / 407 tests**, client **37 files / 178 tests**, Lab 4 harness **9 Node checks + 3 server safety tests**, Lab 3 trace **50 Test IDs / 32 ACs**, Lab 4 planning trace **24 FRs / 54 BRs / 28 ACs / 57 Test IDs**, Chromium E2E **70/70**, and responsive **28/28**. Dependency installation reported **0 vulnerabilities**.
+- PR #93 changed release documents only. Its merged tree matches the reviewed PR head tree, so the source-bound Issue #79 product screenshots and previously executed performance smoke remain product evidence; no new performance number is invented for the docs-only merge.
+- The student supplied a current GitHub Project/Kanban screenshot showing **Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, Done 38**, with Issue #80 visible in Done. The local credential still lacks `read:project`, so this is explicitly human-verified Project evidence.
+- `REL-01` remains `Planned / Not run` until the separate `lab4-staging -> main` promotion receives real human approval. `REL-02` remains `Planned / Not run` until fresh complete verification runs on the resulting exact `main` SHA. `PDF-01` remains `Planned / Not run` because the student explicitly deferred PDF generation until after the main promotion.
+
