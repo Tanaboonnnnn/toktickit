@@ -567,7 +567,7 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 ### Not run or still pending
 
 - No new source-bound screenshot capture was made. The existing Issue #79 manifest contains 60 images at source SHA 4f502367d26f72dac343183cfa58e1af0dd7a2f0; no server/src, client/src or server/prisma files changed between that SHA and staging 4921d952.
-- Project/Kanban state is not verified and no board status was changed. The connected GitHub tools in this session expose no Project read operation.
+- At this earlier PR #90 checkpoint, Project/Kanban state had not yet been human-verified and no board status was changed from the available tooling. Later Issue #80 evidence records the student-provided Project screenshot.
 - PR #90 exact-head CI 37002207449 passed on 2743e17; human review 5394000598 approved the PR; merge 8d724c5 into lab4-staging was followed by successful exact-staging CI 37031519434.
 - Exact-main verification and the final submission PDF remain pending. The user has deferred PDF work; staging or PR-head evidence is not final-main evidence.
 
@@ -592,7 +592,7 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 - Root, server, and client clean installs reported **0 vulnerabilities** with the reviewed Vitest/Vite/jest-dom hardening. The README Node prerequisite now matches Vitest 5's supported engine families.
 - The required six Lab 4 documents are present and their release-status banners are reconciled with the implemented staging state. `SPEC-01` is promoted to Pass only for this contract/document consistency check; it does **not** substitute for `REL-01`, `REL-02`, or `PDF-01`.
 - `.gitignore` still excludes transient `artifacts/lab-04/test-output/` while leaving grader-facing `artifacts/lab-04/screenshots/` trackable. No frozen Lab 3 evidence rule was changed.
-- Issue #80 was reopened because its own Definition of Done requires the final Project/Kanban state, reviewed staging-to-main promotion, exact-final-main verification, and one final PDF. The student-confirmed reflection has since been completed. The previous premature close is not treated as completion evidence.
+- Issue #80 was reopened because its own Definition of Done still had release gates outstanding. The student-confirmed reflection and Project/Kanban visibility have since been completed; reviewed staging-to-main promotion, exact-final-main verification, and one final PDF remain later gates. The previous premature close is not treated as completion evidence.
 - The local CLI still lacks `read:project`, but the student supplied a current GitHub Project/Kanban screenshot showing Backlog 0, Specified 0, Started 0, PR Review 0, Fixing 0, and Done 38, with Issue #80 visible in Done. This is recorded as human-verified Project evidence rather than automated API evidence.
 - Remote `main` remains the Lab 3 SHA `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` at this checkpoint. Therefore `REL-02` and `PDF-01` correctly remain `Planned / Not run` until the reviewed promotion and exact-main evidence actually exist.
 
