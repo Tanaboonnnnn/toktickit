@@ -617,4 +617,3 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 - Human review by `@L0u1sss` at 2026-10-03T13:11:15Z submitted **Changes Requested** because `release-checklist.md`, `submission-outline.md`, `reviewer.md`, and `tests.md` still described PR #94 as the active gate and did not yet record PR #95's promotion state.
 - This documentation reconciliation is intentionally docs-only. It records the real PR #95 opening candidate `65770a0` and review event, but does **not** claim the future merge SHA produced when this reconciliation reaches `lab4-staging`. After that merge, PR #95's head will advance and must receive fresh exact-head CI plus human re-review on the new head.
 - This avoids recursive evidence-SHA claims: the final promoted head, approval, merge result, and exact-main verification will be taken from live GitHub PR/workflow records after those events exist. `REL-01`, `REL-02`, and `PDF-01` are not promoted by this checkpoint.
-
