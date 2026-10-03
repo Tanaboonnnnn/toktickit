@@ -1,10 +1,12 @@
 # TokTickIT Lab 4 Submission Outline
 
-This file is the working source for the single final Lab 4 PDF. The student-confirmed reflection is complete. Project/Kanban workflow is being tracked as live evidence: the supplied screenshot records an earlier Done checkpoint, while Issue #80 is currently open and in `PR Review` because PR #94 is active. Final-main and PDF completion are not claimed before those events happen.
+This file is the working source for the single final Lab 4 PDF. The student-confirmed reflection is complete. Project/Kanban workflow is being tracked as live evidence: the supplied screenshot records an earlier Done checkpoint, while Issue #80 is currently open and in `PR Review` because the separate promotion PR #95 is active. Final-main and PDF completion are not claimed before those events happen.
 
-- Current reviewed staging SHA: `cb205a6b768a085dac217de646a4a27873fb0e07`
-- Current remote `main`: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116`
-- Issue #80: open until the release/submission gates are actually complete.
+- PR #94 was approved and merged into `lab4-staging` as `65770a03190ead324066461192abd0cfbd8e2988`.
+- Promotion PR #95 opened from `lab4-staging` to `main` using that exact staging SHA; exact-head CI `37124638527` passed on the opening candidate.
+- PR #95 then received a real human **Changes Requested** review because repository release evidence still described PR #94 as the active gate. This reconciliation updates that stale provenance without claiming a future docs-merge SHA.
+- Current remote `main`: `d41ab98d9d40266b355fe5fb3b3bcb193df8a116`.
+- Issue #80: open until promotion approval/merge, exact-main verification, and final PDF gates are actually complete.
 
 # Answer Part 1
 
@@ -13,15 +15,15 @@ This file is the working source for the single final Lab 4 PDF. The student-conf
 Evidence to render/link in the final PDF:
 
 - Feature flow: Issues #71-#79 -> PRs #81-#89 -> `lab4-staging`.
-- Release-readiness flow: PR #90 -> PR #91 -> PR #92 -> PR #93 -> `lab4-staging`.
-- Separate reviewed `lab4-staging -> main` promotion PR and resulting exact final-main SHA.
+- Release-readiness flow: PR #90 -> PR #91 -> PR #92 -> PR #93 -> PR #94 -> `lab4-staging`.
+- Promotion flow: PR #95 is the separate `lab4-staging -> main` PR; its approval/merge and resulting exact final-main SHA remain pending.
 - `docs/lab-04/reviewer.md` with real reviewer usernames, review findings, responses, approvals, exact heads, merge SHAs and CI provenance.
 - README setup/verification excerpt.
 - `.gitignore` evidence showing transient Lab 4 outputs ignored while grader-facing screenshots remain trackable.
 - Repository tree showing the six required Lab 4 documents and required server/client/E2E test structure.
 - Actual final GitHub Project/Kanban with all truly completed Issues in the real Done state; intermediate release PRs should show Issue #80 in `PR Review` while review is active and return it to `Done` after merge.
 
-Current state: feature and release-readiness review history is recorded through approved/merged PR #93, with PR #94 now under review. The student-supplied screenshot records a checkpoint where all non-Done workflow columns were 0 and Done was 38, with Issue #80 visible in Done. Since PR #94 is active, Issue #80 is now open, its native Development panel is verified to link PRs #90–#94, and its Project status is `PR Review`. After PR #94 merges it returns to `Done`; opening the later `lab4-staging -> main` PR moves it back to `PR Review` until promotion merge.
+Current state: feature and release-readiness review history is recorded through approved/merged PR #94. PR #95 is now the active `lab4-staging -> main` promotion. The student-supplied screenshot records a historical checkpoint where all non-Done workflow columns were 0 and Done was 38, with Issue #80 visible in Done. Issue #80 is currently open, its native Development panel is verified to include PRs #90–#95, and its Project status is `PR Review` while #95 is active. PR #95 has passing exact-head CI on opening candidate `65770a0` but currently has a human Changes Requested review for stale release documentation; it must be re-reviewed on the new exact head after this docs reconciliation reaches staging. Exact-main verification begins only after an approved promotion merge.
 
 # Answer Part 2
 
@@ -57,7 +59,7 @@ Show:
 - exact final-main complete verification output after promotion.
 - distinction between 57 planned Test IDs and runner assertion/test-case counts.
 
-Current exact staging verification at `cb205a6` (post-PR #93 CI run `37118280869`):
+Current exact staging verification at promotion-opening candidate `65770a03190ead324066461192abd0cfbd8e2988` (post-PR #94 CI run `37124131599`; PR #95 exact-head CI run `37124638527` also passed on this SHA):
 
 - server: 69 files / 407 tests
 - client: 37 files / 178 tests
@@ -68,7 +70,7 @@ Current exact staging verification at `cb205a6` (post-PR #93 CI run `37118280869
 - responsive: 28/28
 - The latest product performance smoke remains the reviewed pre-PR #93 product evidence because PR #93 was documentation-only; no new performance number is invented for the docs-only merge.
 
-Final PDF must replace staging-only provenance with the resulting exact-main verification where the rubric requires main evidence.
+PR #95's opening candidate is staging evidence only. This docs reconciliation intentionally does not embed its own future merge SHA: after it reaches `lab4-staging`, PR #95's head changes and must receive fresh exact-head CI plus human re-review. Final PDF must replace staging-only provenance with the resulting exact-main verification where the rubric requires main evidence.
 
 # Answer Part 4
 
