@@ -2,6 +2,7 @@ import type { APIRequestContext, Page } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { E2E_REQUESTER_PASSWORD } from "./fixtures.js";
+import { resolveLab4EvidenceFile, retainedScreenshotSuffix } from "../../../scripts/lab4-evidence-paths.mjs";
 
 const API_URL = "http://127.0.0.1:4311";
 const FRONTEND_ORIGIN = "http://127.0.0.1:4312";
@@ -11,15 +12,18 @@ export type LoginRequester = { email: string };
 export async function loginRequester(page: Page, requester: LoginRequester): Promise<void> {
   await page.goto("/#/login");
   const loginHeading = page.getByRole("heading", { name: "Login" });
-  const ticketsHeading = page.getByRole("heading", { name: "My Tickets" });
+  const dashboardHeading = page.getByRole("heading", { name: "Dashboard" });
   await Promise.race([
     loginHeading.waitFor(),
-    ticketsHeading.waitFor(),
+    dashboardHeading.waitFor(),
   ]);
-  if (await ticketsHeading.isVisible().catch(() => false)) return;
-  await page.getByLabel("Email").fill(requester.email);
-  await page.getByLabel("Password").fill(E2E_REQUESTER_PASSWORD);
-  await page.getByRole("button", { name: "Login" }).click();
+  if (!(await dashboardHeading.isVisible().catch(() => false))) {
+    await page.getByLabel("Email").fill(requester.email);
+    await page.getByLabel("Password").fill(E2E_REQUESTER_PASSWORD);
+    await page.getByRole("button", { name: "Login" }).click();
+    await dashboardHeading.waitFor();
+  }
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
   await page.getByRole("heading", { name: "My Tickets" }).waitFor();
 }
 
@@ -118,7 +122,10 @@ export async function assertSelectedOptionTextFits(page: Page, selectors: string
 }
 
 export async function screenshot(page: Page, relativePath: string): Promise<void> {
-  const absolutePath = resolve(process.cwd(), relativePath);
+  const currentRunRoot = process.env.LAB4_EVIDENCE_ROOT?.trim();
+  const absolutePath = currentRunRoot
+    ? resolveLab4EvidenceFile(process.cwd(), currentRunRoot, retainedScreenshotSuffix(relativePath))
+    : resolve(process.cwd(), relativePath);
   mkdirSync(dirname(absolutePath), { recursive: true });
   await page.screenshot({ path: absolutePath, fullPage: true });
 }

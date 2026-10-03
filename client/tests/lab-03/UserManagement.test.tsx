@@ -21,9 +21,9 @@ describe("UI-06 Administrator User Management", () => {
     render(<AuthProvider initialUser={administrator}><UserManagement /></AuthProvider>);
 
     expect(await screen.findByRole("heading", { name: "User Management" })).toBeInTheDocument();
-    expect(screen.getByText("Niran Staff")).toBeInTheDocument();
-    expect(screen.getByText("niran@example.test")).toBeInTheDocument();
-    expect(screen.getByText("Inactive")).toBeInTheDocument();
+    expect(await screen.findByText("Niran Staff")).toBeInTheDocument();
+    expect(await screen.findByText("niran@example.test")).toBeInTheDocument();
+    expect(await screen.findByText("Inactive")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /delete/i })).not.toBeInTheDocument();
 
     const user = userEvent.setup();

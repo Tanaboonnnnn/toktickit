@@ -77,7 +77,7 @@ test("E2E-03 reconciles a lost Ticket-create response with the same request key"
     await createRegion.getByRole("button", { name: "Create Ticket", exact: true }).click();
     await expect.poll(() => proxy.backendStatus).toBe(201);
     expect(proxy.backendError).toBeNull();
-    expect(proxy.backendBody).toContain(summary);
+    await expect.poll(() => proxy.backendBody).toContain(summary);
     await expect(page.getByRole("alert")).toContainText(/result is uncertain/i);
     await expect(page.getByLabel("Ticket Summary *")).toBeDisabled();
     await expect(page.getByLabel("Description *")).toBeDisabled();

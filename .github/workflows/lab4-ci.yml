@@ -1,27 +1,27 @@
-name: Lab 3 CI
+name: Lab 4 CI
 
 on:
   pull_request:
     branches:
-      - lab3-staging
+      - lab4-staging
       - main
   push:
     branches:
-      - lab3-staging
+      - lab4-staging
       - main
 
 permissions:
   contents: read
 
 concurrency:
-  group: lab3-ci-${{ github.workflow }}-${{ github.ref }}
+  group: lab4-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   verify:
-    name: Build, test, E2E, responsive evidence
+    name: Build, test, retained E2E and responsive regression
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
 
     services:
       postgres:
@@ -41,21 +41,19 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/toktickit?schema=public
       TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/toktickit_test?schema=public
-      SESSION_SECRET: lab3-ci-session-secret-0123456789abcdef0123456789abcdef
+      SESSION_SECRET: lab4-ci-session-secret-0123456789abcdef0123456789abcdef
       FRONTEND_ORIGIN: http://127.0.0.1:4312
 
     steps:
-      - name: Checkout
+      - name: Checkout exact source under verification
         uses: actions/checkout@v4
         with:
-          # pull_request events normally check out GitHub's synthetic merge commit.
-          # Release evidence must identify the real PR head; push events use github.sha.
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.12.0
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -65,8 +63,7 @@ jobs:
       - name: Create isolated test database
         env:
           PGPASSWORD: postgres
-        run: |
-          psql -h 127.0.0.1 -U postgres -d postgres -c 'CREATE DATABASE tocktickit_test;'
+        run: psql -h 127.0.0.1 -U postgres -d postgres -c 'CREATE DATABASE toktickit_test;'
 
       - name: Install dependencies
         run: |
@@ -93,28 +90,34 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
 
-      - name: Capture SHA-labelled Lab 3 UI evidence
-        env:
-          EXPECTED_EVIDENCE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-        run: npm run capture:evidence:lab3 -- ci
+      - name: Verify Lab 4 planning traceability
+        run: npm run test:trace:lab4 -- --mode=planning
 
-      - name: Run full Lab 3 verification
+      - name: Run current Lab 4 aggregate verification
         run: npm run verify
 
-      - name: Upload Playwright release evidence
+      - name: Record source provenance
+        if: always()
+        run: |
+          echo "event=${{ github.event_name }}"
+          echo "source_sha=${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
+          echo "base_sha=${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || 'n/a' }}"
+          echo "ref=${{ github.ref }}"
+
+      - name: Upload Lab 4 current-run browser output
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lab3-ui-evidence-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-          path: artifacts/lab-03/screenshots/issue-52/
-          if-no-files-found: error
+          name: lab4-current-run-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: artifacts/lab-04/test-output/
+          if-no-files-found: ignore
           retention-days: 14
 
       - name: Upload Playwright diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: lab3-playwright-diagnostics-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          name: lab4-playwright-diagnostics-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           path: |
             playwright-report/
             test-results/

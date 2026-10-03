@@ -1,8 +1,8 @@
-﻿import { Prisma, type PrismaClient, type RequestedPriority, type TicketStatus } from "@prisma/client";
+import { Prisma, type PrismaClient, type RequestedPriority, type TicketStatus } from "@prisma/client";
 import type { Actor } from "../auth/actor.js";
 import { ApiError, validationError } from "../errors.js";
 import { isTicketStatus } from "../ticket-status.js";
-import { evaluateStatusTransition } from "./ticket-workflow.js";
+import { evaluateStatusTransition, type ResolutionWorkState } from "./ticket-workflow.js";
 
 const priorities = new Set<RequestedPriority>(["LOW", "MEDIUM", "HIGH"]);
 const claimableStatuses = new Set<TicketStatus>(["NEW", "OPEN", "IN_PROGRESS", "WAITING_FOR_REQUESTER", "RESOLVED", "REOPENED"]);
@@ -34,8 +34,17 @@ function conflict(message = "Ticket changed or the operation is no longer availa
 async function lockUser(tx: Prisma.TransactionClient, userId: number): Promise<void> {
   await tx.$queryRaw`SELECT id FROM "RequesterUser" WHERE id = ${userId} FOR UPDATE`;
 }
+async function lockUsers(tx: Prisma.TransactionClient, userIds: number[]): Promise<void> {
+  const ids = [...new Set(userIds)].sort((a, b) => a - b);
+  for (const userId of ids) await lockUser(tx, userId);
+}
 async function lockTicket(tx: Prisma.TransactionClient, ticketId: number): Promise<void> {
   await tx.$queryRaw`SELECT id FROM "Ticket" WHERE id = ${ticketId} FOR UPDATE`;
+}
+async function lockActions(tx: Prisma.TransactionClient, actionIds: number[]): Promise<void> {
+  for (const actionId of [...new Set(actionIds)].sort((a, b) => a - b)) {
+    await tx.$queryRaw`SELECT id FROM "ActionTaken" WHERE id = ${actionId} FOR UPDATE`;
+  }
 }
 async function eligibleUser(tx: Prisma.TransactionClient, userId: number) {
   return tx.user.findFirst({ where: { id: userId, active: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } }, select: { id: true } });
@@ -45,12 +54,109 @@ async function ticketState(tx: Prisma.TransactionClient, ticketId: number) {
     where: { id: ticketId },
     select: {
       id: true, ownerId: true, currentStatus: true, version: true,
+      workflowCycle: true,
       resolutionSummary: true, resolvedAt: true, closedAt: true,
       cancelReason: true, cancelledAt: true, requesterResolutionIndicatedAt: true,
     },
   });
   if (!ticket) throw new ApiError(404, "RESOURCE_NOT_FOUND", "Resource not found");
   return ticket;
+}
+
+const actionCancellationSelect = {
+  id: true,
+  version: true,
+  assignee: { select: { id: true, name: true, role: true } },
+  performedBy: { select: { id: true, name: true, role: true } },
+  description: true,
+  result: true,
+  followUpRequired: true,
+  followUpNote: true,
+  attachmentNotes: true,
+  status: true,
+} satisfies Prisma.ActionTakenSelect;
+
+type ActionCancellationRow = Prisma.ActionTakenGetPayload<{ select: typeof actionCancellationSelect }>;
+
+function actionRevisionSnapshot(action: ActionCancellationRow): Prisma.InputJsonObject {
+  return {
+    assignee: action.assignee,
+    performedBy: action.performedBy ?? null,
+    description: action.description,
+    result: action.result ?? null,
+    followUpRequired: action.followUpRequired,
+    followUpNote: action.followUpNote ?? null,
+    attachmentNotes: action.attachmentNotes ?? null,
+    status: action.status,
+  };
+}
+
+async function currentCycleActions(tx: Prisma.TransactionClient, ticketId: number, workflowCycle: number) {
+  const rows = await tx.actionTaken.findMany({
+    where: { ticketId, workflowCycle },
+    orderBy: { id: "asc" },
+    select: { id: true },
+  });
+  await lockActions(tx, rows.map((row) => row.id));
+  return tx.actionTaken.findMany({
+    where: { ticketId, workflowCycle },
+    orderBy: { id: "asc" },
+    select: {
+      id: true,
+      status: true,
+      followUpRequired: true,
+    },
+  });
+}
+
+function summarizeResolutionWork(actions: Array<{ status: string; followUpRequired: boolean }>): ResolutionWorkState {
+  return {
+    completedCount: actions.filter((action) => action.status === "COMPLETED").length,
+    outstandingCount: actions.filter((action) => action.status === "PENDING" || action.status === "IN_PROGRESS").length,
+    unresolvedFollowUpCount: actions.filter((action) => action.status !== "CANCELLED" && action.followUpRequired).length,
+  };
+}
+
+function resolutionConflict(reason: "COMPLETED_ACTION_REQUIRED" | "OUTSTANDING_ACTIONS" | "FOLLOW_UP_REQUIRED"): ApiError {
+  const fieldErrors = {
+    COMPLETED_ACTION_REQUIRED: "Complete at least one current-cycle Action before resolving",
+    OUTSTANDING_ACTIONS: "Complete or cancel all outstanding current-cycle Actions before resolving",
+    FOLLOW_UP_REQUIRED: "Clear required current-cycle follow-up before resolving",
+  } as const;
+  return new ApiError(409, "CONFLICT", "Ticket cannot be resolved yet", { status: fieldErrors[reason] });
+}
+
+async function cancelCurrentCycleActions(
+  tx: Prisma.TransactionClient,
+  actorId: number,
+  actionIds: number[],
+  cancellationReason: string,
+  now: Date,
+): Promise<void> {
+  for (const actionId of actionIds) {
+    const updated = await tx.actionTaken.update({
+      where: { id: actionId },
+      data: {
+        status: "CANCELLED",
+        cancelledAt: now,
+        cancelledById: actorId,
+        cancellationReason,
+        updatedById: actorId,
+        version: { increment: 1 },
+      },
+      select: actionCancellationSelect,
+    });
+    await tx.actionTakenRevision.create({
+      data: {
+        actionId,
+        actionVersion: updated.version,
+        eventType: "CANCELLED",
+        actorId,
+        createdAt: now,
+        snapshot: actionRevisionSnapshot(updated),
+      },
+    });
+  }
 }
 
 export function parseClaimBody(value: unknown) {
@@ -123,11 +229,16 @@ export async function updateTicketStatus(prisma: PrismaClient, actor: Actor, tic
   const snapshot = await prisma.ticket.findUnique({ where: { id: ticketId }, select: { ownerId: true } });
   if (!snapshot) throw new ApiError(404, "RESOURCE_NOT_FOUND", "Resource not found");
   await prisma.$transaction(async (tx) => {
-    if (snapshot.ownerId !== null) await lockUser(tx, snapshot.ownerId);
+    await lockUsers(tx, [actor.id, ...(snapshot.ownerId === null ? [] : [snapshot.ownerId])]);
     await lockTicket(tx, ticketId);
     const ticket = await ticketState(tx, ticketId);
     if (ticket.version !== input.expectedVersion || ticket.ownerId !== snapshot.ownerId) throw conflict();
+    if (!await eligibleUser(tx, actor.id)) throw new ApiError(403, "FORBIDDEN", "You do not have permission to perform this action");
     const ownerEligible = ticket.ownerId === null ? false : Boolean(await eligibleUser(tx, ticket.ownerId));
+    const actions = input.status === "RESOLVED" || input.status === "CANCELLED"
+      ? await currentCycleActions(tx, ticketId, ticket.workflowCycle)
+      : [];
+    const resolutionWork = summarizeResolutionWork(actions);
     const decision = evaluateStatusTransition({
       from: ticket.currentStatus,
       to: input.status,
@@ -136,12 +247,16 @@ export async function updateTicketStatus(prisma: PrismaClient, actor: Actor, tic
       confirmed: input.confirmed,
       resolutionSummary: input.resolutionSummary,
       cancelReason: input.cancelReason,
+      resolutionWork,
     });
     if (!decision.allowed) {
       if (decision.reason === "CONFIRMATION_REQUIRED") throw validationError({ confirmed: "Confirmation is required" });
       if (decision.reason === "RESOLUTION_SUMMARY_INVALID") throw validationError({ resolutionSummary: "Resolution Summary must contain 10 to 2000 characters after trimming" });
       if (decision.reason === "CANCEL_REASON_INVALID") throw validationError({ cancelReason: "Cancel reason must contain 3 to 200 characters after trimming" });
       if (decision.reason === "ROLE_NOT_ALLOWED") throw new ApiError(403, "FORBIDDEN", "You do not have permission to perform this action");
+      if (decision.reason === "COMPLETED_ACTION_REQUIRED" || decision.reason === "OUTSTANDING_ACTIONS" || decision.reason === "FOLLOW_UP_REQUIRED") {
+        throw resolutionConflict(decision.reason);
+      }
       throw conflict();
     }
 
@@ -150,9 +265,34 @@ export async function updateTicketStatus(prisma: PrismaClient, actor: Actor, tic
     if (input.status === "RESOLVED") { data.resolutionSummary = decision.resolutionSummary!; data.resolvedAt = now; }
     if (input.status === "CLOSED") data.closedAt = now;
     if (input.status === "REOPENED") {
+      data.workflowCycle = { increment: 1 };
       data.resolutionSummary = null; data.resolvedAt = null; data.closedAt = null; data.requesterResolutionIndicatedAt = null;
     }
-    if (input.status === "CANCELLED") { data.cancelReason = decision.cancelReason!; data.cancelledAt = now; }
-    await tx.ticket.update({ where: { id: ticketId }, data });
+    if (input.status === "CANCELLED") {
+      const outstandingIds = actions
+        .filter((action) => action.status === "PENDING" || action.status === "IN_PROGRESS")
+        .map((action) => action.id);
+      await cancelCurrentCycleActions(tx, actor.id, outstandingIds, decision.cancelReason!, now);
+      data.cancelReason = decision.cancelReason!;
+      data.cancelledAt = now;
+    }
+    const updated = await tx.ticket.update({
+      where: { id: ticketId },
+      data,
+      select: { version: true, workflowCycle: true },
+    });
+    await tx.ticketWorkflowEvent.create({
+      data: {
+        ticketId,
+        ticketVersion: updated.version,
+        workflowCycle: updated.workflowCycle,
+        fromStatus: ticket.currentStatus,
+        toStatus: input.status,
+        actorId: actor.id,
+        createdAt: now,
+        resolutionSummary: input.status === "RESOLVED" ? decision.resolutionSummary! : null,
+        cancellationReason: input.status === "CANCELLED" ? decision.cancelReason! : null,
+      },
+    });
   });
 }

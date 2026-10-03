@@ -1,0 +1,611 @@
+{
+  "label": "issue78",
+  "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "expectedSourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "generatedAtUtc": "2026-10-01T14:29:12.008Z",
+  "command": "npm run capture:evidence:lab4 -- issue78",
+  "screenshotCount": 34,
+  "entries": [
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/desktop-requester.png",
+      "file": "actions-taken/desktop-requester.png",
+      "role": "Requester",
+      "route": "#/tickets/19142",
+      "scenario": "desktop Requester read-only Actions Taken",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-25"
+      ],
+      "testId": "RESP-01",
+      "rubricPart": "P9",
+      "viewport": "1440x900",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/desktop-staff.png",
+      "file": "actions-taken/desktop-staff.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/19142",
+      "scenario": "desktop Staff Actions Taken list and create editor",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-01",
+      "rubricPart": "P9",
+      "viewport": "1440x900",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/mobile-requester.png",
+      "file": "actions-taken/mobile-requester.png",
+      "role": "Requester",
+      "route": "#/tickets/19142",
+      "scenario": "mobile Requester read-only Actions Taken",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-25"
+      ],
+      "testId": "RESP-03",
+      "rubricPart": "P9",
+      "viewport": "390x844",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/mobile-staff.png",
+      "file": "actions-taken/mobile-staff.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/19142",
+      "scenario": "mobile Staff Actions Taken list and create editor",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-03",
+      "rubricPart": "P9",
+      "viewport": "390x844",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/requester-read-only.png",
+      "file": "actions-taken/requester-read-only.png",
+      "role": "Requester",
+      "route": "#/tickets/19136",
+      "scenario": "Owning Requester sees public completed Action and revision history without mutation controls",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-07"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P8",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/staff-ambiguous-retry.png",
+      "file": "actions-taken/staff-ambiguous-retry.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/19136",
+      "scenario": "Lost Action-create response freezes the original draft and offers same-request reconciliation",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-07",
+        "AC-24"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/staff-completed.png",
+      "file": "actions-taken/staff-completed.png",
+      "role": "Administrator",
+      "route": "#/staff/tickets/19136",
+      "scenario": "Completed Action with distinct recorder, assignee, and actual performer",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-02",
+        "AC-05",
+        "AC-07"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/staff-conflict-draft.png",
+      "file": "actions-taken/staff-conflict-draft.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/19136",
+      "scenario": "Stale Action edit preserves the entered draft beside refreshed authoritative state without blind retry",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-08",
+        "AC-24"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/staff-create-validation.png",
+      "file": "actions-taken/staff-create-validation.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/19136",
+      "scenario": "Staff Action create validation keeps the editor open and focuses the first invalid field",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-03",
+        "AC-25"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/staff-edit.png",
+      "file": "actions-taken/staff-edit.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/19136",
+      "scenario": "Staff edits current-cycle Action content while provenance remains read-only",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-02",
+        "AC-03"
+      ],
+      "testId": "E2E-01",
+      "rubricPart": "P6",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/tablet-requester.png",
+      "file": "actions-taken/tablet-requester.png",
+      "role": "Requester",
+      "route": "#/tickets/19142",
+      "scenario": "tablet Requester read-only Actions Taken",
+      "scenarioId": "L4-REQ-ACTIONS",
+      "mapping": [
+        "AC-06",
+        "AC-25"
+      ],
+      "testId": "RESP-02",
+      "rubricPart": "P9",
+      "viewport": "834x1112",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/actions-taken/tablet-staff.png",
+      "file": "actions-taken/tablet-staff.png",
+      "role": "IT Staff",
+      "route": "#/staff/tickets/19142",
+      "scenario": "tablet Staff Actions Taken list and create editor",
+      "scenarioId": "L4-STF-ACTIONS",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-02",
+      "rubricPart": "P9",
+      "viewport": "834x1112",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/administrator-dashboard/desktop.png",
+      "file": "administrator-dashboard/desktop.png",
+      "role": "Administrator",
+      "route": "#/staff/dashboard",
+      "scenario": "administrator Dashboard at desktop viewport",
+      "scenarioId": "L4-ADM-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-01",
+      "rubricPart": "P9",
+      "viewport": "1440x900",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/administrator-dashboard/mobile.png",
+      "file": "administrator-dashboard/mobile.png",
+      "role": "Administrator",
+      "route": "#/staff/dashboard",
+      "scenario": "administrator Dashboard at mobile viewport",
+      "scenarioId": "L4-ADM-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-03",
+      "rubricPart": "P9",
+      "viewport": "390x844",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/administrator-dashboard/states/empty.png",
+      "file": "administrator-dashboard/states/empty.png",
+      "role": "Administrator",
+      "route": "#/staff/dashboard",
+      "scenario": "Administrator Dashboard empty state with backend-confirmed zero counts",
+      "scenarioId": "L4-ADM-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/administrator-dashboard/states/forbidden.png",
+      "file": "administrator-dashboard/states/forbidden.png",
+      "role": "Administrator",
+      "route": "#/staff/dashboard",
+      "scenario": "Administrator Dashboard forbidden state without dashboard data",
+      "scenarioId": "L4-ADM-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/administrator-dashboard/states/loading.png",
+      "file": "administrator-dashboard/states/loading.png",
+      "role": "Administrator",
+      "route": "#/staff/dashboard",
+      "scenario": "Administrator Dashboard loading without placeholder metrics",
+      "scenarioId": "L4-ADM-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/administrator-dashboard/states/safe-failure.png",
+      "file": "administrator-dashboard/states/safe-failure.png",
+      "role": "Administrator",
+      "route": "#/staff/dashboard",
+      "scenario": "Administrator Dashboard safe API failure with a retry action",
+      "scenarioId": "L4-ADM-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/administrator-dashboard/tablet.png",
+      "file": "administrator-dashboard/tablet.png",
+      "role": "Administrator",
+      "route": "#/staff/dashboard",
+      "scenario": "administrator Dashboard at tablet viewport",
+      "scenarioId": "L4-ADM-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-02",
+      "rubricPart": "P9",
+      "viewport": "834x1112",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/desktop.png",
+      "file": "requester-dashboard/desktop.png",
+      "role": "Requester",
+      "route": "#/dashboard",
+      "scenario": "requester Dashboard at desktop viewport",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-01",
+      "rubricPart": "P9",
+      "viewport": "1440x900",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/mobile.png",
+      "file": "requester-dashboard/mobile.png",
+      "role": "Requester",
+      "route": "#/dashboard",
+      "scenario": "requester Dashboard at mobile viewport",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-03",
+      "rubricPart": "P9",
+      "viewport": "390x844",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/states/empty.png",
+      "file": "requester-dashboard/states/empty.png",
+      "role": "Requester",
+      "route": "#/dashboard",
+      "scenario": "Requester Dashboard empty state with backend-confirmed zero counts",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-15",
+        "AC-24"
+      ],
+      "testId": "UI-05",
+      "rubricPart": "P8",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/states/forbidden.png",
+      "file": "requester-dashboard/states/forbidden.png",
+      "role": "Requester",
+      "route": "#/dashboard",
+      "scenario": "Requester Dashboard forbidden state without Dashboard data",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-15",
+        "AC-24"
+      ],
+      "testId": "UI-05",
+      "rubricPart": "P8",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/states/loading.png",
+      "file": "requester-dashboard/states/loading.png",
+      "role": "Requester",
+      "route": "#/dashboard",
+      "scenario": "Requester Dashboard loading without placeholder metrics",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-15",
+        "AC-24"
+      ],
+      "testId": "UI-05",
+      "rubricPart": "P8",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/states/safe-failure.png",
+      "file": "requester-dashboard/states/safe-failure.png",
+      "role": "Requester",
+      "route": "#/dashboard",
+      "scenario": "Requester Dashboard safe API failure with a retry action",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-15",
+        "AC-24"
+      ],
+      "testId": "UI-05",
+      "rubricPart": "P8",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/states/session-expired.png",
+      "file": "requester-dashboard/states/session-expired.png",
+      "role": "Unauthenticated",
+      "route": "#/dashboard",
+      "scenario": "Unauthenticated Dashboard expired session routed to Login without protected data",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-15",
+        "AC-24"
+      ],
+      "testId": "UI-05",
+      "rubricPart": "P8",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/requester-dashboard/tablet.png",
+      "file": "requester-dashboard/tablet.png",
+      "role": "Requester",
+      "route": "#/dashboard",
+      "scenario": "requester Dashboard at tablet viewport",
+      "scenarioId": "L4-REQ-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-02",
+      "rubricPart": "P9",
+      "viewport": "834x1112",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/staff-dashboard/desktop.png",
+      "file": "staff-dashboard/desktop.png",
+      "role": "IT Staff",
+      "route": "#/staff/dashboard",
+      "scenario": "staff Dashboard at desktop viewport",
+      "scenarioId": "L4-STF-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-01",
+      "rubricPart": "P9",
+      "viewport": "1440x900",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/staff-dashboard/mobile.png",
+      "file": "staff-dashboard/mobile.png",
+      "role": "IT Staff",
+      "route": "#/staff/dashboard",
+      "scenario": "staff Dashboard at mobile viewport",
+      "scenarioId": "L4-STF-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-03",
+      "rubricPart": "P9",
+      "viewport": "390x844",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/staff-dashboard/states/empty.png",
+      "file": "staff-dashboard/states/empty.png",
+      "role": "IT Staff",
+      "route": "#/staff/dashboard",
+      "scenario": "IT Staff Dashboard empty state with backend-confirmed zero counts",
+      "scenarioId": "L4-STF-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/staff-dashboard/states/forbidden.png",
+      "file": "staff-dashboard/states/forbidden.png",
+      "role": "IT Staff",
+      "route": "#/staff/dashboard",
+      "scenario": "IT Staff Dashboard forbidden state without dashboard data",
+      "scenarioId": "L4-STF-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/staff-dashboard/states/loading.png",
+      "file": "staff-dashboard/states/loading.png",
+      "role": "IT Staff",
+      "route": "#/staff/dashboard",
+      "scenario": "IT Staff Dashboard loading without placeholder metrics",
+      "scenarioId": "L4-STF-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/staff-dashboard/states/safe-failure.png",
+      "file": "staff-dashboard/states/safe-failure.png",
+      "role": "IT Staff",
+      "route": "#/staff/dashboard",
+      "scenario": "IT Staff Dashboard safe API failure with a retry action",
+      "scenarioId": "L4-STF-DASHBOARD",
+      "mapping": [
+        "AC-16",
+        "AC-24"
+      ],
+      "testId": "UI-06",
+      "rubricPart": "P5",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "viewport": "1280x720",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    },
+    {
+      "screenshot": "artifacts/lab-04/screenshots/issue78-632a16a/staff-dashboard/tablet.png",
+      "file": "staff-dashboard/tablet.png",
+      "role": "IT Staff",
+      "route": "#/staff/dashboard",
+      "scenario": "staff Dashboard at tablet viewport",
+      "scenarioId": "L4-STF-DASHBOARD",
+      "mapping": [
+        "AC-25"
+      ],
+      "testId": "RESP-02",
+      "rubricPart": "P9",
+      "viewport": "834x1112",
+      "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+      "command": "npm run capture:evidence:lab4 -- issue78",
+      "sourceSha": "632a16adb2591ee0dcbf232831c978b0fae981f6"
+    }
+  ]
+}

@@ -19,6 +19,9 @@ import { createStaffRouter } from "./staff/staff-routes.js";
 import { createPublicComment, indicateResolution, listPublicComments } from "./communication/communication-service.js";
 import { parseCommunicationBody, parseResolutionIndicationBody } from "./communication/communication-contract.js";
 import { createAdminRouter } from "./admin/user-routes.js";
+import { createActionsRouter } from "./actions/action-routes.js";
+import { listWorkflowEvents, parseWorkflowEventQuery } from "./staff/workflow-events.js";
+import { createDashboardRouter } from "./dashboard/dashboard-routes.js";
 // getPrisma() is your lazy database handle. Call it INSIDE a route when you
 // need the DB (Issue 4). It is intentionally unused until then.
 void getPrisma;
@@ -40,8 +43,28 @@ app.use("/api/auth", (_req: Request, res: Response, next: NextFunction) => {
 });
 app.use(express.json());
 app.use("/api/auth", createAuthRouter({ infrastructureMounted: true }));
+app.use("/api", createActionsRouter());
 app.use("/api/staff", createStaffRouter());
 app.use("/api/admin", createAdminRouter());
+app.use("/api/dashboard", createDashboardRouter());
+
+app.get("/api/tickets/:ticketId/workflow-events", requireActor(), requireCapability("ACTION_READ"), async (req: Request, res: Response) => {
+  try {
+    const rawTicketId = req.params.ticketId;
+    if (!/^[1-9]\d*$/.test(rawTicketId)) throw validationError({ ticketId: "Ticket ID must be a positive integer" });
+    const ticketId = Number(rawTicketId);
+    if (!Number.isSafeInteger(ticketId)) throw validationError({ ticketId: "Ticket ID must be a positive integer" });
+    res.status(200).json(await listWorkflowEvents(
+      getPrisma(),
+      req.actor!,
+      ticketId,
+      parseWorkflowEventQuery(req.query as Record<string, unknown>),
+    ));
+  } catch (error) {
+    const safe = safeErrorBody(error, "Unable to load Ticket workflow history");
+    res.status(safe.status).json(safe.body);
+  }
+});
 
 app.post(
   "/api/tickets",

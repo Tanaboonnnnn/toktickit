@@ -28,12 +28,25 @@ export interface StaffQueueResponse { items: StaffQueueItem[]; page: number; pag
 export interface StaffQueueQuery {
   search?: string; categoryId?: number; currentStatus?: TicketStatus; requestedPriority?: RequestedPriority;
   itPriority?: RequestedPriority; owner?: StaffOwnerFilter; sortBy?: StaffSortField; sortDirection?: StaffSortDirection;
+  statusGroup?: "active" | "resolved"; resolvedFrom?: string; resolvedBefore?: string;
   page?: number; pageSize?: StaffPageSize;
+}
+export type ResolutionBlocker = "COMPLETED_ACTION_REQUIRED" | "OUTSTANDING_ACTIONS" | "FOLLOW_UP_REQUIRED";
+export interface StaffTicketWorkflow {
+  permittedTransitions: TicketStatus[];
+  resolution: {
+    completedCount: number;
+    outstandingCount: number;
+    unresolvedFollowUpCount: number;
+    blockers: ResolutionBlocker[];
+  };
 }
 export interface StaffTicketDetail extends StaffQueueItem {
   relatedSystem: Category; description: string; attachments: TicketAttachmentMetadata[];
   resolutionSummary: string | null; resolvedAt: string | null; closedAt: string | null; cancelReason: string | null;
   cancelledAt: string | null; requesterResolutionIndicatedAt: string | null;
+  workflowCycle: number;
+  workflow: StaffTicketWorkflow;
 }
 
 const priorities = ["LOW", "MEDIUM", "HIGH"] as const;
@@ -47,7 +60,16 @@ function userSummary(value: unknown): value is StaffUserSummary {
   return reference(value) && roles.includes((value as StaffUserSummary).role);
 }
 function priority(value: unknown): value is RequestedPriority { return priorities.includes(value as RequestedPriority); }
-function queueItem(value: unknown): value is StaffQueueItem {
+const resolutionBlockers: ResolutionBlocker[] = ["COMPLETED_ACTION_REQUIRED", "OUTSTANDING_ACTIONS", "FOLLOW_UP_REQUIRED"];
+function workflow(value: unknown): value is StaffTicketWorkflow {
+  if (!isRecord(value) || !Array.isArray(value.permittedTransitions) || !value.permittedTransitions.every(isTicketStatus) || !isRecord(value.resolution)) return false;
+  const resolution = value.resolution;
+  return Number.isSafeInteger(resolution.completedCount) && (resolution.completedCount as number) >= 0
+    && Number.isSafeInteger(resolution.outstandingCount) && (resolution.outstandingCount as number) >= 0
+    && Number.isSafeInteger(resolution.unresolvedFollowUpCount) && (resolution.unresolvedFollowUpCount as number) >= 0
+    && Array.isArray(resolution.blockers) && resolution.blockers.every((item) => resolutionBlockers.includes(item as ResolutionBlocker));
+}
+export function isStaffQueueItem(value: unknown): value is StaffQueueItem {
   if (!isRecord(value)) return false;
   return Number.isSafeInteger(value.id) && typeof value.ticketNumber === "string" && typeof value.summary === "string"
     && reference(value.category) && requester(value.requester) && priority(value.requestedPriority) && priority(value.itPriority)
@@ -56,7 +78,7 @@ function queueItem(value: unknown): value is StaffQueueItem {
 }
 function queueResponse(value: unknown): value is StaffQueueResponse {
   if (!isRecord(value)) return false;
-  return Array.isArray(value.items) && value.items.every(queueItem) && Number.isSafeInteger(value.page) && (value.page as number) >= 1
+  return Array.isArray(value.items) && value.items.every(isStaffQueueItem) && Number.isSafeInteger(value.page) && (value.page as number) >= 1
     && [10, 20, 50].includes(value.pageSize as number) && Number.isSafeInteger(value.totalItems) && (value.totalItems as number) >= 0
     && Number.isSafeInteger(value.totalPages) && (value.totalPages as number) >= 0;
 }
@@ -68,17 +90,22 @@ function attachment(value: unknown): value is TicketAttachmentMetadata {
     && (value.removalReason === null || typeof value.removalReason === "string") && (value.downloadUrl === null || typeof value.downloadUrl === "string");
 }
 function detail(value: unknown): value is StaffTicketDetail {
-  if (!queueItem(value) || !isRecord(value)) return false;
+  if (!isStaffQueueItem(value) || !isRecord(value)) return false;
   return reference(value.relatedSystem) && typeof value.description === "string" && Array.isArray(value.attachments) && value.attachments.every(attachment)
     && (value.resolutionSummary === null || typeof value.resolutionSummary === "string")
     && (value.resolvedAt === null || typeof value.resolvedAt === "string") && (value.closedAt === null || typeof value.closedAt === "string")
     && (value.cancelReason === null || typeof value.cancelReason === "string") && (value.cancelledAt === null || typeof value.cancelledAt === "string")
-    && (value.requesterResolutionIndicatedAt === null || typeof value.requesterResolutionIndicatedAt === "string");
+    && (value.requesterResolutionIndicatedAt === null || typeof value.requesterResolutionIndicatedAt === "string")
+    && Number.isSafeInteger(value.workflowCycle) && (value.workflowCycle as number) >= 1
+    && workflow(value.workflow);
 }
 function append(params: URLSearchParams, query: StaffQueueQuery): void {
   const search = query.search?.trim(); if (search) params.set("search", search);
   if (query.categoryId) params.set("categoryId", String(query.categoryId));
   if (query.currentStatus) params.set("currentStatus", query.currentStatus);
+  if (query.statusGroup === "active" || query.statusGroup === "resolved") params.set("statusGroup", query.statusGroup);
+  if (query.resolvedFrom) params.set("resolvedFrom", query.resolvedFrom);
+  if (query.resolvedBefore) params.set("resolvedBefore", query.resolvedBefore);
   if (query.requestedPriority) params.set("requestedPriority", query.requestedPriority);
   if (query.itPriority) params.set("itPriority", query.itPriority);
   const owner = query.owner ?? "all"; params.set("owner", typeof owner === "number" ? String(owner) : owner);

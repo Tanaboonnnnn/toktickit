@@ -16,7 +16,7 @@ test("E2E-05 renders owned read-only detail and denies a foreign Ticket", async 
   await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "My Tickets" }).click();
   await page.getByRole("button", { name: "View ticket" }).first().click();
   await expect(page.getByRole("heading", { name: "Ticket Detail" })).toBeVisible();
-  await expect(page.getByText(ticket.ticketNumber)).toBeVisible();
+  await expect(page.getByText(ticket.ticketNumber, { exact: true })).toBeVisible();
   await expect(page.getByText(ticket.summary)).toBeVisible();
   await expect(page.getByText("Ticket information")).toBeVisible();
   await expect(page.getByText(`${fixture.tag}-removed.pdf`).first()).toBeVisible();

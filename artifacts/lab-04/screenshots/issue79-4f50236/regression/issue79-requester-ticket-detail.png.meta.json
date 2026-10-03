@@ -1,0 +1,18 @@
+{
+  "file": "regression/issue79-requester-ticket-detail.png",
+  "role": "Requester",
+  "route": "#/tickets/5102",
+  "scenario": "Requester reads owned Ticket and Actions while Internal Notes remain private after an Attachment failure",
+  "scenarioId": "L4-RETAINED-REGRESSION",
+  "mapping": [
+    "AC-06",
+    "AC-21",
+    "AC-22",
+    "AC-24",
+    "AC-25"
+  ],
+  "testId": "E2E-04",
+  "rubricPart": "P8",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0",
+  "viewport": "1280x720"
+}

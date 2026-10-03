@@ -1,0 +1,15 @@
+{
+  "file": "actions-taken/requester-read-only.png",
+  "role": "Requester",
+  "route": "#/tickets/19136",
+  "scenario": "Owning Requester sees public completed Action and revision history without mutation controls",
+  "scenarioId": "L4-REQ-ACTIONS",
+  "mapping": [
+    "AC-06",
+    "AC-07"
+  ],
+  "testId": "E2E-01",
+  "rubricPart": "P8",
+  "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "viewport": "1280x720"
+}

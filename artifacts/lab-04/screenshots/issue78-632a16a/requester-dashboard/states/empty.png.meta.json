@@ -1,0 +1,15 @@
+{
+  "file": "requester-dashboard/states/empty.png",
+  "role": "Requester",
+  "route": "#/dashboard",
+  "scenario": "Requester Dashboard empty state with backend-confirmed zero counts",
+  "scenarioId": "L4-REQ-DASHBOARD",
+  "mapping": [
+    "AC-15",
+    "AC-24"
+  ],
+  "testId": "UI-05",
+  "rubricPart": "P8",
+  "sourceRevision": "632a16adb2591ee0dcbf232831c978b0fae981f6",
+  "viewport": "1280x720"
+}

@@ -60,7 +60,7 @@ describe("UI-01 Login", () => {
 
     expect(await screen.findByText("Mali Requester")).toBeInTheDocument();
     expect(screen.getByText("Requester")).toBeInTheDocument();
-    expect(window.location.hash).toBe("#/tickets");
+    expect(window.location.hash).toBe("#/dashboard");
     expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/\/api\/auth\/csrf$/), expect.objectContaining({ credentials: "include" }));
     expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/\/api\/auth\/login$/), expect.objectContaining({
       method: "POST",

@@ -1,0 +1,14 @@
+{
+  "file": "actions-taken/staff-create-validation.png",
+  "role": "IT Staff",
+  "route": "#/staff/tickets/6779",
+  "scenario": "Staff Action create validation keeps the editor open and focuses the first invalid field",
+  "scenarioId": "L4-STF-ACTIONS",
+  "mapping": [
+    "AC-03",
+    "AC-25"
+  ],
+  "testId": "E2E-01",
+  "rubricPart": "P6",
+  "viewport": "1280x720"
+}

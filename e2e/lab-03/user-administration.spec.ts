@@ -46,6 +46,8 @@ async function login(page: Page, email: string, password: string, expectedHeadin
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Login" }).click();
+  await expect(page.getByRole("heading", { name: "Staff Dashboard" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("button", { name: "Users" }).click();
   await expect(page.getByRole("heading", { name: expectedHeading })).toBeVisible();
 }
 
@@ -97,6 +99,9 @@ test("E2E-05 Administrator creates, edits, resets and safely deactivates a User"
   });
   await page.getByRole("button", { name: "Close edit" }).click();
   await page.getByRole("button", { name: "Clear search/filters" }).click();
+  await search.fill(administrator.email);
+  await search.press("Enter");
+  await expect(page.getByText(administrator.email)).toBeVisible();
 
   const targetName = MANAGED_STAFF_NAME;
   const targetUpdatedName = MANAGED_STAFF_UPDATED_NAME;

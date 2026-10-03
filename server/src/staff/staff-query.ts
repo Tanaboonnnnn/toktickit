@@ -1,13 +1,14 @@
 import type { RequestedPriority } from "../ticket-contract.js";
 import { TICKET_STATUSES, isTicketStatus, type TicketStatusValue } from "../ticket-status.js";
 import { validationError } from "../errors.js";
+import { parseTicketStatusFilter, type TicketStatusFilter } from "../ticket-status-filter.js";
 
 export type StaffOwnerFilter = "all" | "unassigned" | "me" | number;
 export type StaffSortField = "updatedAt" | "createdAt" | "ticketNumber" | "itPriority";
 export type StaffSortDirection = "asc" | "desc";
 export type StaffPageSize = 10 | 20 | 50;
 
-export interface StaffTicketQuery {
+export interface StaffTicketQuery extends TicketStatusFilter {
   search?: string;
   categoryId?: number;
   currentStatus?: TicketStatusValue;
@@ -21,7 +22,7 @@ export interface StaffTicketQuery {
   orderBy: readonly [{ field: StaffSortField; direction: StaffSortDirection }, { field: "id"; direction: "desc" }];
 }
 
-const allowedParameters = new Set(["search", "categoryId", "currentStatus", "requestedPriority", "itPriority", "owner", "sortBy", "sortDirection", "page", "pageSize"]);
+const allowedParameters = new Set(["search", "categoryId", "currentStatus", "statusGroup", "resolvedFrom", "resolvedBefore", "requestedPriority", "itPriority", "owner", "sortBy", "sortDirection", "page", "pageSize"]);
 const priorities = new Set<RequestedPriority>(["LOW", "MEDIUM", "HIGH"]);
 const sortFields = new Set<StaffSortField>(["updatedAt", "createdAt", "ticketNumber", "itPriority"]);
 const sortDirections = new Set<StaffSortDirection>(["asc", "desc"]);
@@ -67,6 +68,7 @@ export function parseStaffTicketQuery(input: QueryInput): StaffTicketQuery {
   for (const key of values.keys()) if (!allowedParameters.has(key)) errors[key] = "Unknown query parameter";
 
   const raw = Object.fromEntries([...allowedParameters].map((key) => [key, readScalar(values, key, errors)])) as Record<string, string | undefined>;
+  const statusFilter = parseTicketStatusFilter(raw, errors);
   let search = raw.search?.trim();
   if (search === "") search = undefined;
   if (search && search.length > 120) errors.search = "Search must contain at most 120 characters";
@@ -114,6 +116,7 @@ export function parseStaffTicketQuery(input: QueryInput): StaffTicketQuery {
   }
   if (Object.keys(errors).length) throw validationError(errors);
   return {
+    ...statusFilter,
     ...(search ? { search } : {}), ...(categoryId ? { categoryId } : {}), ...(currentStatus ? { currentStatus } : {}),
     ...(requestedPriority ? { requestedPriority } : {}), ...(itPriority ? { itPriority } : {}),
     owner, sortBy, sortDirection, page, pageSize,

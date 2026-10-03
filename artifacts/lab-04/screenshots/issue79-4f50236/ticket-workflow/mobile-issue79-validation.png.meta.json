@@ -1,0 +1,16 @@
+{
+  "file": "ticket-workflow/mobile-issue79-validation.png",
+  "role": "IT Staff",
+  "route": "#/staff/tickets/5105",
+  "scenario": "mobile resolution remains disabled until its required summary is supplied",
+  "scenarioId": "L4-TICKET-WORKFLOW",
+  "mapping": [
+    "AC-10",
+    "AC-11",
+    "AC-25"
+  ],
+  "testId": "RESP-03",
+  "rubricPart": "P9",
+  "viewport": "390x844",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

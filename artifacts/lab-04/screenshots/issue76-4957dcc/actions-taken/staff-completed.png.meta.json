@@ -1,0 +1,15 @@
+{
+  "file": "actions-taken/staff-completed.png",
+  "role": "Administrator",
+  "route": "#/staff/tickets/6779",
+  "scenario": "Completed Action with distinct recorder, assignee, and actual performer",
+  "scenarioId": "L4-STF-ACTIONS",
+  "mapping": [
+    "AC-02",
+    "AC-05",
+    "AC-07"
+  ],
+  "testId": "E2E-01",
+  "rubricPart": "P6",
+  "viewport": "1280x720"
+}

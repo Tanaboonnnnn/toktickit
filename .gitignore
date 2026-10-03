@@ -17,6 +17,9 @@ artifacts/lab-03/screenshots/issue-52/*
 !artifacts/lab-03/screenshots/issue-52/README.md
 !artifacts/lab-03/screenshots/issue-52/repository-evidence-*/
 !artifacts/lab-03/screenshots/issue-52/repository-evidence-*/**
+# Lab 4 ordinary verification output is disposable. Grader-facing Lab 4
+# screenshots live under artifacts/lab-04/screenshots/ and are not blanket-ignored.
+artifacts/lab-04/test-output/
 # prisma
 server/prisma/*.db
 # private runtime attachment bytes

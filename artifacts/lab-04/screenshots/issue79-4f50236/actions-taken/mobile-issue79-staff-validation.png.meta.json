@@ -1,0 +1,17 @@
+{
+  "file": "actions-taken/mobile-issue79-staff-validation.png",
+  "role": "IT Staff",
+  "route": "#/staff/tickets/5105",
+  "scenario": "mobile Staff Action validation, private note, and workflow history",
+  "scenarioId": "L4-STF-ACTIONS",
+  "mapping": [
+    "AC-03",
+    "AC-23",
+    "AC-24",
+    "AC-25"
+  ],
+  "testId": "RESP-03",
+  "rubricPart": "P9",
+  "viewport": "390x844",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

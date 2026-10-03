@@ -1,0 +1,14 @@
+{
+  "file": "actions-taken/tablet-requester.png",
+  "role": "Requester",
+  "route": "#/tickets/6780",
+  "scenario": "tablet Requester read-only Actions Taken",
+  "scenarioId": "L4-REQ-ACTIONS",
+  "mapping": [
+    "AC-06",
+    "AC-25"
+  ],
+  "testId": "RESP-02",
+  "rubricPart": "P9",
+  "viewport": "834x1112"
+}

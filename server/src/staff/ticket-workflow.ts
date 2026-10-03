@@ -1,4 +1,4 @@
-﻿import type { UserRole } from "@prisma/client";
+import type { UserRole } from "@prisma/client";
 import type { TicketStatusValue } from "../ticket-status.js";
 
 export type WorkflowReason =
@@ -7,7 +7,16 @@ export type WorkflowReason =
   | "OWNER_REQUIRED"
   | "CONFIRMATION_REQUIRED"
   | "RESOLUTION_SUMMARY_INVALID"
-  | "CANCEL_REASON_INVALID";
+  | "CANCEL_REASON_INVALID"
+  | "COMPLETED_ACTION_REQUIRED"
+  | "OUTSTANDING_ACTIONS"
+  | "FOLLOW_UP_REQUIRED";
+
+export interface ResolutionWorkState {
+  completedCount: number;
+  outstandingCount: number;
+  unresolvedFollowUpCount: number;
+}
 
 export interface StatusTransitionInput {
   from: TicketStatusValue;
@@ -17,6 +26,7 @@ export interface StatusTransitionInput {
   confirmed?: boolean;
   resolutionSummary?: string;
   cancelReason?: string;
+  resolutionWork?: ResolutionWorkState;
 }
 
 export interface WorkflowDecision {
@@ -43,6 +53,27 @@ function codePointLength(value: string): number {
   return Array.from(value).length;
 }
 
+export function resolutionBlockers(work: ResolutionWorkState): WorkflowReason[] {
+  const blockers: WorkflowReason[] = [];
+  if (work.completedCount < 1) blockers.push("COMPLETED_ACTION_REQUIRED");
+  if (work.outstandingCount > 0) blockers.push("OUTSTANDING_ACTIONS");
+  if (work.unresolvedFollowUpCount > 0) blockers.push("FOLLOW_UP_REQUIRED");
+  return blockers;
+}
+
+export function permittedStatusTransitions(
+  from: TicketStatusValue,
+  hasEligibleOwner: boolean,
+  resolutionWork: ResolutionWorkState,
+): readonly TicketStatusValue[] {
+  const blockers = resolutionBlockers(resolutionWork);
+  return [...ALLOWED[from]].filter((to) => {
+    if (to !== "CANCELLED" && !hasEligibleOwner) return false;
+    if (to === "RESOLVED" && blockers.length > 0) return false;
+    return true;
+  });
+}
+
 export function evaluateStatusTransition(input: StatusTransitionInput): WorkflowDecision {
   if (input.actorRole !== "IT_STAFF" && input.actorRole !== "ADMINISTRATOR") {
     return { allowed: false, reason: "ROLE_NOT_ALLOWED" };
@@ -62,6 +93,8 @@ export function evaluateStatusTransition(input: StatusTransitionInput): Workflow
     if (length < 10 || length > 2000) {
       return { allowed: false, reason: "RESOLUTION_SUMMARY_INVALID" };
     }
+    const blocker = input.resolutionWork ? resolutionBlockers(input.resolutionWork)[0] : "COMPLETED_ACTION_REQUIRED";
+    if (blocker) return { allowed: false, reason: blocker };
     return { allowed: true, resolutionSummary };
   }
   if (input.to === "CANCELLED") {

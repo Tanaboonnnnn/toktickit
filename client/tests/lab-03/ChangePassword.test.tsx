@@ -54,7 +54,7 @@ describe("UI-01 mandatory Change Password", () => {
     await user.click(screen.getByRole("button", { name: "Change Password" }));
 
     expect(await screen.findByText("Initial User")).toBeInTheDocument();
-    expect(window.location.hash).toBe("#/tickets");
+    expect(window.location.hash).toBe("#/dashboard");
     expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/\/api\/auth\/change-password$/), expect.objectContaining({
       method: "POST",
       credentials: "include",

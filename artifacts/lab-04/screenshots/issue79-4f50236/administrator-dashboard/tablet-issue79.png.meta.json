@@ -1,0 +1,15 @@
+{
+  "file": "administrator-dashboard/tablet-issue79.png",
+  "role": "Administrator",
+  "route": "#/staff/dashboard",
+  "scenario": "tablet Administrator reuses the Staff Dashboard",
+  "scenarioId": "L4-ADM-DASHBOARD",
+  "mapping": [
+    "AC-16",
+    "AC-25"
+  ],
+  "testId": "RESP-02",
+  "rubricPart": "P9",
+  "viewport": "834x1112",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0"
+}

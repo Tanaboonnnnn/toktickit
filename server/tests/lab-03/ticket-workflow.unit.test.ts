@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { TICKET_STATUSES, type TicketStatusValue } from "../../src/ticket-status.js";
 import { evaluateStatusTransition } from "../../src/staff/ticket-workflow.js";
 
@@ -27,6 +27,7 @@ describe("FLOW-01 Ticket workflow policy", () => {
           confirmed: true,
           resolutionSummary: to === "RESOLVED" ? "1234567890" : undefined,
           cancelReason: to === "CANCELLED" ? "abc" : undefined,
+          resolutionWork: to === "RESOLVED" ? { completedCount: 1, outstandingCount: 0, unresolvedFollowUpCount: 0 } : undefined,
         });
         expect(result.allowed, `${from} -> ${to}`).toBe(allowed[from].includes(to));
       }
@@ -52,13 +53,14 @@ describe("FLOW-01 Ticket workflow policy", () => {
       from: from[to], to, actorRole: "IT_STAFF", hasEligibleOwner: true, confirmed: false,
       resolutionSummary: to === "RESOLVED" ? "1234567890" : undefined,
       cancelReason: to === "CANCELLED" ? "abc" : undefined,
+      resolutionWork: to === "RESOLVED" ? { completedCount: 1, outstandingCount: 0, unresolvedFollowUpCount: 0 } : undefined,
     });
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe("CONFIRMATION_REQUIRED");
   });
 
   it("validates trimmed resolution summary boundaries", () => {
-    expect(evaluateStatusTransition({ from: "IN_PROGRESS", to: "RESOLVED", actorRole: "IT_STAFF", hasEligibleOwner: true, confirmed: true, resolutionSummary: " 1234567890 " }).allowed).toBe(true);
+    expect(evaluateStatusTransition({ from: "IN_PROGRESS", to: "RESOLVED", actorRole: "IT_STAFF", hasEligibleOwner: true, confirmed: true, resolutionSummary: " 1234567890 ", resolutionWork: { completedCount: 1, outstandingCount: 0, unresolvedFollowUpCount: 0 } }).allowed).toBe(true);
     expect(evaluateStatusTransition({ from: "IN_PROGRESS", to: "RESOLVED", actorRole: "IT_STAFF", hasEligibleOwner: true, confirmed: true, resolutionSummary: "123456789" }).reason).toBe("RESOLUTION_SUMMARY_INVALID");
     expect(evaluateStatusTransition({ from: "IN_PROGRESS", to: "RESOLVED", actorRole: "IT_STAFF", hasEligibleOwner: true, confirmed: true, resolutionSummary: "x".repeat(2001) }).reason).toBe("RESOLUTION_SUMMARY_INVALID");
   });

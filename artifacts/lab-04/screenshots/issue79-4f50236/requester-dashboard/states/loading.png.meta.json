@@ -1,0 +1,15 @@
+{
+  "file": "requester-dashboard/states/loading.png",
+  "role": "Requester",
+  "route": "#/dashboard",
+  "scenario": "Requester Dashboard loading without placeholder metrics",
+  "scenarioId": "L4-REQ-DASHBOARD",
+  "mapping": [
+    "AC-15",
+    "AC-24"
+  ],
+  "testId": "UI-05",
+  "rubricPart": "P8",
+  "sourceRevision": "4f502367d26f72dac343183cfa58e1af0dd7a2f0",
+  "viewport": "1280x720"
+}

@@ -3,8 +3,10 @@ import type { Actor } from "../auth/actor.js";
 import { ApiError, validationError } from "../errors.js";
 import { serializeAttachment } from "../attachment-service.js";
 import type { StaffTicketQuery } from "./staff-query.js";
+import { ticketStatusWhere } from "../ticket-status-filter.js";
+import { permittedStatusTransitions, resolutionBlockers, type ResolutionWorkState } from "./ticket-workflow.js";
 
-const queueSelect = {
+export const queueSelect = {
   id: true, ticketNumber: true, summary: true,
   category: { select: { id: true, name: true } },
   requester: { select: { id: true, name: true, email: true } },
@@ -15,6 +17,7 @@ const queueSelect = {
 
 const detailSelect = {
   ...queueSelect,
+  workflowCycle: true,
   relatedSystem: { select: { id: true, name: true } },
   description: true,
   attachments: { orderBy: [{ createdAt: "asc" as const }, { id: "asc" as const }], select: { id: true, ticketId: true, originalName: true, mimeType: true, sizeBytes: true, createdAt: true, removedAt: true, removalReason: true } },
@@ -24,19 +27,18 @@ const detailSelect = {
 type QueueRow = Prisma.TicketGetPayload<{ select: typeof queueSelect }>;
 type DetailRow = Prisma.TicketGetPayload<{ select: typeof detailSelect }>;
 
-function serializeQueue(row: QueueRow) {
+export function serializeQueue(row: QueueRow) {
   return { ...row, createdAt: row.createdAt.toISOString(), updatedAt: row.updatedAt.toISOString() };
 }
 
-function whereFor(actor: Actor, query: StaffTicketQuery): Prisma.TicketWhereInput {
-  const where: Prisma.TicketWhereInput = {};
+export function whereFor(actor: Actor, query: StaffTicketQuery): Prisma.TicketWhereInput {
+  const where: Prisma.TicketWhereInput = ticketStatusWhere(query);
   if (query.search) where.OR = [
     { ticketNumber: { contains: query.search, mode: "insensitive" } },
     { summary: { contains: query.search, mode: "insensitive" } },
     { requester: { name: { contains: query.search, mode: "insensitive" } } },
   ];
   if (query.categoryId) where.categoryId = query.categoryId;
-  if (query.currentStatus) where.currentStatus = query.currentStatus;
   if (query.requestedPriority) where.requestedPriority = query.requestedPriority;
   if (query.itPriority) where.itPriority = query.itPriority;
   if (query.owner === "unassigned") where.ownerId = null;
@@ -68,12 +70,28 @@ export async function listStaffTickets(prisma: PrismaClient, actor: Actor, query
 export async function getStaffTicketDetail(prisma: PrismaClient, ticketId: number) {
   const row = await prisma.ticket.findUnique({ where: { id: ticketId }, select: detailSelect });
   if (!row) throw new ApiError(404, "RESOURCE_NOT_FOUND", "Resource not found");
+  const [completedCount, outstandingCount, unresolvedFollowUpCount, ownerEligibleCount] = await Promise.all([
+    prisma.actionTaken.count({ where: { ticketId, workflowCycle: row.workflowCycle, status: "COMPLETED" } }),
+    prisma.actionTaken.count({ where: { ticketId, workflowCycle: row.workflowCycle, status: { in: ["PENDING", "IN_PROGRESS"] } } }),
+    prisma.actionTaken.count({ where: { ticketId, workflowCycle: row.workflowCycle, status: { not: "CANCELLED" }, followUpRequired: true } }),
+    row.owner === null
+      ? Promise.resolve(0)
+      : prisma.user.count({ where: { id: row.owner.id, active: true, role: { in: ["IT_STAFF", "ADMINISTRATOR"] } } }),
+  ]);
+  const resolution: ResolutionWorkState = { completedCount, outstandingCount, unresolvedFollowUpCount };
   return {
     ...serializeQueue(row), relatedSystem: row.relatedSystem, description: row.description,
     attachments: row.attachments.map(serializeAttachment), resolutionSummary: row.resolutionSummary,
     resolvedAt: row.resolvedAt?.toISOString() ?? null, closedAt: row.closedAt?.toISOString() ?? null,
     cancelReason: row.cancelReason, cancelledAt: row.cancelledAt?.toISOString() ?? null,
     requesterResolutionIndicatedAt: row.requesterResolutionIndicatedAt?.toISOString() ?? null,
+    workflow: {
+      permittedTransitions: permittedStatusTransitions(row.currentStatus, ownerEligibleCount > 0, resolution),
+      resolution: {
+        ...resolution,
+        blockers: resolutionBlockers(resolution),
+      },
+    },
   };
 }
 

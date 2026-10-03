@@ -1,4 +1,4 @@
-﻿import { randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { AuthFixture } from "./support/auth-fixture.js";
@@ -60,6 +60,13 @@ afterAll(async () => {
   await fixture.prisma.internalNote.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.publicComment.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.attachment.deleteMany({ where: { ticketId: { in: ticketIds } } });
+  const actions = await fixture.prisma.actionTaken.findMany({ where: { ticketId: { in: ticketIds } }, select: { id: true } });
+  const actionIds = actions.map((action) => action.id);
+  if (actionIds.length > 0) {
+    await fixture.prisma.actionTakenRevision.deleteMany({ where: { actionId: { in: actionIds } } });
+    await fixture.prisma.actionTaken.deleteMany({ where: { id: { in: actionIds } } });
+  }
+  await fixture.prisma.ticketWorkflowEvent.deleteMany({ where: { ticketId: { in: ticketIds } } });
   await fixture.prisma.ticket.deleteMany({ where: { id: { in: ticketIds } } });
   await fixture.prisma.category.deleteMany({ where: { id: categoryId || -1 } });
   await fixture.prisma.relatedSystem.deleteMany({ where: { id: systemId || -1 } });
@@ -122,6 +129,23 @@ describe("FLOW-02 Staff Ticket operations API", () => {
     expect(noConfirm.status).toBe(400);
     expect((await fixture.prisma.ticket.findUniqueOrThrow({ where: { id: created.id } })).currentStatus).toBe("IN_PROGRESS");
 
+    await fixture.prisma.actionTaken.create({
+      data: {
+        ticketId: created.id,
+        workflowCycle: created.workflowCycle,
+        recordedById: fixture.staff.id,
+        assigneeId: fixture.staff.id,
+        performedById: fixture.staff.id,
+        description: "Retained Lab 3 workflow fixture with qualifying completed work",
+        result: "Work completed before formal resolution",
+        followUpRequired: false,
+        status: "COMPLETED",
+        updatedById: fixture.staff.id,
+        completedAt: new Date(),
+        clientRequestId: randomUUID(),
+        createFingerprint: `lab3-retained-${randomUUID()}`,
+      },
+    });
     const resolved = await mutate(agent, "post", `/api/staff/tickets/${created.id}/status`, { status: "RESOLVED", expectedVersion: created.version, confirmed: true, resolutionSummary: "  A valid resolution summary  " });
     expect(resolved.status).toBe(200);
     expect(resolved.body.ticket.currentStatus).toBe("RESOLVED");

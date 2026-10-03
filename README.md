@@ -10,6 +10,9 @@ application. The Lab 2 Development Requester selector/header identity mechanism 
 retired from the active application; Requester ownership now comes from the
 server-authenticated session.
 
+Lab 4 extends the same application with Actions Taken, Ticket workflow history, and
+Requester/Staff dashboards. Labs 1, 2 and 3 remain the retained regression baseline.
+
 ## Lab 3 authenticated Requester flow
 
 1. Sign in with an active TokTickIT User account.
@@ -26,7 +29,7 @@ Selection, and Change Requester are not part of the post-#45 application contrac
 
 ## Prerequisites
 
-- Node.js and npm
+- Node.js 22.12.0 or later within Node 22, Node 24.x, or Node 26+ and npm
 - PostgreSQL running locally or on an accessible server
 - Git
 
@@ -40,8 +43,9 @@ Copy-Item client/.env.example client/.env
 ```
 
 Edit `server/.env` and set `DATABASE_URL` to your own PostgreSQL connection
-string. Lab 2 integration tests also require a separate PostgreSQL database through
-`TEST_DATABASE_URL`. Lab 3 authentication additionally requires the exact frontend
+string. Database-backed server suites across Labs 2, 3 and 4 use a separate PostgreSQL
+database through `TEST_DATABASE_URL`; its database name must differ from
+`DATABASE_URL`. Lab 3 authentication additionally requires the exact frontend
 origin and a private session-signing secret of at least 32 characters. For example:
 
 ```text
@@ -103,35 +107,37 @@ npx prisma validate
 npx prisma generate
 npx prisma migrate deploy
 npm run prisma:seed
-npm run provision:migrated-users
 npx prisma migrate status
 ```
 
-`migrate deploy` applies the existing migration files; it does not create a new
-migration. The current Lab 3 migration evolves the existing Lab 2 data in place;
-do not reset or recreate the database to simulate an upgrade.
+`migrate deploy` applies the checked-in forward migrations; it does not create a
+migration. On an existing Lab 3 database it applies the Lab 4 schema in place. Do
+not reset or recreate the database to simulate an upgrade.
 
-`prisma:seed` runs the repeat-safe Lab 3 seed. It preserves existing edited User
-credentials, roles, activation state, and Ticket workflow state while creating any
-missing safe local fixtures required by Lab 3: Requester, IT Staff, and Administrator
-accounts, reference data, and mixed Ticket/status/comment/note examples. On a clean
-local database, newly created seed Users receive one-time initial passwords printed
-only to that local terminal and the database stores only Argon2id hashes.
+`prisma:seed` is the repeat-safe demo-data command for the current application. It
+creates missing Requester, IT Staff and Administrator accounts, reference data,
+Tickets, comments, notes and Lab 4 Actions/workflow states. It preserves edited
+credentials, roles, activation, ownership and workflow. New local accounts receive
+a one-time password printed only to that terminal; the database stores only its
+Argon2id hash. CI suppresses these password lines.
 
-`provision:migrated-users` is specifically for Requesters that already existed before
-the Lab 3 migration and therefore still have `passwordHash=null`. It generates a
-one-time random initial password, prints it once to the local terminal, stores only
-the Argon2id hash, keeps `mustChangePassword=true`, and skips accounts that were
-already provisioned. Treat printed initial passwords as local-only credentials: do
-not commit them, copy them into documentation, screenshots, issues, or Pull Requests,
-or share them outside the intended local handoff.
+Run `npm run provision:migrated-users` only when upgrading a database with
+pre-Lab-3 Requester accounts that still have no password hash. It provisions them
+once and skips accounts that already have a password. Treat any printed initial
+password as local-only; never copy it into Git, screenshots, issues or Pull Requests.
 
-Rerunning either seed or migrated-Requester provisioning must not rotate an existing
-credential or reset edited role/activation/workflow state. A provisioning rerun that
-finds no unprovisioned migrated Requester may legitimately report zero changes.
-`migrate status` checks the database connection and migration state after setup.
-Do not use destructive commands such as `prisma migrate reset` or `prisma db
-push` for this lab.
+Rerunning the seed or legacy-user provisioning must not rotate an existing
+credential or reset edited role/activation/workflow state. A provisioning rerun with
+no unprovisioned legacy Requester may report zero changes. `migrate status` checks
+the database connection and migration state after setup.
+
+Do not use destructive commands such as `prisma migrate reset` or `prisma db push`
+for this lab.
+
+There is no separate `demo` script. After migration and seeding, start the server
+and client with the `dev` commands above, then sign in with a seeded account. A new
+account's initial password is printed by the local seed command and must be changed
+on first sign-in; the repository does not provide a shared demo password.
 
 For a fresh clone, apply the checked-in migrations to the dedicated test database
 once before running the complete server suite. From `server`, temporarily point
@@ -230,14 +236,29 @@ cd ..\server
 npm test
 ```
 
-Run the managed Lab 2 browser verification from the repository root:
+Run the managed current-product browser verification from the repository root:
 
 ```powershell
 npm.cmd run test:e2e
 npm.cmd run test:responsive
 ```
 
-`test:e2e` runs the current Chromium E2E suite, collecting retained/evolved specs under `e2e/lab-02/` and Lab 3 specs under `e2e/lab-03/` as they are added. `test:responsive` runs the current Desktop (`1440×900`), Tablet (`834×1112`), and Mobile (`390×844`) responsive specs. Current screenshots write under `artifacts/lab-03/screenshots/` so submitted Lab 2 evidence is not overwritten. The supported scripts own API/client startup and cleanup; direct `npx playwright test` does not start those services. Run `npm.cmd run verify` for the aggregate current-suite gate.
+`test:e2e` discovers the retained Lab 2/Lab 3 suites and current `e2e/lab-04/**/*.spec.ts`. `test:responsive` dynamically discovers retained and current responsive specs at Desktop (`1440×900`), Tablet (`834×1112`), and Mobile (`390×844`) instead of keeping a fixed Lab 2 list. Ordinary managed browser runs redirect screenshot writes into ignored `artifacts/lab-04/test-output/`; they do not rewrite the frozen Lab 2/3 screenshot trees. The supported scripts own API/client startup and cleanup; direct `npx playwright test` does not start those services.
+
+Run the current Lab 4 verification from the repository root:
+
+```powershell
+npm.cmd run verify
+npm.cmd run test:trace:lab4 -- --mode=planning
+npm.cmd run test:e2e:lab4
+npm.cmd run test:responsive:lab4
+```
+
+The Lab 4 browser wrappers discover the current `e2e/lab-04/` specs and fail closed
+if a required suite is empty. Use increment mode only for an Issue with a reviewed
+Test-ID ownership map and executed evidence. Release mode requires every Test ID to
+be an executed Pass and belongs to final release verification; it is not a substitute
+for the full `verify` command.
 
 ## Lab 1 branch and review workflow
 
@@ -321,14 +342,40 @@ HEAD because it adds the PNG/metadata files themselves. No application code is a
 to change between that source SHA and the repository-evidence container commit. CI still
 provides the separate exact-current-PR-head artifact described above.
 
-### GitHub Actions CI for Lab 3
+### Historical Lab 3 CI evidence
 
-`.github/workflows/lab3-ci.yml` runs on pull requests targeting `lab3-staging` or
-`main`, and on pushes to those two integration branches. The Linux job provisions
-PostgreSQL with separate development/test database identities, installs all three
-lockfile scopes, generates Prisma Client, deploys migrations and local-only seed data
-to the dedicated test database, installs Chromium, captures the 41-image SHA-labelled
-UI evidence set, and runs the complete `npm run verify` gate. The UI evidence folder is
-uploaded as a GitHub Actions artifact named with the exact evidence-source SHA; Playwright
-diagnostics are uploaded on failure. CI credentials are ephemeral test values, not
-repository or personal secrets.
+Lab 3 used `.github/workflows/lab3-ci.yml` to verify `lab3-staging`/`main` and capture its fixed 41-image release evidence. That workflow belongs to the delivered Lab 3 history; Issue #72 replaces the active workflow file with the Lab 4 workflow below instead of continuing to run a Lab-3-named job against new integration commits. Historical Lab 3 Actions runs/artifacts remain the evidence for the delivered sprint and are not rewritten by Lab 4 verification.
+
+## Lab 4 branch, verification, and CI workflow
+
+```text
+feature/<issue>-lab4-<short-name> -> lab4-staging
+lab4-staging -> reviewed release PR -> main
+```
+
+Lab 4 continues the same staged-integration rule. Create each feature from the latest fetched `lab4-staging`; do not branch from a stale cached remote ref and do not commit directly to `lab4-staging` or `main`.
+
+`.github/workflows/lab4-ci.yml` is the current workflow for pull requests/pushes involving `lab4-staging` and `main`. It pins Node 22.12.0, installs all three lockfile scopes, generates Prisma Client, migrates/seeds the dedicated `toktickit_test` database, installs Chromium, checks Lab 4 planning traceability, and runs the aggregate verification gate. The job checks out the real PR-head SHA and prints source/base/ref provenance. Ordinary browser output is uploaded from `artifacts/lab-04/test-output/`; it never captures into frozen Lab 3 evidence directories.
+
+Future grader-facing Lab 4 evidence uses:
+
+```powershell
+npm.cmd run capture:evidence:lab4 -- candidate
+```
+
+That command requires a clean worktree, records the exact source SHA, refuses an empty Lab 4 browser suite, and builds its manifest from scenario/Test-ID/rubric metadata. It deliberately has no inherited “41 screenshots” completion rule; final screenshot coverage is driven by the reviewed Lab 4 contract and actual scenarios.
+
+## Repository layout
+
+```text
+client/                         React application and client tests
+server/prisma/                  schema, forward migrations and repeat-safe seed
+server/tests/lab-04/             Actions and dashboard API tests
+e2e/lab-04/                      Lab 4 browser and responsive tests
+scripts/                         verification and evidence tooling
+docs/lab-04/                     six handout files and the supporting regression map
+artifacts/lab-04/screenshots/    retained grader-facing screenshots
+```
+
+Routine Playwright output under `artifacts/lab-04/test-output/` is ignored by Git;
+grader-facing screenshots remain tracked.
