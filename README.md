@@ -29,7 +29,7 @@ Selection, and Change Requester are not part of the post-#45 application contrac
 
 ## Prerequisites
 
-- Node.js and npm
+- Node.js 22.12.0 or later within Node 22, Node 24.x, or Node 26+ and npm
 - PostgreSQL running locally or on an accessible server
 - Git
 
@@ -355,7 +355,7 @@ lab4-staging -> reviewed release PR -> main
 
 Lab 4 continues the same staged-integration rule. Create each feature from the latest fetched `lab4-staging`; do not branch from a stale cached remote ref and do not commit directly to `lab4-staging` or `main`.
 
-`.github/workflows/lab4-ci.yml` is the current workflow for pull requests/pushes involving `lab4-staging` and `main`. It pins Node 22, installs all three lockfile scopes, generates Prisma Client, migrates/seeds the dedicated `toktickit_test` database, installs Chromium, checks Lab 4 planning traceability, and runs the aggregate verification gate. The job checks out the real PR-head SHA and prints source/base/ref provenance. Ordinary browser output is uploaded from `artifacts/lab-04/test-output/`; it never captures into frozen Lab 3 evidence directories.
+`.github/workflows/lab4-ci.yml` is the current workflow for pull requests/pushes involving `lab4-staging` and `main`. It pins Node 22.12.0, installs all three lockfile scopes, generates Prisma Client, migrates/seeds the dedicated `toktickit_test` database, installs Chromium, checks Lab 4 planning traceability, and runs the aggregate verification gate. The job checks out the real PR-head SHA and prints source/base/ref provenance. Ordinary browser output is uploaded from `artifacts/lab-04/test-output/`; it never captures into frozen Lab 3 evidence directories.
 
 Future grader-facing Lab 4 evidence uses:
 
