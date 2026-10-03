@@ -33,8 +33,8 @@ GitHub review events establish these usernames only. Course names and student ID
 | [#88](https://github.com/Tanaboonnnnn/toktickit/pull/88) | Role dashboards and round-trip navigation | @Peepipat-Suesoongnuen | Approved at [2026-10-01 15:37:50](https://github.com/Tanaboonnnnn/toktickit/pull/88#pullrequestreview-5381699473). |
 | [#89](https://github.com/Tanaboonnnnn/toktickit/pull/89) | Integrated regression, security and visual hardening | @L0u1sss | Approved at [2026-10-01 22:18:14](https://github.com/Tanaboonnnnn/toktickit/pull/89#pullrequestreview-5386265955). |
 | [#90](https://github.com/Tanaboonnnnn/toktickit/pull/90) | Release documentation and verification evidence | @Peepipat-Suesoongnuen | Approved at [2026-10-02 16:05:10](https://github.com/Tanaboonnnnn/toktickit/pull/90#pullrequestreview-5394000598). |
-| [#91](https://github.com/Tanaboonnnnn/toktickit/pull/91) | Reconcile PR #90 review evidence | @thananun-7203 | Approved at [2026-10-02 19:34:09](https://github.com/Tanaboonnnnn/toktickit/pull/91#pullrequestreview-5395452237) on exact head `094e527`. |
-| [#92](https://github.com/Tanaboonnnnn/toktickit/pull/92) | Dependency/toolchain hardening and audit cleanup | @L0u1sss | Requested changes on the Node prerequisite wording, then approved the corrected exact head `002ad781` at [2026-10-03 09:17:17](https://github.com/Tanaboonnnnn/toktickit/pull/92#pullrequestreview-5398477576). |
+| [#91](https://github.com/Tanaboonnnnn/toktickit/pull/91) | Reconcile PR #90 review evidence | @thananun-7203 | Approved at [2026-10-02 19:34:09](https://github.com/Tanaboonnnnn/toktickit/pull/91#pullrequestreview-5395987757) on exact head `094e527`. |
+| [#92](https://github.com/Tanaboonnnnn/toktickit/pull/92) | Dependency/toolchain hardening and audit cleanup | @L0u1sss | Requested changes on the Node prerequisite wording, then approved the corrected exact head `002ad781` at [2026-10-03 09:17:17](https://github.com/Tanaboonnnnn/toktickit/pull/92#pullrequestreview-5399941960). |
 
 ## Integration ledger
 
