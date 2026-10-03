@@ -1,6 +1,6 @@
 # Lab 4 Sprint Engineering Specification
 
-Status: **Reviewed Sprint 4 engineering contract. The approved Lab 4 product scope is implemented and integrated on `lab4-staging` through approved PR #93 (`cb205a6`). Executed product and regression evidence is recorded in `tests.md`; the student has human-verified the Project/Kanban state and confirmed the reflection in `ai-use.md`. The reviewed `lab4-staging -> main` promotion, exact-final-main verification, and the single submission PDF remain separate Issue #80 release gates.**
+Status: **Reviewed Sprint 4 engineering contract implemented and released to `main`. PR #95 was approved on exact head `7a4c8f8fd3a26ede6bb25445822faa71c5888f00` and merged as `39a7afbcd44da82990b5b79ecf0060830a7b960a`; exact-main Lab 4 CI run `37129118888` succeeded. Repository release evidence is recorded in `tests.md` and `reviewer.md`. The submission PDF is handled separately from the GitHub repository release.**
 
 Primary authority: `SE+Lab+4.pdf`. This contract extends the delivered Lab 3 `main` baseline `d41ab98d9d40266b355fe5fb3b3bcb193df8a116` and preserves valid Labs 1-3 behavior unless this document explicitly evolves it.
 
@@ -326,7 +326,8 @@ Lab 4 Product Completion requires all of the following; a feature PR merge alone
 - Release candidate is freshly verified, staging -> main receives required real review/authorization, and exact resulting final `main` is verified again.
 - Final GitHub Project/Kanban evidence reflects actual workflow state rather than cosmetic movement.
 - README/setup/demo/migration/seed/test instructions are current by release time.
-- The final nine-part PDF is generated from real repository/review/test/evidence state and is visually inspected before submission.
+
+The handout's nine-part PDF is an external submission requirement. It is prepared from the released repository evidence but is not part of the GitHub Product Completion gate.
 
 ## 11. Assumptions and Decisions
 
