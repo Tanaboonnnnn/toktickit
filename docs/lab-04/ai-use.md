@@ -23,7 +23,7 @@ The table keeps ten representative prompts from actual Lab 4 work. Each prompt i
 
 ## My Reflection
 
-Pending student confirmation. The student must write or approve this first-person reflection after the specification-agent and coding-agent work is complete. No AI-generated personal reflection is included.
+Working on Lab 4 with AI was most useful when I used it to turn the handout into concrete rules and tests before I started coding. That made the later work easier to follow, especially around details I could have missed, such as who actually performed an Action, stale updates, concurrent changes, migration safety, and whether dashboard counts really matched the records behind them. I also learned that I still had to check the AI's suggestions myself. I compared review comments with the handout, reran tests and CI, and checked the repository state instead of assuming a generated answer was correct. By the end of the lab, I understood much better how the specification, tests, code review, and release evidence all need to agree with each other.
 
 ## Human ownership and decisions
 
