@@ -626,4 +626,3 @@ GitHub Actions run `36928778945` (`Lab 4 CI`) completed successfully on exact PR
 - Exact-main verification reported server **69 files / 407 tests**, client **37 files / 178 tests**, Lab 4 harness **9 Node checks + 3 server safety tests**, Lab 3 trace **50 Test IDs / 32 ACs**, Lab 4 trace **24 FR / 54 BR / 28 AC / 57 Test IDs**, Chromium E2E **70/70**, responsive **28/28**, and dependency installation with **0 vulnerabilities**.
 - Project/Kanban returned Issue #80 to **Done** after the approved promotion merge. `REL-01` and `REL-02` are Pass.
 - The submission PDF is prepared separately from the GitHub repository and is not a repository release gate. `PDF-01` remains an external/manual submission item.
-
