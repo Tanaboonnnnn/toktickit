@@ -49,4 +49,3 @@ Starting reviewed staging SHA: `88a8dcebe0bbcb9960bac62aae1a3fdc9253270d` after 
 | Historical evidence | Frozen Lab 3 evidence and source-bound Lab 4 Issue #79 screenshots | Preserved; no historical artifact rewrite |
 
 PR #92 changed dependency/tooling and release documentation only; it did not change application source, Prisma schema/migrations, seed behavior, product test cases, E2E scenarios, or grader-facing screenshots. The final-main regression checkpoint is intentionally separate and must run again after the reviewed `lab4-staging -> main` promotion.
-
